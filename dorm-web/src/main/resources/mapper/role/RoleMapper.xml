@@ -1,0 +1,359 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.waken.dorm.dao.role.RoleMapper" >
+  <resultMap id="BaseResultMap" type="com.waken.dorm.common.entity.role.Role" >
+    <id column="pk_role_id" property="pkRoleId" jdbcType="VARCHAR" />
+    <result column="role_name" property="roleName" jdbcType="VARCHAR" />
+    <result column="role_desc" property="roleDesc" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="INTEGER" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="create_user_id" property="createUserId" jdbcType="VARCHAR" />
+    <result column="last_modify_time" property="lastModifyTime" jdbcType="TIMESTAMP" />
+    <result column="last_modify_user_id" property="lastModifyUserId" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    pk_role_id, role_name, role_desc, status, create_time, create_user_id, last_modify_time, 
+    last_modify_user_id
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.waken.dorm.common.entity.role.RoleExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    from rm_role
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from rm_role
+    where pk_role_id = #{pkRoleId,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from rm_role
+    where pk_role_id = #{pkRoleId,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.waken.dorm.common.entity.role.RoleExample" >
+    delete from rm_role
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.waken.dorm.common.entity.role.Role" >
+    insert into rm_role (pk_role_id, role_name, role_desc, 
+      status, create_time, create_user_id, 
+      last_modify_time, last_modify_user_id)
+    values (#{pkRoleId,jdbcType=VARCHAR}, #{roleName,jdbcType=VARCHAR}, #{roleDesc,jdbcType=VARCHAR}, 
+      #{status,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, #{createUserId,jdbcType=VARCHAR}, 
+      #{lastModifyTime,jdbcType=TIMESTAMP}, #{lastModifyUserId,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.waken.dorm.common.entity.role.Role" >
+    insert into rm_role
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="pkRoleId != null" >
+        pk_role_id,
+      </if>
+      <if test="roleName != null" >
+        role_name,
+      </if>
+      <if test="roleDesc != null" >
+        role_desc,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="createUserId != null" >
+        create_user_id,
+      </if>
+      <if test="lastModifyTime != null" >
+        last_modify_time,
+      </if>
+      <if test="lastModifyUserId != null" >
+        last_modify_user_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="pkRoleId != null" >
+        #{pkRoleId,jdbcType=VARCHAR},
+      </if>
+      <if test="roleName != null" >
+        #{roleName,jdbcType=VARCHAR},
+      </if>
+      <if test="roleDesc != null" >
+        #{roleDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUserId != null" >
+        #{createUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="lastModifyTime != null" >
+        #{lastModifyTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lastModifyUserId != null" >
+        #{lastModifyUserId,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.waken.dorm.common.entity.role.RoleExample" resultType="java.lang.Integer" >
+    select count(*) from rm_role
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update rm_role
+    <set >
+      <if test="record.pkRoleId != null" >
+        pk_role_id = #{record.pkRoleId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.roleName != null" >
+        role_name = #{record.roleName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.roleDesc != null" >
+        role_desc = #{record.roleDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="record.status != null" >
+        status = #{record.status,jdbcType=INTEGER},
+      </if>
+      <if test="record.createTime != null" >
+        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.createUserId != null" >
+        create_user_id = #{record.createUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.lastModifyTime != null" >
+        last_modify_time = #{record.lastModifyTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.lastModifyUserId != null" >
+        last_modify_user_id = #{record.lastModifyUserId,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update rm_role
+    set pk_role_id = #{record.pkRoleId,jdbcType=VARCHAR},
+      role_name = #{record.roleName,jdbcType=VARCHAR},
+      role_desc = #{record.roleDesc,jdbcType=VARCHAR},
+      status = #{record.status,jdbcType=INTEGER},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      create_user_id = #{record.createUserId,jdbcType=VARCHAR},
+      last_modify_time = #{record.lastModifyTime,jdbcType=TIMESTAMP},
+      last_modify_user_id = #{record.lastModifyUserId,jdbcType=VARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.waken.dorm.common.entity.role.Role" >
+    update rm_role
+    <set >
+      <if test="roleName != null" >
+        role_name = #{roleName,jdbcType=VARCHAR},
+      </if>
+      <if test="roleDesc != null" >
+        role_desc = #{roleDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUserId != null" >
+        create_user_id = #{createUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="lastModifyTime != null" >
+        last_modify_time = #{lastModifyTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lastModifyUserId != null" >
+        last_modify_user_id = #{lastModifyUserId,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where pk_role_id = #{pkRoleId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.waken.dorm.common.entity.role.Role" >
+    update rm_role
+    set role_name = #{roleName,jdbcType=VARCHAR},
+      role_desc = #{roleDesc,jdbcType=VARCHAR},
+      status = #{status,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      create_user_id = #{createUserId,jdbcType=VARCHAR},
+      last_modify_time = #{lastModifyTime,jdbcType=TIMESTAMP},
+      last_modify_user_id = #{lastModifyUserId,jdbcType=VARCHAR}
+    where pk_role_id = #{pkRoleId,jdbcType=VARCHAR}
+  </update>
+  <select id="listAddedRoles" parameterType="com.waken.dorm.common.form.role.ListAddedRoleForm" resultType="com.waken.dorm.common.view.user.UserRoleRelView">
+    SELECT
+      ur.pk_user_role_id AS pkUserRoleId,
+      r.pk_role_id AS roleId,
+      r.role_name AS roleName,
+      r.role_desc AS roleDesc
+    FROM
+      rm_role r
+    INNER JOIN rm_user_role_rel ur ON ur.role_id = r.pk_role_id
+    WHERE
+      r.`status` = 1
+    AND r.pk_role_id IN(SELECT urr.role_id FROM rm_user_role_rel urr WHERE  urr.user_id=#{curUserId})
+    <if test="userId != null and userId != ''">
+      AND ur.user_id=#{userId,jdbcType=VARCHAR}
+    </if>
+    UNION
+    SELECT
+      '' AS pkUserRoleId,
+      r.pk_role_id AS roleId,
+      r.role_name AS roleName,
+      r.role_desc AS roleDesc
+    FROM
+      rm_role r
+    WHERE
+      r.`status` = 1
+    AND r.pk_role_id IN(SELECT urr.role_id FROM rm_user_role_rel urr WHERE  urr.user_id=#{curUserId})
+    AND NOT EXISTS (
+    SELECT
+    *
+    FROM
+    rm_user_role_rel ur
+    WHERE
+    ur.role_id = r.pk_role_id
+    <if test="userId != null and userId != ''">
+      AND ur.user_id=#{userId,jdbcType=VARCHAR}
+    </if>
+    )
+  </select>
+  <select id="listSuperAdminRoles" parameterType="java.lang.String" resultType="com.waken.dorm.common.view.user.UserRoleRelView">
+    SELECT
+      ur.pk_user_role_id AS pkUserRoleId,
+      r.pk_role_id AS roleId,
+      r.role_name AS roleName,
+      r.role_desc AS roleDesc
+    FROM
+      rm_role r
+    INNER JOIN rm_user_role_rel ur ON ur.role_id = r.pk_role_id
+    WHERE
+      r.`status` = 1
+      AND ur.user_id=#{userId,jdbcType=VARCHAR}
+    UNION
+    SELECT
+      '' AS pkUserRoleId,
+      r.pk_role_id AS roleId,
+      r.role_name AS roleName,
+      r.role_desc AS roleDesc
+    FROM
+      rm_role r
+    WHERE
+      r.`status` = 1
+    AND NOT EXISTS (
+    SELECT
+    *
+    FROM
+    rm_user_role_rel ur
+    WHERE
+    ur.role_id = r.pk_role_id
+    AND ur.user_id=#{userId,jdbcType=VARCHAR}
+    )
+  </select>
+  <select id="listUserRoleInfo" parameterType="java.lang.String" resultType="com.waken.dorm.common.view.user.UserRoleRelView">
+    SELECT
+    ur.pk_user_role_id AS pkUserRoleId,
+    r.pk_role_id AS roleId,
+    r.role_name AS roleName,
+    r.role_desc AS roleDesc
+    FROM
+    rm_role r
+    LEFT JOIN rm_user_role_rel ur ON ur.role_id = r.pk_role_id AND r.`status` != 0
+    WHERE
+    ur.`status` != 0
+    AND ur.user_id=#{curUserId,jdbcType=VARCHAR}
+  </select>
+  <select id="listUserRole" resultType="com.waken.dorm.common.view.role.UserRoleView">
+    SELECT
+    r.pk_role_id AS roleId,
+    r.role_name AS roleName
+    FROM rm_role r
+    WHERE r.`status` = 1
+  </select>
+  <update id="batchUpdateStatus" parameterType="java.util.Map">
+    <foreach collection="list" separator=";" item="ur">
+      update rm_role set
+      status = #{ur.status},
+      last_modify_time = #{ur.lastModifyTime},
+      last_modify_user_id = #{ur.lastModifyUserId}
+      where pk_role_id = #{ur.pkId}
+    </foreach>
+  </update>
+</mapper>

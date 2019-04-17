@@ -1,0 +1,371 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.waken.dorm.dao.school.SchoolMapper" >
+  <resultMap id="BaseResultMap" type="com.waken.dorm.common.entity.school.School" >
+    <id column="pk_school_id" property="pkSchoolId" jdbcType="VARCHAR" />
+    <result column="school_name" property="schoolName" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="INTEGER" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="create_user_id" property="createUserId" jdbcType="VARCHAR" />
+    <result column="last_modify_time" property="lastModifyTime" jdbcType="TIMESTAMP" />
+    <result column="last_modify_user_id" property="lastModifyUserId" jdbcType="VARCHAR" />
+    <result column="province_id" property="provinceId" jdbcType="INTEGER" />
+    <result column="city_id" property="cityId" jdbcType="INTEGER" />
+    <result column="area_id" property="areaId" jdbcType="INTEGER" />
+    <result column="memo" property="memo" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    pk_school_id, school_name, status, create_time, create_user_id, last_modify_time, 
+    last_modify_user_id, province_id, city_id, area_id, memo
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.waken.dorm.common.entity.school.SchoolExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    from rm_school
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from rm_school
+    where pk_school_id = #{pkSchoolId,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from rm_school
+    where pk_school_id = #{pkSchoolId,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.waken.dorm.common.entity.school.SchoolExample" >
+    delete from rm_school
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.waken.dorm.common.entity.school.School" >
+    insert into rm_school (pk_school_id, school_name, status, 
+      create_time, create_user_id, last_modify_time, 
+      last_modify_user_id, province_id, city_id, 
+      area_id, memo)
+    values (#{pkSchoolId,jdbcType=VARCHAR}, #{schoolName,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{createUserId,jdbcType=VARCHAR}, #{lastModifyTime,jdbcType=TIMESTAMP}, 
+      #{lastModifyUserId,jdbcType=VARCHAR}, #{provinceId,jdbcType=INTEGER}, #{cityId,jdbcType=INTEGER}, 
+      #{areaId,jdbcType=INTEGER}, #{memo,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.waken.dorm.common.entity.school.School" >
+    insert into rm_school
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="pkSchoolId != null" >
+        pk_school_id,
+      </if>
+      <if test="schoolName != null" >
+        school_name,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="createUserId != null" >
+        create_user_id,
+      </if>
+      <if test="lastModifyTime != null" >
+        last_modify_time,
+      </if>
+      <if test="lastModifyUserId != null" >
+        last_modify_user_id,
+      </if>
+      <if test="provinceId != null" >
+        province_id,
+      </if>
+      <if test="cityId != null" >
+        city_id,
+      </if>
+      <if test="areaId != null" >
+        area_id,
+      </if>
+      <if test="memo != null" >
+        memo,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="pkSchoolId != null" >
+        #{pkSchoolId,jdbcType=VARCHAR},
+      </if>
+      <if test="schoolName != null" >
+        #{schoolName,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUserId != null" >
+        #{createUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="lastModifyTime != null" >
+        #{lastModifyTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lastModifyUserId != null" >
+        #{lastModifyUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="provinceId != null" >
+        #{provinceId,jdbcType=INTEGER},
+      </if>
+      <if test="cityId != null" >
+        #{cityId,jdbcType=INTEGER},
+      </if>
+      <if test="areaId != null" >
+        #{areaId,jdbcType=INTEGER},
+      </if>
+      <if test="memo != null" >
+        #{memo,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.waken.dorm.common.entity.school.SchoolExample" resultType="java.lang.Integer" >
+    select count(*) from rm_school
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update rm_school
+    <set >
+      <if test="record.pkSchoolId != null" >
+        pk_school_id = #{record.pkSchoolId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.schoolName != null" >
+        school_name = #{record.schoolName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.status != null" >
+        status = #{record.status,jdbcType=INTEGER},
+      </if>
+      <if test="record.createTime != null" >
+        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.createUserId != null" >
+        create_user_id = #{record.createUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.lastModifyTime != null" >
+        last_modify_time = #{record.lastModifyTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.lastModifyUserId != null" >
+        last_modify_user_id = #{record.lastModifyUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.provinceId != null" >
+        province_id = #{record.provinceId,jdbcType=INTEGER},
+      </if>
+      <if test="record.cityId != null" >
+        city_id = #{record.cityId,jdbcType=INTEGER},
+      </if>
+      <if test="record.areaId != null" >
+        area_id = #{record.areaId,jdbcType=INTEGER},
+      </if>
+      <if test="record.memo != null" >
+        memo = #{record.memo,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update rm_school
+    set pk_school_id = #{record.pkSchoolId,jdbcType=VARCHAR},
+      school_name = #{record.schoolName,jdbcType=VARCHAR},
+      status = #{record.status,jdbcType=INTEGER},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      create_user_id = #{record.createUserId,jdbcType=VARCHAR},
+      last_modify_time = #{record.lastModifyTime,jdbcType=TIMESTAMP},
+      last_modify_user_id = #{record.lastModifyUserId,jdbcType=VARCHAR},
+      province_id = #{record.provinceId,jdbcType=INTEGER},
+      city_id = #{record.cityId,jdbcType=INTEGER},
+      area_id = #{record.areaId,jdbcType=INTEGER},
+      memo = #{record.memo,jdbcType=VARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.waken.dorm.common.entity.school.School" >
+    update rm_school
+    <set >
+      <if test="schoolName != null" >
+        school_name = #{schoolName,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUserId != null" >
+        create_user_id = #{createUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="lastModifyTime != null" >
+        last_modify_time = #{lastModifyTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lastModifyUserId != null" >
+        last_modify_user_id = #{lastModifyUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="provinceId != null" >
+        province_id = #{provinceId,jdbcType=INTEGER},
+      </if>
+      <if test="cityId != null" >
+        city_id = #{cityId,jdbcType=INTEGER},
+      </if>
+      <if test="areaId != null" >
+        area_id = #{areaId,jdbcType=INTEGER},
+      </if>
+      <if test="memo != null" >
+        memo = #{memo,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where pk_school_id = #{pkSchoolId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.waken.dorm.common.entity.school.School" >
+    update rm_school
+    set school_name = #{schoolName,jdbcType=VARCHAR},
+      status = #{status,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      create_user_id = #{createUserId,jdbcType=VARCHAR},
+      last_modify_time = #{lastModifyTime,jdbcType=TIMESTAMP},
+      last_modify_user_id = #{lastModifyUserId,jdbcType=VARCHAR},
+      province_id = #{provinceId,jdbcType=INTEGER},
+      city_id = #{cityId,jdbcType=INTEGER},
+      area_id = #{areaId,jdbcType=INTEGER},
+      memo = #{memo,jdbcType=VARCHAR}
+    where pk_school_id = #{pkSchoolId,jdbcType=VARCHAR}
+  </update>
+  <select id="selectByIds" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from rm_school
+    where pk_school_id in
+    <foreach collection="Ids" item="dramaId" open="(" close=")" separator=",">
+      #{dramaId}
+    </foreach>
+  </select>
+  <select id="listSchoolView" parameterType="com.waken.dorm.common.form.school.SchoolForm" resultType="com.waken.dorm.common.view.school.SchoolView">
+    SELECT
+    s.pk_school_id AS pkSchoolId,
+    us.user_name AS userName,
+    us.mobile,
+    us.email,
+    s.school_name AS schoolName,
+    s.`status`,
+    s.create_time AS createTime,
+    u.user_name AS createUserName,
+    s.last_modify_time AS lastModifyTime,
+    uu.user_name AS lastModifyUserName,
+    s.memo
+    FROM rm_school s
+    LEFT JOIN rm_school_user_rel sur ON sur.school_id = s.pk_school_id
+    LEFT JOIN rm_user us ON us.user_id = sur.user_id
+    LEFT JOIN rm_user u ON u.user_id = s.create_user_id
+    LEFT JOIN rm_user uu ON uu.user_id = s.last_modify_user_id
+    WHERE 1=1
+    <if test="pkSchoolId != null and pkSchoolId != ''">
+      and s.pk_school_id=#{pkSchoolId}
+    </if>
+    <if test="userName != null and userName != ''">
+      and us.user_name like '%${userName}%'
+    </if>
+    <if test="schoolName != null and schoolName != ''">
+      and s.school_name like '%${schoolName}%'
+    </if>
+    <if test="status != null">
+      and s.status=#{status}
+    </if>
+    <if test="createUserName != null and createUserName != ''">
+      and u.user_name like '%${createUserName}%'
+    </if>
+    <if test="lastModifyUserName != null and lastModifyUserName != ''">
+      and uu.user_name like '%${lastModifyUserName}%'
+    </if>
+    <if test="startTime != null">
+      AND s.create_time &gt;= #{startTime,jdbcType=TIMESTAMP}
+    </if>
+    <if test="endTime != null">
+      AND s.create_time &lt;= #{endTime,jdbcType=TIMESTAMP}
+    </if>
+    ORDER BY
+    s.last_modify_time DESC
+  </select>
+  <update id="batchUpdateStatus" parameterType="java.util.Map">
+    <foreach collection="list" separator=";" item="ur">
+      update rm_school set
+      status = #{ur.status},
+      last_modify_time = #{ur.lastModifyTime},
+      last_modify_user_id = #{ur.lastModifyUserId}
+      where pk_school_id = #{ur.pkId}
+    </foreach>
+  </update>
+</mapper>

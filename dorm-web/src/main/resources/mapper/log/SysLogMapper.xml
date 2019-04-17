@@ -1,0 +1,314 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.waken.dorm.dao.log.SysLogMapper" >
+  <resultMap id="BaseResultMap" type="com.waken.dorm.common.entity.log.SysLog" >
+    <id column="pk_log_id" property="pkLogId" jdbcType="VARCHAR" />
+    <result column="user_id" property="userId" jdbcType="VARCHAR" />
+    <result column="operation_content" property="operationContent" jdbcType="VARCHAR" />
+    <result column="duration" property="duration" jdbcType="INTEGER" />
+    <result column="method" property="method" jdbcType="VARCHAR" />
+    <result column="params" property="params" jdbcType="VARCHAR" />
+    <result column="ip" property="ip" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="location" property="location" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    pk_log_id, user_id, operation_content, duration, method, params, ip, create_time, 
+    location
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.waken.dorm.common.entity.log.SysLogExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    from rm_log
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from rm_log
+    where pk_log_id = #{pkLogId,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from rm_log
+    where pk_log_id = #{pkLogId,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.waken.dorm.common.entity.log.SysLogExample" >
+    delete from rm_log
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.waken.dorm.common.entity.log.SysLog" >
+    insert into rm_log (pk_log_id, user_id, operation_content, 
+      duration, method, params, 
+      ip, create_time, location
+      )
+    values (#{pkLogId,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR}, #{operationContent,jdbcType=VARCHAR}, 
+      #{duration,jdbcType=INTEGER}, #{method,jdbcType=VARCHAR}, #{params,jdbcType=VARCHAR}, 
+      #{ip,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{location,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.waken.dorm.common.entity.log.SysLog" >
+    insert into rm_log
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="pkLogId != null" >
+        pk_log_id,
+      </if>
+      <if test="userId != null" >
+        user_id,
+      </if>
+      <if test="operationContent != null" >
+        operation_content,
+      </if>
+      <if test="duration != null" >
+        duration,
+      </if>
+      <if test="method != null" >
+        method,
+      </if>
+      <if test="params != null" >
+        params,
+      </if>
+      <if test="ip != null" >
+        ip,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="location != null" >
+        location,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="pkLogId != null" >
+        #{pkLogId,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="operationContent != null" >
+        #{operationContent,jdbcType=VARCHAR},
+      </if>
+      <if test="duration != null" >
+        #{duration,jdbcType=INTEGER},
+      </if>
+      <if test="method != null" >
+        #{method,jdbcType=VARCHAR},
+      </if>
+      <if test="params != null" >
+        #{params,jdbcType=VARCHAR},
+      </if>
+      <if test="ip != null" >
+        #{ip,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="location != null" >
+        #{location,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.waken.dorm.common.entity.log.SysLogExample" resultType="java.lang.Integer" >
+    select count(*) from rm_log
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update rm_log
+    <set >
+      <if test="record.pkLogId != null" >
+        pk_log_id = #{record.pkLogId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.userId != null" >
+        user_id = #{record.userId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.operationContent != null" >
+        operation_content = #{record.operationContent,jdbcType=VARCHAR},
+      </if>
+      <if test="record.duration != null" >
+        duration = #{record.duration,jdbcType=INTEGER},
+      </if>
+      <if test="record.method != null" >
+        method = #{record.method,jdbcType=VARCHAR},
+      </if>
+      <if test="record.params != null" >
+        params = #{record.params,jdbcType=VARCHAR},
+      </if>
+      <if test="record.ip != null" >
+        ip = #{record.ip,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createTime != null" >
+        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.location != null" >
+        location = #{record.location,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update rm_log
+    set pk_log_id = #{record.pkLogId,jdbcType=VARCHAR},
+      user_id = #{record.userId,jdbcType=VARCHAR},
+      operation_content = #{record.operationContent,jdbcType=VARCHAR},
+      duration = #{record.duration,jdbcType=INTEGER},
+      method = #{record.method,jdbcType=VARCHAR},
+      params = #{record.params,jdbcType=VARCHAR},
+      ip = #{record.ip,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      location = #{record.location,jdbcType=VARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.waken.dorm.common.entity.log.SysLog" >
+    update rm_log
+    <set >
+      <if test="userId != null" >
+        user_id = #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="operationContent != null" >
+        operation_content = #{operationContent,jdbcType=VARCHAR},
+      </if>
+      <if test="duration != null" >
+        duration = #{duration,jdbcType=INTEGER},
+      </if>
+      <if test="method != null" >
+        method = #{method,jdbcType=VARCHAR},
+      </if>
+      <if test="params != null" >
+        params = #{params,jdbcType=VARCHAR},
+      </if>
+      <if test="ip != null" >
+        ip = #{ip,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="location != null" >
+        location = #{location,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where pk_log_id = #{pkLogId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.waken.dorm.common.entity.log.SysLog" >
+    update rm_log
+    set user_id = #{userId,jdbcType=VARCHAR},
+      operation_content = #{operationContent,jdbcType=VARCHAR},
+      duration = #{duration,jdbcType=INTEGER},
+      method = #{method,jdbcType=VARCHAR},
+      params = #{params,jdbcType=VARCHAR},
+      ip = #{ip,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      location = #{location,jdbcType=VARCHAR}
+    where pk_log_id = #{pkLogId,jdbcType=VARCHAR}
+  </update>
+  <select id="listSysLogViews" resultType="com.waken.dorm.common.view.log.SysLogView" parameterType="com.waken.dorm.common.form.log.SysLogForm">
+    SELECT
+    l.pk_log_id AS pkLogId,
+    u.user_name AS userName,
+    l.operation_content AS operationContent,
+    l.duration,
+    l.method,
+    l.params,
+    l.ip,
+    l.create_time AS createTime,
+    l.location
+    FROM rm_log l
+    LEFT JOIN rm_user u ON u.user_id = l.user_id
+    WHERE 1=1
+    <where>
+      <if test="pkLogId != null and pkLogId != ''">
+        AND l.pk_log_id=#{pkLogId,jdbcType=VARCHAR}
+      </if>
+      <if test="keyWord != null">
+        <bind name="keyWord" value="'%' + keyWord + '%'"/>
+        AND (u.user_name LIKE #{keyWord,jdbcType=VARCHAR}
+        OR l.operation_content LIKE #{keyWord,jdbcType=VARCHAR}
+        OR l.method LIKE #{keyWord,jdbcType=VARCHAR}
+        OR l.params LIKE #{keyWord,jdbcType=VARCHAR}
+        OR l.ip LIKE #{keyWord,jdbcType=VARCHAR}
+        OR l.location LIKE #{keyWord,jdbcType=VARCHAR}
+        )
+      </if>
+      <if test="startTime != null">
+        AND l.create_time &gt;= #{startTime,jdbcType=TIMESTAMP}
+      </if>
+      <if test="endTime != null">
+        AND l.create_time &lt;= #{endTime,jdbcType=TIMESTAMP}
+      </if>
+    </where>
+    ORDER BY l.create_time DESC
+  </select>
+</mapper>

@@ -1,0 +1,557 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.waken.dorm.dao.dorm.DormScoreMapper" >
+  <resultMap id="BaseResultMap" type="com.waken.dorm.common.entity.dorm.DormScore" >
+    <id column="pk_dorm_score_id" property="pkDormScoreId" jdbcType="VARCHAR" />
+    <result column="dorm_num" property="dormNum" jdbcType="VARCHAR" />
+    <result column="culture_score" property="cultureScore" jdbcType="INTEGER" />
+    <result column="discipline_score" property="disciplineScore" jdbcType="INTEGER" />
+    <result column="bed_score" property="bedScore" jdbcType="INTEGER" />
+    <result column="desk_score" property="deskScore" jdbcType="INTEGER" />
+    <result column="balcony_score" property="balconyScore" jdbcType="INTEGER" />
+    <result column="toilet_score" property="toiletScore" jdbcType="INTEGER" />
+    <result column="ground_score" property="groundScore" jdbcType="INTEGER" />
+    <result column="door_window_score" property="doorWindowScore" jdbcType="INTEGER" />
+    <result column="metope_score" property="metopeScore" jdbcType="INTEGER" />
+    <result column="total_score" property="totalScore" jdbcType="INTEGER" />
+    <result column="status" property="status" jdbcType="INTEGER" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="create_user_id" property="createUserId" jdbcType="VARCHAR" />
+    <result column="last_modify_time" property="lastModifyTime" jdbcType="TIMESTAMP" />
+    <result column="last_modify_user_id" property="lastModifyUserId" jdbcType="VARCHAR" />
+    <result column="memo" property="memo" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    pk_dorm_score_id, dorm_num, culture_score, discipline_score, bed_score, desk_score, 
+    balcony_score, toilet_score, ground_score, door_window_score, metope_score, total_score, 
+    status, create_time, create_user_id, last_modify_time, last_modify_user_id, memo
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.waken.dorm.common.entity.dorm.DormScoreExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    from rm_dorm_score
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from rm_dorm_score
+    where pk_dorm_score_id = #{pkDormScoreId,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from rm_dorm_score
+    where pk_dorm_score_id = #{pkDormScoreId,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.waken.dorm.common.entity.dorm.DormScoreExample" >
+    delete from rm_dorm_score
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.waken.dorm.common.entity.dorm.DormScore" >
+    insert into rm_dorm_score (pk_dorm_score_id, dorm_num, culture_score, 
+      discipline_score, bed_score, desk_score, 
+      balcony_score, toilet_score, ground_score, 
+      door_window_score, metope_score, total_score, 
+      status, create_time, create_user_id, 
+      last_modify_time, last_modify_user_id, memo
+      )
+    values (#{pkDormScoreId,jdbcType=VARCHAR}, #{dormNum,jdbcType=VARCHAR}, #{cultureScore,jdbcType=INTEGER}, 
+      #{disciplineScore,jdbcType=INTEGER}, #{bedScore,jdbcType=INTEGER}, #{deskScore,jdbcType=INTEGER}, 
+      #{balconyScore,jdbcType=INTEGER}, #{toiletScore,jdbcType=INTEGER}, #{groundScore,jdbcType=INTEGER}, 
+      #{doorWindowScore,jdbcType=INTEGER}, #{metopeScore,jdbcType=INTEGER}, #{totalScore,jdbcType=INTEGER}, 
+      #{status,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, #{createUserId,jdbcType=VARCHAR}, 
+      #{lastModifyTime,jdbcType=TIMESTAMP}, #{lastModifyUserId,jdbcType=VARCHAR}, #{memo,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.waken.dorm.common.entity.dorm.DormScore" >
+    insert into rm_dorm_score
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="pkDormScoreId != null" >
+        pk_dorm_score_id,
+      </if>
+      <if test="dormNum != null" >
+        dorm_num,
+      </if>
+      <if test="cultureScore != null" >
+        culture_score,
+      </if>
+      <if test="disciplineScore != null" >
+        discipline_score,
+      </if>
+      <if test="bedScore != null" >
+        bed_score,
+      </if>
+      <if test="deskScore != null" >
+        desk_score,
+      </if>
+      <if test="balconyScore != null" >
+        balcony_score,
+      </if>
+      <if test="toiletScore != null" >
+        toilet_score,
+      </if>
+      <if test="groundScore != null" >
+        ground_score,
+      </if>
+      <if test="doorWindowScore != null" >
+        door_window_score,
+      </if>
+      <if test="metopeScore != null" >
+        metope_score,
+      </if>
+      <if test="totalScore != null" >
+        total_score,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="createUserId != null" >
+        create_user_id,
+      </if>
+      <if test="lastModifyTime != null" >
+        last_modify_time,
+      </if>
+      <if test="lastModifyUserId != null" >
+        last_modify_user_id,
+      </if>
+      <if test="memo != null" >
+        memo,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="pkDormScoreId != null" >
+        #{pkDormScoreId,jdbcType=VARCHAR},
+      </if>
+      <if test="dormNum != null" >
+        #{dormNum,jdbcType=VARCHAR},
+      </if>
+      <if test="cultureScore != null" >
+        #{cultureScore,jdbcType=INTEGER},
+      </if>
+      <if test="disciplineScore != null" >
+        #{disciplineScore,jdbcType=INTEGER},
+      </if>
+      <if test="bedScore != null" >
+        #{bedScore,jdbcType=INTEGER},
+      </if>
+      <if test="deskScore != null" >
+        #{deskScore,jdbcType=INTEGER},
+      </if>
+      <if test="balconyScore != null" >
+        #{balconyScore,jdbcType=INTEGER},
+      </if>
+      <if test="toiletScore != null" >
+        #{toiletScore,jdbcType=INTEGER},
+      </if>
+      <if test="groundScore != null" >
+        #{groundScore,jdbcType=INTEGER},
+      </if>
+      <if test="doorWindowScore != null" >
+        #{doorWindowScore,jdbcType=INTEGER},
+      </if>
+      <if test="metopeScore != null" >
+        #{metopeScore,jdbcType=INTEGER},
+      </if>
+      <if test="totalScore != null" >
+        #{totalScore,jdbcType=INTEGER},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUserId != null" >
+        #{createUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="lastModifyTime != null" >
+        #{lastModifyTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lastModifyUserId != null" >
+        #{lastModifyUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="memo != null" >
+        #{memo,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.waken.dorm.common.entity.dorm.DormScoreExample" resultType="java.lang.Integer" >
+    select count(*) from rm_dorm_score
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update rm_dorm_score
+    <set >
+      <if test="record.pkDormScoreId != null" >
+        pk_dorm_score_id = #{record.pkDormScoreId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.dormNum != null" >
+        dorm_num = #{record.dormNum,jdbcType=VARCHAR},
+      </if>
+      <if test="record.cultureScore != null" >
+        culture_score = #{record.cultureScore,jdbcType=INTEGER},
+      </if>
+      <if test="record.disciplineScore != null" >
+        discipline_score = #{record.disciplineScore,jdbcType=INTEGER},
+      </if>
+      <if test="record.bedScore != null" >
+        bed_score = #{record.bedScore,jdbcType=INTEGER},
+      </if>
+      <if test="record.deskScore != null" >
+        desk_score = #{record.deskScore,jdbcType=INTEGER},
+      </if>
+      <if test="record.balconyScore != null" >
+        balcony_score = #{record.balconyScore,jdbcType=INTEGER},
+      </if>
+      <if test="record.toiletScore != null" >
+        toilet_score = #{record.toiletScore,jdbcType=INTEGER},
+      </if>
+      <if test="record.groundScore != null" >
+        ground_score = #{record.groundScore,jdbcType=INTEGER},
+      </if>
+      <if test="record.doorWindowScore != null" >
+        door_window_score = #{record.doorWindowScore,jdbcType=INTEGER},
+      </if>
+      <if test="record.metopeScore != null" >
+        metope_score = #{record.metopeScore,jdbcType=INTEGER},
+      </if>
+      <if test="record.totalScore != null" >
+        total_score = #{record.totalScore,jdbcType=INTEGER},
+      </if>
+      <if test="record.status != null" >
+        status = #{record.status,jdbcType=INTEGER},
+      </if>
+      <if test="record.createTime != null" >
+        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.createUserId != null" >
+        create_user_id = #{record.createUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.lastModifyTime != null" >
+        last_modify_time = #{record.lastModifyTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.lastModifyUserId != null" >
+        last_modify_user_id = #{record.lastModifyUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.memo != null" >
+        memo = #{record.memo,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update rm_dorm_score
+    set pk_dorm_score_id = #{record.pkDormScoreId,jdbcType=VARCHAR},
+      dorm_num = #{record.dormNum,jdbcType=VARCHAR},
+      culture_score = #{record.cultureScore,jdbcType=INTEGER},
+      discipline_score = #{record.disciplineScore,jdbcType=INTEGER},
+      bed_score = #{record.bedScore,jdbcType=INTEGER},
+      desk_score = #{record.deskScore,jdbcType=INTEGER},
+      balcony_score = #{record.balconyScore,jdbcType=INTEGER},
+      toilet_score = #{record.toiletScore,jdbcType=INTEGER},
+      ground_score = #{record.groundScore,jdbcType=INTEGER},
+      door_window_score = #{record.doorWindowScore,jdbcType=INTEGER},
+      metope_score = #{record.metopeScore,jdbcType=INTEGER},
+      total_score = #{record.totalScore,jdbcType=INTEGER},
+      status = #{record.status,jdbcType=INTEGER},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      create_user_id = #{record.createUserId,jdbcType=VARCHAR},
+      last_modify_time = #{record.lastModifyTime,jdbcType=TIMESTAMP},
+      last_modify_user_id = #{record.lastModifyUserId,jdbcType=VARCHAR},
+      memo = #{record.memo,jdbcType=VARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.waken.dorm.common.entity.dorm.DormScore" >
+    update rm_dorm_score
+    <set >
+      <if test="dormNum != null" >
+        dorm_num = #{dormNum,jdbcType=VARCHAR},
+      </if>
+      <if test="cultureScore != null" >
+        culture_score = #{cultureScore,jdbcType=INTEGER},
+      </if>
+      <if test="disciplineScore != null" >
+        discipline_score = #{disciplineScore,jdbcType=INTEGER},
+      </if>
+      <if test="bedScore != null" >
+        bed_score = #{bedScore,jdbcType=INTEGER},
+      </if>
+      <if test="deskScore != null" >
+        desk_score = #{deskScore,jdbcType=INTEGER},
+      </if>
+      <if test="balconyScore != null" >
+        balcony_score = #{balconyScore,jdbcType=INTEGER},
+      </if>
+      <if test="toiletScore != null" >
+        toilet_score = #{toiletScore,jdbcType=INTEGER},
+      </if>
+      <if test="groundScore != null" >
+        ground_score = #{groundScore,jdbcType=INTEGER},
+      </if>
+      <if test="doorWindowScore != null" >
+        door_window_score = #{doorWindowScore,jdbcType=INTEGER},
+      </if>
+      <if test="metopeScore != null" >
+        metope_score = #{metopeScore,jdbcType=INTEGER},
+      </if>
+      <if test="totalScore != null" >
+        total_score = #{totalScore,jdbcType=INTEGER},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUserId != null" >
+        create_user_id = #{createUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="lastModifyTime != null" >
+        last_modify_time = #{lastModifyTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lastModifyUserId != null" >
+        last_modify_user_id = #{lastModifyUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="memo != null" >
+        memo = #{memo,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where pk_dorm_score_id = #{pkDormScoreId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.waken.dorm.common.entity.dorm.DormScore" >
+    update rm_dorm_score
+    set dorm_num = #{dormNum,jdbcType=VARCHAR},
+      culture_score = #{cultureScore,jdbcType=INTEGER},
+      discipline_score = #{disciplineScore,jdbcType=INTEGER},
+      bed_score = #{bedScore,jdbcType=INTEGER},
+      desk_score = #{deskScore,jdbcType=INTEGER},
+      balcony_score = #{balconyScore,jdbcType=INTEGER},
+      toilet_score = #{toiletScore,jdbcType=INTEGER},
+      ground_score = #{groundScore,jdbcType=INTEGER},
+      door_window_score = #{doorWindowScore,jdbcType=INTEGER},
+      metope_score = #{metopeScore,jdbcType=INTEGER},
+      total_score = #{totalScore,jdbcType=INTEGER},
+      status = #{status,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      create_user_id = #{createUserId,jdbcType=VARCHAR},
+      last_modify_time = #{lastModifyTime,jdbcType=TIMESTAMP},
+      last_modify_user_id = #{lastModifyUserId,jdbcType=VARCHAR},
+      memo = #{memo,jdbcType=VARCHAR}
+    where pk_dorm_score_id = #{pkDormScoreId,jdbcType=VARCHAR}
+  </update>
+  <insert id="batchAddDormScore" parameterType="java.util.List">
+    insert into rm_dorm_score
+    (pk_dorm_score_id,
+    dorm_num,
+    culture_score,
+    discipline_score,
+    bed_score,
+    desk_score,
+    balcony_score,
+    toilet_score,
+    ground_score,
+    door_window_score,
+    metope_score,
+    total_score,
+    status,
+    create_user_id,
+    create_time,
+    last_modify_user_id,
+    last_modify_time,
+    memo)
+    values
+    <foreach collection="list" item="item" index="index" separator="," >
+      (#{item.pkDormScoreId},
+      #{item.dormNum},
+      #{item.cultureScore},
+      #{item.disciplineScore},
+      #{item.bedScore},
+      #{item.deskScore},
+      #{item.balconyScore},
+      #{item.toiletScore},
+      #{item.groundScore},
+      #{item.doorWindowScore},
+      #{item.metopeScore},
+      #{item.totalScore},
+      #{item.status},
+      #{item.createUserId},
+      #{item.createTime},
+      #{item.lastModifyUserId},
+      #{item.lastModifyTime},
+      #{item.memo})
+    </foreach>
+  </insert>
+  <select id="selectByIds" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from rm_dorm_score
+    where pk_dorm_score_id in
+    <foreach collection="Ids" item="dramaId" open="(" close=")" separator=",">
+      #{dramaId}
+    </foreach>
+  </select>
+  <select id="appListDormScoreView" parameterType="com.waken.dorm.common.form.dorm.ListDormScoreForm" resultType="com.waken.dorm.common.view.dorm.AppDormScoreView">
+    SELECT
+    ds.pk_dorm_score_id AS pkDormScoreId,
+    ds.dorm_num AS dormNum,
+    ds.culture_score AS cultureScore,
+    ds.discipline_score AS disciplineScore,
+    ds.bed_score AS bedScore,
+    ds.desk_score AS deskScore,
+    ds.balcony_score AS balconyScore,
+    ds.toilet_score AS toiletScore,
+    ds.ground_score AS groundScore,
+    ds.door_window_score AS doorWindowScore,
+    ds.metope_score AS metopeScore,
+    ds.total_score AS totalScore,
+    ds.memo AS memo
+    FROM rm_dorm_score ds
+    LEFT JOIN rm_dorm d ON d.dorm_num = ds.dorm_num
+    LEFT JOIN rm_dorm_student_rel dsr ON dsr.dorm_id = d.pk_dorm_id
+    WHERE
+    ds.`status` = 1
+    <if test="studentId != null and studentId != ''">
+      AND dsr.student_id = #{studentId,jdbcType=VARCHAR}
+    </if>
+  </select>
+  <select id="listDormScores" parameterType="com.waken.dorm.common.form.dorm.ListDormScoreForm" resultType="com.waken.dorm.common.view.dorm.DormScoreView">
+    SELECT
+    ds.pk_dorm_score_id AS pkDormScoreId,
+    ds.dorm_num AS dormNum,
+    ds.culture_score AS cultureScore,
+    ds.discipline_score AS disciplineScore,
+    ds.bed_score AS bedScore,
+    ds.desk_score AS deskScore,
+    ds.balcony_score AS balconyScore,
+    ds.toilet_score AS toiletScore,
+    ds.ground_score AS groundScore,
+    ds.door_window_score AS doorWindowScore,
+    ds.metope_score AS metopeScore,
+    ds.total_score AS totalScore,
+    ds.`status`,
+    ds.create_time AS createTime,
+    u.user_name AS createUserName,
+    ds.last_modify_time AS lastModifyTime,
+    uu.user_name AS lastModifyUserName,
+    ds.memo
+    FROM rm_dorm_score ds
+    LEFT JOIN rm_dorm d ON d.dorm_num = ds.dorm_num
+    LEFT JOIN rm_dorm_student_rel dsr ON dsr.dorm_id = d.pk_dorm_id
+    LEFT JOIN rm_user u ON u.user_id = ds.create_user_id
+    LEFT JOIN rm_user uu ON uu.user_id = ds.last_modify_user_id
+    LEFT JOIN rm_dorm_building db ON db.pk_dorm_building_id = d.dorm_building_id
+    WHERE 1=1
+    <if test="schoolId != null and schoolId != ''">
+      and db.school_id=#{schoolId}
+    </if>
+    <if test="pkDormScoreId != null and pkDormScoreId != ''">
+      and ds.pk_dorm_score_id=#{pkDormScoreId}
+    </if>
+    <if test="dormNum != null and dormNum != ''">
+      and ds.dorm_num like '%${dormNum}%'
+    </if>
+    <if test="status != null">
+      and ds.status=#{status}
+    </if>
+    <if test="createUserName != null and createUserName != ''">
+      and u.user_name like '%${createUserName}%'
+    </if>
+    <if test="lastModifyUserName != null and lastModifyUserName != ''">
+      and uu.user_name like '%${lastModifyUserName}%'
+    </if>
+    <if test="startTime != null">
+      AND ds.create_time &gt;= #{startTime,jdbcType=TIMESTAMP}
+    </if>
+    <if test="endTime != null">
+      AND ds.create_time &lt;= #{endTime,jdbcType=TIMESTAMP}
+    </if>
+    ORDER BY
+    ds.last_modify_time DESC
+  </select>
+  <update id="batchUpdateStatus" parameterType="java.util.Map">
+    <foreach collection="list" separator=";" item="ur">
+      update rm_dorm_score set
+      status = #{ur.status},
+      last_modify_time = #{ur.lastModifyTime},
+      last_modify_user_id = #{ur.lastModifyUserId}
+      where pk_dorm_score_id = #{ur.pkId}
+    </foreach>
+  </update>
+</mapper>

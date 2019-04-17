@@ -1,0 +1,362 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.waken.dorm.dao.dorm.DormRuleMapper" >
+  <resultMap id="BaseResultMap" type="com.waken.dorm.common.entity.dorm.DormRule" >
+    <id column="pk_dorm_rule_id" property="pkDormRuleId" jdbcType="VARCHAR" />
+    <result column="school_id" property="schoolId" jdbcType="VARCHAR" />
+    <result column="rule_name" property="ruleName" jdbcType="VARCHAR" />
+    <result column="rule_desc" property="ruleDesc" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="INTEGER" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="create_user_id" property="createUserId" jdbcType="VARCHAR" />
+    <result column="last_modify_time" property="lastModifyTime" jdbcType="TIMESTAMP" />
+    <result column="last_modify_user_id" property="lastModifyUserId" jdbcType="VARCHAR" />
+    <result column="memo" property="memo" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    pk_dorm_rule_id, school_id, rule_name, rule_desc, status, create_time, create_user_id, 
+    last_modify_time, last_modify_user_id, memo
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.waken.dorm.common.entity.dorm.DormRuleExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    from rm_dorm_rule
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from rm_dorm_rule
+    where pk_dorm_rule_id = #{pkDormRuleId,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from rm_dorm_rule
+    where pk_dorm_rule_id = #{pkDormRuleId,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.waken.dorm.common.entity.dorm.DormRuleExample" >
+    delete from rm_dorm_rule
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.waken.dorm.common.entity.dorm.DormRule" >
+    insert into rm_dorm_rule (pk_dorm_rule_id, school_id, rule_name, 
+      rule_desc, status, create_time, 
+      create_user_id, last_modify_time, last_modify_user_id, 
+      memo)
+    values (#{pkDormRuleId,jdbcType=VARCHAR}, #{schoolId,jdbcType=VARCHAR}, #{ruleName,jdbcType=VARCHAR}, 
+      #{ruleDesc,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{createUserId,jdbcType=VARCHAR}, #{lastModifyTime,jdbcType=TIMESTAMP}, #{lastModifyUserId,jdbcType=VARCHAR}, 
+      #{memo,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.waken.dorm.common.entity.dorm.DormRule" >
+    insert into rm_dorm_rule
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="pkDormRuleId != null" >
+        pk_dorm_rule_id,
+      </if>
+      <if test="schoolId != null" >
+        school_id,
+      </if>
+      <if test="ruleName != null" >
+        rule_name,
+      </if>
+      <if test="ruleDesc != null" >
+        rule_desc,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="createUserId != null" >
+        create_user_id,
+      </if>
+      <if test="lastModifyTime != null" >
+        last_modify_time,
+      </if>
+      <if test="lastModifyUserId != null" >
+        last_modify_user_id,
+      </if>
+      <if test="memo != null" >
+        memo,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="pkDormRuleId != null" >
+        #{pkDormRuleId,jdbcType=VARCHAR},
+      </if>
+      <if test="schoolId != null" >
+        #{schoolId,jdbcType=VARCHAR},
+      </if>
+      <if test="ruleName != null" >
+        #{ruleName,jdbcType=VARCHAR},
+      </if>
+      <if test="ruleDesc != null" >
+        #{ruleDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUserId != null" >
+        #{createUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="lastModifyTime != null" >
+        #{lastModifyTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lastModifyUserId != null" >
+        #{lastModifyUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="memo != null" >
+        #{memo,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.waken.dorm.common.entity.dorm.DormRuleExample" resultType="java.lang.Integer" >
+    select count(*) from rm_dorm_rule
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update rm_dorm_rule
+    <set >
+      <if test="record.pkDormRuleId != null" >
+        pk_dorm_rule_id = #{record.pkDormRuleId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.schoolId != null" >
+        school_id = #{record.schoolId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.ruleName != null" >
+        rule_name = #{record.ruleName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.ruleDesc != null" >
+        rule_desc = #{record.ruleDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="record.status != null" >
+        status = #{record.status,jdbcType=INTEGER},
+      </if>
+      <if test="record.createTime != null" >
+        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.createUserId != null" >
+        create_user_id = #{record.createUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.lastModifyTime != null" >
+        last_modify_time = #{record.lastModifyTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.lastModifyUserId != null" >
+        last_modify_user_id = #{record.lastModifyUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.memo != null" >
+        memo = #{record.memo,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update rm_dorm_rule
+    set pk_dorm_rule_id = #{record.pkDormRuleId,jdbcType=VARCHAR},
+      school_id = #{record.schoolId,jdbcType=VARCHAR},
+      rule_name = #{record.ruleName,jdbcType=VARCHAR},
+      rule_desc = #{record.ruleDesc,jdbcType=VARCHAR},
+      status = #{record.status,jdbcType=INTEGER},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      create_user_id = #{record.createUserId,jdbcType=VARCHAR},
+      last_modify_time = #{record.lastModifyTime,jdbcType=TIMESTAMP},
+      last_modify_user_id = #{record.lastModifyUserId,jdbcType=VARCHAR},
+      memo = #{record.memo,jdbcType=VARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.waken.dorm.common.entity.dorm.DormRule" >
+    update rm_dorm_rule
+    <set >
+      <if test="schoolId != null" >
+        school_id = #{schoolId,jdbcType=VARCHAR},
+      </if>
+      <if test="ruleName != null" >
+        rule_name = #{ruleName,jdbcType=VARCHAR},
+      </if>
+      <if test="ruleDesc != null" >
+        rule_desc = #{ruleDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUserId != null" >
+        create_user_id = #{createUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="lastModifyTime != null" >
+        last_modify_time = #{lastModifyTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lastModifyUserId != null" >
+        last_modify_user_id = #{lastModifyUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="memo != null" >
+        memo = #{memo,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where pk_dorm_rule_id = #{pkDormRuleId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.waken.dorm.common.entity.dorm.DormRule" >
+    update rm_dorm_rule
+    set school_id = #{schoolId,jdbcType=VARCHAR},
+      rule_name = #{ruleName,jdbcType=VARCHAR},
+      rule_desc = #{ruleDesc,jdbcType=VARCHAR},
+      status = #{status,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      create_user_id = #{createUserId,jdbcType=VARCHAR},
+      last_modify_time = #{lastModifyTime,jdbcType=TIMESTAMP},
+      last_modify_user_id = #{lastModifyUserId,jdbcType=VARCHAR},
+      memo = #{memo,jdbcType=VARCHAR}
+    where pk_dorm_rule_id = #{pkDormRuleId,jdbcType=VARCHAR}
+  </update>
+  <select id="selectByIds" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from rm_dorm_rule
+    where pk_dorm_rule_id in
+    <foreach collection="Ids" item="dramaId" open="(" close=")" separator=",">
+      #{dramaId}
+    </foreach>
+  </select>
+  <select id="listDormRules" parameterType="com.waken.dorm.common.form.dorm.DormRuleForm" resultType="com.waken.dorm.common.view.dorm.DormScoreView">
+    SELECT
+    dr.pk_dorm_rule_id AS pkDormRuleId,
+    s.school_name AS schoolName,
+    dr.rule_name AS ruleName,
+    dr.rule_desc AS ruleDesc,
+    dr.`status`,
+    dr.create_time AS createTime,
+    u.user_name AS createUserName,
+    dr.last_modify_time AS lastModifyTime,
+    uu.user_name AS lastModifyUserName,
+    dr.memo
+    FROM rm_dorm_rule dr
+    LEFT JOIN rm_school s ON s.pk_school_id = dr.school_id
+    LEFT JOIN rm_user u ON u.user_id = dr.create_user_id
+    LEFT JOIN rm_user uu ON uu.user_id = dr.last_modify_user_id
+    LEFT JOIN rm_school_class sc on sc.school_id = s.pk_school_id
+    LEFT JOIN rm_school_class_student_rel sr ON sr.school_class_id = sc.pk_school_class_id
+    WHERE 1=1
+    <if test="studentId != null and studentId != ''">
+      and sr.student_id=#{studentId}
+    </if>
+    <if test="schoolId != null and schoolId != ''">
+      and dr.school_id=#{schoolId}
+    </if>
+    <if test="pkDormRuleId != null and pkDormRuleId != ''">
+      and dr.pk_dorm_rule_id=#{pkDormRuleId}
+    </if>
+    <if test="schoolName != null and schoolName != ''">
+      and s.school_name like '%${schoolName}%'
+    </if>
+    <if test="ruleName != null and ruleName != ''">
+      and dr.rule_name like '%${ruleName}%'
+    </if>
+    <if test="status != null">
+      and dr.status=#{status}
+    </if>
+    <if test="createUserName != null and createUserName != ''">
+      and u.user_name like '%${createUserName}%'
+    </if>
+    <if test="lastModifyUserName != null and lastModifyUserName != ''">
+      and uu.user_name like '%${lastModifyUserName}%'
+    </if>
+    <if test="startTime != null">
+      AND dr.create_time &gt;= #{startTime,jdbcType=TIMESTAMP}
+    </if>
+    <if test="endTime != null">
+      AND dr.create_time &lt;= #{endTime,jdbcType=TIMESTAMP}
+    </if>
+    ORDER BY
+    dr.last_modify_time DESC
+  </select>
+  <update id="batchUpdateStatus" parameterType="java.util.Map">
+    <foreach collection="list" separator=";" item="ur">
+      update rm_dorm_rule set
+      status = #{ur.status},
+      last_modify_time = #{ur.lastModifyTime},
+      last_modify_user_id = #{ur.lastModifyUserId}
+      where pk_dorm_rule_id = #{ur.pkId}
+    </foreach>
+  </update>
+</mapper>
