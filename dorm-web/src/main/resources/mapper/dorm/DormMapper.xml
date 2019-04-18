@@ -321,6 +321,7 @@
       memo = #{memo,jdbcType=VARCHAR}
     where pk_dorm_id = #{pkDormId,jdbcType=VARCHAR}
   </update>
+
   <select id="selectByIds" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />
@@ -330,6 +331,17 @@
       #{dramaId}
     </foreach>
   </select>
+
+  <select id="selectByDormNums" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from rm_dorm
+    where dorm_num in
+    <foreach collection="dormNums" item="dramaId" open="(" close=")" separator=",">
+      #{dramaId}
+    </foreach>
+  </select>
+
   <select id="listDorms" parameterType="com.waken.dorm.common.form.dorm.DormForm" resultType="com.waken.dorm.common.view.dorm.DormView">
     SELECT
     d.pk_dorm_id AS pkDormId,

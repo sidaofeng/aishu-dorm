@@ -20,9 +20,15 @@ public class StudentForm extends BaseForm {
 
     private String dormId;
 
+    private String dormBuildingNum;
+
     private String dormNum;
 
     private String studentName;
+
+    private String schoolName;
+
+    private String schoolClassName;
 
     private Integer studentNum;
 
@@ -78,6 +84,14 @@ public class StudentForm extends BaseForm {
         this.dormId = dormId;
     }
 
+    public String getDormBuildingNum() {
+        return dormBuildingNum;
+    }
+
+    public void setDormBuildingNum(String dormBuildingNum) {
+        this.dormBuildingNum = dormBuildingNum;
+    }
+
     public String getDormNum() {
         return dormNum;
     }
@@ -92,6 +106,22 @@ public class StudentForm extends BaseForm {
 
     public void setStudentName(String studentName) {
         this.studentName = studentName;
+    }
+
+    public String getSchoolName() {
+        return schoolName;
+    }
+
+    public void setSchoolName(String schoolName) {
+        this.schoolName = schoolName;
+    }
+
+    public String getSchoolClassName() {
+        return schoolClassName;
+    }
+
+    public void setSchoolClassName(String schoolClassName) {
+        this.schoolClassName = schoolClassName;
     }
 
     public Integer getStudentNum() {
@@ -158,8 +188,11 @@ public class StudentForm extends BaseForm {
                 ", schoolClassId='" + schoolClassId + '\'' +
                 ", pkDormBuildingId='" + pkDormBuildingId + '\'' +
                 ", dormId='" + dormId + '\'' +
+                ", dormBuildingNum='" + dormBuildingNum + '\'' +
                 ", dormNum='" + dormNum + '\'' +
                 ", studentName='" + studentName + '\'' +
+                ", schoolName='" + schoolName + '\'' +
+                ", schoolClassName='" + schoolClassName + '\'' +
                 ", studentNum=" + studentNum +
                 ", mobile='" + mobile + '\'' +
                 ", gender=" + gender +

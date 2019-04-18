@@ -6,6 +6,8 @@ import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
 public interface SchoolClassStudentRelMapper {
+    int batchImportStudentClassRel(List<SchoolClassStudentRel> schoolClassStudentRels);
+
     int countByExample(SchoolClassStudentRelExample example);
 
     int deleteByExample(SchoolClassStudentRelExample example);

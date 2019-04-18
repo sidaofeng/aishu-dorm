@@ -21,6 +21,7 @@ import com.waken.dorm.dao.school.SchoolClassMapper;
 import com.waken.dorm.dao.school.SchoolClassStudentRelMapper;
 import com.waken.dorm.service.school.SchoolClassService;
 import com.waken.dorm.service.school.SchoolService;
+import com.waken.dorm.service.student.StudentService;
 import com.waken.dorm.serviceImpl.base.BaseServerImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +49,8 @@ public class SchoolClassServiceImpl extends BaseServerImpl implements SchoolClas
     SchoolClassStudentRelMapper schoolClassStudentRelMapper;
     @Autowired
     SchoolService schoolService;
+    @Autowired
+    StudentService studentService;
 
     /**
      * （保存/修改）学校类别
@@ -194,6 +197,12 @@ public class SchoolClassServiceImpl extends BaseServerImpl implements SchoolClas
     @Override
     public List<TreeView> listSchoolClassTree(SchoolClassTreeForm schoolClassTreeForm) {
         logger.info("service: 开始进入学校类别树查询");
+        String schoolId = schoolClassTreeForm.getSchoolId();
+        if (StringUtils.isEmpty(schoolId)){
+            String userId = ShiroUtils.getUserId();
+            schoolId = schoolService.getSchoolIdByUserId(userId);
+            schoolClassTreeForm.setSchoolId(schoolId);
+        }
         List<SchoolClass> schoolClasses = this.selectSchoolClasses(schoolClassTreeForm);
         List<TreeView> schoolClassTreeViewList = new ArrayList<TreeView>();
         for (SchoolClass schoolClass : schoolClasses){
@@ -201,58 +210,12 @@ public class SchoolClassServiceImpl extends BaseServerImpl implements SchoolClas
             if (StringUtils.isEmpty(schoolClass.getParentId())){
                 schoolClassTreeView.setPkId(schoolClass.getPkSchoolClassId());
                 schoolClassTreeView.setText(schoolClass.getClassName());
-                List<TreeView> childTreeViews = this.getChildSchoolClassTreeView(schoolClass.getPkSchoolClassId());
+                List<TreeView> childTreeViews = this.getChildSchoolClassTreeView(schoolId,schoolClass.getPkSchoolClassId());
                 schoolClassTreeView.setNodes(childTreeViews);
                 schoolClassTreeViewList.add(schoolClassTreeView);
             }
         }
         return schoolClassTreeViewList;
-    }
-
-    /**
-     * 递归得到子节点
-     * @param schoolClassId
-     * @return
-     */
-    private List<TreeView> getChildSchoolClassTreeView(String schoolClassId){
-        SchoolClassTreeForm schoolClassTreeForm = new SchoolClassTreeForm();
-        schoolClassTreeForm.setParentId(schoolClassId);
-        List<SchoolClass> schoolClasses = this.selectSchoolClasses(schoolClassTreeForm);
-        if (schoolClasses.isEmpty()){
-            return new ArrayList<TreeView>();
-        }else {
-            List<TreeView> schoolClassTreeViewList = new ArrayList<TreeView>();
-            for (SchoolClass schoolClass : schoolClasses){
-                TreeView schoolClassTreeView = new TreeView();
-                schoolClassTreeView.setPkId(schoolClass.getPkSchoolClassId());
-                schoolClassTreeView.setText(schoolClass.getClassName());
-                List<TreeView> childTreeViews = this.getChildSchoolClassTreeView(schoolClass.getPkSchoolClassId());
-                schoolClassTreeView.setNodes(childTreeViews);
-                schoolClassTreeViewList.add(schoolClassTreeView);
-            }
-            return schoolClassTreeViewList;
-        }
-    }
-    private List<SchoolClass> selectSchoolClasses(SchoolClassTreeForm schoolClassTreeForm){
-        SchoolClassExample example = new SchoolClassExample();
-        SchoolClassExample.Criteria criteria = example.createCriteria();
-        if (StringUtils.isNotEmpty(schoolClassTreeForm.getPkSchoolClassId())){
-            criteria.andPkSchoolClassIdEqualTo(schoolClassTreeForm.getPkSchoolClassId());
-        }
-        if (StringUtils.isEmpty(schoolClassTreeForm.getSchoolId())){
-            String userId = ShiroUtils.getUserId();
-            String schoolId = schoolService.getSchoolIdByUserId(userId);
-            criteria.andSchoolIdEqualTo(schoolId);
-        }else {
-            criteria.andSchoolIdEqualTo(schoolClassTreeForm.getSchoolId());
-        }
-        if (StringUtils.isNotEmpty(schoolClassTreeForm.getParentId())){
-            criteria.andParentIdEqualTo(schoolClassTreeForm.getParentId());
-        }
-        criteria.andStatusEqualTo(CodeEnum.ENABLE.getCode());
-        example.setOrderByClause("class_no asc");
-        List<SchoolClass> schoolClasses = schoolClassMapper.selectByExample(example);
-        return schoolClasses;
     }
     /**
      * 通过学生id获取学生
@@ -292,8 +255,28 @@ public class SchoolClassServiceImpl extends BaseServerImpl implements SchoolClas
     @Transactional
     @Override
     public void batchImportStudentByClassId(MultipartFile multipartFile, String classId) {
-        SchoolClassStudentRel classStudentRel = new SchoolClassStudentRel();
-         //TODO
+        String userId = ShiroUtils.getUserId();
+        Date curDate = DateUtils.getCurrentDate();
+        List<String> studentIds = studentService.batchAddStudent(multipartFile);
+        List<SchoolClassStudentRel> schoolClassStudentRels = new ArrayList<>();
+        for (String studentId : studentIds){
+            SchoolClassStudentRel schoolClassStudentRel = new SchoolClassStudentRel();
+            String pkRelId = UUIDUtils.getPkUUID();
+            schoolClassStudentRel.setPkSchoolClassStudentId(pkRelId);
+            schoolClassStudentRel.setSchoolClassId(classId);
+            schoolClassStudentRel.setStudentId(studentId);
+            schoolClassStudentRel.setStatus(CodeEnum.ENABLE.getCode());
+            schoolClassStudentRel.setCreateTime(curDate);
+            schoolClassStudentRel.setCreateUserId(userId);
+            schoolClassStudentRel.setLastModifyTime(curDate);
+            schoolClassStudentRel.setLastModifyUserId(userId);
+            schoolClassStudentRels.add(schoolClassStudentRel);
+        }
+        int count = Constant.ZERO;
+        count = schoolClassStudentRelMapper.batchImportStudentClassRel(schoolClassStudentRels);
+        if (count == Constant.ZERO){
+            throw new DormException("批量新增失败个数 0 条！");
+        }
     }
 
     /**
@@ -309,7 +292,45 @@ public class SchoolClassServiceImpl extends BaseServerImpl implements SchoolClas
         }
         return schoolClassMapper.selectByPrimaryKey(schoolClassTreeForm.getPkSchoolClassId());
     }
-
+    /**
+     * 递归得到子节点
+     * @param schoolClassId
+     * @return
+     */
+    private List<TreeView> getChildSchoolClassTreeView(String schoolId,String schoolClassId){
+        SchoolClassTreeForm schoolClassTreeForm = new SchoolClassTreeForm();
+        schoolClassTreeForm.setParentId(schoolClassId);
+        schoolClassTreeForm.setSchoolId(schoolId);
+        List<SchoolClass> schoolClasses = this.selectSchoolClasses(schoolClassTreeForm);
+        if (schoolClasses.isEmpty()){
+            return new ArrayList<TreeView>();
+        }else {
+            List<TreeView> schoolClassTreeViewList = new ArrayList<TreeView>();
+            for (SchoolClass schoolClass : schoolClasses){
+                TreeView schoolClassTreeView = new TreeView();
+                schoolClassTreeView.setPkId(schoolClass.getPkSchoolClassId());
+                schoolClassTreeView.setText(schoolClass.getClassName());
+                List<TreeView> childTreeViews = this.getChildSchoolClassTreeView(schoolId,schoolClass.getPkSchoolClassId());
+                schoolClassTreeView.setNodes(childTreeViews);
+                schoolClassTreeViewList.add(schoolClassTreeView);
+            }
+            return schoolClassTreeViewList;
+        }
+    }
+    private List<SchoolClass> selectSchoolClasses(SchoolClassTreeForm schoolClassTreeForm){
+        SchoolClassExample example = new SchoolClassExample();
+        SchoolClassExample.Criteria criteria = example.createCriteria();
+        if (StringUtils.isNotEmpty(schoolClassTreeForm.getPkSchoolClassId())){
+            criteria.andPkSchoolClassIdEqualTo(schoolClassTreeForm.getPkSchoolClassId());
+        }
+        criteria.andSchoolIdEqualTo(schoolClassTreeForm.getSchoolId());
+        if (StringUtils.isNotEmpty(schoolClassTreeForm.getParentId())){
+            criteria.andParentIdEqualTo(schoolClassTreeForm.getParentId());
+        }
+        criteria.andStatusEqualTo(CodeEnum.ENABLE.getCode());
+        example.setOrderByClause("class_no asc");
+        return schoolClassMapper.selectByExample(example);
+    }
     /**
      * 递归得到学校类别子集
      */
@@ -353,11 +374,13 @@ public class SchoolClassServiceImpl extends BaseServerImpl implements SchoolClas
             if (StringUtils.isEmpty(editSchoolClassForm.getClassName())){
                 throw new DormException("学校类别名称为空");
             }
-            if (StringUtils.isEmpty(editSchoolClassForm.getClassDesc())){
-                throw new DormException("学校类别描述为空");
-            }
             SchoolClassExample example = new SchoolClassExample();
             SchoolClassExample.Criteria criteria = example.createCriteria();
+            if (StringUtils.isEmpty(editSchoolClassForm.getParentId())){
+                criteria.andParentIdIsNull();
+            }else {
+                criteria.andParentIdEqualTo(editSchoolClassForm.getParentId());
+            }
             criteria.andClassNameEqualTo(editSchoolClassForm.getClassName());
             criteria.andSchoolIdEqualTo(editSchoolClassForm.getSchoolId());
             List<SchoolClass> schoolClasses = schoolClassMapper.selectByExample(example);
@@ -366,8 +389,14 @@ public class SchoolClassServiceImpl extends BaseServerImpl implements SchoolClas
             }
         }else {//修改验证
             if (StringUtils.isNotEmpty(editSchoolClassForm.getClassName())){
+                SchoolClass schoolClass = schoolClassMapper.selectByPrimaryKey(editSchoolClassForm.getPkSchoolClassId());
                 SchoolClassExample example = new SchoolClassExample();
                 SchoolClassExample.Criteria criteria = example.createCriteria();
+                if (StringUtils.isEmpty(schoolClass.getParentId())){
+                    criteria.andParentIdIsNull();
+                }else {
+                    criteria.andParentIdEqualTo(schoolClass.getParentId());
+                }
                 criteria.andClassNameEqualTo(editSchoolClassForm.getClassName());
                 criteria.andSchoolIdEqualTo(editSchoolClassForm.getSchoolId());
                 List<SchoolClass> schoolClasses = schoolClassMapper.selectByExample(example);
@@ -376,12 +405,15 @@ public class SchoolClassServiceImpl extends BaseServerImpl implements SchoolClas
                         throw new DormException("学校类别名称已存在！");
                     }
                 }
-
             }
         }
-
     }
 
+    /**
+     * 获取类别序号
+     * @param parentId
+     * @return
+     */
     private int getClassNo(String parentId){
         SchoolClassExample example = new SchoolClassExample();
         SchoolClassExample.Criteria criteria = example.createCriteria();

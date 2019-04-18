@@ -3,6 +3,7 @@
 <mapper namespace="com.waken.dorm.dao.student.StudentMapper" >
   <resultMap id="BaseResultMap" type="com.waken.dorm.common.entity.student.Student" >
     <id column="pk_student_id" property="pkStudentId" jdbcType="VARCHAR" />
+    <result column="school_id" property="schoolId" jdbcType="VARCHAR" />
     <result column="student_name" property="studentName" jdbcType="VARCHAR" />
     <result column="student_num" property="studentNum" jdbcType="INTEGER" />
     <result column="password" property="password" jdbcType="VARCHAR" />
@@ -75,8 +76,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List" >
-    pk_student_id, student_name, student_num, password, mobile, gender, email, img_url, 
-    status, create_time, create_user_id, last_modify_time, last_modify_user_id
+    pk_student_id, school_id, student_name, student_num, password, mobile, gender, email,
+    img_url, status, create_time, create_user_id, last_modify_time, last_modify_user_id
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.waken.dorm.common.entity.student.StudentExample" >
     select
@@ -94,7 +95,7 @@
     </if>
   </select>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
-    select 
+    select
     <include refid="Base_Column_List" />
     from rm_student
     where pk_student_id = #{pkStudentId,jdbcType=VARCHAR}
@@ -110,22 +111,25 @@
     </if>
   </delete>
   <insert id="insert" parameterType="com.waken.dorm.common.entity.student.Student" >
-    insert into rm_student (pk_student_id, student_name, student_num, 
-      password, mobile, gender, 
-      email, img_url, status, 
-      create_time, create_user_id, last_modify_time, 
-      last_modify_user_id)
-    values (#{pkStudentId,jdbcType=VARCHAR}, #{studentName,jdbcType=VARCHAR}, #{studentNum,jdbcType=INTEGER}, 
-      #{password,jdbcType=VARCHAR}, #{mobile,jdbcType=VARCHAR}, #{gender,jdbcType=INTEGER}, 
-      #{email,jdbcType=VARCHAR}, #{imgUrl,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, 
-      #{createTime,jdbcType=TIMESTAMP}, #{createUserId,jdbcType=VARCHAR}, #{lastModifyTime,jdbcType=TIMESTAMP}, 
-      #{lastModifyUserId,jdbcType=VARCHAR})
+    insert into rm_student (pk_student_id, school_id, student_name,
+    student_num, password, mobile,
+    gender, email, img_url,
+    status, create_time, create_user_id,
+    last_modify_time, last_modify_user_id)
+    values (#{pkStudentId,jdbcType=VARCHAR}, #{schoolId,jdbcType=VARCHAR}, #{studentName,jdbcType=VARCHAR},
+    #{studentNum,jdbcType=INTEGER}, #{password,jdbcType=VARCHAR}, #{mobile,jdbcType=VARCHAR},
+    #{gender,jdbcType=INTEGER}, #{email,jdbcType=VARCHAR}, #{imgUrl,jdbcType=VARCHAR},
+    #{status,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, #{createUserId,jdbcType=VARCHAR},
+    #{lastModifyTime,jdbcType=TIMESTAMP}, #{lastModifyUserId,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.waken.dorm.common.entity.student.Student" >
     insert into rm_student
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="pkStudentId != null" >
         pk_student_id,
+      </if>
+      <if test="schoolId != null" >
+        school_id,
       </if>
       <if test="studentName != null" >
         student_name,
@@ -167,6 +171,9 @@
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="pkStudentId != null" >
         #{pkStudentId,jdbcType=VARCHAR},
+      </if>
+      <if test="schoolId != null" >
+        #{schoolId,jdbcType=VARCHAR},
       </if>
       <if test="studentName != null" >
         #{studentName,jdbcType=VARCHAR},
@@ -218,6 +225,9 @@
       <if test="record.pkStudentId != null" >
         pk_student_id = #{record.pkStudentId,jdbcType=VARCHAR},
       </if>
+      <if test="record.schoolId != null" >
+        school_id = #{record.schoolId,jdbcType=VARCHAR},
+      </if>
       <if test="record.studentName != null" >
         student_name = #{record.studentName,jdbcType=VARCHAR},
       </if>
@@ -262,18 +272,19 @@
   <update id="updateByExample" parameterType="map" >
     update rm_student
     set pk_student_id = #{record.pkStudentId,jdbcType=VARCHAR},
-      student_name = #{record.studentName,jdbcType=VARCHAR},
-      student_num = #{record.studentNum,jdbcType=INTEGER},
-      password = #{record.password,jdbcType=VARCHAR},
-      mobile = #{record.mobile,jdbcType=VARCHAR},
-      gender = #{record.gender,jdbcType=INTEGER},
-      email = #{record.email,jdbcType=VARCHAR},
-      img_url = #{record.imgUrl,jdbcType=VARCHAR},
-      status = #{record.status,jdbcType=INTEGER},
-      create_time = #{record.createTime,jdbcType=TIMESTAMP},
-      create_user_id = #{record.createUserId,jdbcType=VARCHAR},
-      last_modify_time = #{record.lastModifyTime,jdbcType=TIMESTAMP},
-      last_modify_user_id = #{record.lastModifyUserId,jdbcType=VARCHAR}
+    school_id = #{record.schoolId,jdbcType=VARCHAR},
+    student_name = #{record.studentName,jdbcType=VARCHAR},
+    student_num = #{record.studentNum,jdbcType=INTEGER},
+    password = #{record.password,jdbcType=VARCHAR},
+    mobile = #{record.mobile,jdbcType=VARCHAR},
+    gender = #{record.gender,jdbcType=INTEGER},
+    email = #{record.email,jdbcType=VARCHAR},
+    img_url = #{record.imgUrl,jdbcType=VARCHAR},
+    status = #{record.status,jdbcType=INTEGER},
+    create_time = #{record.createTime,jdbcType=TIMESTAMP},
+    create_user_id = #{record.createUserId,jdbcType=VARCHAR},
+    last_modify_time = #{record.lastModifyTime,jdbcType=TIMESTAMP},
+    last_modify_user_id = #{record.lastModifyUserId,jdbcType=VARCHAR}
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -281,6 +292,9 @@
   <update id="updateByPrimaryKeySelective" parameterType="com.waken.dorm.common.entity.student.Student" >
     update rm_student
     <set >
+      <if test="schoolId != null" >
+        school_id = #{schoolId,jdbcType=VARCHAR},
+      </if>
       <if test="studentName != null" >
         student_name = #{studentName,jdbcType=VARCHAR},
       </if>
@@ -322,18 +336,19 @@
   </update>
   <update id="updateByPrimaryKey" parameterType="com.waken.dorm.common.entity.student.Student" >
     update rm_student
-    set student_name = #{studentName,jdbcType=VARCHAR},
-      student_num = #{studentNum,jdbcType=INTEGER},
-      password = #{password,jdbcType=VARCHAR},
-      mobile = #{mobile,jdbcType=VARCHAR},
-      gender = #{gender,jdbcType=INTEGER},
-      email = #{email,jdbcType=VARCHAR},
-      img_url = #{imgUrl,jdbcType=VARCHAR},
-      status = #{status,jdbcType=INTEGER},
-      create_time = #{createTime,jdbcType=TIMESTAMP},
-      create_user_id = #{createUserId,jdbcType=VARCHAR},
-      last_modify_time = #{lastModifyTime,jdbcType=TIMESTAMP},
-      last_modify_user_id = #{lastModifyUserId,jdbcType=VARCHAR}
+    set school_id = #{schoolId,jdbcType=VARCHAR},
+    student_name = #{studentName,jdbcType=VARCHAR},
+    student_num = #{studentNum,jdbcType=INTEGER},
+    password = #{password,jdbcType=VARCHAR},
+    mobile = #{mobile,jdbcType=VARCHAR},
+    gender = #{gender,jdbcType=INTEGER},
+    email = #{email,jdbcType=VARCHAR},
+    img_url = #{imgUrl,jdbcType=VARCHAR},
+    status = #{status,jdbcType=INTEGER},
+    create_time = #{createTime,jdbcType=TIMESTAMP},
+    create_user_id = #{createUserId,jdbcType=VARCHAR},
+    last_modify_time = #{lastModifyTime,jdbcType=TIMESTAMP},
+    last_modify_user_id = #{lastModifyUserId,jdbcType=VARCHAR}
     where pk_student_id = #{pkStudentId,jdbcType=VARCHAR}
   </update>
   <select id="studentLogin" resultType="com.waken.dorm.common.entity.student.StudentInfo" parameterType="com.waken.dorm.common.entity.student.Student">
@@ -359,6 +374,7 @@
   <insert id="batchAddStudent" parameterType="java.util.List">
     insert into rm_student
     (pk_student_id,
+    school_id,
     student_name,
     student_num,
     password,
@@ -374,6 +390,7 @@
     values
     <foreach collection="list" item="item" index="index" separator="," >
       (#{item.pkStudentId},
+      #{item.schoolId},
       #{item.studentName},
       #{item.studentNum},
       #{item.password},
@@ -417,14 +434,14 @@
     FROM rm_student s
     LEFT JOIN rm_school_class_student_rel scs ON scs.student_id = s.pk_student_id
     LEFT JOIN rm_school_class sc ON sc.pk_school_class_id = scs.school_class_id
-    LEFT JOIN rm_school sch ON sch.pk_school_id = sc.school_id
+    LEFT JOIN rm_school sch ON sch.pk_school_id = s.school_id
     LEFT JOIN rm_dorm_building db ON db.school_id = sch.pk_school_id
     LEFT JOIN rm_dorm d ON d.dorm_building_id = db.pk_dorm_building_id
     LEFT JOIN rm_user u ON u.user_id = s.create_user_id
     LEFT JOIN rm_user uu ON uu.user_id = s.last_modify_user_id
     WHERE 1=1
     <if test="schoolId != null and schoolId != ''">
-      and sch.pk_school_id=#{schoolId}
+      and s.school_id=#{schoolId}
     </if>
     <if test="pkStudentId != null and pkStudentId != ''">
       and s.pk_student_id=#{pkStudentId}

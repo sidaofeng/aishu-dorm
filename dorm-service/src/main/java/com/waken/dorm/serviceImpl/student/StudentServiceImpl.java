@@ -32,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -58,27 +59,18 @@ public class StudentServiceImpl extends BaseServerImpl implements StudentService
      */
     @Transactional
     @Override
-    public void batchAddStudent(MultipartFile multipartFile) {
-        String fileName = multipartFile.getOriginalFilename();
-        if (!ExcelUtil.isExcel(fileName)){
-            throw new DormException("文件不是excel类型");
-        }
-        logger.info("service 开始解析excel :" +fileName);
-        FileInputStream out = null;
-        try {
-            InputStream inputStream = multipartFile.getInputStream();
-            out = (FileInputStream)inputStream;
-        } catch (Exception e) {
-            e.printStackTrace();
-            logger.info("转换输入流失败，原因："+e.getMessage());
-        }
+    public List<String> batchAddStudent(MultipartFile multipartFile) {
         ExcelUtil<Student> excelUtil = new ExcelUtil<>(Student.class);
-        List<Student> studentList = excelUtil.importExcel(fileName,out,Constant.ONE);
+        List<Student> studentList = excelUtil.importExcel(multipartFile,Constant.ONE);
+        Date curDate = DateUtils.getCurrentDate();
+        String userId = ShiroUtils.getUserId();
+        String schoolId = schoolService.getSchoolIdByUserId(userId);
+        List<String> studentIds = new ArrayList<>();
         for (Student student : studentList) {
             String studentId = UUIDUtils.getPkUUID();
-            Date curDate = DateUtils.getCurrentDate();
-            String userId = ShiroUtils.getUserId();
+            studentIds.add(studentId);
             student.setPkStudentId(studentId);
+            student.setSchoolId(schoolId);
             student.setStatus(CodeEnum.ENABLE.getCode());
             student.setCreateTime(curDate);
             student.setCreateUserId(userId);
@@ -90,6 +82,7 @@ public class StudentServiceImpl extends BaseServerImpl implements StudentService
         if (count == Constant.ZERO){
             throw new DormException("mysql 批量新增失败");
         }
+        return studentIds;
     }
     /**
      * （保存或修改）单个学生信息

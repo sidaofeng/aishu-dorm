@@ -33,7 +33,7 @@ import org.springframework.web.bind.annotation.*;
 public class DormRuleController extends BaseController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
-    private DormRuleService RuleService;
+    private DormRuleService dormRuleService;
     @Log("(保存/修改)宿舍规则信息")
     @CrossOrigin
     @RequestMapping(value= "/dorm/saveDormRule",method= RequestMethod.POST)
@@ -46,7 +46,7 @@ public class DormRuleController extends BaseController {
         logger.info("开始调用(保存/修改)宿舍规则信息接口接口："+editDormRuleForm.toString());
         ResultView resultView = new ResultView();
         try{
-            DormRule dormRule = RuleService.saveDormRule(editDormRuleForm);
+            DormRule dormRule = dormRuleService.saveDormRule(editDormRuleForm);
             resultView.setCode(ResultEnum.SUCCESS.getCode());
             resultView.setData(dormRule);
             resultView.setMsg("(保存/修改)宿舍规则信息成功");
@@ -71,7 +71,7 @@ public class DormRuleController extends BaseController {
         logger.info("开始调用删除宿舍规则接口："+deleteFrom.toString());
         ResultView resultView = new ResultView();
         try{
-            RuleService.deleteDormRule(deleteFrom);
+            dormRuleService.deleteDormRule(deleteFrom);
             resultView.setCode(ResultEnum.SUCCESS.getCode());
             resultView.setMsg("删除宿舍规则成功");
             logger.info("删除宿舍规则成功");
@@ -94,7 +94,7 @@ public class DormRuleController extends BaseController {
         ResultView resultView = new ResultView();
         try{
             RuleForm.setTerminal(CodeEnum.WEB.getCode());
-            PageInfo<DormRuleView> pageInfo = RuleService.listDormRules(RuleForm);
+            PageInfo<DormRuleView> pageInfo = dormRuleService.listDormRules(RuleForm);
             resultView.setCode(ResultEnum.SUCCESS.getCode());
             resultView.setData(pageInfo);
         }catch (Exception e){

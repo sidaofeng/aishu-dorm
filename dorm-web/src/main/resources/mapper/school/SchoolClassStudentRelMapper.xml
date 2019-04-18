@@ -274,4 +274,26 @@
       memo = #{memo,jdbcType=VARCHAR}
     where pk_school_class_student_id = #{pkSchoolClassStudentId,jdbcType=VARCHAR}
   </update>
+  <insert id="batchImportStudentClassRel" parameterType="java.util.List">
+    insert into rm_school_class_student_rel
+    (pk_school_class_student_id,
+    school_class_id,
+    student_id,
+    status,
+    create_user_id,
+    create_time,
+    last_modify_user_id,
+    last_modify_time)
+    values
+    <foreach collection="list" item="item" index="index" separator="," >
+      (#{item.pkSchoolClassStudentId},
+      #{item.schoolClassId},
+      #{item.studentId},
+      #{item.status},
+      #{item.createUserId},
+      #{item.createTime},
+      #{item.lastModifyUserId},
+      #{item.lastModifyTime})
+    </foreach>
+  </insert>
 </mapper>

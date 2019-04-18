@@ -3,6 +3,7 @@ package com.waken.dorm.serviceImpl.dorm;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.waken.dorm.common.constant.Constant;
+import com.waken.dorm.common.entity.dorm.Dorm;
 import com.waken.dorm.common.entity.dorm.DormScore;
 import com.waken.dorm.common.entity.dorm.DormScoreExample;
 import com.waken.dorm.common.enums.CodeEnum;
@@ -14,6 +15,7 @@ import com.waken.dorm.common.utils.*;
 import com.waken.dorm.common.utils.excel.ExcelUtil;
 import com.waken.dorm.common.view.dorm.AppDormScoreView;
 import com.waken.dorm.common.view.dorm.DormScoreView;
+import com.waken.dorm.dao.dorm.DormMapper;
 import com.waken.dorm.dao.dorm.DormScoreMapper;
 import com.waken.dorm.service.dorm.DormScoreService;
 import com.waken.dorm.service.school.SchoolService;
@@ -28,9 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * @ClassName DormScoreServiceImpl
@@ -46,6 +46,8 @@ public class DormScoreServiceImpl extends BaseServerImpl implements DormScoreSer
     DormScoreMapper dormScoreMapper;
     @Autowired
     SchoolService schoolService;
+    @Autowired
+    DormMapper dormMapper;
     /**
      * 批量导入宿舍评分记录（excel）
      *
@@ -54,25 +56,29 @@ public class DormScoreServiceImpl extends BaseServerImpl implements DormScoreSer
     @Transactional
     @Override
     public void batchAddDormScore(MultipartFile multipartFile) {
-        String fileName = multipartFile.getOriginalFilename();
-        if (!ExcelUtil.isExcel(fileName)){
-            throw new DormException("文件不是excel类型");
-        }
-        logger.info("service 开始解析评分excel :" +fileName);
-        FileInputStream out = null;
-        try {
-            InputStream inputStream = multipartFile.getInputStream();
-            out = (FileInputStream)inputStream;
-        } catch (Exception e) {
-            e.printStackTrace();
-            logger.info("转换输入流失败，原因："+e.getMessage());
-        }
         ExcelUtil<DormScore> excelUtil = new ExcelUtil<>(DormScore.class);
-        List<DormScore> dormScoreList = excelUtil.importExcel(fileName,out, Constant.ONE);
+        List<DormScore> dormScoreList = excelUtil.importExcel(multipartFile, Constant.ONE);
+        List<String> dormNums = new ArrayList<>();
+        if (dormScoreList.isEmpty()){
+            throw new DormException("批量导入失败，原因传入数据为空！");
+        }
+        for (DormScore dormScore : dormScoreList){
+            dormNums.add(dormScore.getDormNum());
+        }
+        Set set = new HashSet();
+        List<String> listNew=new ArrayList<>();
+        set.addAll(dormNums);
+        listNew.addAll(set);
+        List<Dorm> dorms = dormMapper.selectByDormNums(listNew);
+        Date curDate = DateUtils.getCurrentDate();
+        String userId = ShiroUtils.getUserId();
         for (DormScore dormScore : dormScoreList) {
+            for (Dorm dorm : dorms){
+                if (StringUtils.equals(dorm.getDormNum(),dormScore.getDormNum())){
+                    dormScore.setDormId(dorm.getPkDormId());
+                }
+            }
             String pkDormScoreId = UUIDUtils.getPkUUID();
-            Date curDate = DateUtils.getCurrentDate();
-            String userId = ShiroUtils.getUserId();
             dormScore.setPkDormScoreId(pkDormScoreId);
             dormScore.setStatus(CodeEnum.ENABLE.getCode());
             dormScore.setCreateTime(curDate);

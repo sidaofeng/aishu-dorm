@@ -18,20 +18,20 @@
             <property name="forceBigDecimals" value="false"/>
         </javaTypeResolver>
         <!-- 生成实体类的包名和位置-->
-        <javaModelGenerator targetPackage="com.waken.dorm.common.entity.log" targetProject="E:/dorm-gene/entity">
+        <javaModelGenerator targetPackage="com.waken.dorm.common.entity.dorm" targetProject="E:/dorm-gene/entity">
             <property name="enableSubPackages" value="true"/>
             <property name="trimStrings" value="true"/>
         </javaModelGenerator>
         <!-- 生成XML映射文件的包名和位置-->
-        <sqlMapGenerator targetPackage="resources.mapper.log" targetProject="E:/dorm-gene/mapper">
+        <sqlMapGenerator targetPackage="resources.mapper.dorm" targetProject="E:/dorm-gene/mapper">
             <property name="enableSubPackages" value="true"/>
         </sqlMapGenerator>
         <!-- 生成DAO接口的包名和位置-->
-        <javaClientGenerator type="XMLMAPPER" targetPackage="com.waken.dorm.dao.log" targetProject="E:/dorm-gene/dao">
+        <javaClientGenerator type="XMLMAPPER" targetPackage="com.waken.dorm.dao.dorm" targetProject="E:/dorm-gene/dao">
             <property name="enableSubPackages" value="true"/>
         </javaClientGenerator>
         <!--  tableName是数据库中的表名 domainObjectName是实体类名-->
-        <table tableName="rm_log" domainObjectName="SysLog" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true">
+        <table tableName="rm_dorm_score" domainObjectName="DormScore" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true">
             <property name="rootClass" value="com.waken.dorm.common.base.BaseEntity" />
         </table>
     </context>

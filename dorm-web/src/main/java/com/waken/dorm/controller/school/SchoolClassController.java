@@ -8,6 +8,7 @@ import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.school.EditSchoolClassForm;
 import com.waken.dorm.common.form.school.SchoolClassForm;
 import com.waken.dorm.common.form.school.SchoolClassTreeForm;
+import com.waken.dorm.common.utils.StringUtils;
 import com.waken.dorm.common.view.base.TreeView;
 import com.waken.dorm.common.view.school.SchoolClassView;
 import com.waken.dorm.controller.base.BaseController;
@@ -21,7 +22,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 /**
@@ -147,6 +151,35 @@ public class SchoolClassController extends BaseController {
             logger.info("通过学校类别id查询类别信息失败，原因："+e.getMessage());
             resultView.setCode(ResultEnum.FAIL.getCode());
             resultView.setMsg(e.getMessage());
+        }
+        return resultView;
+    }
+    /**
+     * 导入批量学生（excel）
+     */
+    @Log("导入批量学生通过学校类别id（excel）")
+    @CrossOrigin
+    @RequestMapping(value = {"/schoolClass/batchImportStudentByClassId"},method = RequestMethod.POST)
+    @ApiOperation(value = "batchImportStudentByClassId（导入批量学生通过学校类别id（excel））",notes = "导入批量学生（excel）")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "success", response = ResultView.class)
+    })
+    @ResponseBody
+    public ResultView batchImportStudentByClassId(HttpServletRequest request,@RequestParam(value = "file", required = false) MultipartFile file, String schoolClassId){
+        logger.info("开始调用通过学校类别id导入批量学生接口："+file.getOriginalFilename().toString());
+        ResultView resultView = new ResultView();
+        try{
+            if (StringUtils.isEmpty(schoolClassId)){
+                schoolClassId = request.getParameter("schoolClassId");
+            }
+            schoolClassService.batchImportStudentByClassId(file,schoolClassId);
+            logger.info("通过学校类别id导入批量学生成功");
+            resultView.setCode(ResultEnum.SUCCESS.getCode());
+            resultView.setMsg("通过学校类别id导入批量学生成功");
+        }catch (Exception e){
+            logger.info("通过学校类别id导入批量学生失败原因："+e.getMessage());
+            resultView.setCode(ResultEnum.FAIL.getCode());
+            resultView.setMsg("通过学校类别id导入批量学生失败原因："+e.getMessage());
         }
         return resultView;
     }

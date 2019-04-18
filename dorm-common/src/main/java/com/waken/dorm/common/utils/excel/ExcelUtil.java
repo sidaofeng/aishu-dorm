@@ -1,6 +1,7 @@
 package com.waken.dorm.common.utils.excel;
 
 import com.waken.dorm.common.annotation.ExcelColumn;
+import com.waken.dorm.common.exception.DormException;
 import com.waken.dorm.common.utils.DateUtils;
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -11,6 +12,7 @@ import org.apache.poi.ss.util.CellUtil;
 import org.apache.poi.xssf.usermodel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
@@ -50,13 +52,26 @@ public class ExcelUtil<T> {
      * 
      * @Title: importExcel
      * @Description: 导入excel
-     * @param sheetName
-     * @param input
+     * @param multipartFile
      * @param startRow
      * @return
      * @return: List<T>
      */
-    public List<T> importExcel(String sheetName, InputStream input, int startRow) {
+    public List<T> importExcel(MultipartFile multipartFile, int startRow) {
+        String sheetName = multipartFile.getOriginalFilename();
+        logger.info("开始解析excel :" +sheetName);
+        if (!ExcelUtil.isExcel(sheetName)){
+            throw new DormException("文件不是excel类型");
+        }
+
+        FileInputStream input = null;
+        try {
+            InputStream inputStream = multipartFile.getInputStream();
+            input = (FileInputStream)inputStream;
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.info("转换输入流失败，原因："+e.getMessage());
+        }
         Workbook workbook = null;
         Sheet sheet = null;
         // 总列数
@@ -65,7 +80,7 @@ public class ExcelUtil<T> {
         List<T> list = new ArrayList<T>();
         try {
             workbook = WorkbookFactory.create(input);
-            
+
             if (null != sheetName && !sheetName.trim().equals("")) {
                 // 如果指定sheet名,则取指定sheet中的内容.
                 sheet = workbook.getSheet(sheetName);

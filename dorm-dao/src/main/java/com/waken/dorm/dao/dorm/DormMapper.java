@@ -11,11 +11,14 @@ import com.waken.dorm.common.view.dorm.DormView;
 import org.apache.ibatis.annotations.Param;
 
 public interface DormMapper {
+
     int batchUpdateStatus(Map<String,Object> param);
 
     AppDormView queryAppDormView(String studentId);
 
     List<DormView> listDorms(DormForm dormForm);
+
+    List<Dorm> selectByDormNums(@Param("dormNums") List<String> dormNums);//通过批量dormNums批量查询
 
     List<Dorm> selectByIds(@Param("Ids") List<String> Ids);//通过批量Ids批量查询
 

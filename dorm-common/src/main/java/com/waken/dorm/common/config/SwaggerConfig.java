@@ -32,7 +32,7 @@ public class SwaggerConfig {
                 .forCodeGeneration(false)
                 .pathMapping("/") // base，最终调用接口后会和paths拼接在一起
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("com.waken.dorm.controller"))
+                .apis(RequestHandlerSelectors.basePackage("com.waken.dorm"))
                 .paths(PathSelectors.any())
                 .build();
     }

@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.waken.dorm.common.entity.school.SchoolClass;
 import com.waken.dorm.common.entity.school.SchoolClassExample;
+import com.waken.dorm.common.entity.student.Student;
 import com.waken.dorm.common.form.school.SchoolClassForm;
 import com.waken.dorm.common.view.school.SchoolClassView;
 import org.apache.ibatis.annotations.Param;

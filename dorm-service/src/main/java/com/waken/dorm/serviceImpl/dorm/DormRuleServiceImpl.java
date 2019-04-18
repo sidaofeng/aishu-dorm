@@ -34,7 +34,7 @@ import java.util.List;
 
 /**
  * @ClassName DormRuleServiceImpl
- * @Description TODO
+ * @Description DormRuleServiceImpl
  * @Author zhaoRong
  * @Date 2019/4/2 10:42
  **/
@@ -46,8 +46,6 @@ public class DormRuleServiceImpl extends BaseServerImpl implements DormRuleServi
     DormRuleMapper dormRuleMapper;
     @Autowired
     SchoolService schoolService;
-    @Autowired
-    SchoolClassService schoolClassService;
     /**
      * 保存/修改宿舍规则信息
      *

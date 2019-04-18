@@ -10,6 +10,8 @@ import com.waken.dorm.common.view.base.ImgView;
 import com.waken.dorm.common.view.student.StudentView;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 /**
  * @ClassName StudentService
  * @Description TODO
@@ -20,7 +22,7 @@ public interface StudentService {
     /**
      * 批量新增学生
      */
-    public void batchAddStudent(MultipartFile file);
+    public List<String> batchAddStudent(MultipartFile file);
     /**
      * （保存或修改）单个学生信息
      * @param editStudentForm

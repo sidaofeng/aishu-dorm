@@ -1,5 +1,6 @@
 package com.waken.dorm.common.entity.student;
 
+import com.waken.dorm.common.annotation.ExcelColumn;
 import com.waken.dorm.common.base.BaseEntity;
 
 import java.util.Date;
@@ -14,12 +15,17 @@ public class Student extends BaseEntity {
     private static final long serialVersionUID = 7634334849749799694L;
     private String pkStudentId;
 
+    private String schoolId;
+
+    @ExcelColumn(name = "姓名", column = "A")
     private String studentName;
 
+    @ExcelColumn(name = "学号", column = "B")
     private Integer studentNum;
 
     private String password;
 
+    @ExcelColumn(name = "联系方式", column = "C")
     private String mobile;
 
     private Integer gender;
@@ -44,6 +50,14 @@ public class Student extends BaseEntity {
 
     public void setPkStudentId(String pkStudentId) {
         this.pkStudentId = pkStudentId == null ? null : pkStudentId.trim();
+    }
+
+    public String getSchoolId() {
+        return schoolId;
+    }
+
+    public void setSchoolId(String schoolId) {
+        this.schoolId = schoolId == null ? null : schoolId.trim();
     }
 
     public String getStudentName() {

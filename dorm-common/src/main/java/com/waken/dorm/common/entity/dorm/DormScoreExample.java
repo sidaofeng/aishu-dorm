@@ -175,75 +175,7 @@ public class DormScoreExample {
             return (Criteria) this;
         }
 
-        public Criteria andDormNumIsNull() {
-            addCriterion("dorm_num is null");
-            return (Criteria) this;
-        }
 
-        public Criteria andDormNumIsNotNull() {
-            addCriterion("dorm_num is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andDormNumEqualTo(String value) {
-            addCriterion("dorm_num =", value, "dormNum");
-            return (Criteria) this;
-        }
-
-        public Criteria andDormNumNotEqualTo(String value) {
-            addCriterion("dorm_num <>", value, "dormNum");
-            return (Criteria) this;
-        }
-
-        public Criteria andDormNumGreaterThan(String value) {
-            addCriterion("dorm_num >", value, "dormNum");
-            return (Criteria) this;
-        }
-
-        public Criteria andDormNumGreaterThanOrEqualTo(String value) {
-            addCriterion("dorm_num >=", value, "dormNum");
-            return (Criteria) this;
-        }
-
-        public Criteria andDormNumLessThan(String value) {
-            addCriterion("dorm_num <", value, "dormNum");
-            return (Criteria) this;
-        }
-
-        public Criteria andDormNumLessThanOrEqualTo(String value) {
-            addCriterion("dorm_num <=", value, "dormNum");
-            return (Criteria) this;
-        }
-
-        public Criteria andDormNumLike(String value) {
-            addCriterion("dorm_num like", value, "dormNum");
-            return (Criteria) this;
-        }
-
-        public Criteria andDormNumNotLike(String value) {
-            addCriterion("dorm_num not like", value, "dormNum");
-            return (Criteria) this;
-        }
-
-        public Criteria andDormNumIn(List<String> values) {
-            addCriterion("dorm_num in", values, "dormNum");
-            return (Criteria) this;
-        }
-
-        public Criteria andDormNumNotIn(List<String> values) {
-            addCriterion("dorm_num not in", values, "dormNum");
-            return (Criteria) this;
-        }
-
-        public Criteria andDormNumBetween(String value1, String value2) {
-            addCriterion("dorm_num between", value1, value2, "dormNum");
-            return (Criteria) this;
-        }
-
-        public Criteria andDormNumNotBetween(String value1, String value2) {
-            addCriterion("dorm_num not between", value1, value2, "dormNum");
-            return (Criteria) this;
-        }
 
         public Criteria andCultureScoreIsNull() {
             addCriterion("culture_score is null");
