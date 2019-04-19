@@ -54,32 +54,20 @@ public class SchoolServiceImpl extends BaseServerImpl implements SchoolService {
     @Transactional
     @Override
     public School saveSchool(EditSchoolForm editSchoolForm) {
+        this.editSchoolValidate(editSchoolForm);
+        String userId = ShiroUtils.getUserId();
+        Date curDate = DateUtils.getCurrentDate();
+        School school = new School();
+        BeanMapper.copy(editSchoolForm,school);
+        school.setLastModifyTime(curDate);
+        school.setLastModifyUserId(userId);
         if (StringUtils.isEmpty(editSchoolForm.getPkSchoolId())){//新增
             logger.info("service: 新增学校开始");
-            this.addSchoolValidate(editSchoolForm);
             String pkSchoolId = UUIDUtils.getPkUUID();
-            String userId = ShiroUtils.getUserId();
-            Date curDate = DateUtils.getCurrentDate();
-            School school = new School();
             school.setPkSchoolId(pkSchoolId);
-            school.setSchoolName(editSchoolForm.getSchoolName());
             school.setStatus(CodeEnum.ENABLE.getCode());
             school.setCreateTime(curDate);
             school.setCreateUserId(userId);
-            school.setLastModifyTime(curDate);
-            school.setLastModifyUserId(userId);
-            if (StringUtils.isNotEmpty(editSchoolForm.getMemo())){
-                school.setMemo(editSchoolForm.getMemo());
-            }
-            if (editSchoolForm.getProvinceId() != null){
-                school.setMemo(editSchoolForm.getMemo());
-            }
-            if (editSchoolForm.getCityId() != null){
-                school.setCityId(editSchoolForm.getCityId());
-            }
-            if (editSchoolForm.getAreaId() != null){
-                school.setAreaId(editSchoolForm.getAreaId());
-            }
             int count = Constant.ZERO;
             count = schoolMapper.insertSelective(school);
             if (count == Constant.ZERO){
@@ -90,35 +78,8 @@ public class SchoolServiceImpl extends BaseServerImpl implements SchoolService {
             return school;
         }else {//修改
             logger.info("service: 更新学校信息开始");
-            School school = schoolMapper.selectByPrimaryKey(editSchoolForm.getPkSchoolId());
-            if (school == null){
-                throw new DormException("学校id无效!");
-            }
-            String userId = ShiroUtils.getUserId();
-            Date curDate = DateUtils.getCurrentDate();
-            if (StringUtils.isNotEmpty(editSchoolForm.getSchoolName())){
-                school.setSchoolName(editSchoolForm.getSchoolName());
-            }
-            if (StringUtils.isNotEmpty(editSchoolForm.getMemo())){
-                school.setMemo(editSchoolForm.getMemo());
-            }
-            if (editSchoolForm.getProvinceId() != null){
-                school.setMemo(editSchoolForm.getMemo());
-            }
-            if (editSchoolForm.getCityId() != null){
-                school.setCityId(editSchoolForm.getCityId());
-            }
-            if (editSchoolForm.getAreaId() != null){
-                school.setAreaId(editSchoolForm.getAreaId());
-            }
-            school.setLastModifyUserId(userId);
-            school.setLastModifyTime(curDate);
-            int count = Constant.ZERO;
-            count = schoolMapper.updateByPrimaryKeySelective(school);
-            if (count == Constant.ZERO){
-                throw new DormException("更新学校失败！");
-            }
-            return school;
+            schoolMapper.updateByPrimaryKeySelective(school);
+            return schoolMapper.selectByPrimaryKey(editSchoolForm.getPkSchoolId());
         }
     }
 
@@ -204,7 +165,7 @@ public class SchoolServiceImpl extends BaseServerImpl implements SchoolService {
         criteria.andUserIdEqualTo(userId);
         List<SchoolUserRel> schoolUserRels = schoolUserRelMapper.selectByExample(example);
         if (schoolUserRels.isEmpty()){
-            throw  new DormException("用户不合法！");
+            return null;
         }else {
             String schoolId = schoolUserRels.get(Constant.ZERO).getSchoolId();
             logger.info("当前登陆用户所对应的学校id为："+schoolId);
@@ -212,43 +173,50 @@ public class SchoolServiceImpl extends BaseServerImpl implements SchoolService {
         }
 
     }
-    private void addSchoolValidate(EditSchoolForm editSchoolForm){
-        if (StringUtils.isEmpty(editSchoolForm.getSchoolName())){
-            throw new DormException("学校名称不能为空！");
-        }
-        if (StringUtils.isEmpty(editSchoolForm.getUserName())){
-            throw new DormException("用户名不能为空！");
-        }
-        if (StringUtils.isEmpty(editSchoolForm.getPassword())){
-            throw new DormException("密码不能为空！");
-        }
-        if (StringUtils.isEmpty(editSchoolForm.getMobile())){
-            throw new DormException("电话不能为空！");
-        }else {
-            if (!CheckUtils.isPhoneLegality(editSchoolForm.getMobile())){
-                throw new DormException("请输入正确的手机号码！");
+    private void editSchoolValidate(EditSchoolForm editSchoolForm){
+        if (StringUtils.isEmpty(editSchoolForm.getPkSchoolId())){
+            if (StringUtils.isEmpty(editSchoolForm.getSchoolName())){
+                throw new DormException("学校名称不能为空！");
             }
-        }
-        if (StringUtils.isEmpty(editSchoolForm.getEmail())){
-            throw new DormException("电子邮箱不能为空！");
-        }else {
-            if (!CheckUtils.isEmailLegality(editSchoolForm.getEmail())){
-                throw new DormException("请输入正确的电子邮箱！");
+            if (StringUtils.isEmpty(editSchoolForm.getUserName())){
+                throw new DormException("用户名不能为空！");
             }
-        }
-        UserExample userExample = new UserExample();
-        UserExample.Criteria userCriteria = userExample.createCriteria();
-        userCriteria.andUserNameEqualTo(editSchoolForm.getUserName());
-        List<User> userList = userMapper.selectByExample(userExample);
-        if (!userList.isEmpty()){
-            throw new DormException("用户名已存在！");
-        }
-        SchoolExample example = new SchoolExample();
-        SchoolExample.Criteria criteria = example.createCriteria();
-        criteria.andSchoolNameEqualTo(editSchoolForm.getSchoolName());
-        List<School> schools = schoolMapper.selectByExample(example);
-        if (!schools.isEmpty()){
-            throw new DormException("学校名称已存在！");
+            if (StringUtils.isEmpty(editSchoolForm.getPassword())){
+                throw new DormException("密码不能为空！");
+            }
+            if (StringUtils.isEmpty(editSchoolForm.getMobile())){
+                throw new DormException("电话不能为空！");
+            }else {
+                if (!CheckUtils.isPhoneLegality(editSchoolForm.getMobile())){
+                    throw new DormException("请输入正确的手机号码！");
+                }
+            }
+            if (StringUtils.isEmpty(editSchoolForm.getEmail())){
+                throw new DormException("电子邮箱不能为空！");
+            }else {
+                if (!CheckUtils.isEmailLegality(editSchoolForm.getEmail())){
+                    throw new DormException("请输入正确的电子邮箱！");
+                }
+            }
+            UserExample userExample = new UserExample();
+            UserExample.Criteria userCriteria = userExample.createCriteria();
+            userCriteria.andUserNameEqualTo(editSchoolForm.getUserName());
+            List<User> userList = userMapper.selectByExample(userExample);
+            if (!userList.isEmpty()){
+                throw new DormException("用户名已存在！");
+            }
+            SchoolExample example = new SchoolExample();
+            SchoolExample.Criteria criteria = example.createCriteria();
+            criteria.andSchoolNameEqualTo(editSchoolForm.getSchoolName());
+            List<School> schools = schoolMapper.selectByExample(example);
+            if (!schools.isEmpty()){
+                throw new DormException("学校名称已存在！");
+            }
+        }else {
+            School school = schoolMapper.selectByPrimaryKey(editSchoolForm.getPkSchoolId());
+            if (school == null){
+                throw new DormException("学校id无效!");
+            }
         }
     }
 

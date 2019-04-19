@@ -11,10 +11,7 @@ import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.school.EditSchoolClassForm;
 import com.waken.dorm.common.form.school.SchoolClassForm;
 import com.waken.dorm.common.form.school.SchoolClassTreeForm;
-import com.waken.dorm.common.utils.DateUtils;
-import com.waken.dorm.common.utils.ShiroUtils;
-import com.waken.dorm.common.utils.StringUtils;
-import com.waken.dorm.common.utils.UUIDUtils;
+import com.waken.dorm.common.utils.*;
 import com.waken.dorm.common.view.base.TreeView;
 import com.waken.dorm.common.view.school.SchoolClassView;
 import com.waken.dorm.dao.school.SchoolClassMapper;
@@ -64,32 +61,25 @@ public class SchoolClassServiceImpl extends BaseServerImpl implements SchoolClas
         String schoolId = editSchoolClassForm.getSchoolId();
         String userId = ShiroUtils.getUserId();
         Date curDate = DateUtils.getCurrentDate();
-        int count = Constant.ZERO;
         if (StringUtils.isEmpty(schoolId)){
             schoolId = schoolService.getSchoolIdByUserId(userId);
             editSchoolClassForm.setSchoolId(schoolId);
         }
         this.editSchoolClassValidate(editSchoolClassForm);
+        SchoolClass schoolClass = new SchoolClass();
+        BeanMapper.copy(editSchoolClassForm,schoolClass);
+        schoolClass.setLastModifyTime(curDate);
+        schoolClass.setLastModifyUserId(userId);
         if (StringUtils.isEmpty(editSchoolClassForm.getPkSchoolClassId())){//新增
             logger.info("service: 新增学校类别开始");
             String pkSchoolClassId = UUIDUtils.getPkUUID();
-            SchoolClass schoolClass = new SchoolClass();
             schoolClass.setSchoolId(schoolId);
             schoolClass.setPkSchoolClassId(pkSchoolClassId);
-            if (StringUtils.isNotEmpty(editSchoolClassForm.getParentId())){
-                schoolClass.setParentId(editSchoolClassForm.getParentId());
-            }
-            schoolClass.setClassNo(getClassNo(editSchoolClassForm.getParentId()));
-            schoolClass.setClassName(editSchoolClassForm.getClassName());
-            schoolClass.setClassDesc(editSchoolClassForm.getClassDesc());
+            schoolClass.setClassNo(this.getClassNo(editSchoolClassForm.getParentId()));
             schoolClass.setStatus(CodeEnum.ENABLE.getCode());
             schoolClass.setCreateTime(curDate);
             schoolClass.setCreateUserId(userId);
-            schoolClass.setLastModifyTime(curDate);
-            schoolClass.setLastModifyUserId(userId);
-            if (StringUtils.isNotEmpty(editSchoolClassForm.getMemo())){
-                schoolClass.setMemo(editSchoolClassForm.getMemo());
-            }
+            int count = Constant.ZERO;
             count = schoolClassMapper.insertSelective(schoolClass);
             if (count == Constant.ZERO){
                 throw new DormException("新增学校类别个数为 0 个");
@@ -97,26 +87,8 @@ public class SchoolClassServiceImpl extends BaseServerImpl implements SchoolClas
             return schoolClass;
         }else {//修改
             logger.info("service: 更新学校类别信息开始");
-            SchoolClass schoolClass = schoolClassMapper.selectByPrimaryKey(editSchoolClassForm.getPkSchoolClassId());
-            if (schoolClass == null){
-                throw new DormException("学校类别id无效!");
-            }
-            if (StringUtils.isNotEmpty(editSchoolClassForm.getClassName())){
-                schoolClass.setClassName(editSchoolClassForm.getClassName());
-            }
-            if (StringUtils.isNotEmpty(editSchoolClassForm.getClassDesc())){
-                schoolClass.setClassDesc(editSchoolClassForm.getClassDesc());
-            }
-            if (StringUtils.isNotEmpty(editSchoolClassForm.getMemo())){
-                schoolClass.setMemo(editSchoolClassForm.getMemo());
-            }
-            schoolClass.setLastModifyUserId(userId);
-            schoolClass.setLastModifyTime(curDate);
-            count = schoolClassMapper.updateByPrimaryKeySelective(schoolClass);
-            if (count == Constant.ZERO){
-                throw new DormException("更新学校类别失败！");
-            }
-            return schoolClass;
+            schoolClassMapper.updateByPrimaryKeySelective(schoolClass);
+            return schoolClassMapper.selectByPrimaryKey(editSchoolClassForm.getPkSchoolClassId());
         }
     }
 
@@ -388,8 +360,11 @@ public class SchoolClassServiceImpl extends BaseServerImpl implements SchoolClas
                 throw new DormException("学校类别名称已存在！");
             }
         }else {//修改验证
+            SchoolClass schoolClass = schoolClassMapper.selectByPrimaryKey(editSchoolClassForm.getPkSchoolClassId());
+            if (schoolClass == null){
+                throw new DormException("学校类别id无效!");
+            }
             if (StringUtils.isNotEmpty(editSchoolClassForm.getClassName())){
-                SchoolClass schoolClass = schoolClassMapper.selectByPrimaryKey(editSchoolClassForm.getPkSchoolClassId());
                 SchoolClassExample example = new SchoolClassExample();
                 SchoolClassExample.Criteria criteria = example.createCriteria();
                 if (StringUtils.isEmpty(schoolClass.getParentId())){

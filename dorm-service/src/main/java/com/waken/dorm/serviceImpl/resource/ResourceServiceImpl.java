@@ -16,10 +16,7 @@ import com.waken.dorm.common.form.resource.EditResourceForm;
 import com.waken.dorm.common.form.resource.ResourceForm;
 import com.waken.dorm.common.form.resource.ResourceMenuForm;
 import com.waken.dorm.common.form.resource.ResourceTreeForm;
-import com.waken.dorm.common.utils.DateUtils;
-import com.waken.dorm.common.utils.ShiroUtils;
-import com.waken.dorm.common.utils.StringUtils;
-import com.waken.dorm.common.utils.UUIDUtils;
+import com.waken.dorm.common.utils.*;
 import com.waken.dorm.common.view.base.TreeView;
 import com.waken.dorm.common.view.resource.ResourceMenuView;
 import com.waken.dorm.common.view.resource.ResourceTreeView;
@@ -67,13 +64,15 @@ public class ResourceServiceImpl extends BaseServerImpl implements ResourceServi
         String userId = ShiroUtils.getUserId();
         Date curDate = DateUtils.getCurrentDate();
         int count = Constant.ZERO;
+        Resource resource = new Resource();
+        BeanMapper.copy(editResourceForm,resource);
+        resource.setLastModifyTime(curDate);
+        resource.setLastModifyUserId(userId);
         if (StringUtils.isEmpty(editResourceForm.getPkResourceId())){//新增
-
             logger.info("service: 新增资源开始");
             String pkResourceId = UUIDUtils.getPkUUID();
-
             int resourceNo = Constant.ZERO;
-            Resource resource = new Resource();
+
             if (StringUtils.isEmpty(editResourceForm.getParentId())){
                 resource.setIsParent(CodeEnum.YES.getCode());
             }else {
@@ -83,8 +82,6 @@ public class ResourceServiceImpl extends BaseServerImpl implements ResourceServi
             }
             resourceNo = this.getResourceNo(editResourceForm);
             resource.setResourceNo(resourceNo);
-            resource.setResourceName(editResourceForm.getResourceName());
-            resource.setResourceUrl(editResourceForm.getResourceUrl());
             if (editResourceForm.getResourceType() == null){
                 resource.setResourceType(CodeEnum.MENU.getCode());
             }else {
@@ -94,8 +91,6 @@ public class ResourceServiceImpl extends BaseServerImpl implements ResourceServi
             resource.setStatus(CodeEnum.ENABLE.getCode());
             resource.setCreateTime(curDate);
             resource.setCreateUserId(userId);
-            resource.setLastModifyTime(curDate);
-            resource.setLastModifyUserId(userId);
             count = resourceMapper.insertSelective(resource);
             if (count == Constant.ZERO){
                 throw new DormException("新增资源失败");
@@ -105,25 +100,8 @@ public class ResourceServiceImpl extends BaseServerImpl implements ResourceServi
             return resource;
         }else {//修改
             logger.info("service: 更新资源开始");
-            Resource resource = resourceMapper.selectByPrimaryKey(editResourceForm.getPkResourceId());
-            if (resource == null){
-                throw new DormException("资源id无效!");
-            }
-            if (StringUtils.isNotEmpty(editResourceForm.getResourceName())){
-                resource.setResourceName(editResourceForm.getResourceName());
-            }
-            if (StringUtils.isNotEmpty(editResourceForm.getResourceUrl())){
-                resource.setResourceUrl(editResourceForm.getResourceUrl());
-            }
-            if (editResourceForm.getResourceType() == null){
-                resource.setResourceType(CodeEnum.MENU.getCode());
-            }else {
-                resource.setResourceType(editResourceForm.getResourceType());
-            }
-            resource.setLastModifyTime(curDate);
-            resource.setLastModifyUserId(userId);
             resourceMapper.updateByPrimaryKeySelective(resource);
-            return resource;
+            return resourceMapper.selectByPrimaryKey(editResourceForm.getPkResourceId());
         }
 
     }
@@ -392,6 +370,10 @@ public class ResourceServiceImpl extends BaseServerImpl implements ResourceServi
                 throw new DormException("已经存在相同名称或url的资源！");
             }
         }else {
+            Resource resource = resourceMapper.selectByPrimaryKey(editResourceForm.getPkResourceId());
+            if (resource == null){
+                throw new DormException("资源id无效!");
+            }
             ResourceExample example = new ResourceExample();
             ResourceExample.Criteria criteria = example.createCriteria();
             if (StringUtils.isNotEmpty(editResourceForm.getResourceName())){

@@ -12,10 +12,7 @@ import com.waken.dorm.common.exception.DormException;
 import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.dorm.DormRuleForm;
 import com.waken.dorm.common.form.dorm.EditDormRuleForm;
-import com.waken.dorm.common.utils.DateUtils;
-import com.waken.dorm.common.utils.ShiroUtils;
-import com.waken.dorm.common.utils.StringUtils;
-import com.waken.dorm.common.utils.UUIDUtils;
+import com.waken.dorm.common.utils.*;
 import com.waken.dorm.common.view.dorm.DormRuleView;
 import com.waken.dorm.dao.dorm.DormRuleMapper;
 import com.waken.dorm.service.dorm.DormRuleService;
@@ -59,9 +56,12 @@ public class DormRuleServiceImpl extends BaseServerImpl implements DormRuleServi
         String userId = ShiroUtils.getUserId();
         Date curDate = DateUtils.getCurrentDate();
         int count = Constant.ZERO;
+        DormRule dormRule = new DormRule();
+        BeanMapper.copy(editRuleForm,dormRule);
+        dormRule.setLastModifyTime(curDate);
+        dormRule.setLastModifyUserId(userId);
         if (StringUtils.isEmpty(editRuleForm.getPkDormRuleId())){//新增
             logger.info("service: 开始进入新增宿舍规则信息");
-            DormRule dormRule = new DormRule();
             String pkDormRuleId = UUIDUtils.getPkUUID();
             if (StringUtils.isEmpty(editRuleForm.getSchoolId())){
                 String schoolId = schoolService.getSchoolIdByUserId(userId);
@@ -70,16 +70,9 @@ public class DormRuleServiceImpl extends BaseServerImpl implements DormRuleServi
                 dormRule.setSchoolId(editRuleForm.getSchoolId());
             }
             dormRule.setPkDormRuleId(pkDormRuleId);
-            dormRule.setRuleName(editRuleForm.getRuleName());
-            dormRule.setRuleDesc(editRuleForm.getRuleDesc());
             dormRule.setStatus(CodeEnum.ENABLE.getCode());
             dormRule.setCreateTime(curDate);
             dormRule.setCreateUserId(userId);
-            dormRule.setLastModifyTime(curDate);
-            dormRule.setLastModifyUserId(userId);
-            if (StringUtils.isNotEmpty(editRuleForm.getMemo())){
-                dormRule.setMemo(editRuleForm.getMemo());
-            }
             count = dormRuleMapper.insertSelective(dormRule);
             if (count == Constant.ZERO){
                 throw new DormException("新增个数为 0 条");
@@ -87,29 +80,8 @@ public class DormRuleServiceImpl extends BaseServerImpl implements DormRuleServi
             return dormRule;
         }else {//更新宿舍规则信息
             logger.info("service: 开始进入更新宿舍规则信息");
-            DormRule dormRule = dormRuleMapper.selectByPrimaryKey(editRuleForm.getPkDormRuleId());
-            if (dormRule == null){
-                throw new DormException("宿舍规则id不正确");
-            }
-            if (StringUtils.isNotEmpty(editRuleForm.getRuleName())){
-                dormRule.setRuleName(editRuleForm.getRuleName());
-            }
-            if (editRuleForm.getStatus() != null){
-                dormRule.setStatus(editRuleForm.getStatus());
-            }
-            if (StringUtils.isNotEmpty(editRuleForm.getRuleDesc())){
-                dormRule.setRuleDesc(editRuleForm.getRuleDesc());
-            }
-            if (StringUtils.isNotEmpty(editRuleForm.getMemo())){
-                dormRule.setMemo(editRuleForm.getMemo());
-            }
-            dormRule.setLastModifyTime(curDate);
-            dormRule.setLastModifyUserId(userId);
-            count = dormRuleMapper.updateByPrimaryKeySelective(dormRule);
-            if (count == Constant.ZERO){
-                throw new DormException("更新个数为 0 条");
-            }
-            return dormRule;
+            dormRuleMapper.updateByPrimaryKeySelective(dormRule);
+            return dormRuleMapper.selectByPrimaryKey(editRuleForm.getPkDormRuleId());
         }
     }
 
@@ -205,6 +177,10 @@ public class DormRuleServiceImpl extends BaseServerImpl implements DormRuleServi
                 throw new DormException("已存在相同名称的规则名！");
             }
         }else {//修改验证
+            DormRule dormRule = dormRuleMapper.selectByPrimaryKey(editRuleForm.getPkDormRuleId());
+            if (dormRule == null){
+                throw new DormException("宿舍规则id不正确");
+            }
             if (StringUtils.isNotEmpty(editRuleForm.getRuleName())){
                 DormRuleExample example = new DormRuleExample();
                 DormRuleExample.Criteria criteria = example.createCriteria();

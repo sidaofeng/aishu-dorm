@@ -1,0 +1,417 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.waken.dorm.dao.dict.DictMapper" >
+  <resultMap id="BaseResultMap" type="com.waken.dorm.common.entity.dict.Dict" >
+    <id column="pk_dict_id" property="pkDictId" jdbcType="VARCHAR" />
+    <result column="dict_key" property="dictKey" jdbcType="VARCHAR" />
+    <result column="dict_value" property="dictValue" jdbcType="VARCHAR" />
+    <result column="column_name" property="columnName" jdbcType="VARCHAR" />
+    <result column="column_desc" property="columnDesc" jdbcType="VARCHAR" />
+    <result column="table_name" property="tableName" jdbcType="VARCHAR" />
+    <result column="table_desc" property="tableDesc" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="INTEGER" />
+    <result column="school_id" property="schoolId" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="create_user_id" property="createUserId" jdbcType="VARCHAR" />
+    <result column="last_modify_time" property="lastModifyTime" jdbcType="TIMESTAMP" />
+    <result column="last_modify_user_id" property="lastModifyUserId" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    pk_dict_id, dict_key, dict_value, column_name, column_desc, table_name, table_desc,
+    status, school_id, create_time, create_user_id, last_modify_time, last_modify_user_id
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.waken.dorm.common.entity.dict.DictExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    from rm_dict
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select
+    <include refid="Base_Column_List" />
+    from rm_dict
+    where pk_dict_id = #{pkDictId,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from rm_dict
+    where pk_dict_id = #{pkDictId,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.waken.dorm.common.entity.dict.DictExample" >
+    delete from rm_dict
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.waken.dorm.common.entity.dict.Dict" >
+    insert into rm_dict (pk_dict_id, dict_key, dict_value,
+    column_name, column_desc, table_name,
+    table_desc, status, school_id,
+    create_time, create_user_id, last_modify_time,
+    last_modify_user_id)
+    values (#{pkDictId,jdbcType=VARCHAR}, #{dictKey,jdbcType=VARCHAR}, #{dictValue,jdbcType=VARCHAR},
+    #{columnName,jdbcType=VARCHAR}, #{columnDesc,jdbcType=VARCHAR}, #{tableName,jdbcType=VARCHAR},
+    #{tableDesc,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, #{schoolId,jdbcType=VARCHAR},
+    #{createTime,jdbcType=TIMESTAMP}, #{createUserId,jdbcType=VARCHAR}, #{lastModifyTime,jdbcType=TIMESTAMP},
+    #{lastModifyUserId,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.waken.dorm.common.entity.dict.Dict" >
+    insert into rm_dict
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="pkDictId != null" >
+        pk_dict_id,
+      </if>
+      <if test="dictKey != null" >
+        dict_key,
+      </if>
+      <if test="dictValue != null" >
+        dict_value,
+      </if>
+      <if test="columnName != null" >
+        column_name,
+      </if>
+      <if test="columnDesc != null" >
+        column_desc,
+      </if>
+      <if test="tableName != null" >
+        table_name,
+      </if>
+      <if test="tableDesc != null" >
+        table_desc,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="schoolId != null" >
+        school_id,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="createUserId != null" >
+        create_user_id,
+      </if>
+      <if test="lastModifyTime != null" >
+        last_modify_time,
+      </if>
+      <if test="lastModifyUserId != null" >
+        last_modify_user_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="pkDictId != null" >
+        #{pkDictId,jdbcType=VARCHAR},
+      </if>
+      <if test="dictKey != null" >
+        #{dictKey,jdbcType=VARCHAR},
+      </if>
+      <if test="dictValue != null" >
+        #{dictValue,jdbcType=VARCHAR},
+      </if>
+      <if test="columnName != null" >
+        #{columnName,jdbcType=VARCHAR},
+      </if>
+      <if test="columnDesc != null" >
+        #{columnDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="tableName != null" >
+        #{tableName,jdbcType=VARCHAR},
+      </if>
+      <if test="tableDesc != null" >
+        #{tableDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="schoolId != null" >
+        #{schoolId,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUserId != null" >
+        #{createUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="lastModifyTime != null" >
+        #{lastModifyTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lastModifyUserId != null" >
+        #{lastModifyUserId,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.waken.dorm.common.entity.dict.DictExample" resultType="java.lang.Integer" >
+    select count(*) from rm_dict
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update rm_dict
+    <set >
+      <if test="record.pkDictId != null" >
+        pk_dict_id = #{record.pkDictId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.dictKey != null" >
+        dict_key = #{record.dictKey,jdbcType=VARCHAR},
+      </if>
+      <if test="record.dictValue != null" >
+        dict_value = #{record.dictValue,jdbcType=VARCHAR},
+      </if>
+      <if test="record.columnName != null" >
+        column_name = #{record.columnName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.columnDesc != null" >
+        column_desc = #{record.columnDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="record.tableName != null" >
+        table_name = #{record.tableName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.tableDesc != null" >
+        table_desc = #{record.tableDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="record.status != null" >
+        status = #{record.status,jdbcType=INTEGER},
+      </if>
+      <if test="record.schoolId != null" >
+        school_id = #{record.schoolId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createTime != null" >
+        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.createUserId != null" >
+        create_user_id = #{record.createUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.lastModifyTime != null" >
+        last_modify_time = #{record.lastModifyTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.lastModifyUserId != null" >
+        last_modify_user_id = #{record.lastModifyUserId,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update rm_dict
+    set pk_dict_id = #{record.pkDictId,jdbcType=VARCHAR},
+    dict_key = #{record.dictKey,jdbcType=VARCHAR},
+    dict_value = #{record.dictValue,jdbcType=VARCHAR},
+    column_name = #{record.columnName,jdbcType=VARCHAR},
+    column_desc = #{record.columnDesc,jdbcType=VARCHAR},
+    table_name = #{record.tableName,jdbcType=VARCHAR},
+    table_desc = #{record.tableDesc,jdbcType=VARCHAR},
+    status = #{record.status,jdbcType=INTEGER},
+    school_id = #{record.schoolId,jdbcType=VARCHAR},
+    create_time = #{record.createTime,jdbcType=TIMESTAMP},
+    create_user_id = #{record.createUserId,jdbcType=VARCHAR},
+    last_modify_time = #{record.lastModifyTime,jdbcType=TIMESTAMP},
+    last_modify_user_id = #{record.lastModifyUserId,jdbcType=VARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.waken.dorm.common.entity.dict.Dict" >
+    update rm_dict
+    <set >
+      <if test="dictKey != null" >
+        dict_key = #{dictKey,jdbcType=VARCHAR},
+      </if>
+      <if test="dictValue != null" >
+        dict_value = #{dictValue,jdbcType=VARCHAR},
+      </if>
+      <if test="columnName != null" >
+        column_name = #{columnName,jdbcType=VARCHAR},
+      </if>
+      <if test="columnDesc != null" >
+        column_desc = #{columnDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="tableName != null" >
+        table_name = #{tableName,jdbcType=VARCHAR},
+      </if>
+      <if test="tableDesc != null" >
+        table_desc = #{tableDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="schoolId != null" >
+        school_id = #{schoolId,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUserId != null" >
+        create_user_id = #{createUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="lastModifyTime != null" >
+        last_modify_time = #{lastModifyTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lastModifyUserId != null" >
+        last_modify_user_id = #{lastModifyUserId,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where pk_dict_id = #{pkDictId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.waken.dorm.common.entity.dict.Dict" >
+    update rm_dict
+    set dict_key = #{dictKey,jdbcType=VARCHAR},
+    dict_value = #{dictValue,jdbcType=VARCHAR},
+    column_name = #{columnName,jdbcType=VARCHAR},
+    column_desc = #{columnDesc,jdbcType=VARCHAR},
+    table_name = #{tableName,jdbcType=VARCHAR},
+    table_desc = #{tableDesc,jdbcType=VARCHAR},
+    status = #{status,jdbcType=INTEGER},
+    school_id = #{schoolId,jdbcType=VARCHAR},
+    create_time = #{createTime,jdbcType=TIMESTAMP},
+    create_user_id = #{createUserId,jdbcType=VARCHAR},
+    last_modify_time = #{lastModifyTime,jdbcType=TIMESTAMP},
+    last_modify_user_id = #{lastModifyUserId,jdbcType=VARCHAR}
+    where pk_dict_id = #{pkDictId,jdbcType=VARCHAR}
+  </update>
+  <update id="batchUpdateStatus" parameterType="java.util.Map">
+    <foreach collection="list" separator=";" item="ur">
+      update rm_dict set
+      status = #{ur.status},
+      last_modify_time = #{ur.lastModifyTime},
+      last_modify_user_id = #{ur.lastModifyUserId}
+      where pk_dict_id = #{ur.pkId}
+    </foreach>
+  </update>
+  <select id="selectByIds" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from rm_dict
+    where pk_dict_id in
+    <foreach collection="Ids" item="dramaId" open="(" close=")" separator=",">
+      #{dramaId}
+    </foreach>
+  </select>
+  <select id="listDicts" parameterType="com.waken.dorm.common.form.dict.DictForm" resultType="com.waken.dorm.common.view.dict.DictView">
+    SELECT
+    d.pk_dict_id AS pkDictId,
+    d.dict_key AS dictKey,
+    d.dict_value AS dictValue,
+    d.column_name AS columnName,
+    d.column_desc AS columnDesc,
+    d.table_name AS tableName,
+    d.table_desc AS tableDesc,
+    d.`status`,
+    d.create_time AS createTime,
+    u.user_name AS createUserName,
+    d.last_modify_time AS lastModifyTime,
+    uu.user_name AS lastModifyUserName
+    FROM rm_dict d
+    LEFT JOIN rm_user u ON u.user_id = d.create_user_id
+    LEFT JOIN rm_user uu ON uu.user_id = d.last_modify_user_id
+    WHERE 1=1
+    <if test="pkDictId != null and pkDictId != ''">
+      and d.pk_dict_id=#{pkDictId}
+    </if>
+    <if test="schoolId != null and schoolId != ''">
+      and d.school_id=#{schoolId}
+    </if>
+    <if test="dictKey != null and dictKey != ''">
+      and d.dict_key like '%${dictKey}%'
+    </if>
+    <if test="dictValue != null and dictValue != ''">
+      and d.dict_value like '%${dictValue}%'
+    </if>
+    <if test="columnName != null and columnName != ''">
+      and d.column_name like '%${columnName}%'
+    </if>
+    <if test="columnDesc != null and columnDesc != ''">
+      and d.column_desc like '%${columnDesc}%'
+    </if>
+    <if test="tableName != null and tableName != ''">
+      and d.table_name like '%${tableName}%'
+    </if>
+    <if test="tableDesc != null and tableDesc != ''">
+      and d.table_desc like '%${tableDesc}%'
+    </if>
+    <if test="status != null">
+      and d.status=#{status}
+    </if>
+    <if test="createUserName != null and createUserName != ''">
+      and u.user_name like '%${createUserName}%'
+    </if>
+    <if test="lastModifyUserName != null and lastModifyUserName != ''">
+      and uu.user_name like '%${lastModifyUserName}%'
+    </if>
+    <if test="startTime != null">
+      AND d.create_time &gt;= #{startTime,jdbcType=TIMESTAMP}
+    </if>
+    <if test="endTime != null">
+      AND d.create_time &lt;= #{endTime,jdbcType=TIMESTAMP}
+    </if>
+    ORDER BY
+    d.last_modify_time DESC
+  </select>
+</mapper>

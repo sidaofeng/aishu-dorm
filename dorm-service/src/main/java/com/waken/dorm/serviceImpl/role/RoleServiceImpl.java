@@ -16,10 +16,7 @@ import com.waken.dorm.common.form.role.AddRoleResourceRelForm;
 import com.waken.dorm.common.form.role.EditRoleForm;
 import com.waken.dorm.common.form.role.QueryRoleForm;
 import com.waken.dorm.common.form.role.UserRoleRelForm;
-import com.waken.dorm.common.utils.DateUtils;
-import com.waken.dorm.common.utils.ShiroUtils;
-import com.waken.dorm.common.utils.StringUtils;
-import com.waken.dorm.common.utils.UUIDUtils;
+import com.waken.dorm.common.utils.*;
 import com.waken.dorm.common.view.role.UserRoleView;
 import com.waken.dorm.dao.role.RoleMapper;
 import com.waken.dorm.dao.role.RoleResourceRelMapper;
@@ -60,19 +57,18 @@ public class RoleServiceImpl extends BaseServerImpl implements RoleService {
         this.editRoleValidate(editRoleForm);
         String userId = ShiroUtils.getUserId();
         Date curDate = DateUtils.getCurrentDate();
-        int count = Constant.ZERO;
+        Role role = new Role();
+        BeanMapper.copy(editRoleForm,role);
+        role.setLastModifyTime(curDate);
+        role.setLastModifyUserId(userId);
         if (StringUtils.isEmpty(editRoleForm.getPkRoleId())){//新增
             logger.info("service: 新增角色开始");
             String pkRoleId = UUIDUtils.getPkUUID();
-            Role role = new Role();
             role.setPkRoleId(pkRoleId);
-            role.setRoleName(editRoleForm.getRoleName());
-            role.setRoleDesc(editRoleForm.getRoleDesc());
             role.setStatus(CodeEnum.ENABLE.getCode());
             role.setCreateTime(curDate);
             role.setCreateUserId(userId);
-            role.setLastModifyTime(curDate);
-            role.setLastModifyUserId(userId);
+            int count = Constant.ZERO;
             count = roleMapper.insertSelective(role);
             if (count == Constant.ZERO){
                 throw new DormException("新增角色失败");
@@ -80,23 +76,8 @@ public class RoleServiceImpl extends BaseServerImpl implements RoleService {
             return role;
         }else {//修改
             logger.info("service: 更新角色信息开始");
-            Role role = roleMapper.selectByPrimaryKey(editRoleForm.getPkRoleId());
-            if (role == null){
-                throw new DormException("角色id无效!");
-            }
-            if (StringUtils.isNotEmpty(editRoleForm.getRoleName())){
-                role.setRoleName(editRoleForm.getRoleName());
-            }
-            if (StringUtils.isNotEmpty(editRoleForm.getRoleDesc())){
-                role.setRoleDesc(editRoleForm.getRoleDesc());
-            }
-            role.setLastModifyUserId(userId);
-            role.setLastModifyTime(curDate);
-            count = roleMapper.updateByPrimaryKeySelective(role);
-            if (count == Constant.ZERO){
-                throw new DormException("更新角色失败！");
-            }
-            return role;
+            roleMapper.updateByPrimaryKeySelective(role);
+            return roleMapper.selectByPrimaryKey(editRoleForm.getPkRoleId());
         }
 
     }
@@ -359,6 +340,10 @@ public class RoleServiceImpl extends BaseServerImpl implements RoleService {
                 throw new DormException("角色名称已存在！");
             }
         }else {//修改验证
+            Role role = roleMapper.selectByPrimaryKey(editRoleForm.getPkRoleId());
+            if (role == null){
+                throw new DormException("角色id无效!");
+            }
             if (StringUtils.isNotEmpty(editRoleForm.getRoleName())){
             RoleExample example = new RoleExample();
             RoleExample.Criteria criteria = example.createCriteria();

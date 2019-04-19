@@ -15,10 +15,7 @@ import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.dorm.AddDormViolationForm;
 import com.waken.dorm.common.form.dorm.DormViolationForm;
 import com.waken.dorm.common.form.dorm.UpdateDormViolationForm;
-import com.waken.dorm.common.utils.DateUtils;
-import com.waken.dorm.common.utils.ShiroUtils;
-import com.waken.dorm.common.utils.StringUtils;
-import com.waken.dorm.common.utils.UUIDUtils;
+import com.waken.dorm.common.utils.*;
 import com.waken.dorm.common.view.dorm.AppDormViolationView;
 import com.waken.dorm.common.view.dorm.DormViolationView;
 import com.waken.dorm.common.view.user.UserView;
@@ -72,22 +69,14 @@ public class DormViolationServiceImpl extends BaseServerImpl implements DormViol
         String userId = ShiroUtils.getUserId();
         Date curDate = DateUtils.getCurrentDate();
         DormViolation dormViolation = new DormViolation();
+        BeanMapper.copy(addDormViolationForm,dormViolation);
         dormViolation.setPkDormViolationId(pkDormViolationId);
         dormViolation.setDormId(dormId);
         dormViolation.setStudentId(studentId);
-        if (StringUtils.isNotEmpty(addDormViolationForm.getViolationImgUrl())){
-            dormViolation.setViolationImgUrl(addDormViolationForm.getViolationImgUrl());
-        }
-        dormViolation.setViolationReason(addDormViolationForm.getViolationReason());
-        dormViolation.setSolveResult(addDormViolationForm.getSolveResult());
-        dormViolation.setStatus(addDormViolationForm.getStatus());
         dormViolation.setCreateTime(curDate);
         dormViolation.setCreateUserId(userId);
         dormViolation.setLastModifyTime(curDate);
         dormViolation.setLastModifyUserId(userId);
-        if (StringUtils.isNotEmpty(addDormViolationForm.getMemo())){
-            dormViolation.setMemo(addDormViolationForm.getMemo());
-        }
         int count = Constant.ZERO;
         count = dormViolationMapper.insertSelective(dormViolation);
         if (count == Constant.ZERO){
@@ -174,13 +163,7 @@ public class DormViolationServiceImpl extends BaseServerImpl implements DormViol
     public DormViolation updateDormViolation(UpdateDormViolationForm updateViolationForm) {
         this.updateViolationValidate(updateViolationForm);//验证合法性
         DormViolation dormViolation = dormViolationMapper.selectByPrimaryKey(updateViolationForm.getPkDormViolationId());
-        dormViolation.setStatus(updateViolationForm.getStatus());
-        if (updateViolationForm.getStatus() != null){
-            dormViolation.setStatus(updateViolationForm.getStatus());
-        }
-        if (StringUtils.isNotEmpty(updateViolationForm.getMemo())){
-            dormViolation.setMemo(updateViolationForm.getMemo());
-        }
+        BeanMapper.copy(updateViolationForm,dormViolation);
         String userId = ShiroUtils.getUserId();
         Date curDate = DateUtils.getCurrentDate();
         dormViolation.setLastModifyTime(curDate);

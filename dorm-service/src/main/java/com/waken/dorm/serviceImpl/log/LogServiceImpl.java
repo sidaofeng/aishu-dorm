@@ -47,7 +47,7 @@ public class LogServiceImpl implements LogService {
     @Autowired
     ObjectMapper objectMapper;
     @Override
-    @Transactional
+    @Transactional(rollbackFor = {RuntimeException.class, Exception.class})
     public void saveLog(ProceedingJoinPoint joinPoint, SysLog log) throws JsonProcessingException {
         logger.info("service:开始进入保存系统日志接口");
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();

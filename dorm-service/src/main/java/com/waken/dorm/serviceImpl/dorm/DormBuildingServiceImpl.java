@@ -10,10 +10,7 @@ import com.waken.dorm.common.exception.DormException;
 import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.dorm.DormBuildingForm;
 import com.waken.dorm.common.form.dorm.EditDormBuildingForm;
-import com.waken.dorm.common.utils.DateUtils;
-import com.waken.dorm.common.utils.ShiroUtils;
-import com.waken.dorm.common.utils.StringUtils;
-import com.waken.dorm.common.utils.UUIDUtils;
+import com.waken.dorm.common.utils.*;
 import com.waken.dorm.common.view.dorm.DormBuildingView;
 import com.waken.dorm.dao.dorm.DormBuildingMapper;
 import com.waken.dorm.service.dorm.DormBuildingService;
@@ -36,8 +33,8 @@ import java.util.Map;
  * @Author zhaoRong
  * @Date 2019/3/31 11:00
  **/
-@Transactional(propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Exception.class)
 @Service
+@Transactional(propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Exception.class)
 public class DormBuildingServiceImpl extends BaseServerImpl implements DormBuildingService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
@@ -58,9 +55,12 @@ public class DormBuildingServiceImpl extends BaseServerImpl implements DormBuild
         String userId = ShiroUtils.getUserId();
         Date curDate = DateUtils.getCurrentDate();
         int count = Constant.ZERO;
+        DormBuilding dormBuilding = new DormBuilding();
+        BeanMapper.copy(editBuildingForm,dormBuilding);
+        dormBuilding.setLastModifyTime(curDate);
+        dormBuilding.setLastModifyUserId(userId);
         if (StringUtils.isEmpty(editBuildingForm.getPkDormBuildingId())){//新增
             logger.info("service: 开始进入新增宿舍楼信息");
-            DormBuilding dormBuilding = new DormBuilding();
             String pkDormBuildingId = UUIDUtils.getPkUUID();
             if (StringUtils.isEmpty(editBuildingForm.getSchoolId())){
                 String schoolId = schoolService.getSchoolIdByUserId(userId);
@@ -69,20 +69,9 @@ public class DormBuildingServiceImpl extends BaseServerImpl implements DormBuild
                 dormBuilding.setSchoolId(editBuildingForm.getSchoolId());
             }
             dormBuilding.setPkDormBuildingId(pkDormBuildingId);
-            dormBuilding.setDormBuildingType(editBuildingForm.getDormBuildingType());
-            dormBuilding.setDormBuildingNum(editBuildingForm.getDormBuildingNum());
-            dormBuilding.setDormBuildingLevels(editBuildingForm.getDormBuildingLevels());
-            if (StringUtils.isNotEmpty(editBuildingForm.getDormBuildingDesc())){
-                dormBuilding.setDormBuildingDesc(editBuildingForm.getDormBuildingDesc());
-            }
-            if (StringUtils.isNotEmpty(editBuildingForm.getMemo())){
-                dormBuilding.setMemo(editBuildingForm.getMemo());
-            }
             dormBuilding.setStatus(CodeEnum.ENABLE.getCode());
             dormBuilding.setCreateTime(curDate);
             dormBuilding.setCreateUserId(userId);
-            dormBuilding.setLastModifyTime(curDate);
-            dormBuilding.setLastModifyUserId(userId);
             count = buildingMapper.insertSelective(dormBuilding);
             if (count == Constant.ZERO){
                 throw new DormException("新增个数为 0 条");
@@ -90,35 +79,8 @@ public class DormBuildingServiceImpl extends BaseServerImpl implements DormBuild
             return dormBuilding;
         }else {//更新宿舍楼信息
             logger.info("service: 开始进入更新宿舍楼信息");
-            DormBuilding dormBuilding = buildingMapper.selectByPrimaryKey(editBuildingForm.getPkDormBuildingId());
-            if (dormBuilding == null){
-                throw new DormException("宿舍楼id不正确");
-            }
-            if (editBuildingForm.getDormBuildingType() != null){
-                dormBuilding.setDormBuildingType(editBuildingForm.getDormBuildingType());
-            }
-            if (StringUtils.isNotEmpty(editBuildingForm.getDormBuildingNum())){
-                dormBuilding.setDormBuildingNum(editBuildingForm.getDormBuildingNum());
-            }
-            if (editBuildingForm.getDormBuildingLevels() != null){
-                dormBuilding.setDormBuildingLevels(editBuildingForm.getDormBuildingLevels());
-            }
-            if (editBuildingForm.getStatus() != null){
-                dormBuilding.setStatus(editBuildingForm.getStatus());
-            }
-            if (StringUtils.isNotEmpty(editBuildingForm.getDormBuildingDesc())){
-                dormBuilding.setDormBuildingDesc(editBuildingForm.getDormBuildingDesc());
-            }
-            if (StringUtils.isNotEmpty(editBuildingForm.getMemo())){
-                dormBuilding.setMemo(editBuildingForm.getMemo());
-            }
-            dormBuilding.setLastModifyTime(curDate);
-            dormBuilding.setLastModifyUserId(userId);
-            count = buildingMapper.updateByPrimaryKeySelective(dormBuilding);
-            if (count == Constant.ZERO){
-                throw new DormException("更新个数为 0 条");
-            }
-            return dormBuilding;
+            buildingMapper.updateByPrimaryKeySelective(dormBuilding);
+            return buildingMapper.selectByPrimaryKey(editBuildingForm.getPkDormBuildingId());
         }
     }
 
@@ -215,6 +177,10 @@ public class DormBuildingServiceImpl extends BaseServerImpl implements DormBuild
                 throw new DormException("已存在相同名称的楼栋号");
             }
         }else {//修改验证
+            DormBuilding dormBuilding = buildingMapper.selectByPrimaryKey(editBuildingForm.getPkDormBuildingId());
+            if (dormBuilding == null){
+                throw new DormException("宿舍楼id不正确");
+            }
             if (StringUtils.isNotEmpty(editBuildingForm.getDormBuildingNum())){
                 DormBuildingExample example = new DormBuildingExample();
                 DormBuildingExample.Criteria criteria = example.createCriteria();

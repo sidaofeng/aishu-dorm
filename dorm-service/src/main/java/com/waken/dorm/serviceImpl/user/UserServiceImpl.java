@@ -68,19 +68,19 @@ public class UserServiceImpl extends BaseServerImpl implements UserService {
         String curUserId = ShiroUtils.getUserId();
         Date curDate = DateUtils.getCurrentDate();
         int count = Constant.ZERO;
+        User user = new User();
+        String encodePassword = PasswordEncode.shiroEncode(editUserForm.getUserName(),editUserForm.getPassword());//shiro加密 密码
+        BeanMapper.copy(editUserForm,user);
+        user.setPassword(encodePassword);
+        user.setLastModifyTime(curDate);
+        user.setLastModifyUserId(curUserId);
         if (StringUtils.isEmpty(editUserForm.getUserId())){//新增
             logger.info("service: 新增用户开始");
-            User user = new User();
-            String encodePassword = PasswordEncode.shiroEncode(editUserForm.getUserName(),editUserForm.getPassword());//shiro加密 密码
-            BeanMapper.copy(editUserForm,user);
             String userId = UUIDUtils.getPkUUID();
             user.setUserId(userId);
-            user.setPassword(encodePassword);
             user.setStatus(CodeEnum.ENABLE.getCode());
             user.setCreateTime(curDate);
             user.setCreateUserId(curUserId);
-            user.setLastModifyTime(curDate);
-            user.setLastModifyUserId(curUserId);
             count = userMapper.insertSelective(user);
             if (count == Constant.ZERO){
                 throw new DormException("新增用户失败");
@@ -90,17 +90,8 @@ public class UserServiceImpl extends BaseServerImpl implements UserService {
             return user;
         }else {//修改
             logger.info("service: 更新用户信息开始");
-            User user = new User();
-            String encodePassword = PasswordEncode.shiroEncode(editUserForm.getUserName(),editUserForm.getPassword());
-            BeanMapper.copy(editUserForm,user);
-            user.setPassword(encodePassword);
-            user.setLastModifyUserId(curUserId);
-            user.setLastModifyTime(curDate);
-            count = userMapper.updateByPrimaryKeySelective(user);
-            if (count == Constant.ZERO){
-                throw new DormException("更新用户信息失败！");
-            }
-            return user;
+            userMapper.updateByPrimaryKeySelective(user);
+            return userMapper.selectByPrimaryKey(editUserForm.getUserId());
         }
 
     }

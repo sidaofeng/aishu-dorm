@@ -18,8 +18,6 @@ import java.util.*;
  **/
 public class BaseServerImpl implements BaseServer {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    @Override
     /**
      * 通过id得到需要更新的map对象
      * @param status

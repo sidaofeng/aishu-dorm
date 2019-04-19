@@ -14,10 +14,7 @@ import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.dorm.AddDormStudentRelForm;
 import com.waken.dorm.common.form.dorm.DormForm;
 import com.waken.dorm.common.form.dorm.EditDormForm;
-import com.waken.dorm.common.utils.DateUtils;
-import com.waken.dorm.common.utils.ShiroUtils;
-import com.waken.dorm.common.utils.StringUtils;
-import com.waken.dorm.common.utils.UUIDUtils;
+import com.waken.dorm.common.utils.*;
 import com.waken.dorm.common.view.dorm.AppDormView;
 import com.waken.dorm.common.view.dorm.DormStudentRelView;
 import com.waken.dorm.common.view.dorm.DormStudentsView;
@@ -67,28 +64,17 @@ public class DormServiceImpl extends BaseServerImpl implements DormService {
         String userId = ShiroUtils.getUserId();
         Date curDate = DateUtils.getCurrentDate();
         int count = Constant.ZERO;
+        Dorm dorm = new Dorm();
+        BeanMapper.copy(editForm,dorm);
+        dorm.setLastModifyTime(curDate);
+        dorm.setLastModifyUserId(userId);
         if (StringUtils.isEmpty(editForm.getPkDormId())){//新增
             logger.info("service: 开始进入新增宿舍信息");
-
-            Dorm dorm = new Dorm();
             String pkDormId = UUIDUtils.getPkUUID();
-
             dorm.setPkDormId(pkDormId);
-            dorm.setDormBuildingId(editForm.getDormBuildingId());
-            dorm.setDormType(editForm.getDormType());
-            dorm.setDormNum(editForm.getDormNum());
-            dorm.setBuildingLevelth(editForm.getBuildingLevelth());
-            if (StringUtils.isNotEmpty(editForm.getDormDesc())){
-                dorm.setDormDesc(editForm.getDormDesc());
-            }
-            if (StringUtils.isNotEmpty(editForm.getMemo())){
-                dorm.setMemo(editForm.getMemo());
-            }
             dorm.setStatus(CodeEnum.ENABLE.getCode());
             dorm.setCreateTime(curDate);
             dorm.setCreateUserId(userId);
-            dorm.setLastModifyTime(curDate);
-            dorm.setLastModifyUserId(userId);
             count = dormMapper.insertSelective(dorm);
             if (count == Constant.ZERO){
                 throw new DormException("新增个数为 0 条");
@@ -96,35 +82,8 @@ public class DormServiceImpl extends BaseServerImpl implements DormService {
             return dorm;
         }else {//更新宿舍信息
             logger.info("service: 开始进入更新宿舍信息");
-            Dorm dorm = dormMapper.selectByPrimaryKey(editForm.getPkDormId());
-            if (dorm == null){
-                throw new DormException("宿舍id不正确");
-            }
-            if (editForm.getBuildingLevelth() != null){
-                dorm.setBuildingLevelth(editForm.getBuildingLevelth());
-            }
-            if (editForm.getDormType() != null){
-                dorm.setDormType(editForm.getDormType());
-            }
-            if (StringUtils.isNotEmpty(editForm.getDormNum())){
-                dorm.setDormNum(editForm.getDormNum());
-            }
-            if (editForm.getStatus() != null){
-                dorm.setStatus(editForm.getStatus());
-            }
-            if (StringUtils.isNotEmpty(editForm.getDormDesc())){
-                dorm.setDormDesc(editForm.getDormDesc());
-            }
-            if (StringUtils.isNotEmpty(editForm.getMemo())){
-                dorm.setMemo(editForm.getMemo());
-            }
-            dorm.setLastModifyTime(curDate);
-            dorm.setLastModifyUserId(userId);
-            count = dormMapper.updateByPrimaryKeySelective(dorm);
-            if (count == Constant.ZERO){
-                throw new DormException("更新个数为 0 条");
-            }
-            return dorm;
+            dormMapper.updateByPrimaryKeySelective(dorm);
+            return dormMapper.selectByPrimaryKey(editForm.getPkDormId());
         }
     }
 
@@ -367,6 +326,10 @@ public class DormServiceImpl extends BaseServerImpl implements DormService {
                 throw new DormException("已存在相同名称的宿舍编号！");
             }
         }else {//修改验证
+            Dorm dorm = dormMapper.selectByPrimaryKey(editForm.getPkDormId());
+            if (dorm == null){
+                throw new DormException("宿舍id不正确");
+            }
             if (StringUtils.isNotEmpty(editForm.getDormNum())){
                 DormExample example = new DormExample();
                 DormExample.Criteria criteria = example.createCriteria();

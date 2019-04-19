@@ -93,60 +93,36 @@ public class StudentServiceImpl extends BaseServerImpl implements StudentService
     @Override
     @Transactional
     public Student saveStudent(EditStudentForm editStudentForm) {
+        this.editStudentValidate(editStudentForm);
+        Date curDate = DateUtils.getCurrentDate();
+        String userId = ShiroUtils.getUserId();
+        Student student = new Student();
+        BeanMapper.copy(editStudentForm,student);
+        student.setLastModifyTime(curDate);
+        student.setLastModifyUserId(userId);
         if (StringUtils.isEmpty(editStudentForm.getPkStudentId())){//新增
-            this.editStudentValidate(editStudentForm);
             logger.info("service: 开始进入单个添加学生");
             String studentId = UUIDUtils.getPkUUID();
-            Date curDate = DateUtils.getCurrentDate();
-            String userId = ShiroUtils.getUserId();
-            Student student = new Student();
             student.setPkStudentId(studentId);
-            student.setStudentName(editStudentForm.getStudentName());
-            student.setStudentNum(editStudentForm.getStudentNum());
-            if (StringUtils.isNotEmpty(editStudentForm.getEmail())){
-                student.setEmail(editStudentForm.getEmail());
-            }
             if (editStudentForm.getGender() == null){
                 student.setGender(CodeEnum.MALE.getCode());//默认性别男
             }else {
                 student.setGender(editStudentForm.getGender());
             }
-            student.setMobile(editStudentForm.getMobile());
             student.setStatus(CodeEnum.ENABLE.getCode());
             student.setCreateTime(curDate);
             student.setCreateUserId(userId);
-            student.setLastModifyTime(curDate);
-            student.setLastModifyUserId(userId);
             int count = Constant.ZERO;
             count = studentMapper.insertSelective(student);
             if (count == Constant.ZERO){
                 throw new DormException("添加单个学生失败");
             }
+            return student;
         }else {//修改
             logger.info("service: 开始进入修改学生信息");
-            Student student = studentMapper.selectByPrimaryKey(editStudentForm.getPkStudentId());
-            if (student == null){
-                throw new DormException("学生id无效");
-            }
-            if (StringUtils.isNotEmpty(editStudentForm.getEmail())){
-                student.setEmail(editStudentForm.getEmail());
-            }
-            if (StringUtils.isNotEmpty(editStudentForm.getMobile())){
-                student.setMobile(editStudentForm.getMobile());
-            }
-            if (editStudentForm.getGender() != null){
-                student.setGender(editStudentForm.getGender());
-            }
-            if (editStudentForm.getStudentNum() != null){
-                student.setStudentNum(editStudentForm.getStudentNum());
-            }
-            String userId = ShiroUtils.getUserId();
-            Date curDate = DateUtils.getCurrentDate();
-            student.setLastModifyTime(curDate);
-            student.setLastModifyUserId(userId);
             studentMapper.updateByPrimaryKeySelective(student);
+            return studentMapper.selectByPrimaryKey(editStudentForm.getPkStudentId());
         }
-        return null;
     }
 
     /**
@@ -379,6 +355,11 @@ public class StudentServiceImpl extends BaseServerImpl implements StudentService
             List<Student> StudentList = studentMapper.selectByExample(example);
             if (!StudentList.isEmpty()){
                 throw new DormException("已经存在相同姓名或学号的学生！");
+            }
+        }else {
+            Student student = studentMapper.selectByPrimaryKey(editStudentForm.getPkStudentId());
+            if (student == null){
+                throw new DormException("学生id无效");
             }
         }
     }
