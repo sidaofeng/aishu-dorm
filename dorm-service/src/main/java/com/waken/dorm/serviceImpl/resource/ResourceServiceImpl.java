@@ -120,7 +120,7 @@ public class ResourceServiceImpl extends BaseServerImpl implements ResourceServi
         int count = Constant.ZERO;
         List<String> delResourceList = this.recursionGetDelIds(resourceIds);
         Set<String> delIdsSet = new HashSet<>(delResourceList);// 去掉重复的id
-        delResourceIds.clear();
+        delResourceList = new ArrayList<>();
         delResourceList.addAll(delIdsSet);
         logger.info("需要删除的资源id: "+delResourceList.toString());
         if (CodeEnum.YES.getCode() == delStatus){ // 物理删除
@@ -449,19 +449,18 @@ public class ResourceServiceImpl extends BaseServerImpl implements ResourceServi
 
     /**
      * 递归获取子资源
-     * @param resourceId
+     * @param resourceIds
      * @return
      */
-    private static List<String> delResourceIds = new ArrayList<>();// 接收子节点
     private List<String> recursionGetDelIds(List<String> resourceIds){
-        delResourceIds.addAll(resourceIds);
         for(String sourceId : resourceIds){
             List<String> childIds = this.getChildIdsByParentId(sourceId);
             if (!childIds.isEmpty()){
-                this.recursionGetDelIds(childIds);
+                resourceIds.addAll(recursionGetDelIds(childIds));
+                return resourceIds;
             }
         }
-        return delResourceIds;
+        return resourceIds;
     }
 
     /**

@@ -106,7 +106,7 @@ public class SchoolClassServiceImpl extends BaseServerImpl implements SchoolClas
         int count = Constant.ZERO;
         List<String> delClassIdList = this.recursionGetDelIds(schoolClassIds);
         Set<String> delIdsSet = new HashSet<>(delClassIdList);// 去掉重复的id
-        delClassIds.clear();
+        delClassIdList = new ArrayList<>();
         delClassIdList.addAll(delIdsSet);
         logger.info("需要删除的学校类别id: "+delClassIdList.toString());
         if (CodeEnum.YES.getCode() == delStatus){ // 物理删除
@@ -306,16 +306,15 @@ public class SchoolClassServiceImpl extends BaseServerImpl implements SchoolClas
     /**
      * 递归得到学校类别子集
      */
-    private static List<String> delClassIds = new ArrayList<>();
     private List<String> recursionGetDelIds(List<String> schoolClassIds){
-        delClassIds.addAll(schoolClassIds);
         for(String schoolClassId : schoolClassIds){
             List<String> childIds = this.getChildIdByParenId(schoolClassId);
             if (!childIds.isEmpty()){
-                this.recursionGetDelIds(childIds);
+                schoolClassIds.addAll(recursionGetDelIds(childIds));
+                return schoolClassIds;
             }
         }
-        return delClassIds;
+        return schoolClassIds;
     }
 
     /**
