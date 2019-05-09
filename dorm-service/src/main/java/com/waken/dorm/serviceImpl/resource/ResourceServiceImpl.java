@@ -244,7 +244,7 @@ public class ResourceServiceImpl extends BaseServerImpl implements ResourceServi
                 if(resourceIds.toString().contains(resourceMenuView.getPkResourceId())){
                     resourceMenuView.setSelected(true);
                     resourceMenuView.setOpen(true);
-                    resourceMenuView.setzAsync(true);
+                    resourceMenuView.setZAsync(true);
                 }
             }
         }

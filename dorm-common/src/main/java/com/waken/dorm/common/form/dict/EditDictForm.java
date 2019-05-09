@@ -1,5 +1,9 @@
 package com.waken.dorm.common.form.dict;
 
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
 import java.util.Date;
 
 /**
@@ -8,6 +12,9 @@ import java.util.Date;
  * @Author zhaoRong
  * @Date 2019/4/19 12:54
  **/
+@ToString
+@Getter
+@Setter
 public class EditDictForm {
     private String pkDictId;
 
@@ -24,82 +31,4 @@ public class EditDictForm {
     private String tableName;
 
     private String tableDesc;
-
-    public String getPkDictId() {
-        return pkDictId;
-    }
-
-    public void setPkDictId(String pkDictId) {
-        this.pkDictId = pkDictId;
-    }
-
-    public String getSchoolId() {
-        return schoolId;
-    }
-
-    public void setSchoolId(String schoolId) {
-        this.schoolId = schoolId;
-    }
-
-    public String getDictKey() {
-        return dictKey;
-    }
-
-    public void setDictKey(String dictKey) {
-        this.dictKey = dictKey;
-    }
-
-    public String getDictValue() {
-        return dictValue;
-    }
-
-    public void setDictValue(String dictValue) {
-        this.dictValue = dictValue;
-    }
-
-    public String getColumnName() {
-        return columnName;
-    }
-
-    public void setColumnName(String columnName) {
-        this.columnName = columnName;
-    }
-
-    public String getColumnDesc() {
-        return columnDesc;
-    }
-
-    public void setColumnDesc(String columnDesc) {
-        this.columnDesc = columnDesc;
-    }
-
-    public String getTableName() {
-        return tableName;
-    }
-
-    public void setTableName(String tableName) {
-        this.tableName = tableName;
-    }
-
-    public String getTableDesc() {
-        return tableDesc;
-    }
-
-    public void setTableDesc(String tableDesc) {
-        this.tableDesc = tableDesc;
-    }
-
-    @Override
-    public String toString() {
-        return "EditDictForm{" +
-                "pkDictId='" + pkDictId + '\'' +
-                ", schoolId='" + schoolId + '\'' +
-                ", dictKey='" + dictKey + '\'' +
-                ", dictValue='" + dictValue + '\'' +
-                ", columnName='" + columnName + '\'' +
-                ", columnDesc='" + columnDesc + '\'' +
-                ", tableName='" + tableName + '\'' +
-                ", tableDesc='" + tableDesc + '\'' +
-                '}';
-    }
 }

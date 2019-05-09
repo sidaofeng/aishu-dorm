@@ -1,6 +1,9 @@
 package com.waken.dorm.common.form.log;
 
 import com.waken.dorm.common.form.base.BaseForm;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 import java.util.Date;
 
@@ -10,32 +13,11 @@ import java.util.Date;
  * @Author zhaoRong
  * @Date 2019/4/16 13:03
  **/
+@ToString
+@Getter
+@Setter
 public class SysLogForm extends BaseForm {
     private String pkLogId;
 
     private String keyWord;
-
-    public String getPkLogId() {
-        return pkLogId;
-    }
-
-    public void setPkLogId(String pkLogId) {
-        this.pkLogId = pkLogId;
-    }
-
-    public String getKeyWord() {
-        return keyWord;
-    }
-
-    public void setKeyWord(String keyWord) {
-        this.keyWord = keyWord;
-    }
-
-    @Override
-    public String toString() {
-        return "SysLogForm{" +
-                "pkLogId='" + pkLogId + '\'' +
-                ", keyWord='" + keyWord + '\'' +
-                '}';
-    }
 }

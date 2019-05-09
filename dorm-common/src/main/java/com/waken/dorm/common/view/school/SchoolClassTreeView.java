@@ -1,5 +1,8 @@
 package com.waken.dorm.common.view.school;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,34 +12,12 @@ import java.util.List;
  * @Author zhaoRong
  * @Date 2019/4/5 23:21
  **/
+@Getter
+@Setter
 public class SchoolClassTreeView {
     private String pkSchoolClassId;
 
     private String className;
 
     List<SchoolClassTreeView> childSchoolClassTreeView = new ArrayList<SchoolClassTreeView>();
-
-    public String getPkSchoolClassId() {
-        return pkSchoolClassId;
-    }
-
-    public void setPkSchoolClassId(String pkSchoolClassId) {
-        this.pkSchoolClassId = pkSchoolClassId;
-    }
-
-    public String getClassName() {
-        return className;
-    }
-
-    public void setClassName(String className) {
-        this.className = className;
-    }
-
-    public List<SchoolClassTreeView> getChildSchoolClassTreeView() {
-        return childSchoolClassTreeView;
-    }
-
-    public void setChildSchoolClassTreeView(List<SchoolClassTreeView> childSchoolClassTreeView) {
-        this.childSchoolClassTreeView = childSchoolClassTreeView;
-    }
 }

@@ -1,6 +1,9 @@
 package com.waken.dorm.common.view.dorm;
 
 import com.waken.dorm.common.form.base.BaseForm;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 import java.util.Date;
 
@@ -10,6 +13,8 @@ import java.util.Date;
  * @Author zhaoRong
  * @Date 2019/4/3 11:39
  **/
+@Getter
+@Setter
 public class AppDormViolationView {
     private String pkDormViolationId;
 
@@ -30,84 +35,4 @@ public class AppDormViolationView {
     private Date createTime;
 
     private String memo;
-
-    public String getPkDormViolationId() {
-        return pkDormViolationId;
-    }
-
-    public void setPkDormViolationId(String pkDormViolationId) {
-        this.pkDormViolationId = pkDormViolationId;
-    }
-
-    public String getDormRuleName() {
-        return dormRuleName;
-    }
-
-    public void setDormRuleName(String dormRuleName) {
-        this.dormRuleName = dormRuleName;
-    }
-
-    public String getDormNum() {
-        return dormNum;
-    }
-
-    public void setDormNum(String dormNum) {
-        this.dormNum = dormNum;
-    }
-
-    public String getStudentName() {
-        return studentName;
-    }
-
-    public void setStudentName(String studentName) {
-        this.studentName = studentName;
-    }
-
-    public String getViolationImgUrl() {
-        return violationImgUrl;
-    }
-
-    public void setViolationImgUrl(String violationImgUrl) {
-        this.violationImgUrl = violationImgUrl;
-    }
-
-    public String getViolationReason() {
-        return violationReason;
-    }
-
-    public void setViolationReason(String violationReason) {
-        this.violationReason = violationReason;
-    }
-
-    public String getSolveResult() {
-        return solveResult;
-    }
-
-    public void setSolveResult(String solveResult) {
-        this.solveResult = solveResult;
-    }
-
-    public Integer getStatus() {
-        return status;
-    }
-
-    public void setStatus(Integer status) {
-        this.status = status;
-    }
-
-    public Date getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
-    }
-
-    public String getMemo() {
-        return memo;
-    }
-
-    public void setMemo(String memo) {
-        this.memo = memo;
-    }
 }

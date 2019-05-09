@@ -1,5 +1,9 @@
 package com.waken.dorm.common.form.dorm;
 
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
 import java.math.BigDecimal;
 
 /**
@@ -8,6 +12,9 @@ import java.math.BigDecimal;
  * @Author zhaoRong
  * @Date 2019/4/1 21:09
  **/
+@ToString
+@Getter
+@Setter
 public class UpdateRepairForm {
 
     private String pkDormRepairId;
@@ -19,55 +26,4 @@ public class UpdateRepairForm {
     private String repairBillUrl;
 
     private String memo;
-
-    public String getPkDormRepairId() {
-        return pkDormRepairId;
-    }
-
-    public void setPkDormRepairId(String pkDormRepairId) {
-        this.pkDormRepairId = pkDormRepairId;
-    }
-
-    public Integer getStatus() {
-        return status;
-    }
-
-    public void setStatus(Integer status) {
-        this.status = status;
-    }
-
-    public BigDecimal getRepairCost() {
-        return repairCost;
-    }
-
-    public void setRepairCost(BigDecimal repairCost) {
-        this.repairCost = repairCost;
-    }
-
-    public String getRepairBillUrl() {
-        return repairBillUrl;
-    }
-
-    public void setRepairBillUrl(String repairBillUrl) {
-        this.repairBillUrl = repairBillUrl;
-    }
-
-    public String getMemo() {
-        return memo;
-    }
-
-    public void setMemo(String memo) {
-        this.memo = memo;
-    }
-
-    @Override
-    public String toString() {
-        return "UpdateRepairForm{" +
-                "pkDormRepairId='" + pkDormRepairId + '\'' +
-                ", status=" + status +
-                ", repairCost=" + repairCost +
-                ", repairBillUrl='" + repairBillUrl + '\'' +
-                ", memo='" + memo + '\'' +
-                '}';
-    }
 }
