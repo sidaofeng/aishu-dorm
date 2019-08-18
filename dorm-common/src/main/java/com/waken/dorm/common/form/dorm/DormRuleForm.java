@@ -20,10 +20,6 @@ public class DormRuleForm extends BaseForm {
     private static final long serialVersionUID = 3080831935512618337L;
     private String pkDormRuleId;
 
-    private String schoolId;
-
-    private String schoolName;
-
     private String ruleName;
 
     private String ruleDesc;

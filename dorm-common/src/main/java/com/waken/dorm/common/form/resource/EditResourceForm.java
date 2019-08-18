@@ -4,8 +4,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.util.Date;
-
 /**
  * @ClassName EditResourceForm
  * @Description EditResourceForm
@@ -20,11 +18,13 @@ public class EditResourceForm {
 
     private String resourceName;
 
+    private String resourceIcon;
+
     private Integer resourceType;
 
     private String resourceUrl;
 
-    private Integer resourceNo;
-
     private String parentId;
+
+    private String perms;
 }

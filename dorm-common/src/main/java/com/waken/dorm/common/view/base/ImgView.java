@@ -11,7 +11,7 @@ import lombok.Setter;
  **/
 @Getter
 @Setter
-public class ImgView {
+public class ImgView extends BaseView {
 
     private String imgUrl;
 }

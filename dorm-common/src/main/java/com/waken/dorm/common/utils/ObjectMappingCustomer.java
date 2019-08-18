@@ -32,11 +32,11 @@ public class ObjectMappingCustomer extends ObjectMapper {
         this.getSerializerProvider().setNullValueSerializer(new JsonSerializer<Object>() {
             @Override
             public void serialize(Object value, JsonGenerator jg,
-                    SerializerProvider sp) throws IOException,
+                                  SerializerProvider sp) throws IOException,
                     JsonProcessingException {
                 jg.writeString("");
-            }  
-            
-        });  
+            }
+
+        });
     }
 }

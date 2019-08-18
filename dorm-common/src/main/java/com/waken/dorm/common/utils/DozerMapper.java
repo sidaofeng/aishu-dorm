@@ -1,11 +1,14 @@
 package com.waken.dorm.common.utils;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.concurrent.CopyOnWriteArrayList;
+
 import org.dozer.DozerBeanMapper;
 import org.dozer.loader.api.BeanMappingBuilder;
 import org.dozer.loader.api.TypeMappingOption;
 import org.dozer.loader.api.TypeMappingOptions;
+
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 /**
  * @ClassName DozerMapper
  * @Description DozerMapper
@@ -36,7 +39,7 @@ public class DozerMapper {
         CopyOnWriteArrayList<T> destinationList = new CopyOnWriteArrayList<T>();
         Iterator<?> i$ = sourceList.iterator();
 
-        while(i$.hasNext()) {
+        while (i$.hasNext()) {
             Object sourceObject = i$.next();
             T destinationObject = dozer.map(sourceObject, destinationClass);
             destinationList.add(destinationObject);

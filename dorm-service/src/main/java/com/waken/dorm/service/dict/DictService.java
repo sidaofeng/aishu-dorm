@@ -16,6 +16,7 @@ import com.waken.dorm.common.view.dict.DictView;
 public interface DictService {
     /**
      * 保存或修改系统字典
+     *
      * @param editDictForm
      * @return
      */
@@ -23,12 +24,14 @@ public interface DictService {
 
     /**
      * 删除字典
+     *
      * @param deleteForm
      */
     public void deleteDict(DeleteForm deleteForm);
 
     /**
      * 分页查询字典
+     *
      * @param dictForm
      * @return
      */

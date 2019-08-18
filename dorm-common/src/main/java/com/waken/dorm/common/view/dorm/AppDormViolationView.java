@@ -1,9 +1,8 @@
 package com.waken.dorm.common.view.dorm;
 
-import com.waken.dorm.common.form.base.BaseForm;
+import com.waken.dorm.common.view.base.BaseView;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 
 import java.util.Date;
 
@@ -15,7 +14,7 @@ import java.util.Date;
  **/
 @Getter
 @Setter
-public class AppDormViolationView {
+public class AppDormViolationView extends BaseView {
     private String pkDormViolationId;
 
     private String dormRuleName;

@@ -4,9 +4,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.math.BigDecimal;
-import java.util.Date;
-
 /**
  * @ClassName AddDormRepairForm
  * @Description 新增维修记录form表单

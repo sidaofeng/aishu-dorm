@@ -1,8 +1,5 @@
 package com.waken.dorm.common.enums;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * @ClassName CodeEnum
  * @Description 返回结果枚举
@@ -10,27 +7,27 @@ import java.util.List;
  * @Date 2019/3/19 11:13
  **/
 public enum CodeEnum {
-    
+
     MALE("男", 1), FEMALE("女", 2),
 
     YES("是", 1), NO("否", 0),
-    
+
     FILE("文件", 1), FILEDIRECTORY("文件夹", 0),
 
     IDCARD("身份证.", 1), PASSPORT("护照.", 2),
 
-    PLATFORM_USER("后台用户", 1),SCHOOL_USER("学校用户",2),
+    PLATFORM_USER("后台用户", 1), SCHOOL_USER("学校用户", 2),
 
     ANDROID("Android", 1), IOS("IOS", 2), PC("PC", 3),
 
     DISABLE("无效", 0), ENABLE("生效", 1),
 
-    DELETE("已删除", -1),DISCARD("作废", 0), CHECKED("已审核", 1), UNCOMMITTED("未提交", 2), UNCHECED("待审核", 3), UNPASSED("审核不通过", 4),
+    DELETE("已删除", -1), DISCARD("作废", 0), CHECKED("已审核", 1), UNCOMMITTED("未提交", 2), UNCHECED("待审核", 3), UNPASSED("审核不通过", 4),
 
-    MENU("菜单", 1), BUTTON("按钮", 2),
+    MENU("菜单", 1), BUTTON("按钮", 2), ROLE("角色", 3),
 
     UNCOMPLETE("未完成", 0), COMPLETED("已完成", 1),
-    
+
     VIDEO_CLASS_END_NODE("父节点", 0), VIDEO_CLASS_END_LEAF("叶子节点", 1),
 
     PROVINCE_LEVEL("省代", 1), CITY_LEVEL("市代", 2), AREA_LEVEL("区代", 3),
@@ -38,6 +35,7 @@ public enum CodeEnum {
     REPAIRING("维修中", 1), REPAIRED("已维修", 2), SCRAP("已报废", 3),
 
     APP("APP端请求", 1), WEB("web端请求", 2);
+
     private String msg;
     private Integer code;
 

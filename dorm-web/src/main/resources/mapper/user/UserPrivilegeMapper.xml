@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.waken.dorm.dao.user.UserPrivilegeMapper">
+    <delete id="deleteBatchUserIds">
+        DELETE
+        FROM rm_user_privilege
+        where user_id in
+        <foreach collection="Ids" item="userId" open="(" close=")" separator=",">
+            #{userId}
+        </foreach>
+    </delete>
+    <select id="selectBatchUserIds" resultType="com.waken.dorm.common.entity.user.UserPrivilege">
+        SELECT
+        p.pk_privilege_id AS pkPrivilegeId,
+        p.user_id AS userId,
+        p.subject_id AS subjectId,
+        p.subject_type AS subjectType,
+        p.create_time AS createTime,
+        p.create_user_id AS createUserId
+        FROM rm_user_privilege p
+        where p.user_id in
+        <foreach collection="Ids" item="userId" open="(" close=")" separator=",">
+            #{userId}
+        </foreach>
+    </select>
+    <!-- 查询用户的菜单 -->
+    <select id="selectUserMenu" parameterType="java.lang.String" resultType="com.waken.dorm.common.view.resource.UserMenuView">
+        SELECT
+            DISTINCT
+            menu.pkResourceId,
+            menu.parentId,
+            menu.resourceName,
+            menu.resourceIcon,
+            menu.resourceType,
+            menu.resourceUrl,
+            menu.sort,
+            menu.isParent
+        FROM
+        (
+            SELECT
+            r.pk_resource_id AS pkResourceId,
+            r.parent_id AS parentId,
+            r.resource_name AS resourceName,
+            r.resource_icon AS resourceIcon,
+            r.resource_type AS resourceType,
+            r.resource_url AS resourceUrl,
+            r.sort,
+            r.is_parent AS isParent
+            FROM rm_resource r
+            LEFT JOIN rm_role_resource_rel rr ON rr.resource_id = r.pk_resource_id
+            LEFT JOIN rm_user_privilege p ON p.subject_id = rr.role_id
+            WHERE
+            r.resource_type = 1
+            AND r.`status` = 1
+            <if test="userId != null and userId != ''">
+                AND p.user_id=#{userId,jdbcType=VARCHAR}
+            </if>
+        UNION ALL
+            SELECT
+            r.pk_resource_id AS pkResourceId,
+            r.parent_id AS parentId,
+            r.resource_name AS resourceName,
+            r.resource_icon AS resourceIcon,
+            r.resource_type AS resourceType,
+            r.resource_url AS resourceUrl,
+            r.sort,
+            r.is_parent AS isParent
+            FROM rm_resource r
+            LEFT JOIN rm_user_privilege p ON p.subject_id = r.pk_resource_id
+            WHERE
+            r.resource_type = 1
+            AND r.`status` = 1
+            <if test="userId != null and userId != ''">
+                AND p.user_id=#{userId,jdbcType=VARCHAR}
+            </if>
+        ) AS menu
+        ORDER BY menu.sort ASC
+    </select>
+    <!-- 查询用户的权限信息 -->
+    <select id="selectUserPerms" resultType="java.lang.String" parameterType="java.lang.String">
+        SELECT
+            DISTINCT
+            per.perms
+        FROM
+        (
+            SELECT
+            r.perms
+            FROM rm_resource r
+            LEFT JOIN rm_role_resource_rel rr ON rr.resource_id = r.pk_resource_id
+            LEFT JOIN rm_user_privilege p ON p.subject_id = rr.role_id
+            WHERE
+            r.`status` = 1
+            <if test="userId != null and userId != ''">
+                AND p.user_id=#{userId,jdbcType=VARCHAR}
+            </if>
+        UNION ALL
+            SELECT
+            r.perms
+            FROM rm_resource r
+            LEFT JOIN rm_user_privilege p ON p.subject_id = r.pk_resource_id
+            WHERE
+            r.`status` = 1
+            <if test="userId != null and userId != ''">
+                AND p.user_id=#{userId,jdbcType=VARCHAR}
+            </if>
+        ) AS per
+    </select>
+    <!-- 查询用户拥有的角色 -->
+    <select id="selectUserRoles" resultType="java.lang.String" parameterType="java.lang.String">
+        SELECT
+        DISTINCT
+            r.role_name AS roleName
+        FROM rm_role r
+        LEFT JOIN rm_user_privilege p ON p.subject_id = r.pk_role_id
+        WHERE r.`status` = 1
+        AND p.subject_type = 3
+        <if test="userId != null and userId != ''">
+            AND p.user_id=#{userId,jdbcType=VARCHAR}
+        </if>
+    </select>
+    <!-- 查询角色拥有的资源 -->
+    <select id="selectRoleResources" parameterType="java.lang.String" resultType="com.waken.dorm.common.view.resource.UserMenuView">
+        SELECT
+        DISTINCT
+            r.pk_resource_id AS pkResourceId,
+            r.parent_id AS parentId,
+            r.resource_name AS resourceName,
+            r.resource_icon AS resourceIcon,
+            r.resource_type AS resourceType,
+            r.resource_url AS resourceUrl,
+            r.sort,
+            r.is_parent AS isParent
+        FROM rm_resource r
+        LEFT JOIN rm_role_resource_rel rr ON rr.resource_id = r.pk_resource_id
+        WHERE
+            r.`status` = 1
+        <if test="roleId != null and roleId != ''">
+            AND rr.role_id=#{roleId,jdbcType=VARCHAR}
+        </if>
+    </select>
+</mapper>

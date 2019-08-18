@@ -5,8 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.util.Date;
-
 /**
  * @ClassName ListDormScoreForm
  * @Description ListDormScoreForm
@@ -29,8 +27,6 @@ public class ListDormScoreForm extends BaseForm {
     private String lastModifyUserName;
 
     private String memo;
-
-    private String schoolId;
 
     private String studentId;
 }

@@ -1,497 +1,153 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.waken.dorm.dao.student.StudentMapper" >
-  <resultMap id="BaseResultMap" type="com.waken.dorm.common.entity.student.Student" >
-    <id column="pk_student_id" property="pkStudentId" jdbcType="VARCHAR" />
-    <result column="school_id" property="schoolId" jdbcType="VARCHAR" />
-    <result column="student_name" property="studentName" jdbcType="VARCHAR" />
-    <result column="student_num" property="studentNum" jdbcType="INTEGER" />
-    <result column="password" property="password" jdbcType="VARCHAR" />
-    <result column="mobile" property="mobile" jdbcType="VARCHAR" />
-    <result column="gender" property="gender" jdbcType="INTEGER" />
-    <result column="email" property="email" jdbcType="VARCHAR" />
-    <result column="img_url" property="imgUrl" jdbcType="VARCHAR" />
-    <result column="status" property="status" jdbcType="INTEGER" />
-    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
-    <result column="create_user_id" property="createUserId" jdbcType="VARCHAR" />
-    <result column="last_modify_time" property="lastModifyTime" jdbcType="TIMESTAMP" />
-    <result column="last_modify_user_id" property="lastModifyUserId" jdbcType="VARCHAR" />
-  </resultMap>
-  <sql id="Example_Where_Clause" >
-    <where >
-      <foreach collection="oredCriteria" item="criteria" separator="or" >
-        <if test="criteria.valid" >
-          <trim prefix="(" suffix=")" prefixOverrides="and" >
-            <foreach collection="criteria.criteria" item="criterion" >
-              <choose >
-                <when test="criterion.noValue" >
-                  and ${criterion.condition}
-                </when>
-                <when test="criterion.singleValue" >
-                  and ${criterion.condition} #{criterion.value}
-                </when>
-                <when test="criterion.betweenValue" >
-                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
-                </when>
-                <when test="criterion.listValue" >
-                  and ${criterion.condition}
-                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
-                    #{listItem}
-                  </foreach>
-                </when>
-              </choose>
-            </foreach>
-          </trim>
+<mapper namespace="com.waken.dorm.dao.student.StudentMapper">
+    <resultMap id="BaseResultMap" type="com.waken.dorm.common.entity.student.Student">
+        <id column="pk_student_id" property="pkStudentId" jdbcType="VARCHAR"/>
+        <result column="student_name" property="studentName" jdbcType="VARCHAR"/>
+        <result column="student_num" property="studentNum" jdbcType="INTEGER"/>
+        <result column="password" property="password" jdbcType="VARCHAR"/>
+        <result column="mobile" property="mobile" jdbcType="VARCHAR"/>
+        <result column="gender" property="gender" jdbcType="INTEGER"/>
+        <result column="email" property="email" jdbcType="VARCHAR"/>
+        <result column="img_url" property="imgUrl" jdbcType="VARCHAR"/>
+        <result column="status" property="status" jdbcType="INTEGER"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="create_user_id" property="createUserId" jdbcType="VARCHAR"/>
+        <result column="last_modify_time" property="lastModifyTime" jdbcType="TIMESTAMP"/>
+        <result column="last_modify_user_id" property="lastModifyUserId" jdbcType="VARCHAR"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        pk_student_id, student_name, student_num, password, mobile, gender, email,
+        img_url, status, create_time, create_user_id, last_modify_time, last_modify_user_id
+    </sql>
+    <select id="studentLogin" resultType="com.waken.dorm.common.entity.student.StudentInfo"
+            parameterType="com.waken.dorm.common.entity.student.Student">
+        SELECT
+        s.pk_student_id AS studentId,
+        s.student_name AS studentName,
+        s.student_num AS studentNum,
+        s.mobile AS mobile,
+        s.gender AS gender,
+        s.email AS email,
+        s.img_url AS imgUrl,
+        s.create_time AS createTime
+        FROM rm_student s
+        WhERE
+        s.`status` = 1
+        <if test="studentNum != null">
+            AND s.student_num=#{studentNum,jdbcType=INTEGER}
         </if>
-      </foreach>
-    </where>
-  </sql>
-  <sql id="Update_By_Example_Where_Clause" >
-    <where >
-      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
-        <if test="criteria.valid" >
-          <trim prefix="(" suffix=")" prefixOverrides="and" >
-            <foreach collection="criteria.criteria" item="criterion" >
-              <choose >
-                <when test="criterion.noValue" >
-                  and ${criterion.condition}
-                </when>
-                <when test="criterion.singleValue" >
-                  and ${criterion.condition} #{criterion.value}
-                </when>
-                <when test="criterion.betweenValue" >
-                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
-                </when>
-                <when test="criterion.listValue" >
-                  and ${criterion.condition}
-                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
-                    #{listItem}
-                  </foreach>
-                </when>
-              </choose>
-            </foreach>
-          </trim>
+        <if test="password != null and password != ''">
+            AND s.password=#{password,jdbcType=VARCHAR}
         </if>
-      </foreach>
-    </where>
-  </sql>
-  <sql id="Base_Column_List" >
-    pk_student_id, school_id, student_name, student_num, password, mobile, gender, email,
-    img_url, status, create_time, create_user_id, last_modify_time, last_modify_user_id
-  </sql>
-  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.waken.dorm.common.entity.student.StudentExample" >
-    select
-    <if test="distinct" >
-      distinct
-    </if>
-    'true' as QUERYID,
-    <include refid="Base_Column_List" />
-    from rm_student
-    <if test="_parameter != null" >
-      <include refid="Example_Where_Clause" />
-    </if>
-    <if test="orderByClause != null" >
-      order by ${orderByClause}
-    </if>
-  </select>
-  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
-    select
-    <include refid="Base_Column_List" />
-    from rm_student
-    where pk_student_id = #{pkStudentId,jdbcType=VARCHAR}
-  </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
-    delete from rm_student
-    where pk_student_id = #{pkStudentId,jdbcType=VARCHAR}
-  </delete>
-  <delete id="deleteByExample" parameterType="com.waken.dorm.common.entity.student.StudentExample" >
-    delete from rm_student
-    <if test="_parameter != null" >
-      <include refid="Example_Where_Clause" />
-    </if>
-  </delete>
-  <insert id="insert" parameterType="com.waken.dorm.common.entity.student.Student" >
-    insert into rm_student (pk_student_id, school_id, student_name,
-    student_num, password, mobile,
-    gender, email, img_url,
-    status, create_time, create_user_id,
-    last_modify_time, last_modify_user_id)
-    values (#{pkStudentId,jdbcType=VARCHAR}, #{schoolId,jdbcType=VARCHAR}, #{studentName,jdbcType=VARCHAR},
-    #{studentNum,jdbcType=INTEGER}, #{password,jdbcType=VARCHAR}, #{mobile,jdbcType=VARCHAR},
-    #{gender,jdbcType=INTEGER}, #{email,jdbcType=VARCHAR}, #{imgUrl,jdbcType=VARCHAR},
-    #{status,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, #{createUserId,jdbcType=VARCHAR},
-    #{lastModifyTime,jdbcType=TIMESTAMP}, #{lastModifyUserId,jdbcType=VARCHAR})
-  </insert>
-  <insert id="insertSelective" parameterType="com.waken.dorm.common.entity.student.Student" >
-    insert into rm_student
-    <trim prefix="(" suffix=")" suffixOverrides="," >
-      <if test="pkStudentId != null" >
-        pk_student_id,
-      </if>
-      <if test="schoolId != null" >
-        school_id,
-      </if>
-      <if test="studentName != null" >
+    </select>
+    <insert id="batchAddStudent" parameterType="java.util.List">
+        insert into rm_student
+        (pk_student_id,
         student_name,
-      </if>
-      <if test="studentNum != null" >
         student_num,
-      </if>
-      <if test="password != null" >
         password,
-      </if>
-      <if test="mobile != null" >
         mobile,
-      </if>
-      <if test="gender != null" >
         gender,
-      </if>
-      <if test="email != null" >
         email,
-      </if>
-      <if test="imgUrl != null" >
         img_url,
-      </if>
-      <if test="status != null" >
         status,
-      </if>
-      <if test="createTime != null" >
-        create_time,
-      </if>
-      <if test="createUserId != null" >
         create_user_id,
-      </if>
-      <if test="lastModifyTime != null" >
-        last_modify_time,
-      </if>
-      <if test="lastModifyUserId != null" >
+        create_time,
         last_modify_user_id,
-      </if>
-    </trim>
-    <trim prefix="values (" suffix=")" suffixOverrides="," >
-      <if test="pkStudentId != null" >
-        #{pkStudentId,jdbcType=VARCHAR},
-      </if>
-      <if test="schoolId != null" >
-        #{schoolId,jdbcType=VARCHAR},
-      </if>
-      <if test="studentName != null" >
-        #{studentName,jdbcType=VARCHAR},
-      </if>
-      <if test="studentNum != null" >
-        #{studentNum,jdbcType=INTEGER},
-      </if>
-      <if test="password != null" >
-        #{password,jdbcType=VARCHAR},
-      </if>
-      <if test="mobile != null" >
-        #{mobile,jdbcType=VARCHAR},
-      </if>
-      <if test="gender != null" >
-        #{gender,jdbcType=INTEGER},
-      </if>
-      <if test="email != null" >
-        #{email,jdbcType=VARCHAR},
-      </if>
-      <if test="imgUrl != null" >
-        #{imgUrl,jdbcType=VARCHAR},
-      </if>
-      <if test="status != null" >
-        #{status,jdbcType=INTEGER},
-      </if>
-      <if test="createTime != null" >
-        #{createTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="createUserId != null" >
-        #{createUserId,jdbcType=VARCHAR},
-      </if>
-      <if test="lastModifyTime != null" >
-        #{lastModifyTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="lastModifyUserId != null" >
-        #{lastModifyUserId,jdbcType=VARCHAR},
-      </if>
-    </trim>
-  </insert>
-  <select id="countByExample" parameterType="com.waken.dorm.common.entity.student.StudentExample" resultType="java.lang.Integer" >
-    select count(*) from rm_student
-    <if test="_parameter != null" >
-      <include refid="Example_Where_Clause" />
-    </if>
-  </select>
-  <update id="updateByExampleSelective" parameterType="map" >
-    update rm_student
-    <set >
-      <if test="record.pkStudentId != null" >
-        pk_student_id = #{record.pkStudentId,jdbcType=VARCHAR},
-      </if>
-      <if test="record.schoolId != null" >
-        school_id = #{record.schoolId,jdbcType=VARCHAR},
-      </if>
-      <if test="record.studentName != null" >
-        student_name = #{record.studentName,jdbcType=VARCHAR},
-      </if>
-      <if test="record.studentNum != null" >
-        student_num = #{record.studentNum,jdbcType=INTEGER},
-      </if>
-      <if test="record.password != null" >
-        password = #{record.password,jdbcType=VARCHAR},
-      </if>
-      <if test="record.mobile != null" >
-        mobile = #{record.mobile,jdbcType=VARCHAR},
-      </if>
-      <if test="record.gender != null" >
-        gender = #{record.gender,jdbcType=INTEGER},
-      </if>
-      <if test="record.email != null" >
-        email = #{record.email,jdbcType=VARCHAR},
-      </if>
-      <if test="record.imgUrl != null" >
-        img_url = #{record.imgUrl,jdbcType=VARCHAR},
-      </if>
-      <if test="record.status != null" >
-        status = #{record.status,jdbcType=INTEGER},
-      </if>
-      <if test="record.createTime != null" >
-        create_time = #{record.createTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="record.createUserId != null" >
-        create_user_id = #{record.createUserId,jdbcType=VARCHAR},
-      </if>
-      <if test="record.lastModifyTime != null" >
-        last_modify_time = #{record.lastModifyTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="record.lastModifyUserId != null" >
-        last_modify_user_id = #{record.lastModifyUserId,jdbcType=VARCHAR},
-      </if>
-    </set>
-    <if test="_parameter != null" >
-      <include refid="Update_By_Example_Where_Clause" />
-    </if>
-  </update>
-  <update id="updateByExample" parameterType="map" >
-    update rm_student
-    set pk_student_id = #{record.pkStudentId,jdbcType=VARCHAR},
-    school_id = #{record.schoolId,jdbcType=VARCHAR},
-    student_name = #{record.studentName,jdbcType=VARCHAR},
-    student_num = #{record.studentNum,jdbcType=INTEGER},
-    password = #{record.password,jdbcType=VARCHAR},
-    mobile = #{record.mobile,jdbcType=VARCHAR},
-    gender = #{record.gender,jdbcType=INTEGER},
-    email = #{record.email,jdbcType=VARCHAR},
-    img_url = #{record.imgUrl,jdbcType=VARCHAR},
-    status = #{record.status,jdbcType=INTEGER},
-    create_time = #{record.createTime,jdbcType=TIMESTAMP},
-    create_user_id = #{record.createUserId,jdbcType=VARCHAR},
-    last_modify_time = #{record.lastModifyTime,jdbcType=TIMESTAMP},
-    last_modify_user_id = #{record.lastModifyUserId,jdbcType=VARCHAR}
-    <if test="_parameter != null" >
-      <include refid="Update_By_Example_Where_Clause" />
-    </if>
-  </update>
-  <update id="updateByPrimaryKeySelective" parameterType="com.waken.dorm.common.entity.student.Student" >
-    update rm_student
-    <set >
-      <if test="schoolId != null" >
-        school_id = #{schoolId,jdbcType=VARCHAR},
-      </if>
-      <if test="studentName != null" >
-        student_name = #{studentName,jdbcType=VARCHAR},
-      </if>
-      <if test="studentNum != null" >
-        student_num = #{studentNum,jdbcType=INTEGER},
-      </if>
-      <if test="password != null" >
-        password = #{password,jdbcType=VARCHAR},
-      </if>
-      <if test="mobile != null" >
-        mobile = #{mobile,jdbcType=VARCHAR},
-      </if>
-      <if test="gender != null" >
-        gender = #{gender,jdbcType=INTEGER},
-      </if>
-      <if test="email != null" >
-        email = #{email,jdbcType=VARCHAR},
-      </if>
-      <if test="imgUrl != null" >
-        img_url = #{imgUrl,jdbcType=VARCHAR},
-      </if>
-      <if test="status != null" >
-        status = #{status,jdbcType=INTEGER},
-      </if>
-      <if test="createTime != null" >
-        create_time = #{createTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="createUserId != null" >
-        create_user_id = #{createUserId,jdbcType=VARCHAR},
-      </if>
-      <if test="lastModifyTime != null" >
-        last_modify_time = #{lastModifyTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="lastModifyUserId != null" >
-        last_modify_user_id = #{lastModifyUserId,jdbcType=VARCHAR},
-      </if>
-    </set>
-    where pk_student_id = #{pkStudentId,jdbcType=VARCHAR}
-  </update>
-  <update id="updateByPrimaryKey" parameterType="com.waken.dorm.common.entity.student.Student" >
-    update rm_student
-    set school_id = #{schoolId,jdbcType=VARCHAR},
-    student_name = #{studentName,jdbcType=VARCHAR},
-    student_num = #{studentNum,jdbcType=INTEGER},
-    password = #{password,jdbcType=VARCHAR},
-    mobile = #{mobile,jdbcType=VARCHAR},
-    gender = #{gender,jdbcType=INTEGER},
-    email = #{email,jdbcType=VARCHAR},
-    img_url = #{imgUrl,jdbcType=VARCHAR},
-    status = #{status,jdbcType=INTEGER},
-    create_time = #{createTime,jdbcType=TIMESTAMP},
-    create_user_id = #{createUserId,jdbcType=VARCHAR},
-    last_modify_time = #{lastModifyTime,jdbcType=TIMESTAMP},
-    last_modify_user_id = #{lastModifyUserId,jdbcType=VARCHAR}
-    where pk_student_id = #{pkStudentId,jdbcType=VARCHAR}
-  </update>
-  <select id="studentLogin" resultType="com.waken.dorm.common.entity.student.StudentInfo" parameterType="com.waken.dorm.common.entity.student.Student">
-    SELECT
-    s.pk_student_id AS studentId,
-    s.student_name AS studentName,
-    s.student_num AS studentNum,
-    s.mobile AS mobile,
-    s.gender AS gender,
-    s.email AS email,
-    s.img_url AS imgUrl,
-    s.create_time AS createTime
-    FROM rm_student s
-    WhERE
-    s.`status` = 1
-    <if test="studentNum != null">
-      AND s.student_num=#{studentNum,jdbcType=INTEGER}
-    </if>
-    <if test="password != null and password != ''">
-      AND s.password=#{password,jdbcType=VARCHAR}
-    </if>
-  </select>
-  <insert id="batchAddStudent" parameterType="java.util.List">
-    insert into rm_student
-    (pk_student_id,
-    school_id,
-    student_name,
-    student_num,
-    password,
-    mobile,
-    gender,
-    email,
-    img_url,
-    status,
-    create_user_id,
-    create_time,
-    last_modify_user_id,
-    last_modify_time)
-    values
-    <foreach collection="list" item="item" index="index" separator="," >
-      (#{item.pkStudentId},
-      #{item.schoolId},
-      #{item.studentName},
-      #{item.studentNum},
-      #{item.password},
-      #{item.mobile},
-      #{item.gender},
-      #{item.email},
-      #{item.imgUrl},
-      #{item.status},
-      #{item.createUserId},
-      #{item.createTime},
-      #{item.lastModifyUserId},
-      #{item.lastModifyTime})
-    </foreach>
-  </insert>
-  <select id="selectByIds" resultMap="BaseResultMap">
-    select
-    <include refid="Base_Column_List" />
-    from rm_student
-    where pk_student_id in
-    <foreach collection="Ids" item="dramaId" open="(" close=")" separator=",">
-      #{dramaId}
-    </foreach>
-  </select>
-  <select id="listStudents" parameterType="com.waken.dorm.common.form.student.StudentForm" resultType="com.waken.dorm.common.view.student.StudentView">
-    SELECT
-    s.pk_student_id AS pkStudentId,
-    s.student_name AS studentName,
-    s.student_num AS studentNum,
-    sch.school_name AS schoolName,
-    sc.class_name AS schoolClassName,
-    db.dorm_building_num AS dormBuildingNum,
-    d.dorm_num AS dormNum,
-    s.mobile,
-    s.gender,
-    s.email,
-    s.`status`,
-    s.create_time AS createTime,
-    uu.user_name AS lastModifyUserName,
-    s.last_modify_time AS lastModifyTime,
-    u.user_name AS createUserName
-    FROM rm_student s
-    LEFT JOIN rm_school_class_student_rel scs ON scs.student_id = s.pk_student_id
-    LEFT JOIN rm_school_class sc ON sc.pk_school_class_id = scs.school_class_id
-    LEFT JOIN rm_school sch ON sch.pk_school_id = s.school_id
-    LEFT JOIN rm_dorm_building db ON db.school_id = sch.pk_school_id
-    LEFT JOIN rm_dorm d ON d.dorm_building_id = db.pk_dorm_building_id
-    LEFT JOIN rm_user u ON u.user_id = s.create_user_id
-    LEFT JOIN rm_user uu ON uu.user_id = s.last_modify_user_id
-    WHERE 1=1
-    <if test="schoolId != null and schoolId != ''">
-      and s.school_id=#{schoolId}
-    </if>
-    <if test="pkStudentId != null and pkStudentId != ''">
-      and s.pk_student_id=#{pkStudentId}
-    </if>
-    <if test="studentName != null and studentName != ''">
-      and s.student_name like '%${studentName}%'
-    </if>
-    <if test="studentNum != null">
-      and s.student_num=#{studentNum}
-    </if>
-    <if test="schoolName != null and schoolName != ''">
-      and sch.school_name like '%${schoolName}%'
-    </if>
-    <if test="schoolClassName != null and schoolClassName != ''">
-      and sc.class_name like '%${schoolClassName}%'
-    </if>
-    <if test="dormNum != null and dormNum != ''">
-      and d.dorm_num like '%${dormNum}%'
-    </if>
-    <if test="dormBuildingNum != null and dormBuildingNum != ''">
-      and db.dorm_building_num like '%${dormBuildingNum}%'
-    </if>
-    <if test="gender != null">
-      and s.gender=#{gender}
-    </if>
-    <if test="status != null">
-      and s.status=#{status}
-    </if>
-    <if test="createUserName != null and createUserName != ''">
-      and u.user_name like '%${createUserName}%'
-    </if>
-    <if test="lastModifyUserName != null and lastModifyUserName != ''">
-      and uu.user_name like '%${lastModifyUserName}%'
-    </if>
-    <if test="startTime != null">
-      AND s.create_time &gt;= #{startTime,jdbcType=TIMESTAMP}
-    </if>
-    <if test="endTime != null">
-      AND s.create_time &lt;= #{endTime,jdbcType=TIMESTAMP}
-    </if>
-    ORDER BY
-    s.last_modify_time DESC
-  </select>
-  <update id="batchUpdateStatus" parameterType="java.util.Map">
-    <foreach collection="list" separator=";" item="ur">
-      update rm_student set
-      status = #{ur.status},
-      last_modify_time = #{ur.lastModifyTime},
-      last_modify_user_id = #{ur.lastModifyUserId}
-      where pk_student_id = #{ur.pkId}
-    </foreach>
-  </update>
+        last_modify_time)
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.pkStudentId},
+            #{item.studentName},
+            #{item.studentNum},
+            #{item.password},
+            #{item.mobile},
+            #{item.gender},
+            #{item.email},
+            #{item.imgUrl},
+            #{item.status},
+            #{item.createUserId},
+            #{item.createTime},
+            #{item.lastModifyUserId},
+            #{item.lastModifyTime})
+        </foreach>
+    </insert>
+    <select id="selectByIds" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from rm_student
+        where pk_student_id in
+        <foreach collection="Ids" item="dramaId" open="(" close=")" separator=",">
+            #{dramaId}
+        </foreach>
+    </select>
+    <select id="listStudents" parameterType="com.waken.dorm.common.form.student.StudentForm"
+            resultType="com.waken.dorm.common.view.student.StudentView">
+        SELECT
+        s.pk_student_id AS pkStudentId,
+        s.student_name AS studentName,
+        s.student_num AS studentNum,
+        db.dorm_building_num AS dormBuildingNum,
+        d.dorm_num AS dormNum,
+        s.mobile,
+        s.gender,
+        s.email,
+        s.`status`,
+        s.create_time AS createTime,
+        uu.user_name AS lastModifyUserName,
+        s.last_modify_time AS lastModifyTime,
+        u.user_name AS createUserName
+        FROM rm_student s
+        LEFT JOIN rm_dorm_student_rel drs ON drs.student_id = s.pk_student_id
+        LEFT JOIN rm_dorm d ON d.pk_dorm_id = drs.dorm_id
+        LEFT JOIN rm_dorm_building db ON db.pk_dorm_building_id = d.dorm_building_id
+        LEFT JOIN rm_user u ON u.user_id = s.create_user_id
+        LEFT JOIN rm_user uu ON uu.user_id = s.last_modify_user_id
+        WHERE 1=1
+        <if test="pkStudentId != null and pkStudentId != ''">
+            and s.pk_student_id=#{pkStudentId}
+        </if>
+        <if test="studentName != null and studentName != ''">
+            and s.student_name like '%${studentName}%'
+        </if>
+        <if test="studentNum != null">
+            and s.student_num=#{studentNum}
+        </if>
+        <if test="dormNum != null and dormNum != ''">
+            and d.dorm_num like '%${dormNum}%'
+        </if>
+        <if test="dormBuildingNum != null and dormBuildingNum != ''">
+            and db.dorm_building_num like '%${dormBuildingNum}%'
+        </if>
+        <if test="gender != null">
+            and s.gender=#{gender}
+        </if>
+        <if test="status != null">
+            and s.status=#{status}
+        </if>
+        <if test="createUserName != null and createUserName != ''">
+            and u.user_name like '%${createUserName}%'
+        </if>
+        <if test="lastModifyUserName != null and lastModifyUserName != ''">
+            and uu.user_name like '%${lastModifyUserName}%'
+        </if>
+        <if test="startTime != null">
+            AND s.create_time &gt;= #{startTime,jdbcType=TIMESTAMP}
+        </if>
+        <if test="endTime != null">
+            AND s.create_time &lt;= #{endTime,jdbcType=TIMESTAMP}
+        </if>
+        ORDER BY
+        s.last_modify_time DESC
+    </select>
+    <update id="batchUpdateStatus" parameterType="java.util.Map">
+        <foreach collection="list" separator=";" item="ur">
+            update rm_student set
+            status = #{ur.status},
+            last_modify_time = #{ur.lastModifyTime},
+            last_modify_user_id = #{ur.lastModifyUserId}
+            where pk_student_id = #{ur.pkId}
+        </foreach>
+    </update>
 </mapper>

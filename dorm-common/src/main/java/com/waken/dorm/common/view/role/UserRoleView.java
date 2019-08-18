@@ -1,6 +1,7 @@
 package com.waken.dorm.common.view.role;
 
 import com.waken.dorm.common.enums.CodeEnum;
+import com.waken.dorm.common.view.base.BaseView;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,7 +13,7 @@ import lombok.Setter;
  **/
 @Getter
 @Setter
-public class UserRoleView {
+public class UserRoleView extends BaseView {
     private String roleId;
 
     private String roleName;

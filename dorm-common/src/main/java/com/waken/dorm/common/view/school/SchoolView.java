@@ -1,5 +1,6 @@
 package com.waken.dorm.common.view.school;
 
+import com.waken.dorm.common.view.base.BaseView;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -15,7 +16,7 @@ import java.util.Date;
 @ToString
 @Getter
 @Setter
-public class SchoolView {
+public class SchoolView extends BaseView {
     private String pkSchoolId;
 
     private String userName;

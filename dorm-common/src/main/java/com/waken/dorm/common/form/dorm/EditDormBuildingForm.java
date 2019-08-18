@@ -1,6 +1,5 @@
 package com.waken.dorm.common.form.dorm;
 
-import com.waken.dorm.common.form.base.BaseForm;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;

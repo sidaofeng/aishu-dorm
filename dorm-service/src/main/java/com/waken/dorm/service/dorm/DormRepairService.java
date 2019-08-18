@@ -11,6 +11,7 @@ import com.waken.dorm.common.view.dorm.DormRepairView;
 public interface DormRepairService {
     /**
      * 新增维修记录
+     *
      * @param addDormRepairForm
      * @return
      */
@@ -18,11 +19,14 @@ public interface DormRepairService {
 
     /**
      * 删除维修记录
+     *
      * @param deleteForm
      */
     public void deleteDormRepair(DeleteForm deleteForm);
+
     /**
      * 分页查询宿舍维修记录
+     *
      * @param dormRepairForm
      * @return
      */
@@ -30,6 +34,7 @@ public interface DormRepairService {
 
     /**
      * 更新宿舍维修记录（提交维修结果）
+     *
      * @param updateRepairForm
      * @return
      */

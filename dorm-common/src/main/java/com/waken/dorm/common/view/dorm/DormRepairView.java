@@ -1,5 +1,6 @@
 package com.waken.dorm.common.view.dorm;
 
+import com.waken.dorm.common.view.base.BaseView;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,7 +15,7 @@ import java.util.Date;
  **/
 @Getter
 @Setter
-public class DormRepairView {
+public class DormRepairView extends BaseView {
     private String pkDormRepairId;
 
     private String dormNum;

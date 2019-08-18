@@ -1,22 +1,20 @@
 package com.waken.dorm.common.utils;
 
-import java.io.IOException;
-import java.util.*;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.util.JSONPObject;
-import com.fasterxml.jackson.databind.JavaType;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-
+import java.io.IOException;
+import java.util.*;
 
 
 /**
@@ -33,25 +31,27 @@ public class JsonMapper {
     public JsonMapper() {
         this(null);
     }
+
     /**
      * 将json格式的数据转化为所对应的对象
-     * @param object 要转化的json对象
-     * @param classList 转化对象中的字段拥有的对象列表{private List<Data> data}，列表中的元素为Data.class
+     *
+     * @param object        要转化的json对象
+     * @param classList     转化对象中的字段拥有的对象列表{private List<Data> data}，列表中的元素为Data.class
      * @param toChangeClass 将要转化的对象
      * @return object可转化为toChangeClass对象
      */
-    public Object jsonToObject(Object object, List<Class<?>> classList, Class<?> toChangeClass){
+    public Object jsonToObject(Object object, List<Class<?>> classList, Class<?> toChangeClass) {
         Map<String, Class<?>> classMap = new HashMap<String, Class<?>>();
-        JSONObject jsonObject=JSONObject.fromObject(String.valueOf(object));
+        JSONObject jsonObject = JSONObject.fromObject(String.valueOf(object));
         Object toChangeClas = null;
-        if(classList == null){
-            toChangeClas =JSONObject.toBean(jsonObject, toChangeClass);
-        }else{
-            for(Class<?> cla:classList){
+        if (classList == null) {
+            toChangeClas = JSONObject.toBean(jsonObject, toChangeClass);
+        } else {
+            for (Class<?> cla : classList) {
                 String tr = String.valueOf(cla.getSimpleName());
                 classMap.put(tr.toLowerCase(), cla);
             }
-            toChangeClas =JSONObject.toBean(jsonObject, toChangeClass,classMap);
+            toChangeClas = JSONObject.toBean(jsonObject, toChangeClass, classMap);
         }
         return toChangeClas;
     }
@@ -82,10 +82,11 @@ public class JsonMapper {
 
     /**
      * 转换extjs的form填充json
+     *
      * @param data
      * @return
      */
-    public static Object toJsonFormResult(Object data){
+    public static Object toJsonFormResult(Object data) {
         return new JsonForm(data);
     }
 
@@ -106,10 +107,10 @@ public class JsonMapper {
 
     /**
      * 反序列化POJO或简单Collection如List<String>.
-     *
+     * <p>
      * 如果JSON字符串为Null或"null"字符串, 返回Null.
      * 如果JSON字符串为"[]", 返回空集合.
-     *
+     * <p>
      * 如需反序列化复杂Collection如List<MyBean>, 请使用fromJson(String, JavaType)
      *
      * @see #fromJson(String, JavaType)
@@ -129,7 +130,7 @@ public class JsonMapper {
 
     /**
      * 反序列化复杂Collection如List<Bean>, 先使用createCollectionType()或contructMapType()构造类型, 然后调用本函数.
-     *
+     * <p>
      * TODO @see #createCollectionType(Class, Class...)
      */
     @SuppressWarnings("unchecked")
@@ -156,7 +157,7 @@ public class JsonMapper {
     /**
      * 构造Map类型.
      */
-    public JavaType contructMapType(Class<? extends Map<Object,Object>> mapClass, Class<?> keyClass, Class<?> valueClass) {
+    public JavaType contructMapType(Class<? extends Map<Object, Object>> mapClass, Class<?> keyClass, Class<?> valueClass) {
         return mapper.getTypeFactory().constructMapType(mapClass, keyClass, valueClass);
     }
 
@@ -205,44 +206,46 @@ public class JsonMapper {
     public ObjectMapper getMapper() {
         return mapper;
     }
+
     /**
      * 一个类似与多重map结构的Object转换为Map
+     *
      * @param result Object
      * @return
      * @throws IllegalAccessException
      */
-    public  Map<String, Object> objectToMap(Object result) throws IllegalAccessException {
+    public Map<String, Object> objectToMap(Object result) throws IllegalAccessException {
         Map<String, Object> map = new HashMap<>();
-        parseJSONTOMap(map,String.valueOf(result),null);
+        parseJSONTOMap(map, String.valueOf(result), null);
         return map;
     }
-    public  void parseJSONTOMap(Map<String, Object> jsonMap,String jsonStr,String parentKey){
+
+    public void parseJSONTOMap(Map<String, Object> jsonMap, String jsonStr, String parentKey) {
         //字符串转换成JSON对象
         JSONObject json = JSONObject.fromObject(jsonStr);
         //最外层JSON解析
-        for(Object k : json.keySet()){
+        for (Object k : json.keySet()) {
             //JSONObject 实际上相当于一个Map集合，所以我们可以通过Key值获取Value
             Object v = json.get(k);
             //构造一个包含上层keyName的完整keyName
-            String fullKey = (null == parentKey || parentKey.trim().equals("") ? k.toString() : parentKey +"_" + k);
+            String fullKey = (null == parentKey || parentKey.trim().equals("") ? k.toString() : parentKey + "_" + k);
 
-            if(v instanceof JSONArray){
+            if (v instanceof JSONArray) {
                 //如果内层还是数组的话，继续解析
                 Iterator<?> it = ((JSONArray) v).iterator();
-                while(it.hasNext()){
-                    JSONObject json2 = (JSONObject)it.next();
-                    parseJSONTOMap(jsonMap,json2.toString(),fullKey);
+                while (it.hasNext()) {
+                    JSONObject json2 = (JSONObject) it.next();
+                    parseJSONTOMap(jsonMap, json2.toString(), fullKey);
                 }
-            } else if(isNested(v)){
-                parseJSONTOMap(jsonMap,v.toString(),fullKey);
-            }
-            else{
+            } else if (isNested(v)) {
+                parseJSONTOMap(jsonMap, v.toString(), fullKey);
+            } else {
                 jsonMap.put(fullKey, v);
             }
         }
     }
 
-    public  boolean isNested(Object jsonObj){
+    public boolean isNested(Object jsonObj) {
 
         return jsonObj.toString().contains("{");
     }

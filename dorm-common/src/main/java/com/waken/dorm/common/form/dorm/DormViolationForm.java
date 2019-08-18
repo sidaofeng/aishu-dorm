@@ -5,8 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.util.Date;
-
 /**
  * @ClassName DormViolationForm
  * @Description DormViolationForm
@@ -33,8 +31,6 @@ public class DormViolationForm extends BaseForm {
     private String lastModifyUserName;
 
     private String memo;
-
-    private String schoolId;
 
     private String studentId;
 }

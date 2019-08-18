@@ -7,7 +7,6 @@ import com.waken.dorm.common.form.dorm.DormScoreForm;
 import com.waken.dorm.common.form.dorm.ListDormScoreForm;
 import com.waken.dorm.common.view.dorm.AppDormScoreView;
 import com.waken.dorm.common.view.dorm.DormScoreView;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -18,18 +17,21 @@ import java.util.List;
 public interface DormScoreService {
     /**
      * 批量导入宿舍评分记录（excel）
-     * @param multipartFile
+     *
+     * @param dormScoreList
      */
-    public void batchAddDormScore(MultipartFile multipartFile);
+    public void batchAddDormScore(List<DormScore> dormScoreList);
 
     /**
      * 删除评分记录
+     *
      * @param deleteForm
      */
     public void deleteDormScore(DeleteForm deleteForm);
 
     /**
      * app端通过学生id查询对应宿舍的评分记录
+     *
      * @param listDormScoreForm
      * @return
      */
@@ -37,6 +39,7 @@ public interface DormScoreService {
 
     /**
      * 分页查询宿舍评分
+     *
      * @param listDormScoreForm
      * @return
      */
@@ -44,6 +47,7 @@ public interface DormScoreService {
 
     /**
      * 修改评分
+     *
      * @param dormScoreForm
      * @return
      */

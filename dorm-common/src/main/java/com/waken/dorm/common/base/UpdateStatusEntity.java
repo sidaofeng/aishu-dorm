@@ -13,7 +13,7 @@ import java.util.Date;
  **/
 @Getter
 @Setter
-public class UpdateStatusEntity extends BaseEntity{
+public class UpdateStatusEntity extends BaseEntity {
     private String pkId;
 
     private Integer status;

@@ -1,5 +1,6 @@
 package com.waken.dorm.common.view.user;
 
+import com.waken.dorm.common.view.base.BaseView;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,7 +12,7 @@ import lombok.Setter;
  **/
 @Getter
 @Setter
-public class UserRoleRelView {
+public class UserRoleRelView extends BaseView {
     private String pkUserRoleId;
 
     private String roleId;

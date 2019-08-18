@@ -1,5 +1,6 @@
 package com.waken.dorm.common.view.user;
 
+import com.waken.dorm.common.view.base.BaseView;
 import io.swagger.annotations.ApiModel;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,7 +16,7 @@ import java.util.List;
 @ApiModel(value = "UserRolesView", description = "与用户已经存在关联的角色，没有关联的角色的视图")
 @Getter
 @Setter
-public class UserRolesView {
+public class UserRolesView extends BaseView {
     private List<UserRoleRelView> addedList;//与用户已经存在关联的角色
 
     private List<UserRoleRelView> toBeAddList;//没有关联的角色

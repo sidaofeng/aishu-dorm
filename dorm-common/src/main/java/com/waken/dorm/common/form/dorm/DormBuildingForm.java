@@ -5,8 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.util.Date;
-
 /**
  * @ClassName DormBuildingForm
  * @Description DormBuildingForm
@@ -19,10 +17,6 @@ import java.util.Date;
 public class DormBuildingForm extends BaseForm {
     private static final long serialVersionUID = -3547493633581949862L;
     private String pkDormBuildingId;
-
-    private String schoolId;
-
-    private String schoolName;
 
     private Integer dormBuildingType;
 

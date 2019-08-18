@@ -4,8 +4,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.util.Date;
-
 /**
  * @ClassName EditDormRuleForm
  * @Description EditDormRuleForm
@@ -25,6 +23,4 @@ public class EditDormRuleForm {
     private Integer status;
 
     private String memo;
-
-    private String schoolId;
 }

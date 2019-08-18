@@ -5,8 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.util.Date;
-
 /**
  * @ClassName DictForm
  * @Description TODO
@@ -32,8 +30,6 @@ public class DictForm extends BaseForm {
     private String tableDesc;
 
     private Integer status;
-
-    private String schoolId;
 
     private String createUserName;
 

@@ -12,9 +12,9 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ResultView {
-    private String code ="0";
+    private String code = "0";
 
-    private String msg="操作成功";
+    private String msg = "操作成功";
 
-    private Object data;
+    private Object data = "";
 }

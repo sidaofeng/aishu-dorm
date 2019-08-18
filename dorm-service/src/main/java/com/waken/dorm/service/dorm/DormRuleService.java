@@ -15,6 +15,7 @@ import com.waken.dorm.common.view.dorm.DormRuleView;
 public interface DormRuleService {
     /**
      * (修改/保存)宿舍规则
+     *
      * @param editDormRuleForm
      * @return
      */
@@ -22,12 +23,14 @@ public interface DormRuleService {
 
     /**
      * 删除宿舍规则
+     *
      * @param deleteForm
      */
     public void deleteDormRule(DeleteForm deleteForm);
 
     /**
      * 分页查询宿舍规则
+     *
      * @param dormRuleForm
      * @return
      */

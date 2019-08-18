@@ -22,44 +22,54 @@ public interface StudentService {
     /**
      * 批量新增学生
      */
-    public List<String> batchAddStudent(MultipartFile file);
+    List<String> batchAddStudent(List<Student> studentList);
+
     /**
      * （保存或修改）单个学生信息
+     *
      * @param editStudentForm
      * @return
      */
-    public Student saveStudent(EditStudentForm editStudentForm);
+    Student saveStudent(EditStudentForm editStudentForm);
 
     /**
      * 删除学生信息
+     *
      * @param deleteForm
      */
-    public void deleteStudent(DeleteForm deleteForm);
+    void deleteStudent(DeleteForm deleteForm);
 
     /**
      * 分页查询学生信息
+     *
      * @param studentForm
      * @return
      */
-    public PageInfo<StudentView> listStudents(StudentForm studentForm);
+    PageInfo<StudentView> listStudents(StudentForm studentForm);
+
     /**
      * 学生登陆
+     *
      * @param studentNum
      * @param password
      * @return
      */
-    public ResultView studentLogin(Integer studentNum, String password);
+    ResultView studentLogin(Integer studentNum, String password);
+
     /**
      * 上传头像
+     *
      * @param file
      * @param studentId
      * @return
      */
-    public ImgView uploadHeadImg(MultipartFile file, String studentId);
+    ImgView uploadHeadImg(MultipartFile file, String studentId);
+
     /**
      * 第一次登陆后必须先设置新密码
+     *
      * @param studentId
      * @param newPassword
      */
-    public void updatePasswordByNew(String studentId,String newPassword);
+    void updatePasswordByNew(String studentId, String newPassword);
 }

@@ -1,6 +1,6 @@
 package com.waken.dorm.common.view.dorm;
 
-import com.waken.dorm.common.view.user.UserRoleRelView;
+import com.waken.dorm.common.view.base.BaseView;
 import io.swagger.annotations.ApiModel;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,7 +16,7 @@ import java.util.List;
 @ApiModel(value = "DormStudentsView", description = "（只能查询与宿舍存在关联的班级的学生）与宿舍已经存在关联的学生，没有关联的学生的视图")
 @Getter
 @Setter
-public class DormStudentsView {
+public class DormStudentsView extends BaseView {
     private List<DormStudentRelView> addedList;//与宿舍已经存在关联的学生
 
     private List<DormStudentRelView> toBeAddList;//没有关联的学生

@@ -11,6 +11,7 @@ import java.security.MessageDigest;
 public final class Md5Utils {
     /**
      * 对字符串进行MD5编码
+     *
      * @param string 要加密的字符串
      * @return 加密后的字符串
      */

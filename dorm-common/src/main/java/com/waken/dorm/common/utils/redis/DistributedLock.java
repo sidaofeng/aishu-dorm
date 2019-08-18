@@ -5,13 +5,12 @@ package com.waken.dorm.common.utils.redis;
  * 需要保证redis节点的高可用，建议使用哨兵机制；
  * 在使用分布式锁之前，考虑是否可以通过乐观锁或无锁解决并发同步问题，毕竟使用锁的代价很是比较高昂的
  * Created by zhaoRong on 2019/04/08.
- * 
  */
 public interface DistributedLock {
 
     /**
      * 获取锁
-     * 
+     *
      * @author lihaiqiang
      * @time 20180828
      */
@@ -19,7 +18,7 @@ public interface DistributedLock {
 
     /**
      * 释放锁
-     * 
+     *
      * @author lihaiqiang
      * @time 2010828
      */

@@ -1,27 +1,21 @@
 package com.waken.dorm.common.utils;
 
-import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-
+import com.aliyun.oss.ClientException;
+import com.aliyun.oss.OSSClient;
+import com.aliyun.oss.OSSException;
+import com.aliyun.oss.model.*;
 import com.waken.dorm.common.config.OssConstantConfig;
 import com.waken.dorm.common.constant.Constant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 
-import com.aliyun.oss.ClientException;
-import com.aliyun.oss.OSSClient;
-import com.aliyun.oss.OSSException;
-import com.aliyun.oss.model.CannedAccessControlList;
-import com.aliyun.oss.model.CreateBucketRequest;
-import com.aliyun.oss.model.DeleteObjectsRequest;
-import com.aliyun.oss.model.PutObjectRequest;
-import com.aliyun.oss.model.PutObjectResult;
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+
 @Component
 public class AliyunOSSUtil {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -31,7 +25,7 @@ public class AliyunOSSUtil {
 
     /**
      * 上传文件
-     * 
+     *
      * @return 可访问的路径
      */
     public String upLoad(File file, String folderName) {
@@ -82,9 +76,8 @@ public class AliyunOSSUtil {
 
     /**
      * 根据key删除OSS服务器上的文件
-     * 
-     * @param filePath
-     *            需要删除的文件路径
+     *
+     * @param filePath 需要删除的文件路径
      * @return
      */
     public void deleteFile(String filePath) {
@@ -99,9 +92,10 @@ public class AliyunOSSUtil {
             ossClient.shutdown();
         }
     }
+
     /**
      * 批量删除object
-     * 
+     *
      * @param fileNames 文件名
      */
     public void deleteBatchObect(List<String> fileNames) {
@@ -126,9 +120,10 @@ public class AliyunOSSUtil {
             ossClient.shutdown();// 关闭client
         }
     }
+
     /**
      * 判断oss中是否存在文件
-     * 
+     *
      * @param filePath
      * @return
      */

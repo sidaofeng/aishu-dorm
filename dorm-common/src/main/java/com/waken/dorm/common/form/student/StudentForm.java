@@ -18,10 +18,6 @@ public class StudentForm extends BaseForm {
     private static final long serialVersionUID = -8526720785286340960L;
     private String pkStudentId;
 
-    private String schoolId;
-
-    private String schoolClassId;
-
     private String pkDormBuildingId;
 
     private String dormId;
@@ -31,10 +27,6 @@ public class StudentForm extends BaseForm {
     private String dormNum;
 
     private String studentName;
-
-    private String schoolName;
-
-    private String schoolClassName;
 
     private Integer studentNum;
 

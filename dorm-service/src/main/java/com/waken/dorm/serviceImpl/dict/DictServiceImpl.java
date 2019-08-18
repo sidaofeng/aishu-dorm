@@ -4,17 +4,19 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.waken.dorm.common.constant.Constant;
 import com.waken.dorm.common.entity.dict.Dict;
-import com.waken.dorm.common.entity.dict.DictExample;
 import com.waken.dorm.common.enums.CodeEnum;
-import com.waken.dorm.common.exception.DormException;
+import com.waken.dorm.common.exception.ServerException;
 import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.dict.DictForm;
 import com.waken.dorm.common.form.dict.EditDictForm;
-import com.waken.dorm.common.utils.*;
+import com.waken.dorm.common.utils.BeanMapper;
+import com.waken.dorm.common.utils.DateUtils;
+import com.waken.dorm.common.utils.StringUtils;
+import com.waken.dorm.common.utils.UUIDUtils;
 import com.waken.dorm.common.view.dict.DictView;
 import com.waken.dorm.dao.dict.DictMapper;
+import com.waken.dorm.manager.UserManager;
 import com.waken.dorm.service.dict.DictService;
-import com.waken.dorm.service.school.SchoolService;
 import com.waken.dorm.serviceImpl.base.BaseServerImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,8 +40,7 @@ public class DictServiceImpl extends BaseServerImpl implements DictService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
     DictMapper dictMapper;
-    @Autowired
-    SchoolService schoolService;
+
     /**
      * 保存或修改系统字典
      *
@@ -49,32 +50,28 @@ public class DictServiceImpl extends BaseServerImpl implements DictService {
     @Override
     @Transactional
     public Dict saveDict(EditDictForm editDictForm) {
-        String userId = ShiroUtils.getUserId();
-        String schoolId = schoolService.getSchoolIdByUserId(userId);
-        if (StringUtils.isNotEmpty(schoolId)){
-            editDictForm.setSchoolId(schoolId);
-        }
+        String userId = UserManager.getCurrentUserId();
         this.editDictValidate(editDictForm);
         Date curDate = DateUtils.getCurrentDate();
         Dict dict = new Dict();
-        BeanMapper.copy(editDictForm,dict);
+        BeanMapper.copy(editDictForm, dict);
         dict.setLastModifyTime(curDate);
         dict.setLastModifyUserId(userId);
-        if (StringUtils.isEmpty(editDictForm.getPkDictId())){//新增
+        if (StringUtils.isEmpty(editDictForm.getPkDictId())) {//新增
             int count = Constant.ZERO;
             String pkDictId = UUIDUtils.getPkUUID();
             dict.setPkDictId(pkDictId);
             dict.setStatus(CodeEnum.ENABLE.getCode());
             dict.setCreateTime(curDate);
             dict.setCreateUserId(userId);
-            count = dictMapper.insertSelective(dict);
-            if (count == Constant.ZERO){
-                throw new DormException("新增个数为 0 条！");
+            count = dictMapper.insert(dict);
+            if (count == Constant.ZERO) {
+                throw new ServerException("新增个数为 0 条！");
             }
             return dict;
-        }else {//修改
-            dictMapper.updateByPrimaryKeySelective(dict);
-            return dictMapper.selectByPrimaryKey(dict.getPkDictId());
+        } else {//修改
+            dictMapper.updateById(dict);
+            return dictMapper.selectById(dict.getPkDictId());
         }
     }
 
@@ -90,33 +87,30 @@ public class DictServiceImpl extends BaseServerImpl implements DictService {
         List<String> dictIds = deleteForm.getDelIds();
         Integer delStatus = deleteForm.getDelStatus();
         int count = Constant.ZERO;
-        if (CodeEnum.YES.getCode() == delStatus){ // 物理删除
+        if (CodeEnum.YES.getCode() == delStatus) { // 物理删除
             List<Dict> dictList = dictMapper.selectByIds(dictIds);
             StringBuffer sb = new StringBuffer();
-            for (Dict dict : dictList){
-                if (CodeEnum.ENABLE.getCode() == dict.getStatus()){
+            for (Dict dict : dictList) {
+                if (CodeEnum.ENABLE.getCode() == dict.getStatus()) {
                     sb.append(dict.getDictValue());
                 }
             }
-            if (StringUtils.isNotEmpty(sb.toString())){
-                throw new DormException("以下字典信息处于生效中："+sb.toString());
-            }else {//删除字典
-                DictExample example = new DictExample();
-                DictExample.Criteria criteria = example.createCriteria();
-                criteria.andPkDictIdIn(dictIds);
-                count = dictMapper.deleteByExample(example);
-                if (count == Constant.ZERO){
-                    throw new DormException("删除字典信息个数为 0 条");
+            if (StringUtils.isNotEmpty(sb.toString())) {
+                throw new ServerException("以下字典信息处于生效中：" + sb.toString());
+            } else {//删除字典
+                count = dictMapper.deleteBatchIds(dictIds);
+                if (count == Constant.ZERO) {
+                    throw new ServerException("删除字典信息个数为 0 条");
                 }
             }
 
-        }else if(CodeEnum.NO.getCode() == delStatus){//状态删除
-            count = dictMapper.batchUpdateStatus(getToUpdateStatusMap(dictIds,CodeEnum.DELETE.getCode()));
-            if (count == Constant.ZERO){
-                throw new DormException("状态删除失败");
+        } else if (CodeEnum.NO.getCode() == delStatus) {//状态删除
+            count = dictMapper.batchUpdateStatus(getToUpdateStatusMap(dictIds, CodeEnum.DELETE.getCode()));
+            if (count == Constant.ZERO) {
+                throw new ServerException("状态删除失败");
             }
-        }else {
-            throw new DormException("删除状态码错误！");
+        } else {
+            throw new ServerException("删除状态码错误！");
         }
     }
 
@@ -129,78 +123,68 @@ public class DictServiceImpl extends BaseServerImpl implements DictService {
     @Override
     public PageInfo<DictView> listDicts(DictForm dictForm) {
         logger.info("service: 分页查询宿舍楼信息开始");
-        if (StringUtils.isEmpty(dictForm.getSchoolId())) {
-            String userId = ShiroUtils.getUserId();
-            String schoolId = schoolService.getSchoolIdByUserId(userId);
-            if (StringUtils.isNotEmpty(schoolId)){
-                dictForm.setSchoolId(schoolId);
-            }
-        }
         if (dictForm.getStartTime() != null) {
             dictForm.setStartTime(DateUtils.formatDate2DateTimeStart(dictForm.getStartTime()));
         }
         if (dictForm.getEndTime() != null) {
             dictForm.setEndTime(DateUtils.formatDate2DateTimeEnd(dictForm.getEndTime()));
         }
-        PageHelper.startPage(dictForm.getPageNum(),dictForm.getPageSize());
+        PageHelper.startPage(dictForm.getPageNum(), dictForm.getPageSize());
         List<DictView> dictViews = dictMapper.listDicts(dictForm);
         return new PageInfo<DictView>(dictViews);
     }
 
     /**
      * 编辑字典验证
+     *
      * @param editDictForm
      */
-    private void editDictValidate(EditDictForm editDictForm){
-        if (StringUtils.isEmpty(editDictForm.getPkDictId())){//新增验证
+    private void editDictValidate(EditDictForm editDictForm) {
+        if (StringUtils.isEmpty(editDictForm.getPkDictId())) {//新增验证
             StringBuffer sb = new StringBuffer();
-            if (StringUtils.isEmpty(editDictForm.getDictKey())){
+            if (StringUtils.isEmpty(editDictForm.getDictKey())) {
                 sb.append("键为空！");
             }
-            if (StringUtils.isEmpty(editDictForm.getDictValue())){
+            if (StringUtils.isEmpty(editDictForm.getDictValue())) {
                 sb.append("值为空！");
             }
-            if (StringUtils.isEmpty(editDictForm.getColumnName())){
+            if (StringUtils.isEmpty(editDictForm.getColumnName())) {
                 sb.append("字段名为空！");
             }
-            if (StringUtils.isEmpty(editDictForm.getTableName())){
+            if (StringUtils.isEmpty(editDictForm.getTableName())) {
                 sb.append("表名为空！");
             }
-            if (StringUtils.isNotEmpty(sb.toString())){
-                throw new DormException("保存或修改字典失败，原因："+sb.toString());
+            if (StringUtils.isNotEmpty(sb.toString())) {
+                throw new ServerException("保存或修改字典失败，原因：" + sb.toString());
             }
             this.keyValidate(editDictForm);
             this.valueValidate(editDictForm);
-        }else {//修改验证
-            if (null == dictMapper.selectByPrimaryKey(editDictForm.getPkDictId())){
-                throw new DormException("字典id不正确！");
+        } else {//修改验证
+            if (null == dictMapper.selectById(editDictForm.getPkDictId())) {
+                throw new ServerException("字典id不正确！");
             }
         }
     }
-    private void keyValidate(EditDictForm editDictForm){
+
+    private void keyValidate(EditDictForm editDictForm) {
         DictForm dictForm = new DictForm();
-        if (!StringUtils.isEmpty(editDictForm.getSchoolId())){
-            dictForm.setSchoolId(editDictForm.getSchoolId());
-        }
         dictForm.setTableName(editDictForm.getTableName());
         dictForm.setColumnName(editDictForm.getColumnName());
         dictForm.setDictKey(editDictForm.getDictKey());
         List<DictView> dicts = dictMapper.listDicts(dictForm);
-        if (!dicts.isEmpty()){
-            throw new DormException("新增验证失败，原因是"+editDictForm.getColumnName()+"字段中存在相同key");
+        if (!dicts.isEmpty()) {
+            throw new ServerException("新增验证失败，原因是" + editDictForm.getColumnName() + "字段中存在相同key");
         }
     }
-    private void valueValidate(EditDictForm editDictForm){
+
+    private void valueValidate(EditDictForm editDictForm) {
         DictForm dictForm = new DictForm();
-        if (!StringUtils.isEmpty(editDictForm.getSchoolId())){
-            dictForm.setSchoolId(editDictForm.getSchoolId());
-        }
         dictForm.setTableName(editDictForm.getTableName());
         dictForm.setColumnName(editDictForm.getColumnName());
         dictForm.setDictValue(editDictForm.getDictValue());
         List<DictView> dicts = dictMapper.listDicts(dictForm);
-        if (!dicts.isEmpty()){
-            throw new DormException("新增验证失败，原因是"+editDictForm.getColumnName()+"字段中存在相同value");
+        if (!dicts.isEmpty()) {
+            throw new ServerException("新增验证失败，原因是" + editDictForm.getColumnName() + "字段中存在相同value");
         }
     }
 }

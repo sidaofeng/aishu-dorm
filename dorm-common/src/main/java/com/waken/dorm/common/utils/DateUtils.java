@@ -4,6 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 /**
@@ -13,15 +15,21 @@ import java.util.*;
  * @Date 2019/3/21 19:56
  **/
 public class DateUtils {
-    /** 所有地方可用 */
+    /**
+     * 所有地方可用
+     */
     public final static String YYYY_MM_DD_HH_mm_ss = "yyyy-MM-dd HH:mm:ss";
 
     public final static String YYYY_MM_DD_HH_mm_ss_SSS = "yyyy-MM-dd HH:mm:ss SSS";
 
-    /** Activiti流程中专用 */
+    /**
+     * Activiti流程中专用
+     */
     public final static String YYYY_MM_DD_T_HH_mm_ss = "yyyy-MM-dd'T'HH:mm:ss";
 
-    /** 所有地方可用 */
+    /**
+     * 所有地方可用
+     */
     public final static String YYYY_MM_DD = "yyyy-MM-dd";
 
     public final static String CST = "EEE MMM dd HH:mm:ss 'CST' yyyy";
@@ -29,13 +37,25 @@ public class DateUtils {
     public final static String YYYY_MM_DD_ZN_CH = "yyyy年MM月dd日";
 
     public final static String HH_mm = "HH:mm";
+    public static final String FULL_TIME_PATTERN = "yyyyMMddHHmmss";
 
-    /** The Constant LOGGER. */
+    public static final String FULL_TIME_SPLIT_PATTERN = "yyyy-MM-dd HH:mm:ss";
+
+    /**
+     * The Constant LOGGER.
+     */
     private final static Logger LOGGER = LoggerFactory.getLogger(DateUtils.class);
 
-    public static final long ONE_HOUR =  60*60*1000;
+    public static final long ONE_HOUR = 60 * 60 * 1000;
 
+    public static String formatFullTime(LocalDateTime localDateTime) {
+        return formatFullTime(localDateTime, FULL_TIME_PATTERN);
+    }
 
+    public static String formatFullTime(LocalDateTime localDateTime, String pattern) {
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(pattern);
+        return localDateTime.format(dateTimeFormatter);
+    }
 
     /**
      * Gets the server time.
@@ -49,8 +69,7 @@ public class DateUtils {
     /**
      * 格式化日期,默认返回yyyy-MM-dd HH:mm:ss.
      *
-     * @param date
-     *            the date
+     * @param date the date
      * @return the string
      */
     public static String format(Date date) {
@@ -60,8 +79,7 @@ public class DateUtils {
     /**
      * 格式化显示当前日期.
      *
-     * @param format
-     *            the format
+     * @param format the format
      * @return the string
      */
     public static String format(String format) {
@@ -71,10 +89,8 @@ public class DateUtils {
     /**
      * 日期格式化.
      *
-     * @param date
-     *            the date
-     * @param format
-     *            the format
+     * @param date   the date
+     * @param format the format
      * @return the string
      */
     public static String format(Date date, String format) {
@@ -92,8 +108,7 @@ public class DateUtils {
     /**
      * 时间格式化， 传入毫秒.
      *
-     * @param time
-     *            the time
+     * @param time the time
      * @return the string
      */
     public static String dateFormat(long time) {
@@ -102,24 +117,22 @@ public class DateUtils {
 
     /**
      * 判断时间是否超时
+     *
      * @param time
      * @param intervalHour
      * @return
      */
-    public static boolean isCurrentTimeOut(long time,int intervalHour){
-        Long hour = (System.currentTimeMillis() - time)/ONE_HOUR;
+    public static boolean isCurrentTimeOut(long time, int intervalHour) {
+        Long hour = (System.currentTimeMillis() - time) / ONE_HOUR;
         return hour > intervalHour;
     }
 
     /**
      * 日期字符串从旧格式转换为新格式.
      *
-     * @param dateStr
-     *            the date str
-     * @param oldFromat
-     *            the old fromat
-     * @param newFormat
-     *            the new format
+     * @param dateStr   the date str
+     * @param oldFromat the old fromat
+     * @param newFormat the new format
      * @return the string
      */
     public static String format(String dateStr, String oldFromat, String newFormat) {
@@ -142,10 +155,8 @@ public class DateUtils {
     /**
      * 日期字符串转换为Calendar对象.
      *
-     * @param dateStr
-     *            the date str
-     * @param dateStrFormat
-     *            the date str format
+     * @param dateStr       the date str
+     * @param dateStrFormat the date str format
      * @return the calendar
      */
     public static Calendar format(String dateStr, String dateStrFormat) {
@@ -167,9 +178,8 @@ public class DateUtils {
     /**
      * 日期字符串转换为Calendar对象.
      *
-     * @param date
-     *            the date str
-     *            the date str format
+     * @param date the date str
+     *             the date str format
      * @return the calendar
      */
     public static Calendar formatCalendar(Date date) {
@@ -189,10 +199,8 @@ public class DateUtils {
     /**
      * 日期字符串转换为Date对象.
      *
-     * @param dateStr
-     *            the date str
-     * @param dateStrFormat
-     *            the date str format
+     * @param dateStr       the date str
+     * @param dateStrFormat the date str format
      * @return the date
      */
     public static Date dateStr2Date(String dateStr, String dateStrFormat) {
@@ -211,10 +219,8 @@ public class DateUtils {
     /**
      * 增加日期的天数.
      *
-     * @param date
-     *            the date
-     * @param amount
-     *            the amount
+     * @param date   the date
+     * @param amount the amount
      * @return the date
      * @createTime 2014-5-22 下午11:49:56
      */
@@ -225,10 +231,8 @@ public class DateUtils {
     /**
      * Adds the hours.
      *
-     * @param date
-     *            the date
-     * @param amount
-     *            the amount
+     * @param date   the date
+     * @param amount the amount
      * @return the date
      */
     public static Date addHours(Date date, int amount) {
@@ -238,10 +242,8 @@ public class DateUtils {
     /**
      * Adds the seconds.
      *
-     * @param date
-     *            the date
-     * @param amount
-     *            the amount
+     * @param date   the date
+     * @param amount the amount
      * @return the date
      */
     public static Date addSeconds(Date date, int amount) {
@@ -251,12 +253,9 @@ public class DateUtils {
     /**
      * Adds the.
      *
-     * @param date
-     *            the date
-     * @param field
-     *            the field
-     * @param amount
-     *            the amount
+     * @param date   the date
+     * @param field  the field
+     * @param amount the amount
      * @return the date
      */
     private static Date add(Date date, int field, int amount) {
@@ -274,8 +273,7 @@ public class DateUtils {
     /**
      * 格式化日期字符串为日期时间字符串，以0点0时0分开始。例如：2012-04-14 格式化为2012-04-14 00:00:00
      *
-     * @param dateStr
-     *            the date str
+     * @param dateStr the date str
      * @return the string
      */
     public static String formatDate2DateTimeStart(String dateStr) {
@@ -289,8 +287,7 @@ public class DateUtils {
     /**
      * 格式化日期字符串为日期时间字符串，以23点59时59分结束。例如：2012-04-14 格式化为2012-04-14 23:59:59
      *
-     * @param dateStr
-     *            the date str
+     * @param dateStr the date str
      * @return the string
      */
     public static String formatDate2DateTimeEnd(String dateStr) {
@@ -304,8 +301,7 @@ public class DateUtils {
     /**
      * 格式化日期字符串为日期时间字符串，以0点0时0分开始。例如：2012-04-14 格式化为2012-04-14 00:00:00
      *
-     * @param date
-     *            the date str
+     * @param date the date str
      * @return the string
      */
     public static Date formatDate2DateTimeStart(Date date) {
@@ -322,8 +318,8 @@ public class DateUtils {
 
     /**
      * 格式化日期字符串为日期时间字符串，以23点59时59分结束。例如：2012-04-14 格式化为2012-04-14 23:59:59
-     * @param date
-     * param date str
+     *
+     * @param date param date str
      * @return the string
      */
     public static Date formatDate2DateTimeEnd(Date date) {
@@ -373,22 +369,22 @@ public class DateUtils {
     }
 
 
-    public static String getWeek(Date date){
+    public static String getWeek(Date date) {
         Map<String, Integer> weekMap = new HashMap<String, Integer>();
-        weekMap.put("星期日",0);
-        weekMap.put("星期一",1);
-        weekMap.put("星期二",2);
-        weekMap.put("星期三",3);
-        weekMap.put("星期四",4);
-        weekMap.put("星期五",5);
-        weekMap.put("星期六",6);
+        weekMap.put("星期日", 0);
+        weekMap.put("星期一", 1);
+        weekMap.put("星期二", 2);
+        weekMap.put("星期三", 3);
+        weekMap.put("星期四", 4);
+        weekMap.put("星期五", 5);
+        weekMap.put("星期六", 6);
         SimpleDateFormat sdf = new SimpleDateFormat("EEEE", Locale.CHINA);
         String week = sdf.format(date);
-        LOGGER.info("week value:"+week+"    "+weekMap.get(week));
+        LOGGER.info("week value:" + week + "    " + weekMap.get(week));
         return weekMap.get(week).toString();
     }
 
-    public static int getWeeks(Date date){
+    public static int getWeeks(Date date) {
         Calendar cal = Calendar.getInstance();
         cal.setTime(new Date());
         int w = cal.get(Calendar.DAY_OF_WEEK) - 1;
@@ -396,6 +392,7 @@ public class DateUtils {
             w = 0;
         return w;
     }
+
     /**
      * 获取日期时间字符
      *
@@ -411,6 +408,7 @@ public class DateUtils {
             return null;
         }
     }
+
     /**
      * 获取当前日期时间字符
      *
@@ -420,8 +418,9 @@ public class DateUtils {
     public static final String getCurrentDateTimeAsString(String dateTimePattern) {
         return getDateTimeAsString(new Date(), dateTimePattern);
     }
+
     public static void main(String[] args) {
-        System.out.println(DateUtils.getDateTimeAsString(new Date(),HH_mm));
+        System.out.println(DateUtils.getDateTimeAsString(new Date(), HH_mm));
 
     }
 }

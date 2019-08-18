@@ -8,11 +8,12 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @SpringBootApplication
 @EnableTransactionManagement
+@EnableSwagger2
 @MapperScan(basePackages = "com.waken.dorm.dao")
 public class DormWebApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(DormWebApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(DormWebApplication.class, args);
+    }
 
 }

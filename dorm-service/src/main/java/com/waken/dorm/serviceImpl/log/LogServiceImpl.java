@@ -7,12 +7,13 @@ import com.github.pagehelper.PageInfo;
 import com.waken.dorm.common.annotation.Log;
 import com.waken.dorm.common.constant.Constant;
 import com.waken.dorm.common.entity.log.SysLog;
-import com.waken.dorm.common.entity.log.SysLogExample;
 import com.waken.dorm.common.enums.CodeEnum;
-import com.waken.dorm.common.exception.DormException;
+import com.waken.dorm.common.exception.ServerException;
 import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.log.SysLogForm;
-import com.waken.dorm.common.utils.*;
+import com.waken.dorm.common.utils.AddressUtils;
+import com.waken.dorm.common.utils.DateUtils;
+import com.waken.dorm.common.utils.UUIDUtils;
 import com.waken.dorm.common.view.log.SysLogView;
 import com.waken.dorm.dao.log.SysLogMapper;
 import com.waken.dorm.service.log.LogService;
@@ -46,6 +47,7 @@ public class LogServiceImpl implements LogService {
 
     @Autowired
     ObjectMapper objectMapper;
+
     @Override
     @Transactional(rollbackFor = {RuntimeException.class, Exception.class})
     public void saveLog(ProceedingJoinPoint joinPoint, SysLog log) throws JsonProcessingException {
@@ -74,13 +76,13 @@ public class LogServiceImpl implements LogService {
         }
         log.setLocation(AddressUtils.getCityInfo(log.getIp()));
         String pkId = UUIDUtils.getPkUUID();
-        String curUserId = ShiroUtils.getUserId();
+//        String curUserId = ShiroUtils.getUserId();
         Date curDate = DateUtils.getCurrentDate();
         log.setPkLogId(pkId);
-        log.setUserId(curUserId);
+//        log.setUserId(curUserId);
         log.setCreateTime(curDate);
         // 保存系统日志
-        logMapper.insertSelective(log);
+        logMapper.insert(log);
     }
 
     /**
@@ -94,17 +96,14 @@ public class LogServiceImpl implements LogService {
         logger.info("service: 删除日志开始");
         List<String> logIds = deleteForm.getDelIds();
         Integer delStatus = deleteForm.getDelStatus();
-        if (CodeEnum.YES.getCode() == delStatus){ // 物理删除
-            SysLogExample example = new SysLogExample();
-            SysLogExample.Criteria criteria = example.createCriteria();
-            criteria.andPkLogIdIn(logIds);
+        if (CodeEnum.YES.getCode() == delStatus) { // 物理删除
             int count = Constant.ZERO;
-            count = logMapper.deleteByExample(example);
-            if (Constant.ZERO == count){
-                throw new DormException("删除日志失败！");
+            count = logMapper.deleteBatchIds(logIds);
+            if (Constant.ZERO == count) {
+                throw new ServerException("删除日志失败！");
             }
-        }else {
-            throw new DormException("删除状态码错误！");
+        } else {
+            throw new ServerException("删除状态码错误！");
         }
     }
 
@@ -123,7 +122,7 @@ public class LogServiceImpl implements LogService {
         if (sysLogForm.getEndTime() != null) {
             sysLogForm.setEndTime(DateUtils.formatDate2DateTimeEnd(sysLogForm.getEndTime()));
         }
-        PageHelper.startPage(sysLogForm.getPageNum(),sysLogForm.getPageSize());
+        PageHelper.startPage(sysLogForm.getPageNum(), sysLogForm.getPageSize());
         List<SysLogView> sysLogViews = logMapper.listSysLogViews(sysLogForm);
         return new PageInfo<SysLogView>(sysLogViews);
     }

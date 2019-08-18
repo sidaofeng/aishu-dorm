@@ -41,6 +41,4 @@ public class DormForm extends BaseForm {
     private String lastModifyUserId;
 
     private String memo;
-
-    private String schoolId;
 }

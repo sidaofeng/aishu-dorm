@@ -1,13 +1,8 @@
 package com.waken.dorm.common.utils.redis;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
-import javax.annotation.Resource;
-
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.annotation.Lazy;
@@ -22,9 +17,13 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.stereotype.Component;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
 /**
  * @ClassName RedisCacheManager
  * @Description TODO
@@ -35,15 +34,16 @@ import com.google.common.collect.Sets;
 @Lazy(false)
 public class RedisCacheManager implements InitializingBean, DisposableBean {
 
-//    private static Logger logger = LoggerFactory.getLogger(RedisCacheManager.class);
+    //    private static Logger logger = LoggerFactory.getLogger(RedisCacheManager.class);
     @Resource
     public RedisTemplate<Object, ?> redisTemplate;
     private RedisSerializer<Object> serializer;
 
     // ======================String 相关操作========================
+
     /**
      * 将字符串值 value 关联到 key, 将字符串值 value 关联到 key 。如果 key 已经持有其他值， SET 就覆写旧值，无视类型。
-     * 
+     *
      * @param key
      * @param value
      * @return
@@ -65,9 +65,9 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
 
     /**
      * 将值 value 关联到 key ，并将 key 的生存时间设为 seconds (以秒为单位)。
-     * 
+     * <p>
      * 如果 key 已经存在， SETEX 命令将覆写旧值。
-     * 
+     *
      * @param key
      * @param value
      * @param t
@@ -90,7 +90,7 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
 
     /**
      * 这个命令和 SETEX 命令相似，但它以毫秒为单位设置 key 的生存时间，而不是像 SETEX 命令那样，以秒为单位。
-     * 
+     *
      * @param key
      * @param value
      * @param t
@@ -113,9 +113,9 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
 
     /**
      * 将 key 的值设为 value ，当且仅当 key 不存在。
-     * 
+     * <p>
      * 若给定的 key 已经存在，则 SETNX 不做任何动作。
-     * 
+     *
      * @param key
      * @param value
      * @return
@@ -137,10 +137,9 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
 
     /**
      * 同时设置一个或多个 key-value 对。
-     * 
+     *
      * @param tuple
-     * @param overwrite
-     *            是否覆盖，true：覆盖,false:不覆盖
+     * @param overwrite 是否覆盖，true：覆盖,false:不覆盖
      * @return
      */
     public Boolean mSet(final Map<Object, Object> tuple, final boolean overwrite) {
@@ -170,7 +169,7 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
 
     /**
      * 返回 key 所关联的字符串值。
-     * 
+     *
      * @param key
      * @return
      */
@@ -210,7 +209,7 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
 
     /**
      * 返回所有(一个或多个)给定 key 的值。
-     * 
+     *
      * @param keys
      * @return
      */
@@ -245,19 +244,18 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
 
     /**
      * 对 key 所储存的字符串值，设置或清除指定偏移量上的位(bit)。
-     * 
+     * <p>
      * 位的设置或清除取决于 value 参数，可以是 0 也可以是 1 。
-     * 
+     * <p>
      * 当 key 不存在时，自动生成一个新的字符串值。
-     * 
-     * 
+     *
      * @param key
      * @param offset
      * @param value
      * @return
      */
     public Boolean setBit(final Object key, final long offset,
-            final boolean value) {
+                          final boolean value) {
         if (redisTemplate != null) {
             return redisTemplate.execute(new RedisCallback<Boolean>() {
                 public Boolean doInRedis(RedisConnection connection)
@@ -273,10 +271,9 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
 
     /**
      * 对 key 所储存的字符串值，获取指定偏移量上的位(bit)。
-     * 
+     * <p>
      * 当 offset 比字符串值的长度大，或者 key 不存在时，返回 0 。
-     * 
-     * 
+     *
      * @param key
      * @param value
      * @return
@@ -296,17 +293,16 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
 
     /**
      * 用 value 参数覆写(overwrite)给定 key 所储存的字符串值，从偏移量 offset 开始。
-     * 
+     * <p>
      * 不存在的 key 当作空白字符串处理。
-     * 
-     * 
+     *
      * @param key
      * @param offset
      * @param value
      * @return
      */
     public Boolean setRange(final Object key, final Long offset,
-            final Object value) {
+                            final Object value) {
         if (redisTemplate != null) {
             return redisTemplate.execute(new RedisCallback<Boolean>() {
                 public Boolean doInRedis(RedisConnection connection)
@@ -323,17 +319,16 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
 
     /**
      * 返回 key 中字符串值的子字符串，字符串的截取范围由 start 和 end 两个偏移量决定(包括 start 和 end 在内)。
-     * 
+     * <p>
      * 负数偏移量表示从字符串最后开始计数， -1 表示最后一个字符， -2 表示倒数第二个，以此类推。
-     * 
-     * 
+     *
      * @param key
      * @param startOffset
      * @param endOffset
      * @return
      */
     public byte[] getRange(final Object key, final long startOffset,
-            final long endOffset) {
+                           final long endOffset) {
         if (redisTemplate != null) {
             return redisTemplate.execute(new RedisCallback<byte[]>() {
                 public byte[] doInRedis(RedisConnection connection)
@@ -348,9 +343,9 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
 
     /**
      * 将 key 所储存的值减去减量 decrement 。
-     * 
+     * <p>
      * 如果 key 不存在，那么 key 的值会先被初始化为 0 ，然后再执行 DECRBY 操作。
-     * 
+     *
      * @param key
      * @param integer
      * @return
@@ -370,9 +365,9 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
 
     /**
      * 将 key 中储存的数字值减一。
-     * 
+     * <p>
      * 如果 key 不存在，那么 key 的值会先被初始化为 0 ，然后再执行 DECR 操作。
-     * 
+     *
      * @param key
      * @return
      */
@@ -391,9 +386,9 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
 
     /**
      * 将 key 所储存的值加上增量 increment 。
-     * 
+     * <p>
      * 如果 key 不存在，那么 key 的值会先被初始化为 0 ，然后再执行 INCRBY 命令。
-     * 
+     *
      * @param key
      * @param integer
      * @return
@@ -413,9 +408,9 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
 
     /**
      * 将 key 中储存的数字值增一。
-     * 
+     * <p>
      * 如果 key 不存在，那么 key 的值会先被初始化为 0 ，然后再执行 INCR 操作。
-     * 
+     *
      * @param key
      * @return
      */
@@ -434,9 +429,9 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
 
     /**
      * 如果 key 已经存在并且是一个字符串， APPEND 命令将 value 追加到 key 原来的值的末尾。
-     * 
+     * <p>
      * 如果 key 不存在， APPEND 就简单地将给定 key 设为 value ，就像执行 SET key value 一样。
-     * 
+     *
      * @param key
      * @param value
      * @return
@@ -457,9 +452,10 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
 
     // ======================================String相关操作结束=================================
     // =====================================key相关操作=========================================
+
     /**
      * 删除给定的一个或多个 key 。不存在的 key 会被忽略。
-     * 
+     *
      * @param keys
      * @return
      */
@@ -482,7 +478,7 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
 
     /**
      * 检查给定 key 是否存在。
-     * 
+     *
      * @param key
      * @return
      */
@@ -501,10 +497,9 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
 
     /**
      * 为给定 key 设置生存时间，当 key 过期时(生存时间为 0 )，它会被自动删除。
-     * 
+     *
      * @param key
-     * @param value
-     *            秒
+     * @param value 秒
      * @return
      */
     public Boolean expire(final Object key, final long value) {
@@ -522,10 +517,9 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
 
     /**
      * EXPIREAT 的作用和 EXPIRE 类似，都用于为 key 设置生存时间。
-     * 
+     * <p>
      * 不同在于 EXPIREAT 命令接受的时间参数是 UNIX 时间戳(unix timestamp)。
-     * 
-     * 
+     *
      * @param key
      * @param value
      * @return
@@ -545,7 +539,7 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
 
     /**
      * 以秒为单位，返回给定 key 的剩余生存时间(TTL, time to live)。
-     * 
+     *
      * @param key
      * @param value
      * @return
@@ -565,7 +559,7 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
 
     /**
      * 返回 key 所储存的值的类型。
-     * 
+     *
      * @param key
      * @return
      */
@@ -600,7 +594,7 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
 
     /**
      * 返回或保存给定列表、集合、有序集合 key 中经过排序的元素。
-     * 
+     *
      * @param key
      * @param params
      * @return
@@ -625,13 +619,14 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
 
     // ================key相关操作结束====================
     // =================Hash相关操作===================
+
     /**
      * 将哈希表 key 中的域 field 的值设为 value 。
-     * 
+     * <p>
      * 如果 key 不存在，一个新的哈希表被创建并进行 HSET 操作。
-     * 
+     * <p>
      * 如果域 field 已经存在于哈希表中，旧值将被覆盖。
-     * 
+     *
      * @param key
      * @param field
      * @param value
@@ -654,7 +649,7 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
 
     /**
      * 返回哈希表 key 中给定域 field 的值。
-     * 
+     *
      * @param key
      * @param field
      * @return
@@ -675,18 +670,18 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
 
     /**
      * 将哈希表 key 中的域 field 的值设置为 value ，当且仅当域 field 不存在。
-     * 
+     * <p>
      * 若域 field 已经存在，该操作无效。
-     * 
+     * <p>
      * 如果 key 不存在，一个新哈希表被创建并执行 HSETNX 命令。
-     * 
+     *
      * @param key
      * @param field
      * @param value
      * @return
      */
     public Boolean hSetNX(final Object key, final Object field,
-            final Object value) {
+                          final Object value) {
         if (redisTemplate != null) {
             return redisTemplate.execute(new RedisCallback<Boolean>() {
                 public Boolean doInRedis(RedisConnection connection)
@@ -703,11 +698,11 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
 
     /**
      * 同时将多个 field-value (域-值)对设置到哈希表 key 中。
-     * 
+     * <p>
      * 此命令会覆盖哈希表中已存在的域。
-     * 
+     * <p>
      * 如果 key 不存在，一个空哈希表被创建并执行 HMSET 操作。
-     * 
+     *
      * @param key
      * @param hash
      * @return
@@ -728,7 +723,7 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
 
     /**
      * 返回哈希表 key 中，一个或多个给定域的值
-     * 
+     *
      * @param key
      * @param fields
      * @return
@@ -753,17 +748,17 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
 
     /**
      * 为哈希表 key 中的域 field 的值加上增量 increment 。
-     * 
+     * <p>
      * 增量也可以为负数，相当于对给定域进行减法操作。
-     * 
+     * <p>
      * 如果 key 不存在，一个新的哈希表被创建并执行 HINCRBY 命令。
-     * 
+     * <p>
      * 如果域 field 不存在，那么在执行命令前，域的值被初始化为 0 。
-     * 
+     * <p>
      * 对一个储存字符串值的域 field 执行 HINCRBY 命令将造成一个错误。
-     * 
+     * <p>
      * 本操作的值被限制在 64 位(bit)有符号数字表示之内。
-     * 
+     *
      * @param key
      * @param field
      * @param value
@@ -785,7 +780,7 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
 
     /**
      * 查看哈希表 key 中，给定域 field 是否存在。
-     * 
+     *
      * @param key
      * @param field
      * @return
@@ -827,7 +822,7 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
 
     /**
      * 返回哈希表 key 中域的数量。
-     * 
+     *
      * @param key
      * @return
      */
@@ -846,7 +841,7 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
 
     /**
      * 返回哈希表 key 中的所有域。
-     * 
+     *
      * @param key
      * @return
      */
@@ -870,7 +865,7 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
 
     /**
      * 返回哈希表 key 中所有域的值。
-     * 
+     *
      * @param key
      * @return
      */
@@ -894,9 +889,9 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
 
     /**
      * 返回哈希表 key 中，所有的域和值。
-     * 
+     * <p>
      * 在返回值里，紧跟每个域名(field name)之后是域的值(value)，所以返回值的长度是哈希表大小的两倍。
-     * 
+     *
      * @param key
      * @return
      */
@@ -925,11 +920,11 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
 
     /**
      * 将值 value 插入到列表 key 当中，位于值 pivot 之前或之后。
-     * 
+     * <p>
      * 当 pivot 不存在于列表 key 时，不执行任何操作。
-     * 
+     * <p>
      * 当 key 不存在时， key 被视为空列表，不执行任何操作。
-     * 
+     *
      * @param key
      * @param where
      * @param pivot
@@ -937,7 +932,7 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
      * @return
      */
     public Long linsert(final Object key, final Position where,
-            final Object pivot, final Object value) {
+                        final Object pivot, final Object value) {
         if (redisTemplate != null) {
             return redisTemplate.execute(new RedisCallback<Long>() {
                 public Long doInRedis(RedisConnection connection)
@@ -954,9 +949,10 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
 
     // =================Hash相关操作结束===================
     // =================List相关操作===================
+
     /**
      * 根据参数 count 的值，移除列表中与参数 value 相等的元素
-     * 
+     *
      * @param key
      * @param count
      * @param value
@@ -978,7 +974,7 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
 
     /**
      * 将一个或多个值 value 插入到列表 key 的表头
-     * 
+     *
      * @param key
      * @param value
      * @return
@@ -999,13 +995,13 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
 
     /**
      * 将一个或多个值 value 插入到列表 key 的表尾(最右边)。
-     * 
+     * <p>
      * 如果有多个 value 值，那么各个 value 值按从左到右的顺序依次插入到表尾：比如对一个空列表 mylist 执行 RPUSH mylist
      * a b c ，得出的结果列表为 a b c ，等同于执行命令 RPUSH mylist a 、 RPUSH mylist b 、 RPUSH
      * mylist c 。
-     * 
+     * <p>
      * 如果 key 不存在，一个空列表会被创建并执行 RPUSH 操作。
-     * 
+     *
      * @param key
      * @param value
      * @return
@@ -1027,9 +1023,9 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
 
     /**
      * 返回列表 key 的长度。
-     * 
+     * <p>
      * 如果 key 不存在，则 key 被解释为一个空列表，返回 0 .
-     * 
+     *
      * @param key
      * @return
      */
@@ -1048,18 +1044,18 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
 
     /**
      * 返回列表 key 中指定区间内的元素，区间以偏移量 start 和 stop 指定。
-     * 
+     * <p>
      * 下标(index)参数 start 和 stop 都以 0 为底，也就是说，以 0 表示列表的第一个元素，以 1 表示列表的第二个元素，以此类推。
-     * 
+     * <p>
      * 你也可以使用负数下标，以 -1 表示列表的最后一个元素， -2 表示列表的倒数第二个元素，以此类推。
-     * 
+     *
      * @param key
      * @param start
      * @param end
      * @return
      */
     public List<Object> lRange(final Object key, final Long start,
-            final Long end) {
+                               final Long end) {
         if (redisTemplate != null) {
             return redisTemplate.execute(new RedisCallback<List<Object>>() {
                 public List<Object> doInRedis(RedisConnection connection)
@@ -1079,13 +1075,13 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
 
     /**
      * 对一个列表进行修剪(trim)，就是说，让列表只保留指定区间内的元素，不在指定区间之内的元素都将被删除。
-     * 
+     * <p>
      * 举个例子，执行命令 LTRIM list 0 2 ，表示只保留列表 list 的前三个元素，其余元素全部删除。
-     * 
+     * <p>
      * 下标(index)参数 start 和 stop 都以 0 为底，也就是说，以 0 表示列表的第一个元素，以 1 表示列表的第二个元素，以此类推。
-     * 
+     * <p>
      * 你也可以使用负数下标，以 -1 表示列表的最后一个元素， -2 表示列表的倒数第二个元素，以此类推。
-     * 
+     *
      * @param key
      * @param start
      * @param end
@@ -1107,11 +1103,11 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
 
     /**
      * 返回列表 key 中，下标为 index 的元素。
-     * 
+     * <p>
      * 下标(index)参数 start 和 stop 都以 0 为底，也就是说，以 0 表示列表的第一个元素，以 1 表示列表的第二个元素，以此类推。
-     * 
+     * <p>
      * 你也可以使用负数下标，以 -1 表示列表的最后一个元素， -2 表示列表的倒数第二个元素，以此类推。
-     * 
+     *
      * @param key
      * @param index
      * @return
@@ -1132,9 +1128,9 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
 
     /**
      * 将列表 key 下标为 index 的元素的值设置为 value 。
-     * 
+     * <p>
      * 当 index 参数超出范围，或对一个空列表( key 不存在)进行 LSET 时，返回一个错误。
-     * 
+     *
      * @param key
      * @param index
      * @param value
@@ -1157,7 +1153,7 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
 
     /**
      * 移除并返回列表 key 的头元素。
-     * 
+     *
      * @param key
      * @return
      */
@@ -1174,10 +1170,10 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
         }
         return null;
     }
-    
+
     /**
      * 移除并返回列表 key 的头元素。
-     * 
+     *
      * @param key
      * @return
      */
@@ -1200,7 +1196,7 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
 
     /**
      * 移除并返回列表 key 的尾元素。
-     * 
+     *
      * @param key
      * @return
      */
@@ -1220,11 +1216,12 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
 
     // =================List相关操作结束===================
     // =================Set相关操作===================
+
     /**
      * 将一个或多个 member 元素加入到集合 key 当中，已经存在于集合的 member 元素将被忽略。
-     * 
+     * <p>
      * 假如 key 不存在，则创建一个只包含 member 元素作成员的集合。
-     * 
+     *
      * @param key
      * @param member
      * @return
@@ -1245,9 +1242,9 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
 
     /**
      * 返回集合 key 中的所有成员。
-     * 
+     * <p>
      * 不存在的 key 被视为空集合。
-     * 
+     *
      * @param key
      * @return
      */
@@ -1271,7 +1268,7 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
 
     /**
      * 移除集合 key 中的一个或多个 member 元素，不存在的 member 元素会被忽略。
-     * 
+     *
      * @param key
      * @param member
      * @return
@@ -1292,7 +1289,7 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
 
     /**
      * 移除并返回集合中的一个随机元素
-     * 
+     *
      * @param key
      * @return
      */
@@ -1312,7 +1309,7 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
 
     /**
      * 返回集合 key 的基数(集合中元素的数量)。
-     * 
+     *
      * @param key
      * @return
      */
@@ -1331,7 +1328,7 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
 
     /**
      * 判断 member 元素是否集合 key 的成员。
-     * 
+     *
      * @param key
      * @param member
      * @return
@@ -1352,7 +1349,7 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
 
     /**
      * 如果命令执行时，只提供了 key 参数，那么返回集合中的一个随机元素。
-     * 
+     *
      * @param key
      * @return
      */
@@ -1372,23 +1369,24 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
 
     // =================Set相关操作结束===================
     // =================SortSet相关操作===================
+
     /**
      * 将一个或多个 member 元素及其 score 值加入到有序集 key 当中。
-     * 
+     * <p>
      * 如果某个 member 已经是有序集的成员，那么更新这个 member 的 score 值，并通过重新插入这个 member 元素，来保证该
      * member 在正确的位置上。
-     * 
+     * <p>
      * score 值可以是整数值或双精度浮点数。
-     * 
+     * <p>
      * 如果 key 不存在，则创建一个空的有序集并执行 ZADD 操作。
-     * 
+     *
      * @param key
      * @param score
      * @param member
      * @return
      */
     public Boolean zAdd(final Object key, final double score,
-            final Object member) {
+                        final Object member) {
         if (redisTemplate != null) {
             return redisTemplate.execute(new RedisCallback<Boolean>() {
                 public Boolean doInRedis(RedisConnection connection)
@@ -1404,11 +1402,11 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
 
     /**
      * 返回有序集 key 中，指定区间内的成员。
-     * 
+     * <p>
      * 其中成员的位置按 score 值递增(从小到大)来排序。
-     * 
+     * <p>
      * 具有相同 score 值的成员按字典序(lexicographical order )来排列。
-     * 
+     *
      * @param key
      * @param start
      * @param end
@@ -1435,7 +1433,7 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
 
     /**
      * 移除有序集 key 中的一个或多个成员，不存在的成员将被忽略。
-     * 
+     *
      * @param key
      * @param member
      * @return
@@ -1456,20 +1454,20 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
 
     /**
      * 为有序集 key 的成员 member 的 score 值加上增量 increment 。
-     * 
+     * <p>
      * 可以通过传递一个负数值 increment ，让 score 减去相应的值，比如 ZINCRBY key -5 member ，就是让
      * member 的 score 值减去 5 。
-     * 
+     * <p>
      * 当 key 不存在，或 member 不是 key 的成员时， ZINCRBY key increment member 等同于 ZADD key
      * increment member 。
-     * 
+     *
      * @param key
      * @param score
      * @param member
      * @return
      */
     public Double zIncrBy(final Object key, final double score,
-            final Object member) {
+                          final Object member) {
         if (redisTemplate != null) {
             return redisTemplate.execute(new RedisCallback<Double>() {
                 public Double doInRedis(RedisConnection connection)
@@ -1485,9 +1483,9 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
 
     /**
      * 返回有序集 key 中成员 member 的排名。其中有序集成员按 score 值递增(从小到大)顺序排列。
-     * 
+     * <p>
      * 排名以 0 为底，也就是说， score 值最小的成员排名为 0 。
-     * 
+     *
      * @param key
      * @param member
      * @return
@@ -1508,9 +1506,9 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
 
     /**
      * 返回有序集 key 中成员 member 的排名。其中有序集成员按 score 值递减(从大到小)排序。
-     * 
+     * <p>
      * 排名以 0 为底，也就是说， score 值最大的成员排名为 0 。
-     * 
+     *
      * @param key
      * @param member
      * @return
@@ -1531,21 +1529,21 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
 
     /**
      * 返回有序集 key 中，指定区间内的成员。
-     * 
-     * 
+     * <p>
+     * <p>
      * 其中成员的位置按 score 值递减(从大到小)来排列。
-     * 
+     * <p>
      * 具有相同 score 值的成员按字典序的逆序(reverse lexicographical order)排列。
-     * 
+     * <p>
      * 除了成员按 score 值递减的次序排列这一点外， ZREVRANGE 命令的其他方面和 ZRANGE 命令一样。
-     * 
+     *
      * @param key
      * @param start
      * @param end
      * @return
      */
     public Set<Object> zRevRange(final Object key, final int start,
-            final int end) {
+                                 final int end) {
         if (redisTemplate != null) {
             return redisTemplate.execute(new RedisCallback<Set<Object>>() {
                 public Set<Object> doInRedis(RedisConnection connection)
@@ -1564,14 +1562,13 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
     }
 
     /**
-     * 
      * @param key
      * @param start
      * @param end
      * @return
      */
     public Set<Tuple> zRangeWithScores(final Object key, final int start,
-            final int end) {
+                                       final int end) {
         if (redisTemplate != null) {
             return redisTemplate.execute(new RedisCallback<Set<Tuple>>() {
                 public Set<Tuple> doInRedis(RedisConnection connection)
@@ -1585,7 +1582,7 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
     }
 
     public Set<Tuple> zRevRangeWithScores(final Object key, final int start,
-            final int end) {
+                                          final int end) {
         if (redisTemplate != null) {
             return redisTemplate.execute(new RedisCallback<Set<Tuple>>() {
                 public Set<Tuple> doInRedis(RedisConnection connection)
@@ -1600,7 +1597,7 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
 
     /**
      * 返回有序集 key 的基数。
-     * 
+     *
      * @param key
      * @return
      */
@@ -1619,7 +1616,7 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
 
     /**
      * 返回有序集 key 中，成员 member 的 score 值。
-     * 
+     *
      * @param key
      * @param member
      * @return
@@ -1640,7 +1637,7 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
 
     /**
      * 返回有序集 key 中， score 值在 min 和 max 之间(默认包括 score 值等于 min 或 max )的成员的数量。
-     * 
+     *
      * @param key
      * @param min
      * @param max
@@ -1662,16 +1659,16 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
     /**
      * 返回有序集 key 中， score 值介于 max 和 min 之间(默认包括等于 max 或 min )的所有的成员。有序集成员按 score
      * 值递减(从大到小)的次序排列。
-     * 
+     * <p>
      * 具有相同 score 值的成员按字典序的逆序(reverse lexicographical order )排列
-     * 
+     *
      * @param key
      * @param max
      * @param min
      * @return
      */
     public Set<Object> zrevrangeByScore(final Object key, final double max,
-            final double min) {
+                                        final double min) {
         if (redisTemplate != null) {
             return redisTemplate.execute(new RedisCallback<Set<Object>>() {
                 public Set<Object> doInRedis(RedisConnection connection)
@@ -1691,7 +1688,7 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
     }
 
     public Set<Object> zrevrangeByScore(final Object key, final double max,
-            final double min, final int offset, final int count) {
+                                        final double min, final int offset, final int count) {
         if (redisTemplate != null) {
             return redisTemplate.execute(new RedisCallback<Set<Object>>() {
                 public Set<Object> doInRedis(RedisConnection connection)
@@ -1711,14 +1708,13 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
     }
 
     /**
-     * 
      * @param key
      * @param min
      * @param max
      * @return
      */
     public Set<Tuple> zrangeByScoreWithScores(final Object key,
-            final double min, final double max) {
+                                              final double min, final double max) {
         if (redisTemplate != null) {
             return redisTemplate.execute(new RedisCallback<Set<Tuple>>() {
                 public Set<Tuple> doInRedis(RedisConnection connection)
@@ -1732,7 +1728,7 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
     }
 
     public Set<Tuple> zrevrangeByScoreWithScores(final Object key,
-            final double max, final double min) {
+                                                 final double max, final double min) {
         if (redisTemplate != null) {
             return redisTemplate.execute(new RedisCallback<Set<Tuple>>() {
                 public Set<Tuple> doInRedis(RedisConnection connection)
@@ -1747,8 +1743,8 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
     }
 
     public Set<Tuple> zrangeByScoreWithScores(final Object key,
-            final double min, final double max, final int offset,
-            final int count) {
+                                              final double min, final double max, final int offset,
+                                              final int count) {
         if (redisTemplate != null) {
             return redisTemplate.execute(new RedisCallback<Set<Tuple>>() {
                 public Set<Tuple> doInRedis(RedisConnection connection)
@@ -1763,8 +1759,8 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
     }
 
     public Set<Tuple> zrevrangeByScoreWithScores(final Object key,
-            final double max, final double min, final int offset,
-            final int count) {
+                                                 final double max, final double min, final int offset,
+                                                 final int count) {
         if (redisTemplate != null) {
             return redisTemplate.execute(new RedisCallback<Set<Tuple>>() {
                 public Set<Tuple> doInRedis(RedisConnection connection)
@@ -1780,14 +1776,14 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
 
     /**
      * 移除有序集 key 中，所有 score 值介于 min 和 max 之间(包括等于 min 或 max )的成员。
-     * 
+     *
      * @param key
      * @param start
      * @param end
      * @return
      */
     public Long zremrangeByScore(final Object key, final double start,
-            final double end) {
+                                 final double end) {
         if (redisTemplate != null) {
             return redisTemplate.execute(new RedisCallback<Long>() {
                 public Long doInRedis(RedisConnection connection)
@@ -1803,14 +1799,14 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
     /**
      * 返回有序集 key 中，所有 score 值介于 min 和 max 之间(包括等于 min 或 max )的成员。有序集成员按 score
      * 值递增(从小到大)次序排列。
-     * 
+     *
      * @param key
      * @param min
      * @param max
      * @return
      */
     public Set<Object> zRangeByScore(final Object key, final double min,
-            final double max) {
+                                     final double max) {
         if (redisTemplate != null) {
             return redisTemplate.execute(new RedisCallback<Set<Object>>() {
                 public Set<Object> doInRedis(RedisConnection connection)
@@ -1829,7 +1825,7 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
     }
 
     public Set<Object> zRangeByScore(final Object key, final double min,
-            final double max, final int offset, final int count) {
+                                     final double max, final int offset, final int count) {
         if (redisTemplate != null) {
             return redisTemplate.execute(new RedisCallback<Set<Object>>() {
                 public Set<Object> doInRedis(RedisConnection connection)
@@ -1849,7 +1845,7 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
     }
 
     public Set<Tuple> zRangeByScoreWithScores(final Object key,
-            final double min, final double max) {
+                                              final double min, final double max) {
         if (redisTemplate != null) {
             return redisTemplate.execute(new RedisCallback<Set<Tuple>>() {
                 public Set<Tuple> doInRedis(RedisConnection connection)
@@ -1863,8 +1859,8 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
     }
 
     public Set<Tuple> zRangeByScoreWithScores(final Object key,
-            final double min, final double max, final int offset,
-            final int count) {
+                                              final double min, final double max, final int offset,
+                                              final int count) {
         if (redisTemplate != null) {
             return redisTemplate.execute(new RedisCallback<Set<Tuple>>() {
                 public Set<Tuple> doInRedis(RedisConnection connection)
@@ -1879,7 +1875,7 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
     }
 
     public Set<Object> zRevRangeByScore(final Object key, final double max,
-            final double min) {
+                                        final double min) {
         if (redisTemplate != null) {
             return redisTemplate.execute(new RedisCallback<Set<Object>>() {
                 public Set<Object> doInRedis(RedisConnection connection)
@@ -1899,7 +1895,7 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
     }
 
     public Set<Object> zRevRangeByScore(final Object key, final double max,
-            final double min, final int offset, final int count) {
+                                        final double min, final int offset, final int count) {
         if (redisTemplate != null) {
             return redisTemplate.execute(new RedisCallback<Set<Object>>() {
                 public Set<Object> doInRedis(RedisConnection connection)
@@ -1919,7 +1915,7 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
     }
 
     public Set<Tuple> zRevRangeByScoreWithScores(final Object key,
-            final double max, final double min) {
+                                                 final double max, final double min) {
         if (redisTemplate != null) {
             return redisTemplate.execute(new RedisCallback<Set<Tuple>>() {
                 public Set<Tuple> doInRedis(RedisConnection connection)
@@ -1934,8 +1930,8 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
     }
 
     public Set<Tuple> zRevRangeByScoreWithScores(final Object key,
-            final double max, final double min, final int offset,
-            final int count) {
+                                                 final double max, final double min, final int offset,
+                                                 final int count) {
         if (redisTemplate != null) {
             return redisTemplate.execute(new RedisCallback<Set<Tuple>>() {
                 public Set<Tuple> doInRedis(RedisConnection connection)
@@ -1950,7 +1946,7 @@ public class RedisCacheManager implements InitializingBean, DisposableBean {
     }
 
     public Long zRemRangeByScore(final Object key, final double start,
-            final double end) {
+                                 final double end) {
         if (redisTemplate != null) {
             return redisTemplate.execute(new RedisCallback<Long>() {
                 public Long doInRedis(RedisConnection connection)

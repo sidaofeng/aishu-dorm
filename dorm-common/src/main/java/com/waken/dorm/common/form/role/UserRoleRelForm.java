@@ -2,7 +2,6 @@ package com.waken.dorm.common.form.role;
 
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 
 /**
  * @ClassName UserRoleRelForm

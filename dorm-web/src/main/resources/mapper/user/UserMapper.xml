@@ -1,776 +1,122 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.waken.dorm.dao.user.UserMapper" >
-  <resultMap id="BaseResultMap" type="com.waken.dorm.common.entity.user.User" >
-    <id column="user_id" property="userId" jdbcType="VARCHAR" />
-    <result column="parent_id" property="parentId" jdbcType="VARCHAR" />
-    <result column="mobile" property="mobile" jdbcType="VARCHAR" />
-    <result column="password" property="password" jdbcType="VARCHAR" />
-    <result column="user_name" property="userName" jdbcType="VARCHAR" />
-    <result column="name" property="name" jdbcType="VARCHAR" />
-    <result column="gender" property="gender" jdbcType="INTEGER" />
-    <result column="tel_phone" property="telPhone" jdbcType="VARCHAR" />
-    <result column="identify_type" property="identifyType" jdbcType="VARCHAR" />
-    <result column="identify_no" property="identifyNo" jdbcType="VARCHAR" />
-    <result column="nick_name" property="nickName" jdbcType="VARCHAR" />
-    <result column="user_type" property="userType" jdbcType="INTEGER" />
-    <result column="status" property="status" jdbcType="INTEGER" />
-    <result column="img_url" property="imgUrl" jdbcType="VARCHAR" />
-    <result column="identify_img_url" property="identifyImgUrl" jdbcType="VARCHAR" />
-    <result column="work_img_url" property="workImgUrl" jdbcType="VARCHAR" />
-    <result column="email" property="email" jdbcType="VARCHAR" />
-    <result column="last_login_time" property="lastLoginTime" jdbcType="TIMESTAMP" />
-    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
-    <result column="create_user_id" property="createUserId" jdbcType="VARCHAR" />
-    <result column="last_modify_time" property="lastModifyTime" jdbcType="TIMESTAMP" />
-    <result column="last_modify_user_id" property="lastModifyUserId" jdbcType="VARCHAR" />
-    <result column="audit_time" property="auditTime" jdbcType="TIMESTAMP" />
-    <result column="audit_user_id" property="auditUserId" jdbcType="VARCHAR" />
-    <result column="third_part_qq" property="thirdPartQq" jdbcType="VARCHAR" />
-    <result column="third_part_wechat" property="thirdPartWechat" jdbcType="VARCHAR" />
-    <result column="client_id" property="clientId" jdbcType="VARCHAR" />
-    <result column="platform_type" property="platformType" jdbcType="VARCHAR" />
-    <result column="channel_id" property="channelId" jdbcType="VARCHAR" />
-    <result column="easemob_uid" property="easemobUid" jdbcType="VARCHAR" />
-    <result column="qr_code" property="qrCode" jdbcType="VARCHAR" />
-    <result column="agent_level" property="agentLevel" jdbcType="INTEGER" />
-    <result column="province_id" property="provinceId" jdbcType="INTEGER" />
-    <result column="city_id" property="cityId" jdbcType="INTEGER" />
-    <result column="area_id" property="areaId" jdbcType="INTEGER" />
-    <result column="memo" property="memo" jdbcType="VARCHAR" />
-  </resultMap>
-  <sql id="Example_Where_Clause" >
-    <where >
-      <foreach collection="oredCriteria" item="criteria" separator="or" >
-        <if test="criteria.valid" >
-          <trim prefix="(" suffix=")" prefixOverrides="and" >
-            <foreach collection="criteria.criteria" item="criterion" >
-              <choose >
-                <when test="criterion.noValue" >
-                  and ${criterion.condition}
-                </when>
-                <when test="criterion.singleValue" >
-                  and ${criterion.condition} #{criterion.value}
-                </when>
-                <when test="criterion.betweenValue" >
-                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
-                </when>
-                <when test="criterion.listValue" >
-                  and ${criterion.condition}
-                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
-                    #{listItem}
-                  </foreach>
-                </when>
-              </choose>
-            </foreach>
-          </trim>
+<mapper namespace="com.waken.dorm.dao.user.UserMapper">
+    <resultMap id="BaseResultMap" type="com.waken.dorm.common.entity.user.User">
+        <id column="user_id" property="userId" jdbcType="VARCHAR"/>
+        <result column="mobile" property="mobile" jdbcType="VARCHAR"/>
+        <result column="password" property="password" jdbcType="VARCHAR"/>
+        <result column="user_name" property="userName" jdbcType="VARCHAR"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="gender" property="gender" jdbcType="INTEGER"/>
+        <result column="tel_phone" property="telPhone" jdbcType="VARCHAR"/>
+        <result column="identify_type" property="identifyType" jdbcType="VARCHAR"/>
+        <result column="identify_no" property="identifyNo" jdbcType="VARCHAR"/>
+        <result column="nick_name" property="nickName" jdbcType="VARCHAR"/>
+        <result column="user_type" property="userType" jdbcType="INTEGER"/>
+        <result column="status" property="status" jdbcType="INTEGER"/>
+        <result column="img_url" property="imgUrl" jdbcType="VARCHAR"/>
+        <result column="identify_img_url" property="identifyImgUrl" jdbcType="VARCHAR"/>
+        <result column="work_img_url" property="workImgUrl" jdbcType="VARCHAR"/>
+        <result column="email" property="email" jdbcType="VARCHAR"/>
+        <result column="last_login_time" property="lastLoginTime" jdbcType="TIMESTAMP"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="create_user_id" property="createUserId" jdbcType="VARCHAR"/>
+        <result column="last_modify_time" property="lastModifyTime" jdbcType="TIMESTAMP"/>
+        <result column="last_modify_user_id" property="lastModifyUserId" jdbcType="VARCHAR"/>
+        <result column="audit_time" property="auditTime" jdbcType="TIMESTAMP"/>
+        <result column="audit_user_id" property="auditUserId" jdbcType="VARCHAR"/>
+        <result column="third_part_qq" property="thirdPartQq" jdbcType="VARCHAR"/>
+        <result column="third_part_wechat" property="thirdPartWechat" jdbcType="VARCHAR"/>
+        <result column="client_id" property="clientId" jdbcType="VARCHAR"/>
+        <result column="platform_type" property="platformType" jdbcType="VARCHAR"/>
+        <result column="channel_id" property="channelId" jdbcType="VARCHAR"/>
+        <result column="easemob_uid" property="easemobUid" jdbcType="VARCHAR"/>
+        <result column="qr_code" property="qrCode" jdbcType="VARCHAR"/>
+        <result column="agent_level" property="agentLevel" jdbcType="INTEGER"/>
+        <result column="province_id" property="provinceId" jdbcType="INTEGER"/>
+        <result column="city_id" property="cityId" jdbcType="INTEGER"/>
+        <result column="area_id" property="areaId" jdbcType="INTEGER"/>
+        <result column="memo" property="memo" jdbcType="VARCHAR"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        user_id, mobile, password, user_name, name, gender, tel_phone, identify_type,
+        identify_no, nick_name, user_type, status, img_url, identify_img_url, work_img_url,
+        email, last_login_time, create_time, create_user_id, last_modify_time, last_modify_user_id,
+        audit_time, audit_user_id, third_part_qq, third_part_wechat, client_id, platform_type,
+        channel_id, easemob_uid, qr_code, agent_level, province_id, city_id, area_id, memo
+    </sql>
+    <select id="listUsers" parameterType="com.waken.dorm.common.form.user.UserForm"
+            resultType="com.waken.dorm.common.view.user.UserView">
+        SELECT
+        u.user_id AS userId,
+        r.role_name AS roleName,
+        u.mobile ,
+        u.user_name AS userName,
+        u.gender,
+        u.name,
+        u.`status`,
+        u.img_url AS imgUrl,
+        u.email,
+        u.create_time AS createTime,
+        uu.user_name AS createUserName,
+        u.last_modify_time AS lastModifyTime,
+        uuu.user_name AS lastModifyUserName,
+        u.memo
+        FROM rm_user u
+        LEFT JOIN rm_user uu ON uu.user_id = u.create_user_id
+        LEFT JOIN rm_user uuu ON uuu.user_id = u.last_modify_user_id
+        LEFT JOIN rm_user_privilege up ON up.user_id = u.user_id
+        LEFT JOIN rm_role r ON r.pk_role_id = up.subject_id
+        WHERE
+        1 = 1
+        <if test="userId != null and userId != ''">
+            and u.user_id=#{userId}
         </if>
-      </foreach>
-    </where>
-  </sql>
-  <sql id="Update_By_Example_Where_Clause" >
-    <where >
-      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
-        <if test="criteria.valid" >
-          <trim prefix="(" suffix=")" prefixOverrides="and" >
-            <foreach collection="criteria.criteria" item="criterion" >
-              <choose >
-                <when test="criterion.noValue" >
-                  and ${criterion.condition}
-                </when>
-                <when test="criterion.singleValue" >
-                  and ${criterion.condition} #{criterion.value}
-                </when>
-                <when test="criterion.betweenValue" >
-                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
-                </when>
-                <when test="criterion.listValue" >
-                  and ${criterion.condition}
-                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
-                    #{listItem}
-                  </foreach>
-                </when>
-              </choose>
-            </foreach>
-          </trim>
+        <if test="userName != null and userName != ''">
+            <!-- 这里修改了一下用户名的查询的方式-模糊查询   and u.user_name =#{userName} -->
+            and u.user_name like '%${userName}%'
         </if>
-      </foreach>
-    </where>
-  </sql>
-  <sql id="Base_Column_List" >
-    user_id, parent_id, mobile, password, user_name, name, gender, tel_phone, identify_type, 
-    identify_no, nick_name, user_type, status, img_url, identify_img_url, work_img_url, 
-    email, last_login_time, create_time, create_user_id, last_modify_time, last_modify_user_id, 
-    audit_time, audit_user_id, third_part_qq, third_part_wechat, client_id, platform_type, 
-    channel_id, easemob_uid, qr_code, agent_level, province_id, city_id, area_id, memo
-  </sql>
-  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.waken.dorm.common.entity.user.UserExample" >
-    select
-    <if test="distinct" >
-      distinct
-    </if>
-    'true' as QUERYID,
-    <include refid="Base_Column_List" />
-    from rm_user
-    <if test="_parameter != null" >
-      <include refid="Example_Where_Clause" />
-    </if>
-    <if test="orderByClause != null" >
-      order by ${orderByClause}
-    </if>
-  </select>
-  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
-    select 
-    <include refid="Base_Column_List" />
-    from rm_user
-    where user_id = #{userId,jdbcType=VARCHAR}
-  </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
-    delete from rm_user
-    where user_id = #{userId,jdbcType=VARCHAR}
-  </delete>
-  <delete id="deleteByExample" parameterType="com.waken.dorm.common.entity.user.UserExample" >
-    delete from rm_user
-    <if test="_parameter != null" >
-      <include refid="Example_Where_Clause" />
-    </if>
-  </delete>
-  <insert id="insert" parameterType="com.waken.dorm.common.entity.user.User" >
-    insert into rm_user (user_id, parent_id, mobile, 
-      password, user_name, name, 
-      gender, tel_phone, identify_type, 
-      identify_no, nick_name, user_type, 
-      status, img_url, identify_img_url, 
-      work_img_url, email, last_login_time, 
-      create_time, create_user_id, last_modify_time, 
-      last_modify_user_id, audit_time, audit_user_id, 
-      third_part_qq, third_part_wechat, client_id, 
-      platform_type, channel_id, easemob_uid, 
-      qr_code, agent_level, province_id, 
-      city_id, area_id, memo
-      )
-    values (#{userId,jdbcType=VARCHAR}, #{parentId,jdbcType=VARCHAR}, #{mobile,jdbcType=VARCHAR}, 
-      #{password,jdbcType=VARCHAR}, #{userName,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
-      #{gender,jdbcType=INTEGER}, #{telPhone,jdbcType=VARCHAR}, #{identifyType,jdbcType=VARCHAR}, 
-      #{identifyNo,jdbcType=VARCHAR}, #{nickName,jdbcType=VARCHAR}, #{userType,jdbcType=INTEGER}, 
-      #{status,jdbcType=INTEGER}, #{imgUrl,jdbcType=VARCHAR}, #{identifyImgUrl,jdbcType=VARCHAR}, 
-      #{workImgUrl,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, #{lastLoginTime,jdbcType=TIMESTAMP}, 
-      #{createTime,jdbcType=TIMESTAMP}, #{createUserId,jdbcType=VARCHAR}, #{lastModifyTime,jdbcType=TIMESTAMP}, 
-      #{lastModifyUserId,jdbcType=VARCHAR}, #{auditTime,jdbcType=TIMESTAMP}, #{auditUserId,jdbcType=VARCHAR}, 
-      #{thirdPartQq,jdbcType=VARCHAR}, #{thirdPartWechat,jdbcType=VARCHAR}, #{clientId,jdbcType=VARCHAR}, 
-      #{platformType,jdbcType=VARCHAR}, #{channelId,jdbcType=VARCHAR}, #{easemobUid,jdbcType=VARCHAR}, 
-      #{qrCode,jdbcType=VARCHAR}, #{agentLevel,jdbcType=INTEGER}, #{provinceId,jdbcType=INTEGER}, 
-      #{cityId,jdbcType=INTEGER}, #{areaId,jdbcType=INTEGER}, #{memo,jdbcType=VARCHAR}
-      )
-  </insert>
-  <insert id="insertSelective" parameterType="com.waken.dorm.common.entity.user.User" >
-    insert into rm_user
-    <trim prefix="(" suffix=")" suffixOverrides="," >
-      <if test="userId != null" >
-        user_id,
-      </if>
-      <if test="parentId != null" >
-        parent_id,
-      </if>
-      <if test="mobile != null" >
-        mobile,
-      </if>
-      <if test="password != null" >
-        password,
-      </if>
-      <if test="userName != null" >
-        user_name,
-      </if>
-      <if test="name != null" >
-        name,
-      </if>
-      <if test="gender != null" >
-        gender,
-      </if>
-      <if test="telPhone != null" >
-        tel_phone,
-      </if>
-      <if test="identifyType != null" >
-        identify_type,
-      </if>
-      <if test="identifyNo != null" >
-        identify_no,
-      </if>
-      <if test="nickName != null" >
-        nick_name,
-      </if>
-      <if test="userType != null" >
-        user_type,
-      </if>
-      <if test="status != null" >
-        status,
-      </if>
-      <if test="imgUrl != null" >
-        img_url,
-      </if>
-      <if test="identifyImgUrl != null" >
-        identify_img_url,
-      </if>
-      <if test="workImgUrl != null" >
-        work_img_url,
-      </if>
-      <if test="email != null" >
-        email,
-      </if>
-      <if test="lastLoginTime != null" >
-        last_login_time,
-      </if>
-      <if test="createTime != null" >
-        create_time,
-      </if>
-      <if test="createUserId != null" >
-        create_user_id,
-      </if>
-      <if test="lastModifyTime != null" >
-        last_modify_time,
-      </if>
-      <if test="lastModifyUserId != null" >
-        last_modify_user_id,
-      </if>
-      <if test="auditTime != null" >
-        audit_time,
-      </if>
-      <if test="auditUserId != null" >
-        audit_user_id,
-      </if>
-      <if test="thirdPartQq != null" >
-        third_part_qq,
-      </if>
-      <if test="thirdPartWechat != null" >
-        third_part_wechat,
-      </if>
-      <if test="clientId != null" >
-        client_id,
-      </if>
-      <if test="platformType != null" >
-        platform_type,
-      </if>
-      <if test="channelId != null" >
-        channel_id,
-      </if>
-      <if test="easemobUid != null" >
-        easemob_uid,
-      </if>
-      <if test="qrCode != null" >
-        qr_code,
-      </if>
-      <if test="agentLevel != null" >
-        agent_level,
-      </if>
-      <if test="provinceId != null" >
-        province_id,
-      </if>
-      <if test="cityId != null" >
-        city_id,
-      </if>
-      <if test="areaId != null" >
-        area_id,
-      </if>
-      <if test="memo != null" >
-        memo,
-      </if>
-    </trim>
-    <trim prefix="values (" suffix=")" suffixOverrides="," >
-      <if test="userId != null" >
-        #{userId,jdbcType=VARCHAR},
-      </if>
-      <if test="parentId != null" >
-        #{parentId,jdbcType=VARCHAR},
-      </if>
-      <if test="mobile != null" >
-        #{mobile,jdbcType=VARCHAR},
-      </if>
-      <if test="password != null" >
-        #{password,jdbcType=VARCHAR},
-      </if>
-      <if test="userName != null" >
-        #{userName,jdbcType=VARCHAR},
-      </if>
-      <if test="name != null" >
-        #{name,jdbcType=VARCHAR},
-      </if>
-      <if test="gender != null" >
-        #{gender,jdbcType=INTEGER},
-      </if>
-      <if test="telPhone != null" >
-        #{telPhone,jdbcType=VARCHAR},
-      </if>
-      <if test="identifyType != null" >
-        #{identifyType,jdbcType=VARCHAR},
-      </if>
-      <if test="identifyNo != null" >
-        #{identifyNo,jdbcType=VARCHAR},
-      </if>
-      <if test="nickName != null" >
-        #{nickName,jdbcType=VARCHAR},
-      </if>
-      <if test="userType != null" >
-        #{userType,jdbcType=INTEGER},
-      </if>
-      <if test="status != null" >
-        #{status,jdbcType=INTEGER},
-      </if>
-      <if test="imgUrl != null" >
-        #{imgUrl,jdbcType=VARCHAR},
-      </if>
-      <if test="identifyImgUrl != null" >
-        #{identifyImgUrl,jdbcType=VARCHAR},
-      </if>
-      <if test="workImgUrl != null" >
-        #{workImgUrl,jdbcType=VARCHAR},
-      </if>
-      <if test="email != null" >
-        #{email,jdbcType=VARCHAR},
-      </if>
-      <if test="lastLoginTime != null" >
-        #{lastLoginTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="createTime != null" >
-        #{createTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="createUserId != null" >
-        #{createUserId,jdbcType=VARCHAR},
-      </if>
-      <if test="lastModifyTime != null" >
-        #{lastModifyTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="lastModifyUserId != null" >
-        #{lastModifyUserId,jdbcType=VARCHAR},
-      </if>
-      <if test="auditTime != null" >
-        #{auditTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="auditUserId != null" >
-        #{auditUserId,jdbcType=VARCHAR},
-      </if>
-      <if test="thirdPartQq != null" >
-        #{thirdPartQq,jdbcType=VARCHAR},
-      </if>
-      <if test="thirdPartWechat != null" >
-        #{thirdPartWechat,jdbcType=VARCHAR},
-      </if>
-      <if test="clientId != null" >
-        #{clientId,jdbcType=VARCHAR},
-      </if>
-      <if test="platformType != null" >
-        #{platformType,jdbcType=VARCHAR},
-      </if>
-      <if test="channelId != null" >
-        #{channelId,jdbcType=VARCHAR},
-      </if>
-      <if test="easemobUid != null" >
-        #{easemobUid,jdbcType=VARCHAR},
-      </if>
-      <if test="qrCode != null" >
-        #{qrCode,jdbcType=VARCHAR},
-      </if>
-      <if test="agentLevel != null" >
-        #{agentLevel,jdbcType=INTEGER},
-      </if>
-      <if test="provinceId != null" >
-        #{provinceId,jdbcType=INTEGER},
-      </if>
-      <if test="cityId != null" >
-        #{cityId,jdbcType=INTEGER},
-      </if>
-      <if test="areaId != null" >
-        #{areaId,jdbcType=INTEGER},
-      </if>
-      <if test="memo != null" >
-        #{memo,jdbcType=VARCHAR},
-      </if>
-    </trim>
-  </insert>
-  <select id="countByExample" parameterType="com.waken.dorm.common.entity.user.UserExample" resultType="java.lang.Integer" >
-    select count(*) from rm_user
-    <if test="_parameter != null" >
-      <include refid="Example_Where_Clause" />
-    </if>
-  </select>
-  <update id="updateByExampleSelective" parameterType="map" >
-    update rm_user
-    <set >
-      <if test="record.userId != null" >
-        user_id = #{record.userId,jdbcType=VARCHAR},
-      </if>
-      <if test="record.parentId != null" >
-        parent_id = #{record.parentId,jdbcType=VARCHAR},
-      </if>
-      <if test="record.mobile != null" >
-        mobile = #{record.mobile,jdbcType=VARCHAR},
-      </if>
-      <if test="record.password != null" >
-        password = #{record.password,jdbcType=VARCHAR},
-      </if>
-      <if test="record.userName != null" >
-        user_name = #{record.userName,jdbcType=VARCHAR},
-      </if>
-      <if test="record.name != null" >
-        name = #{record.name,jdbcType=VARCHAR},
-      </if>
-      <if test="record.gender != null" >
-        gender = #{record.gender,jdbcType=INTEGER},
-      </if>
-      <if test="record.telPhone != null" >
-        tel_phone = #{record.telPhone,jdbcType=VARCHAR},
-      </if>
-      <if test="record.identifyType != null" >
-        identify_type = #{record.identifyType,jdbcType=VARCHAR},
-      </if>
-      <if test="record.identifyNo != null" >
-        identify_no = #{record.identifyNo,jdbcType=VARCHAR},
-      </if>
-      <if test="record.nickName != null" >
-        nick_name = #{record.nickName,jdbcType=VARCHAR},
-      </if>
-      <if test="record.userType != null" >
-        user_type = #{record.userType,jdbcType=INTEGER},
-      </if>
-      <if test="record.status != null" >
-        status = #{record.status,jdbcType=INTEGER},
-      </if>
-      <if test="record.imgUrl != null" >
-        img_url = #{record.imgUrl,jdbcType=VARCHAR},
-      </if>
-      <if test="record.identifyImgUrl != null" >
-        identify_img_url = #{record.identifyImgUrl,jdbcType=VARCHAR},
-      </if>
-      <if test="record.workImgUrl != null" >
-        work_img_url = #{record.workImgUrl,jdbcType=VARCHAR},
-      </if>
-      <if test="record.email != null" >
-        email = #{record.email,jdbcType=VARCHAR},
-      </if>
-      <if test="record.lastLoginTime != null" >
-        last_login_time = #{record.lastLoginTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="record.createTime != null" >
-        create_time = #{record.createTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="record.createUserId != null" >
-        create_user_id = #{record.createUserId,jdbcType=VARCHAR},
-      </if>
-      <if test="record.lastModifyTime != null" >
-        last_modify_time = #{record.lastModifyTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="record.lastModifyUserId != null" >
-        last_modify_user_id = #{record.lastModifyUserId,jdbcType=VARCHAR},
-      </if>
-      <if test="record.auditTime != null" >
-        audit_time = #{record.auditTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="record.auditUserId != null" >
-        audit_user_id = #{record.auditUserId,jdbcType=VARCHAR},
-      </if>
-      <if test="record.thirdPartQq != null" >
-        third_part_qq = #{record.thirdPartQq,jdbcType=VARCHAR},
-      </if>
-      <if test="record.thirdPartWechat != null" >
-        third_part_wechat = #{record.thirdPartWechat,jdbcType=VARCHAR},
-      </if>
-      <if test="record.clientId != null" >
-        client_id = #{record.clientId,jdbcType=VARCHAR},
-      </if>
-      <if test="record.platformType != null" >
-        platform_type = #{record.platformType,jdbcType=VARCHAR},
-      </if>
-      <if test="record.channelId != null" >
-        channel_id = #{record.channelId,jdbcType=VARCHAR},
-      </if>
-      <if test="record.easemobUid != null" >
-        easemob_uid = #{record.easemobUid,jdbcType=VARCHAR},
-      </if>
-      <if test="record.qrCode != null" >
-        qr_code = #{record.qrCode,jdbcType=VARCHAR},
-      </if>
-      <if test="record.agentLevel != null" >
-        agent_level = #{record.agentLevel,jdbcType=INTEGER},
-      </if>
-      <if test="record.provinceId != null" >
-        province_id = #{record.provinceId,jdbcType=INTEGER},
-      </if>
-      <if test="record.cityId != null" >
-        city_id = #{record.cityId,jdbcType=INTEGER},
-      </if>
-      <if test="record.areaId != null" >
-        area_id = #{record.areaId,jdbcType=INTEGER},
-      </if>
-      <if test="record.memo != null" >
-        memo = #{record.memo,jdbcType=VARCHAR},
-      </if>
-    </set>
-    <if test="_parameter != null" >
-      <include refid="Update_By_Example_Where_Clause" />
-    </if>
-  </update>
-  <update id="updateByExample" parameterType="map" >
-    update rm_user
-    set user_id = #{record.userId,jdbcType=VARCHAR},
-      parent_id = #{record.parentId,jdbcType=VARCHAR},
-      mobile = #{record.mobile,jdbcType=VARCHAR},
-      password = #{record.password,jdbcType=VARCHAR},
-      user_name = #{record.userName,jdbcType=VARCHAR},
-      name = #{record.name,jdbcType=VARCHAR},
-      gender = #{record.gender,jdbcType=INTEGER},
-      tel_phone = #{record.telPhone,jdbcType=VARCHAR},
-      identify_type = #{record.identifyType,jdbcType=VARCHAR},
-      identify_no = #{record.identifyNo,jdbcType=VARCHAR},
-      nick_name = #{record.nickName,jdbcType=VARCHAR},
-      user_type = #{record.userType,jdbcType=INTEGER},
-      status = #{record.status,jdbcType=INTEGER},
-      img_url = #{record.imgUrl,jdbcType=VARCHAR},
-      identify_img_url = #{record.identifyImgUrl,jdbcType=VARCHAR},
-      work_img_url = #{record.workImgUrl,jdbcType=VARCHAR},
-      email = #{record.email,jdbcType=VARCHAR},
-      last_login_time = #{record.lastLoginTime,jdbcType=TIMESTAMP},
-      create_time = #{record.createTime,jdbcType=TIMESTAMP},
-      create_user_id = #{record.createUserId,jdbcType=VARCHAR},
-      last_modify_time = #{record.lastModifyTime,jdbcType=TIMESTAMP},
-      last_modify_user_id = #{record.lastModifyUserId,jdbcType=VARCHAR},
-      audit_time = #{record.auditTime,jdbcType=TIMESTAMP},
-      audit_user_id = #{record.auditUserId,jdbcType=VARCHAR},
-      third_part_qq = #{record.thirdPartQq,jdbcType=VARCHAR},
-      third_part_wechat = #{record.thirdPartWechat,jdbcType=VARCHAR},
-      client_id = #{record.clientId,jdbcType=VARCHAR},
-      platform_type = #{record.platformType,jdbcType=VARCHAR},
-      channel_id = #{record.channelId,jdbcType=VARCHAR},
-      easemob_uid = #{record.easemobUid,jdbcType=VARCHAR},
-      qr_code = #{record.qrCode,jdbcType=VARCHAR},
-      agent_level = #{record.agentLevel,jdbcType=INTEGER},
-      province_id = #{record.provinceId,jdbcType=INTEGER},
-      city_id = #{record.cityId,jdbcType=INTEGER},
-      area_id = #{record.areaId,jdbcType=INTEGER},
-      memo = #{record.memo,jdbcType=VARCHAR}
-    <if test="_parameter != null" >
-      <include refid="Update_By_Example_Where_Clause" />
-    </if>
-  </update>
-  <update id="updateByPrimaryKeySelective" parameterType="com.waken.dorm.common.entity.user.User" >
-    update rm_user
-    <set >
-      <if test="parentId != null" >
-        parent_id = #{parentId,jdbcType=VARCHAR},
-      </if>
-      <if test="mobile != null" >
-        mobile = #{mobile,jdbcType=VARCHAR},
-      </if>
-      <if test="password != null" >
-        password = #{password,jdbcType=VARCHAR},
-      </if>
-      <if test="userName != null" >
-        user_name = #{userName,jdbcType=VARCHAR},
-      </if>
-      <if test="name != null" >
-        name = #{name,jdbcType=VARCHAR},
-      </if>
-      <if test="gender != null" >
-        gender = #{gender,jdbcType=INTEGER},
-      </if>
-      <if test="telPhone != null" >
-        tel_phone = #{telPhone,jdbcType=VARCHAR},
-      </if>
-      <if test="identifyType != null" >
-        identify_type = #{identifyType,jdbcType=VARCHAR},
-      </if>
-      <if test="identifyNo != null" >
-        identify_no = #{identifyNo,jdbcType=VARCHAR},
-      </if>
-      <if test="nickName != null" >
-        nick_name = #{nickName,jdbcType=VARCHAR},
-      </if>
-      <if test="userType != null" >
-        user_type = #{userType,jdbcType=INTEGER},
-      </if>
-      <if test="status != null" >
-        status = #{status,jdbcType=INTEGER},
-      </if>
-      <if test="imgUrl != null" >
-        img_url = #{imgUrl,jdbcType=VARCHAR},
-      </if>
-      <if test="identifyImgUrl != null" >
-        identify_img_url = #{identifyImgUrl,jdbcType=VARCHAR},
-      </if>
-      <if test="workImgUrl != null" >
-        work_img_url = #{workImgUrl,jdbcType=VARCHAR},
-      </if>
-      <if test="email != null" >
-        email = #{email,jdbcType=VARCHAR},
-      </if>
-      <if test="lastLoginTime != null" >
-        last_login_time = #{lastLoginTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="createTime != null" >
-        create_time = #{createTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="createUserId != null" >
-        create_user_id = #{createUserId,jdbcType=VARCHAR},
-      </if>
-      <if test="lastModifyTime != null" >
-        last_modify_time = #{lastModifyTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="lastModifyUserId != null" >
-        last_modify_user_id = #{lastModifyUserId,jdbcType=VARCHAR},
-      </if>
-      <if test="auditTime != null" >
-        audit_time = #{auditTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="auditUserId != null" >
-        audit_user_id = #{auditUserId,jdbcType=VARCHAR},
-      </if>
-      <if test="thirdPartQq != null" >
-        third_part_qq = #{thirdPartQq,jdbcType=VARCHAR},
-      </if>
-      <if test="thirdPartWechat != null" >
-        third_part_wechat = #{thirdPartWechat,jdbcType=VARCHAR},
-      </if>
-      <if test="clientId != null" >
-        client_id = #{clientId,jdbcType=VARCHAR},
-      </if>
-      <if test="platformType != null" >
-        platform_type = #{platformType,jdbcType=VARCHAR},
-      </if>
-      <if test="channelId != null" >
-        channel_id = #{channelId,jdbcType=VARCHAR},
-      </if>
-      <if test="easemobUid != null" >
-        easemob_uid = #{easemobUid,jdbcType=VARCHAR},
-      </if>
-      <if test="qrCode != null" >
-        qr_code = #{qrCode,jdbcType=VARCHAR},
-      </if>
-      <if test="agentLevel != null" >
-        agent_level = #{agentLevel,jdbcType=INTEGER},
-      </if>
-      <if test="provinceId != null" >
-        province_id = #{provinceId,jdbcType=INTEGER},
-      </if>
-      <if test="cityId != null" >
-        city_id = #{cityId,jdbcType=INTEGER},
-      </if>
-      <if test="areaId != null" >
-        area_id = #{areaId,jdbcType=INTEGER},
-      </if>
-      <if test="memo != null" >
-        memo = #{memo,jdbcType=VARCHAR},
-      </if>
-    </set>
-    where user_id = #{userId,jdbcType=VARCHAR}
-  </update>
-  <update id="updateByPrimaryKey" parameterType="com.waken.dorm.common.entity.user.User" >
-    update rm_user
-    set parent_id = #{parentId,jdbcType=VARCHAR},
-      mobile = #{mobile,jdbcType=VARCHAR},
-      password = #{password,jdbcType=VARCHAR},
-      user_name = #{userName,jdbcType=VARCHAR},
-      name = #{name,jdbcType=VARCHAR},
-      gender = #{gender,jdbcType=INTEGER},
-      tel_phone = #{telPhone,jdbcType=VARCHAR},
-      identify_type = #{identifyType,jdbcType=VARCHAR},
-      identify_no = #{identifyNo,jdbcType=VARCHAR},
-      nick_name = #{nickName,jdbcType=VARCHAR},
-      user_type = #{userType,jdbcType=INTEGER},
-      status = #{status,jdbcType=INTEGER},
-      img_url = #{imgUrl,jdbcType=VARCHAR},
-      identify_img_url = #{identifyImgUrl,jdbcType=VARCHAR},
-      work_img_url = #{workImgUrl,jdbcType=VARCHAR},
-      email = #{email,jdbcType=VARCHAR},
-      last_login_time = #{lastLoginTime,jdbcType=TIMESTAMP},
-      create_time = #{createTime,jdbcType=TIMESTAMP},
-      create_user_id = #{createUserId,jdbcType=VARCHAR},
-      last_modify_time = #{lastModifyTime,jdbcType=TIMESTAMP},
-      last_modify_user_id = #{lastModifyUserId,jdbcType=VARCHAR},
-      audit_time = #{auditTime,jdbcType=TIMESTAMP},
-      audit_user_id = #{auditUserId,jdbcType=VARCHAR},
-      third_part_qq = #{thirdPartQq,jdbcType=VARCHAR},
-      third_part_wechat = #{thirdPartWechat,jdbcType=VARCHAR},
-      client_id = #{clientId,jdbcType=VARCHAR},
-      platform_type = #{platformType,jdbcType=VARCHAR},
-      channel_id = #{channelId,jdbcType=VARCHAR},
-      easemob_uid = #{easemobUid,jdbcType=VARCHAR},
-      qr_code = #{qrCode,jdbcType=VARCHAR},
-      agent_level = #{agentLevel,jdbcType=INTEGER},
-      province_id = #{provinceId,jdbcType=INTEGER},
-      city_id = #{cityId,jdbcType=INTEGER},
-      area_id = #{areaId,jdbcType=INTEGER},
-      memo = #{memo,jdbcType=VARCHAR}
-    where user_id = #{userId,jdbcType=VARCHAR}
-  </update>
-  <select id="listUsers" parameterType="com.waken.dorm.common.form.user.UserForm" resultType="com.waken.dorm.common.view.user.UserView">
-    SELECT
-    u.user_id AS userId,
-    r.role_name AS roleName,
-    u.mobile ,
-    u.user_name AS userName,
-    u.gender,
-    u.name,
-    u.`status`,
-    u.img_url AS imgUrl,
-    u.email,
-    u.create_time AS createTime,
-    uu.user_name AS createUserName,
-    u.last_modify_time AS lastModifyTime,
-    uuu.user_name AS lastModifyUserName,
-    u.memo
-    FROM rm_user u
-    LEFT JOIN rm_user uu ON uu.user_id = u.create_user_id
-    LEFT JOIN rm_user uuu ON uuu.user_id = u.last_modify_user_id
-    LEFT JOIN rm_user_role_rel urr ON urr.user_id = u.user_id
-    LEFT JOIN rm_role r ON r.pk_role_id = urr.role_id
-    WHERE
-    1 = 1
-    <if test="userId != null and userId != ''">
-      and u.user_id=#{userId}
-    </if>
-    <if test="userName != null and userName != ''">
-      <!-- 这里修改了一下用户名的查询的方式-模糊查询   and u.user_name =#{userName} -->
-      and u.user_name like '%${userName}%'
-    </if>
-    <if test="mobile != null and mobile != ''">
-      <!-- 这里修改了一下用户名的查询的方式-模糊查询   and u.mobile=#{mobile} -->
-      and u.mobile like '%${mobile}%'
-    </if>
-    <if test="name != null and name != ''">
-      and u.name like '%${name}%'
-    </if>
-    <if test="nickName != null and nickName != ''">
-      and u.nick_name like '%${nickName}%'
-    </if>
-    <if test="status != null">
-      and u.status=#{status}
-    </if>
-    <if test="gender != null">
-      and u.gender=#{gender}
-    </if>
-    <if test="createUserName != null and createUserName != ''">
-      and uu.user_name=#{createUserName}
-    </if>
-    <if test="lastModifyUserName != null and lastModifyUserName != ''">
-      and uuu.user_name=#{lastModifyUserName}
-    </if>
-    <if test="userType != null">
-      and u.user_type=#{userType}
-    </if>
-    <if test="startTime != null">
-      AND u.create_time &gt;= #{startTime,jdbcType=TIMESTAMP}
-    </if>
-    <if test="endTime != null">
-      AND u.create_time &lt;= #{endTime,jdbcType=TIMESTAMP}
-    </if>
-    ORDER BY
-    u.last_modify_time DESC
-  </select>
-  <update id="batchUpdateStatus" parameterType="java.util.Map">
-    <foreach collection="list" separator=";" item="ur">
-      update rm_user set
-      status = #{ur.status},
-      last_modify_time = #{ur.lastModifyTime},
-      last_modify_user_id = #{ur.lastModifyUserId}
-      where user_id = #{ur.pkId}
-    </foreach>
-  </update>
+        <if test="mobile != null and mobile != ''">
+            <!-- 这里修改了一下用户名的查询的方式-模糊查询   and u.mobile=#{mobile} -->
+            and u.mobile like '%${mobile}%'
+        </if>
+        <if test="name != null and name != ''">
+            and u.name like '%${name}%'
+        </if>
+        <if test="nickName != null and nickName != ''">
+            and u.nick_name like '%${nickName}%'
+        </if>
+        <if test="status != null">
+            and u.status=#{status}
+        </if>
+        <if test="gender != null">
+            and u.gender=#{gender}
+        </if>
+        <if test="createUserName != null and createUserName != ''">
+            and uu.user_name=#{createUserName}
+        </if>
+        <if test="lastModifyUserName != null and lastModifyUserName != ''">
+            and uuu.user_name=#{lastModifyUserName}
+        </if>
+        <if test="userType != null">
+            and u.user_type=#{userType}
+        </if>
+        <if test="startTime != null">
+            AND u.create_time &gt;= #{startTime,jdbcType=TIMESTAMP}
+        </if>
+        <if test="endTime != null">
+            AND u.create_time &lt;= #{endTime,jdbcType=TIMESTAMP}
+        </if>
+        ORDER BY
+        u.last_modify_time DESC
+    </select>
+    <update id="batchUpdateStatus" parameterType="java.util.Map">
+        <foreach collection="list" separator=";" item="ur">
+            update rm_user set
+            status = #{ur.status},
+            last_modify_time = #{ur.lastModifyTime},
+            last_modify_user_id = #{ur.lastModifyUserId}
+            where user_id = #{ur.pkId}
+        </foreach>
+    </update>
 </mapper>

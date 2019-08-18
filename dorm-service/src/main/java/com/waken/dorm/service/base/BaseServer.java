@@ -12,6 +12,7 @@ import java.util.Map;
 public interface BaseServer {
     /**
      * 通过id得到需要更新的map对象
+     *
      * @param status
      * @param pkIds
      */

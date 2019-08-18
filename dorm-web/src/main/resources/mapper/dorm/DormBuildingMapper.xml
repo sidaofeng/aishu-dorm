@@ -1,395 +1,88 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.waken.dorm.dao.dorm.DormBuildingMapper" >
-  <resultMap id="BaseResultMap" type="com.waken.dorm.common.entity.dorm.DormBuilding" >
-    <id column="pk_dorm_building_id" property="pkDormBuildingId" jdbcType="VARCHAR" />
-    <result column="school_id" property="schoolId" jdbcType="VARCHAR" />
-    <result column="dorm_building_type" property="dormBuildingType" jdbcType="INTEGER" />
-    <result column="dorm_building_num" property="dormBuildingNum" jdbcType="VARCHAR" />
-    <result column="dorm_building_levels" property="dormBuildingLevels" jdbcType="INTEGER" />
-    <result column="dorm_building_desc" property="dormBuildingDesc" jdbcType="VARCHAR" />
-    <result column="status" property="status" jdbcType="INTEGER" />
-    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
-    <result column="create_user_id" property="createUserId" jdbcType="VARCHAR" />
-    <result column="last_modify_time" property="lastModifyTime" jdbcType="TIMESTAMP" />
-    <result column="last_modify_user_id" property="lastModifyUserId" jdbcType="VARCHAR" />
-    <result column="memo" property="memo" jdbcType="VARCHAR" />
-  </resultMap>
-  <sql id="Example_Where_Clause" >
-    <where >
-      <foreach collection="oredCriteria" item="criteria" separator="or" >
-        <if test="criteria.valid" >
-          <trim prefix="(" suffix=")" prefixOverrides="and" >
-            <foreach collection="criteria.criteria" item="criterion" >
-              <choose >
-                <when test="criterion.noValue" >
-                  and ${criterion.condition}
-                </when>
-                <when test="criterion.singleValue" >
-                  and ${criterion.condition} #{criterion.value}
-                </when>
-                <when test="criterion.betweenValue" >
-                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
-                </when>
-                <when test="criterion.listValue" >
-                  and ${criterion.condition}
-                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
-                    #{listItem}
-                  </foreach>
-                </when>
-              </choose>
-            </foreach>
-          </trim>
+<mapper namespace="com.waken.dorm.dao.dorm.DormBuildingMapper">
+    <resultMap id="BaseResultMap" type="com.waken.dorm.common.entity.dorm.DormBuilding">
+        <id column="pk_dorm_building_id" property="pkDormBuildingId" jdbcType="VARCHAR"/>
+        <result column="dorm_building_type" property="dormBuildingType" jdbcType="INTEGER"/>
+        <result column="dorm_building_num" property="dormBuildingNum" jdbcType="VARCHAR"/>
+        <result column="dorm_building_levels" property="dormBuildingLevels" jdbcType="INTEGER"/>
+        <result column="dorm_building_desc" property="dormBuildingDesc" jdbcType="VARCHAR"/>
+        <result column="status" property="status" jdbcType="INTEGER"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="create_user_id" property="createUserId" jdbcType="VARCHAR"/>
+        <result column="last_modify_time" property="lastModifyTime" jdbcType="TIMESTAMP"/>
+        <result column="last_modify_user_id" property="lastModifyUserId" jdbcType="VARCHAR"/>
+        <result column="memo" property="memo" jdbcType="VARCHAR"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        pk_dorm_building_id, dorm_building_type, dorm_building_num, dorm_building_levels,
+        dorm_building_desc, status, create_time, create_user_id, last_modify_time, last_modify_user_id,
+        memo
+    </sql>
+    <select id="selectByIds" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from rm_dorm_building
+        where pk_dorm_building_id in
+        <foreach collection="Ids" item="dramaId" open="(" close=")" separator=",">
+            #{dramaId}
+        </foreach>
+    </select>
+    <select id="listDormBuildings" parameterType="com.waken.dorm.common.form.dorm.DormBuildingForm"
+            resultType="com.waken.dorm.common.view.dorm.DormBuildingView">
+        SELECT
+        db.pk_dorm_building_id AS pkDormBuildingId,
+        db.dorm_building_type AS dormBuildingType,
+        db.dorm_building_num AS dormBuildingNum,
+        db.dorm_building_levels AS dormBuildingLevels,
+        db.dorm_building_desc AS dormBuildingDesc,
+        db.`status`,
+        db.create_time AS createTime,
+        u.user_name AS createUserName,
+        db.last_modify_time AS lastModifyTime,
+        uu.user_name AS lastModifyUserName,
+        db.memo
+        FROM rm_dorm_building db
+        LEFT JOIN rm_user u ON u.user_id = db.create_user_id
+        LEFT JOIN rm_user uu ON uu.user_id = db.last_modify_user_id
+        WHERE 1=1
+        <if test="pk_dorm_building_id != null and pk_dorm_building_id != ''">
+            and db.pk_dorm_building_id=#{pk_dorm_building_id}
         </if>
-      </foreach>
-    </where>
-  </sql>
-  <sql id="Update_By_Example_Where_Clause" >
-    <where >
-      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
-        <if test="criteria.valid" >
-          <trim prefix="(" suffix=")" prefixOverrides="and" >
-            <foreach collection="criteria.criteria" item="criterion" >
-              <choose >
-                <when test="criterion.noValue" >
-                  and ${criterion.condition}
-                </when>
-                <when test="criterion.singleValue" >
-                  and ${criterion.condition} #{criterion.value}
-                </when>
-                <when test="criterion.betweenValue" >
-                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
-                </when>
-                <when test="criterion.listValue" >
-                  and ${criterion.condition}
-                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
-                    #{listItem}
-                  </foreach>
-                </when>
-              </choose>
-            </foreach>
-          </trim>
+        <if test="dormBuildingNum != null and dormBuildingNum != ''">
+            and db.dorm_building_num like '%${dormBuildingNum}%'
         </if>
-      </foreach>
-    </where>
-  </sql>
-  <sql id="Base_Column_List" >
-    pk_dorm_building_id, school_id, dorm_building_type, dorm_building_num, dorm_building_levels, 
-    dorm_building_desc, status, create_time, create_user_id, last_modify_time, last_modify_user_id, 
-    memo
-  </sql>
-  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.waken.dorm.common.entity.dorm.DormBuildingExample" >
-    select
-    <if test="distinct" >
-      distinct
-    </if>
-    'true' as QUERYID,
-    <include refid="Base_Column_List" />
-    from rm_dorm_building
-    <if test="_parameter != null" >
-      <include refid="Example_Where_Clause" />
-    </if>
-    <if test="orderByClause != null" >
-      order by ${orderByClause}
-    </if>
-  </select>
-  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
-    select 
-    <include refid="Base_Column_List" />
-    from rm_dorm_building
-    where pk_dorm_building_id = #{pkDormBuildingId,jdbcType=VARCHAR}
-  </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
-    delete from rm_dorm_building
-    where pk_dorm_building_id = #{pkDormBuildingId,jdbcType=VARCHAR}
-  </delete>
-  <delete id="deleteByExample" parameterType="com.waken.dorm.common.entity.dorm.DormBuildingExample" >
-    delete from rm_dorm_building
-    <if test="_parameter != null" >
-      <include refid="Example_Where_Clause" />
-    </if>
-  </delete>
-  <insert id="insert" parameterType="com.waken.dorm.common.entity.dorm.DormBuilding" >
-    insert into rm_dorm_building (pk_dorm_building_id, school_id, dorm_building_type, 
-      dorm_building_num, dorm_building_levels, dorm_building_desc, 
-      status, create_time, create_user_id, 
-      last_modify_time, last_modify_user_id, memo
-      )
-    values (#{pkDormBuildingId,jdbcType=VARCHAR}, #{schoolId,jdbcType=VARCHAR}, #{dormBuildingType,jdbcType=INTEGER}, 
-      #{dormBuildingNum,jdbcType=VARCHAR}, #{dormBuildingLevels,jdbcType=INTEGER}, #{dormBuildingDesc,jdbcType=VARCHAR}, 
-      #{status,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, #{createUserId,jdbcType=VARCHAR}, 
-      #{lastModifyTime,jdbcType=TIMESTAMP}, #{lastModifyUserId,jdbcType=VARCHAR}, #{memo,jdbcType=VARCHAR}
-      )
-  </insert>
-  <insert id="insertSelective" parameterType="com.waken.dorm.common.entity.dorm.DormBuilding" >
-    insert into rm_dorm_building
-    <trim prefix="(" suffix=")" suffixOverrides="," >
-      <if test="pkDormBuildingId != null" >
-        pk_dorm_building_id,
-      </if>
-      <if test="schoolId != null" >
-        school_id,
-      </if>
-      <if test="dormBuildingType != null" >
-        dorm_building_type,
-      </if>
-      <if test="dormBuildingNum != null" >
-        dorm_building_num,
-      </if>
-      <if test="dormBuildingLevels != null" >
-        dorm_building_levels,
-      </if>
-      <if test="dormBuildingDesc != null" >
-        dorm_building_desc,
-      </if>
-      <if test="status != null" >
-        status,
-      </if>
-      <if test="createTime != null" >
-        create_time,
-      </if>
-      <if test="createUserId != null" >
-        create_user_id,
-      </if>
-      <if test="lastModifyTime != null" >
-        last_modify_time,
-      </if>
-      <if test="lastModifyUserId != null" >
-        last_modify_user_id,
-      </if>
-      <if test="memo != null" >
-        memo,
-      </if>
-    </trim>
-    <trim prefix="values (" suffix=")" suffixOverrides="," >
-      <if test="pkDormBuildingId != null" >
-        #{pkDormBuildingId,jdbcType=VARCHAR},
-      </if>
-      <if test="schoolId != null" >
-        #{schoolId,jdbcType=VARCHAR},
-      </if>
-      <if test="dormBuildingType != null" >
-        #{dormBuildingType,jdbcType=INTEGER},
-      </if>
-      <if test="dormBuildingNum != null" >
-        #{dormBuildingNum,jdbcType=VARCHAR},
-      </if>
-      <if test="dormBuildingLevels != null" >
-        #{dormBuildingLevels,jdbcType=INTEGER},
-      </if>
-      <if test="dormBuildingDesc != null" >
-        #{dormBuildingDesc,jdbcType=VARCHAR},
-      </if>
-      <if test="status != null" >
-        #{status,jdbcType=INTEGER},
-      </if>
-      <if test="createTime != null" >
-        #{createTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="createUserId != null" >
-        #{createUserId,jdbcType=VARCHAR},
-      </if>
-      <if test="lastModifyTime != null" >
-        #{lastModifyTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="lastModifyUserId != null" >
-        #{lastModifyUserId,jdbcType=VARCHAR},
-      </if>
-      <if test="memo != null" >
-        #{memo,jdbcType=VARCHAR},
-      </if>
-    </trim>
-  </insert>
-  <select id="countByExample" parameterType="com.waken.dorm.common.entity.dorm.DormBuildingExample" resultType="java.lang.Integer" >
-    select count(*) from rm_dorm_building
-    <if test="_parameter != null" >
-      <include refid="Example_Where_Clause" />
-    </if>
-  </select>
-  <update id="updateByExampleSelective" parameterType="map" >
-    update rm_dorm_building
-    <set >
-      <if test="record.pkDormBuildingId != null" >
-        pk_dorm_building_id = #{record.pkDormBuildingId,jdbcType=VARCHAR},
-      </if>
-      <if test="record.schoolId != null" >
-        school_id = #{record.schoolId,jdbcType=VARCHAR},
-      </if>
-      <if test="record.dormBuildingType != null" >
-        dorm_building_type = #{record.dormBuildingType,jdbcType=INTEGER},
-      </if>
-      <if test="record.dormBuildingNum != null" >
-        dorm_building_num = #{record.dormBuildingNum,jdbcType=VARCHAR},
-      </if>
-      <if test="record.dormBuildingLevels != null" >
-        dorm_building_levels = #{record.dormBuildingLevels,jdbcType=INTEGER},
-      </if>
-      <if test="record.dormBuildingDesc != null" >
-        dorm_building_desc = #{record.dormBuildingDesc,jdbcType=VARCHAR},
-      </if>
-      <if test="record.status != null" >
-        status = #{record.status,jdbcType=INTEGER},
-      </if>
-      <if test="record.createTime != null" >
-        create_time = #{record.createTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="record.createUserId != null" >
-        create_user_id = #{record.createUserId,jdbcType=VARCHAR},
-      </if>
-      <if test="record.lastModifyTime != null" >
-        last_modify_time = #{record.lastModifyTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="record.lastModifyUserId != null" >
-        last_modify_user_id = #{record.lastModifyUserId,jdbcType=VARCHAR},
-      </if>
-      <if test="record.memo != null" >
-        memo = #{record.memo,jdbcType=VARCHAR},
-      </if>
-    </set>
-    <if test="_parameter != null" >
-      <include refid="Update_By_Example_Where_Clause" />
-    </if>
-  </update>
-  <update id="updateByExample" parameterType="map" >
-    update rm_dorm_building
-    set pk_dorm_building_id = #{record.pkDormBuildingId,jdbcType=VARCHAR},
-      school_id = #{record.schoolId,jdbcType=VARCHAR},
-      dorm_building_type = #{record.dormBuildingType,jdbcType=INTEGER},
-      dorm_building_num = #{record.dormBuildingNum,jdbcType=VARCHAR},
-      dorm_building_levels = #{record.dormBuildingLevels,jdbcType=INTEGER},
-      dorm_building_desc = #{record.dormBuildingDesc,jdbcType=VARCHAR},
-      status = #{record.status,jdbcType=INTEGER},
-      create_time = #{record.createTime,jdbcType=TIMESTAMP},
-      create_user_id = #{record.createUserId,jdbcType=VARCHAR},
-      last_modify_time = #{record.lastModifyTime,jdbcType=TIMESTAMP},
-      last_modify_user_id = #{record.lastModifyUserId,jdbcType=VARCHAR},
-      memo = #{record.memo,jdbcType=VARCHAR}
-    <if test="_parameter != null" >
-      <include refid="Update_By_Example_Where_Clause" />
-    </if>
-  </update>
-  <update id="updateByPrimaryKeySelective" parameterType="com.waken.dorm.common.entity.dorm.DormBuilding" >
-    update rm_dorm_building
-    <set >
-      <if test="schoolId != null" >
-        school_id = #{schoolId,jdbcType=VARCHAR},
-      </if>
-      <if test="dormBuildingType != null" >
-        dorm_building_type = #{dormBuildingType,jdbcType=INTEGER},
-      </if>
-      <if test="dormBuildingNum != null" >
-        dorm_building_num = #{dormBuildingNum,jdbcType=VARCHAR},
-      </if>
-      <if test="dormBuildingLevels != null" >
-        dorm_building_levels = #{dormBuildingLevels,jdbcType=INTEGER},
-      </if>
-      <if test="dormBuildingDesc != null" >
-        dorm_building_desc = #{dormBuildingDesc,jdbcType=VARCHAR},
-      </if>
-      <if test="status != null" >
-        status = #{status,jdbcType=INTEGER},
-      </if>
-      <if test="createTime != null" >
-        create_time = #{createTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="createUserId != null" >
-        create_user_id = #{createUserId,jdbcType=VARCHAR},
-      </if>
-      <if test="lastModifyTime != null" >
-        last_modify_time = #{lastModifyTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="lastModifyUserId != null" >
-        last_modify_user_id = #{lastModifyUserId,jdbcType=VARCHAR},
-      </if>
-      <if test="memo != null" >
-        memo = #{memo,jdbcType=VARCHAR},
-      </if>
-    </set>
-    where pk_dorm_building_id = #{pkDormBuildingId,jdbcType=VARCHAR}
-  </update>
-  <update id="updateByPrimaryKey" parameterType="com.waken.dorm.common.entity.dorm.DormBuilding" >
-    update rm_dorm_building
-    set school_id = #{schoolId,jdbcType=VARCHAR},
-      dorm_building_type = #{dormBuildingType,jdbcType=INTEGER},
-      dorm_building_num = #{dormBuildingNum,jdbcType=VARCHAR},
-      dorm_building_levels = #{dormBuildingLevels,jdbcType=INTEGER},
-      dorm_building_desc = #{dormBuildingDesc,jdbcType=VARCHAR},
-      status = #{status,jdbcType=INTEGER},
-      create_time = #{createTime,jdbcType=TIMESTAMP},
-      create_user_id = #{createUserId,jdbcType=VARCHAR},
-      last_modify_time = #{lastModifyTime,jdbcType=TIMESTAMP},
-      last_modify_user_id = #{lastModifyUserId,jdbcType=VARCHAR},
-      memo = #{memo,jdbcType=VARCHAR}
-    where pk_dorm_building_id = #{pkDormBuildingId,jdbcType=VARCHAR}
-  </update>
-  <select id="selectByIds" resultMap="BaseResultMap">
-    select
-    <include refid="Base_Column_List" />
-    from rm_dorm_building
-    where pk_dorm_building_id in
-    <foreach collection="Ids" item="dramaId" open="(" close=")" separator=",">
-      #{dramaId}
-    </foreach>
-  </select>
-  <select id="listDormBuildings" parameterType="com.waken.dorm.common.form.dorm.DormBuildingForm" resultType="com.waken.dorm.common.view.dorm.DormBuildingView">
-    SELECT
-    db.pk_dorm_building_id AS pkDormBuildingId,
-    s.school_name AS schoolName,
-    db.dorm_building_type AS dormBuildingType,
-    db.dorm_building_num AS dormBuildingNum,
-    db.dorm_building_levels AS dormBuildingLevels,
-    db.dorm_building_desc AS dormBuildingDesc,
-    db.`status`,
-    db.create_time AS createTime,
-    u.user_name AS createUserName,
-    db.last_modify_time AS lastModifyTime,
-    uu.user_name AS lastModifyUserName,
-    db.memo
-    FROM rm_dorm_building db
-    LEFT JOIN rm_school s ON s.pk_school_id = db.school_id
-    LEFT JOIN rm_user u ON u.user_id = db.create_user_id
-    LEFT JOIN rm_user uu ON uu.user_id = db.last_modify_user_id
-    WHERE 1=1
-    <if test="pk_dorm_building_id != null and pk_dorm_building_id != ''">
-      and db.pk_dorm_building_id=#{pk_dorm_building_id}
-    </if>
-    <if test="schoolId != null and schoolId != ''">
-      and db.school_id=#{schoolId}
-    </if>
-    <if test="dormBuildingNum != null and dormBuildingNum != ''">
-      and db.dorm_building_num like '%${dormBuildingNum}%'
-    </if>
-    <if test="dormBuildingType != null">
-      and db.dorm_building_type=#{dormBuildingType}
-    </if>
-    <if test="dormBuildingLevels != null">
-      and db.dorm_building_levels=#{dormBuildingLevels}
-    </if>
-    <if test="status != null">
-      and db.status=#{status}
-    </if>
-    <if test="createUserName != null and createUserName != ''">
-      and u.user_name like '%${createUserName}%'
-    </if>
-    <if test="lastModifyUserName != null and lastModifyUserName != ''">
-      and uu.user_name like '%${lastModifyUserName}%'
-    </if>
-    <if test="startTime != null">
-      AND db.create_time &gt;= #{startTime,jdbcType=TIMESTAMP}
-    </if>
-    <if test="endTime != null">
-      AND db.create_time &lt;= #{endTime,jdbcType=TIMESTAMP}
-    </if>
-    ORDER BY
-    db.last_modify_time DESC
-  </select>
-  <update id="batchUpdateStatus" parameterType="java.util.Map">
-    <foreach collection="list" separator=";" item="ur">
-      update rm_dorm_building set
-      status = #{ur.status},
-      last_modify_time = #{ur.lastModifyTime},
-      last_modify_user_id = #{ur.lastModifyUserId}
-      where pk_dorm_building_id = #{ur.pkId}
-    </foreach>
-  </update>
+        <if test="dormBuildingType != null">
+            and db.dorm_building_type=#{dormBuildingType}
+        </if>
+        <if test="dormBuildingLevels != null">
+            and db.dorm_building_levels=#{dormBuildingLevels}
+        </if>
+        <if test="status != null">
+            and db.status=#{status}
+        </if>
+        <if test="createUserName != null and createUserName != ''">
+            and u.user_name like '%${createUserName}%'
+        </if>
+        <if test="lastModifyUserName != null and lastModifyUserName != ''">
+            and uu.user_name like '%${lastModifyUserName}%'
+        </if>
+        <if test="startTime != null">
+            AND db.create_time &gt;= #{startTime,jdbcType=TIMESTAMP}
+        </if>
+        <if test="endTime != null">
+            AND db.create_time &lt;= #{endTime,jdbcType=TIMESTAMP}
+        </if>
+        ORDER BY
+        db.last_modify_time DESC
+    </select>
+    <update id="batchUpdateStatus" parameterType="java.util.Map">
+        <foreach collection="list" separator=";" item="ur">
+            update rm_dorm_building set
+            status = #{ur.status},
+            last_modify_time = #{ur.lastModifyTime},
+            last_modify_user_id = #{ur.lastModifyUserId}
+            where pk_dorm_building_id = #{ur.pkId}
+        </foreach>
+    </update>
 </mapper>

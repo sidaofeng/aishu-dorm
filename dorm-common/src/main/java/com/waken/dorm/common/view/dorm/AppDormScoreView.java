@@ -1,5 +1,6 @@
 package com.waken.dorm.common.view.dorm;
 
+import com.waken.dorm.common.view.base.BaseView;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -13,7 +14,7 @@ import lombok.ToString;
 @ToString
 @Getter
 @Setter
-public class AppDormScoreView {
+public class AppDormScoreView extends BaseView {
     private String pkDormScoreId;
 
     private String dormNum;

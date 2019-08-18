@@ -1,5 +1,6 @@
 package com.waken.dorm.common.view.school;
 
+import com.waken.dorm.common.view.base.BaseView;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,7 +15,7 @@ import java.util.List;
  **/
 @Getter
 @Setter
-public class SchoolClassTreeView {
+public class SchoolClassTreeView extends BaseView {
     private String pkSchoolClassId;
 
     private String className;

@@ -47,7 +47,5 @@ public class DormRepairForm extends BaseForm {
 
     private String memo;
 
-    private String schoolId;
-
     private Integer terminal;
 }

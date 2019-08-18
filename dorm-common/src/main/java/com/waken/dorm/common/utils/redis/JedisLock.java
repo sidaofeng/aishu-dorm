@@ -21,6 +21,7 @@ public class JedisLock implements DistributedLock {
 
     /**
      * 获取指定键值的锁
+     *
      * @param lockKey 锁的键值
      */
     public JedisLock(String lockKey) {
@@ -29,7 +30,8 @@ public class JedisLock implements DistributedLock {
 
     /**
      * 获取指定键值的锁,同时设置获取锁超时时间
-     * @param lockKey 锁的键值
+     *
+     * @param lockKey      锁的键值
      * @param timeoutMsecs 获取锁超时时间
      */
     public JedisLock(String lockKey, int timeoutMsecs) {
@@ -39,9 +41,10 @@ public class JedisLock implements DistributedLock {
 
     /**
      * 获取指定键值的锁,同时设置获取锁超时时间和锁过期时间
-     * @param lockKey 锁的键值
+     *
+     * @param lockKey      锁的键值
      * @param timeoutMsecs 获取锁超时时间
-     * @param expireMsecs 锁失效时间
+     * @param expireMsecs  锁失效时间
      */
     public JedisLock(String lockKey, int timeoutMsecs, int expireMsecs) {
         this.lockKey = lockKey;

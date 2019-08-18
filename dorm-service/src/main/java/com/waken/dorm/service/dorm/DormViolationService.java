@@ -18,6 +18,7 @@ import com.waken.dorm.common.view.dorm.DormViolationView;
 public interface DormViolationService {
     /**
      * 新增宿舍违规记录
+     *
      * @param addDormViolationForm
      * @return
      */
@@ -25,12 +26,14 @@ public interface DormViolationService {
 
     /**
      * 删除宿舍违规记录
+     *
      * @param deleteForm
      */
     public void deleteDormViolation(DeleteForm deleteForm);
 
     /**
      * 分页查询宿舍违规记录
+     *
      * @param dormViolationForm
      * @return
      */
@@ -38,6 +41,7 @@ public interface DormViolationService {
 
     /**
      * 修改宿舍违规记录
+     *
      * @param updateDormViolationForm
      * @return
      */
@@ -45,6 +49,7 @@ public interface DormViolationService {
 
     /**
      * app端分页查询宿舍违规记录
+     *
      * @param dormViolationForm
      * @return
      */

@@ -18,7 +18,7 @@ import java.util.List;
 @Getter
 @Setter
 @ToString
-public class TreeView {
+public class TreeView extends BaseView {
     private String pkId;
 
     private String text;

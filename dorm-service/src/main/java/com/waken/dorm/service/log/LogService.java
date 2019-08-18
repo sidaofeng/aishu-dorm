@@ -9,8 +9,6 @@ import com.waken.dorm.common.view.log.SysLogView;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.springframework.scheduling.annotation.Async;
 
-import java.util.List;
-
 /**
  * @ClassName LogService
  * @Description TODO
@@ -20,6 +18,7 @@ import java.util.List;
 public interface LogService {
     /**
      * 保存日志
+     *
      * @param point
      * @param log
      * @throws JsonProcessingException
@@ -29,12 +28,14 @@ public interface LogService {
 
     /**
      * 删除日志
+     *
      * @param deleteForm
      */
     public void deleteLog(DeleteForm deleteForm);
 
     /**
      * 分页查询日志
+     *
      * @param sysLogForm
      * @return
      */

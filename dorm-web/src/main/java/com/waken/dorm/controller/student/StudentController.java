@@ -1,16 +1,23 @@
 package com.waken.dorm.controller.student;
 
 import com.github.pagehelper.PageInfo;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import com.waken.dorm.common.annotation.Log;
 import com.waken.dorm.common.base.ResultView;
+import com.waken.dorm.common.entity.dorm.DormScore;
 import com.waken.dorm.common.entity.student.Student;
-import com.waken.dorm.common.enums.ResultEnum;
 import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.student.EditStudentForm;
 import com.waken.dorm.common.form.student.StudentForm;
+import com.waken.dorm.common.utils.FileUtils;
+import com.waken.dorm.common.utils.ResultUtil;
 import com.waken.dorm.common.view.student.StudentView;
 import com.waken.dorm.controller.base.BaseController;
 import com.waken.dorm.service.student.StudentService;
+import com.wuwenze.poi.ExcelKit;
+import com.wuwenze.poi.handler.ExcelReadHandler;
+import com.wuwenze.poi.pojo.ExcelErrorField;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -18,9 +25,11 @@ import io.swagger.annotations.ApiResponses;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * @ClassName StudentController
@@ -28,106 +37,109 @@ import org.springframework.web.multipart.MultipartFile;
  * @Author zhaoRong
  * @Date 2019/3/29 21:24
  **/
-@Api(value = "后台管理学生相关接口", description = "后台管理学生相关接口(赵荣)")
-@Controller
+@Api(value = "后台管理学生相关接口", description = "后台管理学生相关接口(AiShu)")
+@RestController
 public class StudentController extends BaseController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     StudentService studentService;
+
     /**
      * 导入批量学生（excel）
      */
-    @Log("导入批量学生（excel）")
+    @Log("导入学生信息（excel）")
     @CrossOrigin
-    @RequestMapping(value = {"/student/batchAddStudent"},method = RequestMethod.POST)
-    @ApiOperation(value = "batchAddStudent（导入批量学生（excel））",notes = "导入批量学生（excel）")
+    @PostMapping(value = {"student/import"})
+    @ApiOperation(value = "导入学生信息（excel）", notes = "导入批量学生（excel）")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = ResultView.class)
     })
-    @ResponseBody
-    public ResultView batchAddStudent(@RequestParam(value = "file", required = false) MultipartFile file){
-        logger.info("开始调用导入批量学生接口："+file.getOriginalFilename().toString());
-        ResultView resultView = new ResultView();
-        try{
-            studentService.batchAddStudent(file);
-            logger.info("导入批量学生成功");
-            resultView.setCode(ResultEnum.SUCCESS.getCode());
-            resultView.setMsg("导入批量学生成功");
-        }catch (Exception e){
-            logger.info("导入批量学生失败原因："+e.getMessage());
-            resultView.setCode(ResultEnum.FAIL.getCode());
-            resultView.setMsg("导入批量学生失败原因："+e.getMessage());
+    public ResultView batchAddStudent(@RequestParam(value = "file", required = false) MultipartFile file) {
+        logger.info("开始调用导入批量学生接口：" + file.getOriginalFilename());
+        try {
+            FileUtils.checkFile(file);
+            long beginMillis = System.currentTimeMillis();
+            List<Student> successList = Lists.newArrayList();
+            List<Map<String, Object>> errorList = Lists.newArrayList();
+            ExcelKit.$Import(DormScore.class)
+                    .readXlsx(file.getInputStream(), new ExcelReadHandler<Student>() {
+                        @Override
+                        public void onSuccess(int sheetIndex, int rowIndex, Student student) {
+                            successList.add(student);
+                        }
+
+                        @Override
+                        public void onError(int sheetIndex, int rowIndex, List<ExcelErrorField> list) {
+                            errorList.add(ImmutableMap
+                                    .of("sheetIndex", sheetIndex, "rowIndex", rowIndex, "list", list));
+                        }
+                    });
+            long time = (System.currentTimeMillis() - beginMillis) / 1000L;
+            if (!errorList.isEmpty()) {
+                return ResultUtil.error(ImmutableMap.of("timeConsuming", time, "errorList", errorList));
+            }
+            if (!successList.isEmpty()) {
+                studentService.batchAddStudent(successList);
+            }
+            return ResultUtil.success(ImmutableMap.of("timeConsuming", time));
+        } catch (Exception e) {
+            logger.info("导入批量学生失败原因：" + e.getMessage());
+            return ResultUtil.errorByMsg("导入批量学生失败");
         }
-        return resultView;
     }
+
     @Log("(保存/修改)单个学生信息")
     @CrossOrigin
-    @RequestMapping(value= "/student/saveStudent",method= RequestMethod.POST)
-    @ApiOperation(value = "saveStudent（(保存/修改)单个学生信息）",notes = "(保存/修改)单个学生信息")
+    @PostMapping(value = "student/save")
+    @ApiOperation(value = "saveStudent（(保存/修改)单个学生信息）", notes = "(保存/修改)单个学生信息")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = Student.class)
     })
-    @ResponseBody
-    public ResultView saveStudent(@RequestBody EditStudentForm editStudentForm){
-        logger.info("开始调用(保存/修改)单个学生信息接口接口："+editStudentForm.toString());
-        ResultView resultView = new ResultView();
-        try{
-            Student Student = studentService.saveStudent(editStudentForm);
-            resultView.setCode(ResultEnum.SUCCESS.getCode());
-            resultView.setData(Student);
-            resultView.setMsg("(保存/修改)单个学生信息成功");
-            logger.info("(保存/修改)单个学生信息成功");
-        }catch (Exception e){
+    public ResultView saveStudent(@RequestBody EditStudentForm editStudentForm) {
+        logger.info("开始调用(保存/修改)单个学生信息接口接口：" + editStudentForm.toString());
+        try {
+            Student student = studentService.saveStudent(editStudentForm);
+            return ResultUtil.success(student);
+        } catch (Exception e) {
             e.printStackTrace();
-            logger.error("调用(保存/修改)单个学生信息接口失败:"+e.getMessage());
-            resultView.setCode(ResultEnum.FAIL.getCode());
-            resultView.setMsg("(保存/修改)单个学生失败："+e.getMessage());
+            logger.error("调用(保存/修改)单个学生信息接口失败:" + e.getMessage());
+            return ResultUtil.error();
         }
-        return resultView;
     }
+
     @Log("删除学生信息")
     @CrossOrigin
-    @RequestMapping(value= "/student/deleteStudent",method= RequestMethod.POST)
-    @ApiOperation(value = "deleteStudent（删除学生信息）",notes = "删除学生信息")
+    @DeleteMapping(value = "student/delete")
+    @ApiOperation(value = "删除学生信息", notes = "删除学生信息")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = ResultView.class)
     })
-    @ResponseBody
-    public ResultView deleteStudent(@RequestBody DeleteForm deleteFrom){
-        logger.info("开始调用删除学生接口："+deleteFrom.toString());
-        ResultView resultView = new ResultView();
-        try{
+    public ResultView deleteStudent(@RequestBody DeleteForm deleteFrom) {
+        logger.info("开始调用删除学生接口：" + deleteFrom.toString());
+        try {
             studentService.deleteStudent(deleteFrom);
-            resultView.setCode(ResultEnum.SUCCESS.getCode());
-            resultView.setMsg("删除学生成功");
-            logger.info("删除学生成功");
-        }catch (Exception e){
-            logger.error("调用删除学生接口失败:"+e.getMessage());
-            resultView.setCode(ResultEnum.FAIL.getCode());
-            resultView.setMsg(e.getMessage());
+            return ResultUtil.success();
+        } catch (Exception e) {
+            logger.error("调用删除学生接口失败:" + e.getMessage());
+            return ResultUtil.error();
         }
-        return resultView;
     }
+
     @CrossOrigin
-    @RequestMapping(value= "/student/listStudents",method= RequestMethod.POST)
-    @ApiOperation(value = "listStudents（分页查询学生信息）",notes = "分页查询学生信息")
+    @GetMapping(value = "student/page")
+    @ApiOperation(value = "分页查询学生信息", notes = "分页查询学生信息")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = StudentView.class)
     })
-    @ResponseBody
-    public ResultView listStudents(@RequestBody StudentForm studentForm){
-        logger.info("开始调用分页查询学生信息接口："+studentForm.toString());
-        ResultView resultView = new ResultView();
-        try{
+    public ResultView listStudents(StudentForm studentForm) {
+        logger.info("开始调用分页查询学生信息接口：" + studentForm.toString());
+        try {
             PageInfo<StudentView> pageInfo = studentService.listStudents(studentForm);
-            resultView.setCode(ResultEnum.SUCCESS.getCode());
-            resultView.setData(pageInfo);
-        }catch (Exception e){
-            logger.error("调用分页查询学生信息失败:"+e.getMessage());
-            resultView.setMsg(e.getMessage());
-            resultView.setCode(ResultEnum.FAIL.getCode());
+            return ResultUtil.success(pageInfo);
+        } catch (Exception e) {
+            logger.error("调用分页查询学生信息失败:" + e.getMessage());
+            return ResultUtil.error();
         }
-        return resultView;
     }
 }

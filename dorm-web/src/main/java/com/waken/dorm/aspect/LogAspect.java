@@ -49,7 +49,7 @@ public class LogAspect {
         // 保存日志
         SysLog log = new SysLog();
         log.setIp(ip);
-        log.setDuration((int)time);
+        log.setDuration((int) time);
         logService.saveLog(point, log);
         return result;
     }
