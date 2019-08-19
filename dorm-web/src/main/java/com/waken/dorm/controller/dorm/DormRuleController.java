@@ -70,12 +70,12 @@ public class DormRuleController extends BaseController {
     }
 
     @CrossOrigin
-    @GetMapping(value = "rule/page")
+    @PostMapping(value = "rule/page")
     @ApiOperation(value = "分页查询宿舍规则信息", notes = "分页查询宿舍规则信息 ")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = DormRuleView.class)
     })
-    public ResultView listDormRules(DormRuleForm RuleForm) {
+    public ResultView listDormRules(@RequestBody DormRuleForm RuleForm) {
         logger.info("开始调用分页查询宿舍规则信息接口：" + RuleForm.toString());
         try {
             RuleForm.setTerminal(CodeEnum.WEB.getCode());

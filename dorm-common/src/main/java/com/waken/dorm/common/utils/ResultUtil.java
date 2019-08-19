@@ -36,6 +36,7 @@ public class ResultUtil {
     public static ResultView error() {
         ResultView resultView = new ResultView();
         resultView.setCode(ResultEnum.FAIL.getCode());
+        resultView.setMsg(ResultEnum.FAIL.getMsg());
         return resultView;
     }
 

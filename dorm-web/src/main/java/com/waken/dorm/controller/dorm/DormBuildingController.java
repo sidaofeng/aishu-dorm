@@ -71,12 +71,12 @@ public class DormBuildingController extends BaseController {
     }
 
     @CrossOrigin
-    @GetMapping(value = "building/page")
+    @PostMapping(value = "building/page")
     @ApiOperation(value = "分页查询宿舍楼信息", notes = "分页查询宿舍楼信息 ")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = DormBuildingView.class)
     })
-    public ResultView listDormBuildings(DormBuildingForm buildingForm) {
+    public ResultView listDormBuildings(@RequestBody DormBuildingForm buildingForm) {
         logger.info("开始调用分页查询宿舍楼信息接口：" + buildingForm.toString());
         try {
             PageInfo<DormBuildingView> pageInfo = buildingService.listDormBuildings(buildingForm);

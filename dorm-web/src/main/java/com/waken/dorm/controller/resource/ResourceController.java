@@ -7,6 +7,7 @@ import com.waken.dorm.common.enums.CodeEnum;
 import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.resource.EditResourceForm;
 import com.waken.dorm.common.utils.ResultUtil;
+import com.waken.dorm.common.utils.StringUtils;
 import com.waken.dorm.common.view.base.TreeView;
 import com.waken.dorm.common.view.resource.UserMenuView;
 import com.waken.dorm.controller.base.BaseController;
@@ -21,8 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import javax.validation.constraints.NotBlank;
 
 /**
  * @ClassName ResourceController
@@ -41,7 +40,7 @@ public class ResourceController extends BaseController {
 
     @Log("保存或修改资源")
     @CrossOrigin
-    @PostMapping(value = "resource/save")
+    @PostMapping(value = "resources/save")
     @ApiOperation(value = "保存或修改资源", notes = "保存或修改资源 ")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = Resource.class)
@@ -59,87 +58,82 @@ public class ResourceController extends BaseController {
 
     @Log("删除资源")
     @CrossOrigin
-    @DeleteMapping(value = "resource/delete")
+    @DeleteMapping(value = "resources/delete")
     @ApiOperation(value = "删除资源", notes = "删除资源 ")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = ResultView.class)
     })
     public ResultView deleteResource(@RequestBody DeleteForm deleteFrom) {
         logger.info("开始调用资源删除接口：" + deleteFrom.toString());
-        try {
-            resourceService.deleteResource(deleteFrom);
-            return ResultUtil.success();
-        } catch (Exception e) {
-            logger.error("调用资源删除接口失败:" + e.getMessage());
-            return ResultUtil.error();
+        if (null == deleteFrom.getDelIds() && deleteFrom.getDelIds().isEmpty() && null == deleteFrom.getDelStatus()) {
+            return ResultUtil.errorByMsg("入参为空！");
         }
+        resourceService.deleteResource(deleteFrom);
+        return ResultUtil.success();
     }
 
     @CrossOrigin
-    @GetMapping(value = "resource/menu")
+    @GetMapping(value = "resources/menu")
     @ApiOperation(value = "查询当前登陆用户拥有的菜单资源", notes = "查询当前登陆用户所有的菜单资源")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = UserMenuView.class)
     })
     public ResultView getMenuByUser() {
         logger.info("开始调用查询当前登陆用户所有的菜单资源的接口");
-        try {
-            return ResultUtil.success(userPrivilegeService.getUserMenu(UserManager.getCurrentUserId()));
-        } catch (Exception e) {
-            e.printStackTrace();
-            logger.info("查询当前登陆用户所有的菜单资源失败，原因：" + e.getMessage());
-            return ResultUtil.error();
-        }
+        return ResultUtil.success(userPrivilegeService.getUserMenu(UserManager.getCurrentUserId()));
     }
 
     @CrossOrigin
-    @GetMapping(value = "resource/tree")
+    @GetMapping(value = "resources/tree")
     @ApiOperation(value = "查询资源树", notes = "查询资源树")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = TreeView.class)
     })
-    public ResultView getAllResourceTree() {
+    public ResultView getResourcesTree() {
         logger.info("开始调用查询资源树的接口");
-        try {
-            return ResultUtil.success(resourceService.getAllResourceTree(null,null,null));
-        } catch (Exception e) {
-            e.printStackTrace();
-            logger.info("查询资源树失败，原因：" + e.getMessage());
-            return ResultUtil.error();
-        }
+        return ResultUtil.success(resourceService.getResourcesTree(null,null,null));
     }
 
     @CrossOrigin
-    @GetMapping(value = "resource/user-role-tree")
-    @ApiOperation(value = "根据用户id或角色id查询资源树", notes = "根据用户id或角色id查询资源树")
+    @GetMapping(value = "resources/tree/user/{id}")
+    @ApiOperation(value = "根据用户id查询资源树", notes = "根据用户id查询资源树")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = TreeView.class)
     })
-    public ResultView getUserOrRoleResourceTree(@RequestParam(required = false) String userId,
-                                                @RequestParam(required = false) String roleId) {
-        try {
-            return ResultUtil.success(resourceService.getAllResourceTree(CodeEnum.ENABLE.getCode(),userId,roleId));
-        } catch (Exception e) {
-            e.printStackTrace();
-            logger.info("查询资源树失败，原因：" + e.getMessage());
-            return ResultUtil.error();
+    public ResultView getTreeByUser(@PathVariable String id) {
+        if (StringUtils.isBlank(id)){
+            return ResultUtil.errorByMsg("入参为空！");
         }
+        return ResultUtil.success(resourceService.getResourcesTree(CodeEnum.ENABLE.getCode(),id,null));
+    }
+    @CrossOrigin
+    @GetMapping(value = "resources/tree/role/{id}")
+    @ApiOperation(value = "根据角色id查询资源树", notes = "根据角色id查询资源树")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "success", response = TreeView.class)
+    })
+    public ResultView getTreeByRole(@PathVariable String id) {
+        if (StringUtils.isBlank(id)){
+            return ResultUtil.errorByMsg("入参为空！");
+        }
+        return ResultUtil.success(resourceService.getResourcesTree(CodeEnum.ENABLE.getCode(),null,id));
     }
 
     @CrossOrigin
-    @GetMapping(value = "resource/{id}")
+    @GetMapping(value = "resources/{id}")
     @ApiOperation(value = "通过资源id查询资源", notes = "通过资源id查询资源")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = Resource.class)
     })
-    public ResultView selectById(@NotBlank(message = "{required}") @PathVariable String id) {
+    public ResultView selectById(@PathVariable String id) {
         logger.info("开始调用通过资源id查询资源的接口:" + id);
-        try {
-            return ResultUtil.success(resourceService.selectById(id));
-        } catch (Exception e) {
-            e.printStackTrace();
-            logger.info("通过资源id查询资源失败，原因：" + e.getMessage());
-            return ResultUtil.error();
+        if (StringUtils.isBlank(id)){
+            return ResultUtil.errorByMsg("参数为空！");
         }
+        Resource resource = resourceService.selectById(id);
+        if (null == resource){
+            return ResultUtil.errorByMsg("参数错误！");
+        }
+        return ResultUtil.success(resource);
     }
 }

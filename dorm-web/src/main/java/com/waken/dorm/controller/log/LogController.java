@@ -48,12 +48,12 @@ public class LogController extends BaseController {
     }
 
     @CrossOrigin
-    @GetMapping(value = "log/page")
+    @PostMapping(value = "log/page")
     @ApiOperation(value = "分页查询日志信息", notes = "分页查询日志信息 ")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = Log.class)
     })
-    public ResultView listSysLogViews(SysLogForm logForm) {
+    public ResultView listSysLogViews(@RequestBody SysLogForm logForm) {
         logger.info("开始调用分页查询日志信息接口：" + logForm.toString());
         try {
             return ResultUtil.success(logService.listSysLogViews(logForm));

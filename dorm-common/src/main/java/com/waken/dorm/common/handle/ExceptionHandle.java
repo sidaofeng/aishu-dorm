@@ -26,6 +26,7 @@ public class ExceptionHandle {
     public ResultView handle(Exception e) {
         if (e instanceof ServerException) {
             ServerException serverException = (ServerException) e;
+            e.printStackTrace();
             logger.info("服务端异常：" + e);
             return ResultUtil.error(serverException.getCode(), serverException.getMessage());
         } else {

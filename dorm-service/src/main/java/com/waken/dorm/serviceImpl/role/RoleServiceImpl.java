@@ -87,9 +87,6 @@ public class RoleServiceImpl extends BaseServerImpl implements RoleService {
     public void deleteRole(DeleteForm deleteForm) {
         logger.info("service: 删除角色开始");
         List<String> roleIds = deleteForm.getDelIds();
-        if (roleIds.isEmpty()) {
-            throw new ServerException("参数为空！");
-        }
         Integer delStatus = deleteForm.getDelStatus();
         int count;
         if (CodeEnum.YES.getCode() == delStatus) { // 物理删除
@@ -144,9 +141,6 @@ public class RoleServiceImpl extends BaseServerImpl implements RoleService {
      */
     @Override
     public List<UserRoleView> listUserRoleByUserId(String userId) {
-        if (StringUtils.isEmpty(userId)) {
-            throw new ServerException("用户id为空");
-        }
         List<UserRoleView> userRoleViews = roleMapper.listUserRole();
 //        List<UserRoleRel> userRoleRels = userRoleRelMapper.selectList(new EntityWrapper<UserRoleRel>()
 //                .eq("user_id",userId)
@@ -188,9 +182,7 @@ public class RoleServiceImpl extends BaseServerImpl implements RoleService {
     @Transactional
     @Override
     public void addUserRoleRel(UserRoleRelForm userRoleRelForm) {
-        if (StringUtils.isEmpty(userRoleRelForm.getUserId())) {
-            throw new ServerException("用户id为空");
-        }
+
 //        List<UserRoleRel> userRoleRels = userRoleRelMapper.selectList(new EntityWrapper<UserRoleRel>()
 //                .eq("user_id",userRoleRelForm.getUserId())
 //        );

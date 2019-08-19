@@ -70,12 +70,12 @@ public class DormViolationController extends BaseController {
     }
 
     @CrossOrigin
-    @GetMapping(value = "violation/page")
+    @PostMapping(value = "violation/page")
     @ApiOperation(value = "listDormViolations（分页查询宿舍违规信息）", notes = "分页查询宿舍违规信息 ")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = DormViolationView.class)
     })
-    public ResultView listDormViolations(DormViolationForm dormViolationForm) {
+    public ResultView listDormViolations(@RequestBody DormViolationForm dormViolationForm) {
         logger.info("开始调用分页查询宿舍违规信息接口：" + dormViolationForm.toString());
         try {
             return ResultUtil.success(dormViolationService.listDormViolations(dormViolationForm));

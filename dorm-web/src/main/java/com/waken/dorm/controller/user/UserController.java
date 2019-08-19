@@ -29,7 +29,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.constraints.NotBlank;
 import java.util.List;
 
 /**
@@ -56,15 +55,8 @@ public class UserController extends BaseController {
     })
     public ResultView saveUser(@RequestBody EditUserForm userForm) {
         logger.info("开始调用保存或修改用户接口");
-        try {
-            userForm.setUserType(CodeEnum.PLATFORM_USER.getCode());
-            userService.saveUser(userForm);
-            return ResultUtil.success();
-        } catch (Exception e) {
-            e.printStackTrace();
-            logger.info("保存或修改用户失败原因是：" + e.getMessage());
-            return ResultUtil.error();
-        }
+        userForm.setUserType(CodeEnum.PLATFORM_USER.getCode());
+        return ResultUtil.success(userService.saveUser(userForm));
     }
 
     @Log("删除用户信息")
@@ -75,31 +67,22 @@ public class UserController extends BaseController {
     })
     public ResultView deleteUser(@RequestBody DeleteForm deleteFrom) {
         logger.info("被删除的用户id" + deleteFrom.getDelIds().toString() + "删除操作人id：" + UserManager.getCurrentUserId());
-        try {
-            userService.deleteUser(deleteFrom);
-            return ResultUtil.success();
-        } catch (Exception e) {
-            logger.error("删除用户失败,原因:" + e.getMessage());
-            return ResultUtil.error();
-
+        if (null == deleteFrom.getDelIds() && deleteFrom.getDelIds().isEmpty() && null == deleteFrom.getDelStatus()) {
+            return ResultUtil.errorByMsg("入参为空！");
         }
+        userService.deleteUser(deleteFrom);
+        return ResultUtil.success();
     }
 
-    @GetMapping("user/page")
+    @PostMapping("user/page")
     @ApiOperation(value = "用户信息分页查询", notes = "用户分页查询 ")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = UserView.class)
     })
-    public ResultView listUsers(UserForm userForm) {
+    public ResultView listUsers(@RequestBody UserForm userForm) {
         logger.info("开始调用用户分页查询接口：" + userForm.toString());
-        try {
-            PageInfo<UserView> pageInfo = userService.listUsers(userForm);
-            return ResultUtil.success(pageInfo);
-        } catch (Exception e) {
-            e.printStackTrace();
-            logger.error("调用用户分页查询接口失败，原因:" + e.getMessage());
-            return ResultUtil.error();
-        }
+        PageInfo<UserView> pageInfo = userService.listUsers(userForm);
+        return ResultUtil.success(pageInfo);
     }
 
     @Log("批量添加用户角色关联")
@@ -110,31 +93,21 @@ public class UserController extends BaseController {
     })
     public ResultView batchAddUserRoleRel(@RequestBody AddUserRoleRelForm addUserRoleRelForm) {
         logger.info("开始调用批量添加用户角色关联接口：" + addUserRoleRelForm.toString());
-        try {
-            userService.batchAddUserRoleRel(addUserRoleRelForm);
-            return ResultUtil.success();
-        } catch (Exception e) {
-            logger.error("调用批量添加用户角色关联接口失败，原因:" + e.getMessage());
-            return ResultUtil.error();
-        }
+        userService.batchAddUserRoleRel(addUserRoleRelForm);
+        return ResultUtil.success();
     }
 
-    @GetMapping("user/user-roles/{id}")
+    @GetMapping("user/roles/{id}")
     @ApiOperation(value = "listUserRoles（根据用户id查询用户角色关联信息）", notes = "查询用户角色关联信息")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = UserRolesView.class)
     })
-    public ResultView listUserRoles(@NotBlank(message = "{required}") @PathVariable String id) {
+    public ResultView listUserRoles(@PathVariable String id) {
         logger.info("开始调用查询用户角色关联信息接口：" + id);
-        try {
-            ListAddedRoleForm form = new ListAddedRoleForm();
-            form.setUserId(id);
-            UserRolesView userRolesView = userService.listUserRoles(form);
-            return ResultUtil.success(userRolesView);
-        } catch (Exception e) {
-            logger.error("调用查询用户角色关联信息接口失败:", e);
-            return ResultUtil.error();
-        }
+        ListAddedRoleForm form = new ListAddedRoleForm();
+        form.setUserId(id);
+        UserRolesView userRolesView = userService.listUserRoles(form);
+        return ResultUtil.success(userRolesView);
     }
 
     @Log("用户头像上传")
@@ -158,13 +131,8 @@ public class UserController extends BaseController {
     @ApiOperation(value = "export（导出用户信息）", notes = "导出用户信息",produces="application/octet-stream")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "success", response = ResultView.class)})
     public ResultView export(HttpServletResponse response) {
-        try {
-            List<User> userList = userService.selectList();
-            ExcelKit.$Export(User.class, response).downXlsx(userList, false);
-            return ResultUtil.success();
-        } catch (Exception e) {
-            logger.info("导出用户信息失败！");
-            return ResultUtil.error();
-        }
+        List<User> userList = userService.selectList();
+        ExcelKit.$Export(User.class, response).downXlsx(userList, false);
+        return ResultUtil.success();
     }
 }

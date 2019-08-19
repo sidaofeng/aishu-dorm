@@ -22,8 +22,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.constraints.NotBlank;
-
 /**
  * @ClassName DormController
  * @Description 宿舍相关接口"
@@ -75,12 +73,12 @@ public class DormController extends BaseController {
     }
 
     @CrossOrigin
-    @GetMapping(value = "page")
+    @PostMapping(value = "page")
     @ApiOperation(value = "分页查询宿舍信息", notes = "分页查询宿舍信息")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = DormView.class)
     })
-    public ResultView listDorms(DormForm dormForm) {
+    public ResultView listDorms(@RequestBody DormForm dormForm) {
         logger.info("开始调用分页查询宿舍信息接口：" + dormForm.toString());
         try {
             PageInfo<DormView> pageInfo = dormService.listDorms(dormForm);
@@ -92,12 +90,12 @@ public class DormController extends BaseController {
     }
 
     @CrossOrigin
-    @GetMapping(value = "query/dorm-students/{id}")
+    @GetMapping(value = "students/dorms/{id}")
     @ApiOperation(value = "查询宿舍与学生（关联与未关联）信息", notes = "查询宿舍与学生（关联与未关联）信息")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = DormStudentsView.class)
     })
-    public ResultView queryDormStudentsView(@NotBlank(message = "{required}") @PathVariable String id) {
+    public ResultView queryDormStudentsView(@PathVariable String id) {
         logger.info("开始调用查询宿舍与学生关联信息接口：" + id);
         try {
             DormStudentsView dormStudentsView = dormService.queryDormStudentsView(id);
@@ -110,7 +108,7 @@ public class DormController extends BaseController {
 
     @Log("批量添加宿舍学生关联")
     @CrossOrigin
-    @PostMapping(value = "batch-add-dorm-student")
+    @PostMapping(value = "students-dorms/batch/add")
     @ApiOperation(value = "批量添加宿舍学生关联", notes = "批量添加宿舍学生关联 ")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = ResultView.class)

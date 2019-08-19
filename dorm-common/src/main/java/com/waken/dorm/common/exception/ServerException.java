@@ -22,7 +22,7 @@ public class ServerException extends RuntimeException {
 
     public ServerException(String s) {
         super(s);
-        this.code = ResultEnum.SERVER_ERROR.getCode();
+        this.code = ResultEnum.FAIL.getCode();
     }
 
     public ServerException(String s, String code) {

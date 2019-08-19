@@ -127,12 +127,12 @@ public class StudentController extends BaseController {
     }
 
     @CrossOrigin
-    @GetMapping(value = "student/page")
+    @PostMapping(value = "student/page")
     @ApiOperation(value = "分页查询学生信息", notes = "分页查询学生信息")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = StudentView.class)
     })
-    public ResultView listStudents(StudentForm studentForm) {
+    public ResultView listStudents(@RequestBody StudentForm studentForm) {
         logger.info("开始调用分页查询学生信息接口：" + studentForm.toString());
         try {
             PageInfo<StudentView> pageInfo = studentService.listStudents(studentForm);

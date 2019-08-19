@@ -102,12 +102,12 @@ public class DormScoreController extends BaseController {
     }
 
     @CrossOrigin
-    @GetMapping(value = "score/page")
+    @PostMapping(value = "score/page")
     @ApiOperation(value = "分页查询宿舍评分信息", notes = "分页查询宿舍评分信息 ")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = DormScoreView.class)
     })
-    public ResultView listDormScores(ListDormScoreForm listDormScoreForm) {
+    public ResultView listDormScores(@RequestBody ListDormScoreForm listDormScoreForm) {
         logger.info("开始调用分页查询宿舍评分信息接口：" + listDormScoreForm.toString());
         try {
             return ResultUtil.success(dormScoreService.listDormScores(listDormScoreForm));

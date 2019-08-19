@@ -71,12 +71,12 @@ public class DormRepairController extends BaseController {
     }
 
     @CrossOrigin
-    @GetMapping(value = "repair/page")
+    @PostMapping(value = "repair/page")
     @ApiOperation(value = "分页查询宿舍维修信息", notes = "分页查询宿舍维修信息 ")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = DormRepairView.class)
     })
-    public ResultView listDormRepairs(DormRepairForm dormRepairForm) {
+    public ResultView listDormRepairs(@RequestBody DormRepairForm dormRepairForm) {
         log.info("开始调用分页查询宿舍维修信息接口：" + dormRepairForm.toString());
         try {
             dormRepairForm.setTerminal(CodeEnum.WEB.getCode());
