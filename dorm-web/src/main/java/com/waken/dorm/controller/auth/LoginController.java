@@ -36,9 +36,9 @@ import java.util.*;
  * @Author zhaoRong
  * @Date 2019/8/14 23:57
  **/
-@RestController
 @Api(value = "用户登录相关接口", description = "用户登录相关接口(AiShu)")
 @Slf4j
+@RestController
 public class LoginController extends BaseController {
     @Autowired
     UserService userService;

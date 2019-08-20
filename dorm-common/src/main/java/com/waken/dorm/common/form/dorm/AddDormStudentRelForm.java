@@ -16,7 +16,7 @@ import java.util.List;
 @Getter
 @Setter
 public class AddDormStudentRelForm {
-    private String pkDormId; //需要绑定的宿舍id
+    private String dormId; //需要绑定的宿舍id
 
-    private List<String> pkStudentIds; //需要绑定的学生 id 集合
+    private List<String> studentIds; //需要绑定的学生 id 集合
 }

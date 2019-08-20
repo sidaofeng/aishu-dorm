@@ -8,6 +8,7 @@ import com.waken.dorm.common.enums.CodeEnum;
 import com.waken.dorm.common.enums.ResultEnum;
 import com.waken.dorm.common.form.dorm.AddDormRepairForm;
 import com.waken.dorm.common.form.dorm.DormRepairForm;
+import com.waken.dorm.common.utils.ResultUtil;
 import com.waken.dorm.common.view.dorm.DormRepairView;
 import com.waken.dorm.manager.StudentManager;
 import com.waken.dorm.service.dorm.DormRepairService;
@@ -16,6 +17,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,10 +32,10 @@ import org.springframework.web.bind.annotation.RestController;
  * @Author zhaoRong
  * @Date 2019/4/2 10:07
  **/
+@Slf4j
 @Api(value = "APP端宿舍维修相关接口", description = "APP端宿舍维修相关接口(AiShu)")
 @RestController
 public class AppDormRepairController extends AppBaseController {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
     DormRepairService dormRepairService;
     @Autowired
@@ -48,16 +50,16 @@ public class AppDormRepairController extends AppBaseController {
     })
     public ResultView addDormRepair(@RequestParam AddDormRepairForm addDormRepairForm) {
         addDormRepairForm.setStudentId(studentManager.getCurrentStudentId());
-        logger.info("开始调用新增宿舍维修记录接口：" + addDormRepairForm.toString());
+        log.info("开始调用新增宿舍维修记录接口：" + addDormRepairForm.toString());
         ResultView resultView = new ResultView();
         try {
             DormRepair dormRepair = dormRepairService.addDormRepair(addDormRepairForm);
-            logger.info("新增宿舍维修记录成功");
+            log.info("新增宿舍维修记录成功");
             resultView.setCode(ResultEnum.SUCCESS.getCode());
             resultView.setData(dormRepair);
             resultView.setMsg("新增宿舍维修记录成功");
         } catch (Exception e) {
-            logger.info("新增宿舍维修记录失败原因：" + e.getMessage());
+            log.info("新增宿舍维修记录失败原因：" + e.getMessage());
             resultView.setCode(ResultEnum.FAIL.getCode());
             resultView.setMsg("新增宿舍维修记录失败原因：" + e.getMessage());
         }
@@ -71,22 +73,13 @@ public class AppDormRepairController extends AppBaseController {
     })
     public ResultView listDormRepairs(Integer pageNum, Integer pageSize) {
         String studentId = studentManager.getCurrentStudentId();
-        logger.info("开始调用分页查询宿舍维修信息接口：" + studentId);
-        ResultView resultView = new ResultView();
-        try {
-            DormRepairForm dormRepairForm = new DormRepairForm();
-            dormRepairForm.setStudentId(studentId);
-            dormRepairForm.setPageNum(pageNum);
-            dormRepairForm.setPageSize(pageSize);
-            dormRepairForm.setTerminal(CodeEnum.APP.getCode());
-            PageInfo<DormRepairView> pageInfo = dormRepairService.listDormRepairs(dormRepairForm);
-            resultView.setCode(ResultEnum.SUCCESS.getCode());
-            resultView.setData(pageInfo);
-        } catch (Exception e) {
-            logger.error("调用分页查询宿舍维修信息失败:" + e.getMessage());
-            resultView.setMsg(e.getMessage());
-            resultView.setCode(ResultEnum.FAIL.getCode());
-        }
-        return resultView;
+        log.info("开始调用分页查询宿舍维修信息接口：" + studentId);
+        DormRepairForm dormRepairForm = new DormRepairForm();
+        dormRepairForm.setStudentId(studentId);
+        dormRepairForm.setPageNum(pageNum);
+        dormRepairForm.setPageSize(pageSize);
+        dormRepairForm.setTerminal(CodeEnum.APP.getCode());
+        PageInfo<DormRepairView> pageInfo = dormRepairService.listDormRepairs(dormRepairForm);
+        return ResultUtil.success(pageInfo);
     }
 }

@@ -15,6 +15,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,10 +27,10 @@ import org.springframework.web.bind.annotation.*;
  * @Author zhaoRong
  * @Date 2019/4/2 13:39
  **/
+@Slf4j
 @Api(value = "后台管理宿舍违规相关接口", description = "后台管理宿舍违规相关接口(AiShu)")
 @RestController
 public class DormViolationController extends BaseController {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
     DormViolationService dormViolationService;
 
@@ -41,13 +42,8 @@ public class DormViolationController extends BaseController {
             @ApiResponse(code = 200, message = "success", response = DormViolation.class)
     })
     public ResultView addDormViolation(@RequestBody AddDormViolationForm addDormViolationForm) {
-        logger.info("开始调用新增宿舍违规记录接口：" + addDormViolationForm.toString());
-        try {
-            return ResultUtil.success(dormViolationService.addDormViolation(addDormViolationForm));
-        } catch (Exception e) {
-            logger.info("新增宿舍违规记录失败原因：" + e.getMessage());
-            return ResultUtil.error();
-        }
+        log.info("开始调用新增宿舍违规记录接口：" + addDormViolationForm.toString());
+        return ResultUtil.success(dormViolationService.addDormViolation(addDormViolationForm));
     }
 
     @Log("删除宿舍违规信息")
@@ -59,14 +55,12 @@ public class DormViolationController extends BaseController {
     })
     @ResponseBody
     public ResultView deleteDormViolation(@RequestBody DeleteForm deleteFrom) {
-        logger.info("开始调用删除宿舍违规信息接口：" + deleteFrom.toString());
-        try {
-            dormViolationService.deleteDormViolation(deleteFrom);
-            return ResultUtil.success();
-        } catch (Exception e) {
-            logger.error("调用删除宿舍违规信息接口失败:" + e.getMessage());
-            return ResultUtil.error();
+        log.info("开始调用删除宿舍违规信息接口：" + deleteFrom.toString());
+        if (null == deleteFrom.getDelIds() || deleteFrom.getDelIds().isEmpty()) {
+            return ResultUtil.errorByMsg("入参为空！");
         }
+        dormViolationService.deleteDormViolation(deleteFrom);
+        return ResultUtil.success();
     }
 
     @CrossOrigin
@@ -76,13 +70,8 @@ public class DormViolationController extends BaseController {
             @ApiResponse(code = 200, message = "success", response = DormViolationView.class)
     })
     public ResultView listDormViolations(@RequestBody DormViolationForm dormViolationForm) {
-        logger.info("开始调用分页查询宿舍违规信息接口：" + dormViolationForm.toString());
-        try {
-            return ResultUtil.success(dormViolationService.listDormViolations(dormViolationForm));
-        } catch (Exception e) {
-            logger.error("调用分页查询宿舍违规信息失败:" + e.getMessage());
-            return ResultUtil.error();
-        }
+        log.info("开始调用分页查询宿舍违规信息接口：" + dormViolationForm.toString());
+        return ResultUtil.success(dormViolationService.listDormViolations(dormViolationForm));
     }
 
     @Log("修改宿舍违规")
@@ -91,14 +80,8 @@ public class DormViolationController extends BaseController {
     @ApiOperation(value = "修改宿舍违规", notes = "修改宿舍违规 ")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "success", response = DormViolation.class)})
     public ResultView updateDormViolation(@RequestBody UpdateDormViolationForm updateViolationForm) {
-        logger.info("开始调用修改宿舍违规接口：" + updateViolationForm.toString());
-        try {
-            return ResultUtil.success(dormViolationService.updateDormViolation(updateViolationForm));
-        } catch (Exception e) {
-            logger.error("修改宿舍违规失败，原因 :" + e.getMessage());
-            e.printStackTrace();
-            return ResultUtil.error();
-        }
+        log.info("开始调用修改宿舍违规接口：" + updateViolationForm.toString());
+        return ResultUtil.success(dormViolationService.updateDormViolation(updateViolationForm));
     }
 
 }

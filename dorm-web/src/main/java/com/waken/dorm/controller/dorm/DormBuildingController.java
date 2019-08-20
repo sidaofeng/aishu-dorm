@@ -15,6 +15,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,10 +27,10 @@ import org.springframework.web.bind.annotation.*;
  * @Author zhaoRong
  * @Date 2019/3/31 12:35
  **/
+@Slf4j
 @Api(value = "宿舍楼模块相关接口", description = "宿舍楼模块相关接口(AiShu)")
 @RestController
 public class DormBuildingController extends BaseController {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
     private DormBuildingService buildingService;
 
@@ -41,15 +42,9 @@ public class DormBuildingController extends BaseController {
             @ApiResponse(code = 200, message = "success", response = DormBuilding.class)
     })
     public ResultView saveDormBuilding(@RequestBody EditDormBuildingForm editDormBuildingForm) {
-        logger.info("开始调用(保存/修改)宿舍楼信息接口接口：" + editDormBuildingForm.toString());
-        try {
-            DormBuilding dormBuilding = buildingService.saveDormBuilding(editDormBuildingForm);
-            return ResultUtil.success(dormBuilding);
-        } catch (Exception e) {
-            e.printStackTrace();
-            logger.error("调用(保存/修改)宿舍楼信息接口失败:" + e.getMessage());
-            return ResultUtil.error();
-        }
+        log.info("开始调用(保存/修改)宿舍楼信息接口接口：" + editDormBuildingForm.toString());
+        DormBuilding dormBuilding = buildingService.saveDormBuilding(editDormBuildingForm);
+        return ResultUtil.success(dormBuilding);
     }
 
     @Log("删除宿舍楼信息")
@@ -60,14 +55,12 @@ public class DormBuildingController extends BaseController {
             @ApiResponse(code = 200, message = "success", response = ResultView.class)
     })
     public ResultView deleteDormBuilding(@RequestBody DeleteForm deleteFrom) {
-        logger.info("开始调用删除宿舍楼接口：" + deleteFrom.toString());
-        try {
-            buildingService.deleteDormBuilding(deleteFrom);
-            return ResultUtil.success();
-        } catch (Exception e) {
-            logger.error("调用删除宿舍楼接口失败:" + e.getMessage());
-            return ResultUtil.error();
+        log.info("开始调用删除宿舍楼接口：" + deleteFrom.toString());
+        if (null == deleteFrom.getDelIds() || deleteFrom.getDelIds().isEmpty()) {
+            return ResultUtil.errorByMsg("入参为空！");
         }
+        buildingService.deleteDormBuilding(deleteFrom);
+        return ResultUtil.success();
     }
 
     @CrossOrigin
@@ -77,13 +70,8 @@ public class DormBuildingController extends BaseController {
             @ApiResponse(code = 200, message = "success", response = DormBuildingView.class)
     })
     public ResultView listDormBuildings(@RequestBody DormBuildingForm buildingForm) {
-        logger.info("开始调用分页查询宿舍楼信息接口：" + buildingForm.toString());
-        try {
-            PageInfo<DormBuildingView> pageInfo = buildingService.listDormBuildings(buildingForm);
-            return ResultUtil.success(pageInfo);
-        } catch (Exception e) {
-            logger.error("调用分页查询宿舍楼信息失败:" + e.getMessage());
-            return ResultUtil.error();
-        }
+        log.info("开始调用分页查询宿舍楼信息接口：" + buildingForm.toString());
+        PageInfo<DormBuildingView> pageInfo = buildingService.listDormBuildings(buildingForm);
+        return ResultUtil.success(pageInfo);
     }
 }

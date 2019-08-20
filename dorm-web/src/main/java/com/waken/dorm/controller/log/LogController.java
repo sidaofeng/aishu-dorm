@@ -11,6 +11,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,10 +23,10 @@ import org.springframework.web.bind.annotation.*;
  * @Author zhaoRong
  * @Date 2019/4/15 21:15
  **/
+@Slf4j
 @Api(value = "后台日志相关接口", description = "后台日志相关接口(AiShu)")
 @RestController
 public class LogController extends BaseController {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
     LogService logService;
 
@@ -37,14 +38,12 @@ public class LogController extends BaseController {
             @ApiResponse(code = 200, message = "success", response = ResultView.class)
     })
     public ResultView deleteLog(@RequestBody DeleteForm deleteFrom) {
-        logger.info("开始调用日志删除接口：" + deleteFrom.toString());
-        try {
-            logService.deleteLog(deleteFrom);
-            return ResultUtil.success();
-        } catch (Exception e) {
-            logger.error("调用日志删除接口失败:" + e.getMessage());
-            return ResultUtil.error();
+        log.info("开始调用日志删除接口：" + deleteFrom.toString());
+        if (null == deleteFrom.getDelIds() || deleteFrom.getDelIds().isEmpty()) {
+            return ResultUtil.errorByMsg("入参为空！");
         }
+        logService.deleteLog(deleteFrom);
+        return ResultUtil.success();
     }
 
     @CrossOrigin
@@ -54,12 +53,7 @@ public class LogController extends BaseController {
             @ApiResponse(code = 200, message = "success", response = Log.class)
     })
     public ResultView listSysLogViews(@RequestBody SysLogForm logForm) {
-        logger.info("开始调用分页查询日志信息接口：" + logForm.toString());
-        try {
-            return ResultUtil.success(logService.listSysLogViews(logForm));
-        } catch (Exception e) {
-            logger.error("调用分页查询日志信息失败:" + e.getMessage());
-            return ResultUtil.error();
-        }
+        log.info("开始调用分页查询日志信息接口：" + logForm.toString());
+        return ResultUtil.success(logService.listSysLogViews(logForm));
     }
 }

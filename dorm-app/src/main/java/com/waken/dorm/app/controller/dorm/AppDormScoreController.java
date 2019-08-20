@@ -11,6 +11,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,10 +24,10 @@ import org.springframework.web.bind.annotation.RestController;
  * @Author zhaoRong
  * @Date 2019/3/31 21:07
  **/
+@Slf4j
 @Api(value = "APP端宿舍评分相关接口", description = "APP端宿舍评分相关接口(AiShu)")
 @RestController
 public class AppDormScoreController extends AppBaseController {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
     DormScoreService dormScoreService;
 
@@ -40,20 +41,15 @@ public class AppDormScoreController extends AppBaseController {
     })
     public ResultView appListDormScoreViews(Integer pageNum, Integer pageSize) {
         String studentId = studentManager.getCurrentStudentId();
-        logger.info("开始调用分页查询学生对应宿舍的评分接口：" + studentId);
-        try {
-            ListDormScoreForm listDormScoreForm = new ListDormScoreForm();
-            if (null != pageNum) {
-                listDormScoreForm.setPageNum(pageNum);
-            }
-            if (null != pageSize) {
-                listDormScoreForm.setPageSize(pageSize);
-            }
-            listDormScoreForm.setStudentId(studentId);
-            return ResultUtil.success(dormScoreService.appListDormScoreViews(listDormScoreForm));
-        } catch (Exception e) {
-            logger.error("调用查询学生对应宿舍的评分接口失败:" + e.getMessage());
-            return ResultUtil.error();
+        log.info("开始调用分页查询学生对应宿舍的评分接口：" + studentId);
+        ListDormScoreForm listDormScoreForm = new ListDormScoreForm();
+        if (null != pageNum) {
+            listDormScoreForm.setPageNum(pageNum);
         }
+        if (null != pageSize) {
+            listDormScoreForm.setPageSize(pageSize);
+        }
+        listDormScoreForm.setStudentId(studentId);
+        return ResultUtil.success(dormScoreService.appListDormScoreViews(listDormScoreForm));
     }
 }

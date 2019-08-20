@@ -18,6 +18,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,10 +30,10 @@ import org.springframework.web.bind.annotation.*;
  * @Author zhaoRong
  * @Date 2019/3/26 12:32
  **/
+@Slf4j
 @Api(value = "用户资源相关接口", description = "用户资源相关接口(AiShu)")
 @RestController
 public class ResourceController extends BaseController {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
     ResourceService resourceService;
     @Autowired
@@ -46,14 +47,8 @@ public class ResourceController extends BaseController {
             @ApiResponse(code = 200, message = "success", response = Resource.class)
     })
     public ResultView saveResource(@RequestBody EditResourceForm editResourceForm) {
-        logger.info("开始调用资源保存或修改接口：" + editResourceForm.toString());
-        try {
-            return ResultUtil.success(resourceService.saveResource(editResourceForm));
-        } catch (Exception e) {
-            e.printStackTrace();
-            logger.error("调用资源保存或修改接口失败:" + e.getMessage());
-            return ResultUtil.error();
-        }
+        log.info("开始调用资源保存或修改接口：" + editResourceForm.toString());
+        return ResultUtil.success(resourceService.saveResource(editResourceForm));
     }
 
     @Log("删除资源")
@@ -64,8 +59,8 @@ public class ResourceController extends BaseController {
             @ApiResponse(code = 200, message = "success", response = ResultView.class)
     })
     public ResultView deleteResource(@RequestBody DeleteForm deleteFrom) {
-        logger.info("开始调用资源删除接口：" + deleteFrom.toString());
-        if (null == deleteFrom.getDelIds() && deleteFrom.getDelIds().isEmpty() && null == deleteFrom.getDelStatus()) {
+        log.info("开始调用资源删除接口：" + deleteFrom.toString());
+        if (null == deleteFrom.getDelIds() || deleteFrom.getDelIds().isEmpty()) {
             return ResultUtil.errorByMsg("入参为空！");
         }
         resourceService.deleteResource(deleteFrom);
@@ -79,7 +74,7 @@ public class ResourceController extends BaseController {
             @ApiResponse(code = 200, message = "success", response = UserMenuView.class)
     })
     public ResultView getMenuByUser() {
-        logger.info("开始调用查询当前登陆用户所有的菜单资源的接口");
+        log.info("开始调用查询当前登陆用户所有的菜单资源的接口");
         return ResultUtil.success(userPrivilegeService.getUserMenu(UserManager.getCurrentUserId()));
     }
 
@@ -90,7 +85,7 @@ public class ResourceController extends BaseController {
             @ApiResponse(code = 200, message = "success", response = TreeView.class)
     })
     public ResultView getResourcesTree() {
-        logger.info("开始调用查询资源树的接口");
+        log.info("开始调用查询资源树的接口");
         return ResultUtil.success(resourceService.getResourcesTree(null,null,null));
     }
 
@@ -101,6 +96,7 @@ public class ResourceController extends BaseController {
             @ApiResponse(code = 200, message = "success", response = TreeView.class)
     })
     public ResultView getTreeByUser(@PathVariable String id) {
+        log.info("开始调用通过用户id查询资源树的接口:" + id);
         if (StringUtils.isBlank(id)){
             return ResultUtil.errorByMsg("入参为空！");
         }
@@ -113,6 +109,7 @@ public class ResourceController extends BaseController {
             @ApiResponse(code = 200, message = "success", response = TreeView.class)
     })
     public ResultView getTreeByRole(@PathVariable String id) {
+        log.info("开始调用通过角色id查询资源树的接口:" + id);
         if (StringUtils.isBlank(id)){
             return ResultUtil.errorByMsg("入参为空！");
         }
@@ -126,7 +123,7 @@ public class ResourceController extends BaseController {
             @ApiResponse(code = 200, message = "success", response = Resource.class)
     })
     public ResultView selectById(@PathVariable String id) {
-        logger.info("开始调用通过资源id查询资源的接口:" + id);
+        log.info("开始调用通过资源id查询资源的接口:" + id);
         if (StringUtils.isBlank(id)){
             return ResultUtil.errorByMsg("参数为空！");
         }

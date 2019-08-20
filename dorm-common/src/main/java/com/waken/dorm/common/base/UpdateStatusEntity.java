@@ -14,15 +14,11 @@ import java.util.Date;
 @Getter
 @Setter
 public class UpdateStatusEntity extends BaseEntity {
-    private String pkId;
+    private String id;
 
     private Integer status;
 
     private Date lastModifyTime;
 
     private String lastModifyUserId;
-
-    public String getPkId() {
-        return pkId;
-    }
 }

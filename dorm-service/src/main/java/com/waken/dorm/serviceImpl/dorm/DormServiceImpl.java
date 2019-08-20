@@ -186,16 +186,6 @@ public class DormServiceImpl extends BaseServerImpl implements DormService {
     @Override
     public void batchAddDormStudentRel(AddDormStudentRelForm addDormStudentRelForm) {
         logger.info("service: 批量新增宿舍与学生关联开始");
-        StringBuffer sb = new StringBuffer();
-        if (StringUtils.isEmpty(addDormStudentRelForm.getPkDormId())) {
-            sb.append("宿舍 id为空！");
-        }
-        if (addDormStudentRelForm.getPkStudentIds().isEmpty()) {
-            sb.append("学生 id集合为空！");
-        }
-        if (!StringUtils.isEmpty(sb.toString())) {
-            throw new ServerException("批量新增宿舍与学生关联失败，原因：" + sb.toString());
-        }
         List<DormStudentRel> toBeAddDormStudentRel = this.getToBeAddDormStudentRel(addDormStudentRelForm);
         if (!toBeAddDormStudentRel.isEmpty()) {
             int count = Constant.ZERO;
@@ -230,10 +220,9 @@ public class DormServiceImpl extends BaseServerImpl implements DormService {
      * @param addDormStudentRelForm
      * @return
      */
-    @Transactional
     private List<DormStudentRel> getToBeAddDormStudentRel(AddDormStudentRelForm addDormStudentRelForm) {
-        String dormId = addDormStudentRelForm.getPkDormId();
-        List<String> studentIds = addDormStudentRelForm.getPkStudentIds();
+        String dormId = addDormStudentRelForm.getDormId();
+        List<String> studentIds = addDormStudentRelForm.getStudentIds();
         List<DormStudentRel> dormStudentRelList = dormStudentRelMapper.selectList(new EntityWrapper<DormStudentRel>()
                 .eq("dorm_id", dormId)
                 .eq("status", CodeEnum.ENABLE.getCode())

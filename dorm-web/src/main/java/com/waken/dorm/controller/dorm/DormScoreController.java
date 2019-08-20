@@ -20,6 +20,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,10 +36,10 @@ import java.util.Map;
  * @Author zhaoRong
  * @Date 2019/3/31 20:54
  **/
+@Slf4j
 @Api(value = "后台管理宿舍评分模块相关接口", description = "后台管理宿舍评分模块相关接口(AiShu)")
 @RestController
 public class DormScoreController extends BaseController {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
     DormScoreService dormScoreService;
 
@@ -50,7 +51,7 @@ public class DormScoreController extends BaseController {
             @ApiResponse(code = 200, message = "success", response = ResultView.class)
     })
     public ResultView batchImportScore(@RequestParam(value = "file", required = false) MultipartFile file) {
-        logger.info("开始调用批量导入宿舍评分记录（excel）接口：" + file.getOriginalFilename());
+        log.info("开始调用批量导入宿舍评分记录（excel）接口：" + file.getOriginalFilename());
         try {
             FileUtils.checkFile(file);
             long beginMillis = System.currentTimeMillis();
@@ -78,7 +79,7 @@ public class DormScoreController extends BaseController {
             }
             return ResultUtil.success(ImmutableMap.of("timeConsuming", time));
         } catch (Exception e) {
-            logger.info("批量导入宿舍评分记录（excel）失败原因：" + e.getMessage());
+            log.info("批量导入宿舍评分记录（excel）失败原因：" + e.getMessage());
             return ResultUtil.errorByMsg("批量导入宿舍评分记录（excel）失败");
         }
     }
@@ -91,14 +92,12 @@ public class DormScoreController extends BaseController {
             @ApiResponse(code = 200, message = "success", response = ResultView.class)
     })
     public ResultView deleteDormScore(@RequestBody DeleteForm deleteFrom) {
-        logger.info("开始调用删除宿舍评分信息接口：" + deleteFrom.toString());
-        try {
-            dormScoreService.deleteDormScore(deleteFrom);
-            return ResultUtil.success();
-        } catch (Exception e) {
-            logger.error("调用删除宿舍评分信息接口失败:" + e.getMessage());
-            return ResultUtil.error();
+        log.info("开始调用删除宿舍评分信息接口：" + deleteFrom.toString());
+        if (null == deleteFrom.getDelIds() || deleteFrom.getDelIds().isEmpty()) {
+            return ResultUtil.errorByMsg("入参为空！");
         }
+        dormScoreService.deleteDormScore(deleteFrom);
+        return ResultUtil.success();
     }
 
     @CrossOrigin
@@ -108,13 +107,8 @@ public class DormScoreController extends BaseController {
             @ApiResponse(code = 200, message = "success", response = DormScoreView.class)
     })
     public ResultView listDormScores(@RequestBody ListDormScoreForm listDormScoreForm) {
-        logger.info("开始调用分页查询宿舍评分信息接口：" + listDormScoreForm.toString());
-        try {
-            return ResultUtil.success(dormScoreService.listDormScores(listDormScoreForm));
-        } catch (Exception e) {
-            logger.error("调用分页查询宿舍评分信息失败:" + e.getMessage());
-            return ResultUtil.error();
-        }
+        log.info("开始调用分页查询宿舍评分信息接口：" + listDormScoreForm.toString());
+        return ResultUtil.success(dormScoreService.listDormScores(listDormScoreForm));
     }
 
     @Log("修改宿舍评分")
@@ -123,13 +117,7 @@ public class DormScoreController extends BaseController {
     @ApiOperation(value = "修改宿舍评分", notes = "修改宿舍评分 ")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "success", response = DormScore.class)})
     public ResultView updateDormScore(@RequestBody DormScoreForm dormScoreForm) {
-        logger.info("开始调用修改宿舍评分接口：" + dormScoreForm.toString());
-        try {
-            return ResultUtil.success(dormScoreService.updateDormScore(dormScoreForm));
-        } catch (Exception e) {
-            logger.error("修改宿舍评分失败，原因 :" + e.getMessage());
-            e.printStackTrace();
-            return ResultUtil.error();
-        }
+        log.info("开始调用修改宿舍评分接口：" + dormScoreForm.toString());
+        return ResultUtil.success(dormScoreService.updateDormScore(dormScoreForm));
     }
 }

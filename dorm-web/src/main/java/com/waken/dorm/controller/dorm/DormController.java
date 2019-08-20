@@ -9,6 +9,7 @@ import com.waken.dorm.common.form.dorm.AddDormStudentRelForm;
 import com.waken.dorm.common.form.dorm.DormForm;
 import com.waken.dorm.common.form.dorm.EditDormForm;
 import com.waken.dorm.common.utils.ResultUtil;
+import com.waken.dorm.common.utils.StringUtils;
 import com.waken.dorm.common.view.dorm.DormStudentsView;
 import com.waken.dorm.common.view.dorm.DormView;
 import com.waken.dorm.controller.base.BaseController;
@@ -17,6 +18,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,10 +30,10 @@ import org.springframework.web.bind.annotation.*;
  * @Author zhaoRong
  * @Date 2019/3/31 13:36
  **/
+@Slf4j
 @Api(value = "宿舍模块相关接口", description = "宿舍模块相关接口(AiShu)")
 @RestController
 public class DormController extends BaseController {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
     private DormService dormService;
 
@@ -43,15 +45,9 @@ public class DormController extends BaseController {
             @ApiResponse(code = 200, message = "success", response = Dorm.class)
     })
     public ResultView saveDorm(@RequestBody EditDormForm editDormForm) {
-        logger.info("开始调用(保存/修改)宿舍信息接口接口：" + editDormForm.toString());
-        try {
-            Dorm dorm = dormService.saveDorm(editDormForm);
-            return ResultUtil.success(dorm);
-        } catch (Exception e) {
-            e.printStackTrace();
-            logger.error("调用(保存/修改)宿舍信息接口失败:" + e.getMessage());
-            return ResultUtil.error();
-        }
+        log.info("开始调用(保存/修改)宿舍信息接口接口：" + editDormForm.toString());
+        Dorm dorm = dormService.saveDorm(editDormForm);
+        return ResultUtil.success(dorm);
     }
 
     @Log("删除宿舍信息")
@@ -62,14 +58,12 @@ public class DormController extends BaseController {
             @ApiResponse(code = 200, message = "success", response = ResultView.class)
     })
     public ResultView deleteDorm(@RequestBody DeleteForm deleteFrom) {
-        logger.info("开始调用删除宿舍接口：" + deleteFrom.toString());
-        try {
-            dormService.deleteDorm(deleteFrom);
-            return ResultUtil.success();
-        } catch (Exception e) {
-            logger.error("调用删除宿舍接口失败:" + e.getMessage());
-            return ResultUtil.error();
+        log.info("开始调用删除宿舍接口：" + deleteFrom.toString());
+        if (null == deleteFrom.getDelIds() || deleteFrom.getDelIds().isEmpty()) {
+            return ResultUtil.errorByMsg("入参为空！");
         }
+        dormService.deleteDorm(deleteFrom);
+        return ResultUtil.success();
     }
 
     @CrossOrigin
@@ -79,14 +73,9 @@ public class DormController extends BaseController {
             @ApiResponse(code = 200, message = "success", response = DormView.class)
     })
     public ResultView listDorms(@RequestBody DormForm dormForm) {
-        logger.info("开始调用分页查询宿舍信息接口：" + dormForm.toString());
-        try {
-            PageInfo<DormView> pageInfo = dormService.listDorms(dormForm);
-            return ResultUtil.success(pageInfo);
-        } catch (Exception e) {
-            logger.error("调用分页查询宿舍信息失败:" + e.getMessage());
-            return ResultUtil.error();
-        }
+        log.info("开始调用分页查询宿舍信息接口：" + dormForm.toString());
+        PageInfo<DormView> pageInfo = dormService.listDorms(dormForm);
+        return ResultUtil.success(pageInfo);
     }
 
     @CrossOrigin
@@ -96,14 +85,9 @@ public class DormController extends BaseController {
             @ApiResponse(code = 200, message = "success", response = DormStudentsView.class)
     })
     public ResultView queryDormStudentsView(@PathVariable String id) {
-        logger.info("开始调用查询宿舍与学生关联信息接口：" + id);
-        try {
-            DormStudentsView dormStudentsView = dormService.queryDormStudentsView(id);
-            return ResultUtil.success(dormStudentsView);
-        } catch (Exception e) {
-            logger.error("调用查询宿舍与学生关联信息接口失败:", e);
-            return ResultUtil.error();
-        }
+        log.info("开始调用查询宿舍与学生关联信息接口：" + id);
+        DormStudentsView dormStudentsView = dormService.queryDormStudentsView(id);
+        return ResultUtil.success(dormStudentsView);
     }
 
     @Log("批量添加宿舍学生关联")
@@ -113,14 +97,12 @@ public class DormController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = ResultView.class)
     })
-    public ResultView batchAddDormStudentRel(@RequestBody AddDormStudentRelForm addDormStudentRelForm) {
-        logger.info("开始调用批量添加宿舍学生关联接口：" + addDormStudentRelForm.toString());
-        try {
-            dormService.batchAddDormStudentRel(addDormStudentRelForm);
-            return ResultUtil.success();
-        } catch (Exception e) {
-            logger.error("调用批量添加宿舍学生关联接口失败，原因:" + e.getMessage());
-            return ResultUtil.error();
+    public ResultView batchAddDormStudentRel(@RequestBody AddDormStudentRelForm addForm) {
+        log.info("开始调用批量添加宿舍学生关联接口：" + addForm.toString());
+        if (StringUtils.isEmpty(addForm.getDormId()) || null == addForm.getStudentIds() || addForm.getStudentIds().isEmpty()) {
+            return ResultUtil.errorByMsg("参数为空");
         }
+        dormService.batchAddDormStudentRel(addForm);
+        return ResultUtil.success();
     }
 }

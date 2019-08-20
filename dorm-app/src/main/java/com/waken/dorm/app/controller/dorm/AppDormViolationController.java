@@ -5,6 +5,7 @@ import com.waken.dorm.app.controller.base.AppBaseController;
 import com.waken.dorm.common.base.ResultView;
 import com.waken.dorm.common.enums.ResultEnum;
 import com.waken.dorm.common.form.dorm.DormViolationForm;
+import com.waken.dorm.common.utils.ResultUtil;
 import com.waken.dorm.common.view.dorm.AppDormViolationView;
 import com.waken.dorm.manager.StudentManager;
 import com.waken.dorm.service.dorm.DormViolationService;
@@ -12,6 +13,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,10 +26,10 @@ import org.springframework.web.bind.annotation.RestController;
  * @Author zhaoRong
  * @Date 2019/4/2 13:43
  **/
+@Slf4j
 @Api(value = "APP端宿舍违规相关接口", description = "APP端宿舍违规相关接口(AiShu)")
 @RestController
 public class AppDormViolationController extends AppBaseController {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
     DormViolationService dormViolationService;
 
@@ -41,21 +43,12 @@ public class AppDormViolationController extends AppBaseController {
     })
     public ResultView listDormViolations(Integer pageNum, Integer pageSize) {
         String studentId = studentManager.getCurrentStudentId();
-        logger.info("开始调用分页查询宿舍违规信息接口：" + studentId);
-        ResultView resultView = new ResultView();
-        try {
-            DormViolationForm dormViolationForm = new DormViolationForm();
-            dormViolationForm.setPageNum(pageNum);
-            dormViolationForm.setPageSize(pageSize);
-            dormViolationForm.setStudentId(studentId);
-            PageInfo<AppDormViolationView> pageInfo = dormViolationService.appListDormViolations(dormViolationForm);
-            resultView.setCode(ResultEnum.SUCCESS.getCode());
-            resultView.setData(pageInfo);
-        } catch (Exception e) {
-            logger.error("调用分页查询宿舍违规信息失败:" + e.getMessage());
-            resultView.setMsg(e.getMessage());
-            resultView.setCode(ResultEnum.FAIL.getCode());
-        }
-        return resultView;
+        log.info("开始调用分页查询宿舍违规信息接口：" + studentId);
+        DormViolationForm dormViolationForm = new DormViolationForm();
+        dormViolationForm.setPageNum(pageNum);
+        dormViolationForm.setPageSize(pageSize);
+        dormViolationForm.setStudentId(studentId);
+        PageInfo<AppDormViolationView> pageInfo = dormViolationService.appListDormViolations(dormViolationForm);
+        return ResultUtil.success(pageInfo);
     }
 }

@@ -112,8 +112,7 @@ public class ResourceServiceImpl extends BaseServerImpl implements ResourceServi
         List<String> resourceIds = deleteForm.getDelIds();
         Integer delStatus = deleteForm.getDelStatus();
         List<String> delResourceIds = this.getAllToDelIds(resourceIds);
-        logger.info("需要删除的资源id: " + delResourceIds.toString());
-        if (CodeEnum.YES.getCode() == delStatus) { // 物理删除
+        if (CodeEnum.YES.getCode() == delStatus) { // 状态删除
             //TODO 删除资源与角色的关联 删除资源与人的关联
             List<RoleResourceRel> roleResourceRelList = roleResourceRelMapper.selectByResourceIds(delResourceIds);
             if (!roleResourceRelList.isEmpty()) {

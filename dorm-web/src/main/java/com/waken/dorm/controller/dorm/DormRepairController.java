@@ -43,13 +43,8 @@ public class DormRepairController extends BaseController {
     })
     public ResultView addDormRepair(@RequestBody AddDormRepairForm addDormRepairForm) {
         log.info("开始调用新增宿舍维修记录接口：" + addDormRepairForm.toString());
-        try {
-            addDormRepairForm.setTerminal(CodeEnum.WEB.getCode());
-            return ResultUtil.success(dormRepairService.addDormRepair(addDormRepairForm));
-        } catch (Exception e) {
-            log.info("新增宿舍维修记录失败原因：" + e.getMessage());
-            return ResultUtil.error();
-        }
+        addDormRepairForm.setTerminal(CodeEnum.WEB.getCode());
+        return ResultUtil.success(dormRepairService.addDormRepair(addDormRepairForm));
     }
 
     @Log("删除宿舍维修信息")
@@ -61,13 +56,11 @@ public class DormRepairController extends BaseController {
     })
     public ResultView deleteDormRepair(@RequestBody DeleteForm deleteFrom) {
         log.info("开始调用删除宿舍维修信息接口：" + deleteFrom.toString());
-        try {
-            dormRepairService.deleteDormRepair(deleteFrom);
-            return ResultUtil.success();
-        } catch (Exception e) {
-            log.error("调用删除宿舍维修信息接口失败:" + e.getMessage());
-            return ResultUtil.error();
+        if (null == deleteFrom.getDelIds() || deleteFrom.getDelIds().isEmpty()) {
+            return ResultUtil.errorByMsg("入参为空！");
         }
+        dormRepairService.deleteDormRepair(deleteFrom);
+        return ResultUtil.success();
     }
 
     @CrossOrigin
@@ -78,14 +71,9 @@ public class DormRepairController extends BaseController {
     })
     public ResultView listDormRepairs(@RequestBody DormRepairForm dormRepairForm) {
         log.info("开始调用分页查询宿舍维修信息接口：" + dormRepairForm.toString());
-        try {
-            dormRepairForm.setTerminal(CodeEnum.WEB.getCode());
-            PageInfo<DormRepairView> pageInfo = dormRepairService.listDormRepairs(dormRepairForm);
-            return ResultUtil.success(pageInfo);
-        } catch (Exception e) {
-            log.error("调用分页查询宿舍维修信息失败:" + e.getMessage());
-            return ResultUtil.error();
-        }
+        dormRepairForm.setTerminal(CodeEnum.WEB.getCode());
+        PageInfo<DormRepairView> pageInfo = dormRepairService.listDormRepairs(dormRepairForm);
+        return ResultUtil.success(pageInfo);
     }
 
     @Log("修改宿舍维修")
@@ -95,13 +83,7 @@ public class DormRepairController extends BaseController {
     @ApiResponses(value = {@ApiResponse(code = 200, message = "success", response = DormRepair.class)})
     public ResultView updateDormRepair(@RequestBody UpdateRepairForm updateRepairForm) {
         log.info("开始调用修改宿舍维修接口：" + updateRepairForm.toString());
-        try {
-            DormRepair dormRepair = dormRepairService.updateDormRepair(updateRepairForm);
-            return ResultUtil.success(dormRepair);
-        } catch (Exception e) {
-            log.error("修改宿舍维修失败，原因 :" + e.getMessage());
-            e.printStackTrace();
-            return ResultUtil.error();
-        }
+        DormRepair dormRepair = dormRepairService.updateDormRepair(updateRepairForm);
+        return ResultUtil.success(dormRepair);
     }
 }

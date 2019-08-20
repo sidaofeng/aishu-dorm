@@ -22,6 +22,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,10 +38,10 @@ import java.util.List;
  * @Author zhaoRong
  * @Date 2019/3/21 19:45
  **/
+@Slf4j
 @Api(value = "后台用户相关接口", description = "后台用户相关接口(AiShu)")
 @RestController
 public class UserController extends BaseController {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
     UserService userService;
 
@@ -54,7 +55,7 @@ public class UserController extends BaseController {
             @ApiResponse(code = 200, message = "success", response = ResultView.class)
     })
     public ResultView saveUser(@RequestBody EditUserForm userForm) {
-        logger.info("开始调用保存或修改用户接口");
+        log.info("开始调用保存或修改用户接口");
         userForm.setUserType(CodeEnum.PLATFORM_USER.getCode());
         return ResultUtil.success(userService.saveUser(userForm));
     }
@@ -66,8 +67,8 @@ public class UserController extends BaseController {
             @ApiResponse(code = 200, message = "success", response = ResultView.class)
     })
     public ResultView deleteUser(@RequestBody DeleteForm deleteFrom) {
-        logger.info("被删除的用户id" + deleteFrom.getDelIds().toString() + "删除操作人id：" + UserManager.getCurrentUserId());
-        if (null == deleteFrom.getDelIds() && deleteFrom.getDelIds().isEmpty() && null == deleteFrom.getDelStatus()) {
+        log.info("被删除的用户id" + deleteFrom.getDelIds().toString() + "删除操作人id：" + UserManager.getCurrentUserId());
+        if (null == deleteFrom.getDelIds() || deleteFrom.getDelIds().isEmpty()) {
             return ResultUtil.errorByMsg("入参为空！");
         }
         userService.deleteUser(deleteFrom);
@@ -80,7 +81,7 @@ public class UserController extends BaseController {
             @ApiResponse(code = 200, message = "success", response = UserView.class)
     })
     public ResultView listUsers(@RequestBody UserForm userForm) {
-        logger.info("开始调用用户分页查询接口：" + userForm.toString());
+        log.info("开始调用用户分页查询接口：" + userForm.toString());
         PageInfo<UserView> pageInfo = userService.listUsers(userForm);
         return ResultUtil.success(pageInfo);
     }
@@ -92,7 +93,7 @@ public class UserController extends BaseController {
             @ApiResponse(code = 200, message = "success", response = ResultView.class)
     })
     public ResultView batchAddUserRoleRel(@RequestBody AddUserRoleRelForm addUserRoleRelForm) {
-        logger.info("开始调用批量添加用户角色关联接口：" + addUserRoleRelForm.toString());
+        log.info("开始调用批量添加用户角色关联接口：" + addUserRoleRelForm.toString());
         userService.batchAddUserRoleRel(addUserRoleRelForm);
         return ResultUtil.success();
     }
@@ -103,7 +104,7 @@ public class UserController extends BaseController {
             @ApiResponse(code = 200, message = "success", response = UserRolesView.class)
     })
     public ResultView listUserRoles(@PathVariable String id) {
-        logger.info("开始调用查询用户角色关联信息接口：" + id);
+        log.info("开始调用查询用户角色关联信息接口：" + id);
         ListAddedRoleForm form = new ListAddedRoleForm();
         form.setUserId(id);
         UserRolesView userRolesView = userService.listUserRoles(form);
@@ -115,13 +116,13 @@ public class UserController extends BaseController {
     @ApiOperation(value = "用户头像上传", notes = "用户头像上传")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "success", response = ImgView.class)})
     public ResultView uploadUserImg(@RequestParam(value = "file", required = false) MultipartFile file) {
-        logger.info("开始调用图片文件上传接口，上传图片文件为：" + file.getOriginalFilename());
+        log.info("开始调用图片文件上传接口，上传图片文件为：" + file.getOriginalFilename());
         try {
             ImgView imgView = userService.uploadUserImg(file);
             return ResultUtil.success(imgView);
         } catch (Exception e) {
             e.printStackTrace();
-            logger.info("上传用户头像失败:" + e.getMessage());
+            log.info("上传用户头像失败:" + e.getMessage());
             return ResultUtil.error();
         }
     }

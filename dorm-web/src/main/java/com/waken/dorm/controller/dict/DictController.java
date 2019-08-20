@@ -8,6 +8,7 @@ import com.waken.dorm.common.enums.ResultEnum;
 import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.dict.DictForm;
 import com.waken.dorm.common.form.dict.EditDictForm;
+import com.waken.dorm.common.utils.ResultUtil;
 import com.waken.dorm.common.view.dict.DictView;
 import com.waken.dorm.controller.base.BaseController;
 import com.waken.dorm.service.dict.DictService;
@@ -15,6 +16,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,10 +29,10 @@ import org.springframework.web.bind.annotation.*;
  * @Author zhaoRong
  * @Date 2019/4/19 17:09
  **/
+@Slf4j
 @Api(value = "字典模块相关接口", description = "字典模块相关接口(AiShu)")
 @Controller
 public class DictController extends BaseController {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
     private DictService dictService;
 
@@ -43,21 +45,9 @@ public class DictController extends BaseController {
     })
     @ResponseBody
     public ResultView saveDict(@RequestBody EditDictForm editDictForm) {
-        logger.info("开始调用(保存/修改)字典信息接口接口：" + editDictForm.toString());
-        ResultView resultView = new ResultView();
-        try {
-            Dict dict = dictService.saveDict(editDictForm);
-            resultView.setCode(ResultEnum.SUCCESS.getCode());
-            resultView.setData(dict);
-            resultView.setMsg("(保存/修改)字典信息成功");
-            logger.info("(保存/修改)字典信息成功");
-        } catch (Exception e) {
-            e.printStackTrace();
-            logger.error("调用(保存/修改)字典信息接口失败:" + e.getMessage());
-            resultView.setCode(ResultEnum.FAIL.getCode());
-            resultView.setMsg("(保存/修改)字典失败：" + e.getMessage());
-        }
-        return resultView;
+        log.info("开始调用(保存/修改)字典信息接口接口：" + editDictForm.toString());
+        Dict dict = dictService.saveDict(editDictForm);
+        return ResultUtil.success(dict);
     }
 
     @Log("删除字典信息")
@@ -69,19 +59,12 @@ public class DictController extends BaseController {
     })
     @ResponseBody
     public ResultView deleteDict(@RequestBody DeleteForm deleteFrom) {
-        logger.info("开始调用删除字典接口：" + deleteFrom.toString());
-        ResultView resultView = new ResultView();
-        try {
-            dictService.deleteDict(deleteFrom);
-            resultView.setCode(ResultEnum.SUCCESS.getCode());
-            resultView.setMsg("删除字典成功");
-            logger.info("删除字典成功");
-        } catch (Exception e) {
-            logger.error("调用删除字典接口失败:" + e.getMessage());
-            resultView.setCode(ResultEnum.FAIL.getCode());
-            resultView.setMsg(e.getMessage());
+        log.info("开始调用删除字典接口：" + deleteFrom.toString());
+        if (null == deleteFrom.getDelIds() || deleteFrom.getDelIds().isEmpty()) {
+            return ResultUtil.errorByMsg("入参为空！");
         }
-        return resultView;
+        dictService.deleteDict(deleteFrom);
+        return ResultUtil.success();
     }
 
     @CrossOrigin
@@ -92,17 +75,8 @@ public class DictController extends BaseController {
     })
     @ResponseBody
     public ResultView listDicts(DictForm dictForm) {
-        logger.info("开始调用分页查询字典信息接口：" + dictForm.toString());
-        ResultView resultView = new ResultView();
-        try {
-            PageInfo<DictView> pageInfo = dictService.listDicts(dictForm);
-            resultView.setCode(ResultEnum.SUCCESS.getCode());
-            resultView.setData(pageInfo);
-        } catch (Exception e) {
-            logger.error("调用分页查询字典信息失败:" + e.getMessage());
-            resultView.setMsg(e.getMessage());
-            resultView.setCode(ResultEnum.FAIL.getCode());
-        }
-        return resultView;
+        log.info("开始调用分页查询字典信息接口：" + dictForm.toString());
+        PageInfo<DictView> pageInfo = dictService.listDicts(dictForm);
+        return ResultUtil.success(pageInfo);
     }
 }
