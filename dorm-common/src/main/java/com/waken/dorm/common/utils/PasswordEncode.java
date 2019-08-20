@@ -14,9 +14,10 @@ import java.security.MessageDigest;
  **/
 public class PasswordEncode {
     private static String algorithmName = "md5";
-    private static int hashIterations = 2;
+    private static int hashIterations = 4;
 
     public static String shiroEncode(String userName, String password) {
+        userName = userName.toLowerCase();
         String newPassword = new SimpleHash(algorithmName, password, ByteSource.Util.bytes(userName), hashIterations).toHex();
         return newPassword;
     }

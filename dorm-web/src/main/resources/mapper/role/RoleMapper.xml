@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.waken.dorm.dao.role.RoleMapper">
+
     <select id="listAddedRoles" parameterType="com.waken.dorm.common.form.role.ListAddedRoleForm"
             resultType="com.waken.dorm.common.view.user.UserRoleRelView">
         SELECT
@@ -13,7 +14,12 @@
         INNER JOIN rm_user_privilege p ON p.subject_id = r.pk_role_id
         WHERE
         r.`status` = 1
-        AND r.pk_role_id IN(SELECT urr.role_id FROM rm_user_privilege urr WHERE urr.user_id=#{curUserId})
+        AND r.pk_role_id
+        IN(
+        SELECT up.subject_id FROM rm_user_privilege up
+        WHERE up.user_id=#{curUserId}
+        AND up.subject_type = 3
+        )
         <if test="userId != null and userId != ''">
             AND p.user_id=#{userId,jdbcType=VARCHAR}
         </if>
@@ -27,7 +33,12 @@
         rm_role r
         WHERE
         r.`status` = 1
-        AND r.pk_role_id IN(SELECT urr.role_id FROM rm_user_privilege urr WHERE urr.user_id=#{curUserId})
+        AND r.pk_role_id
+        IN(
+        SELECT up.subject_id FROM rm_user_privilege up
+        WHERE up.user_id=#{curUserId}
+        AND up.subject_type = 3
+        )
         AND NOT EXISTS (
         SELECT
         *

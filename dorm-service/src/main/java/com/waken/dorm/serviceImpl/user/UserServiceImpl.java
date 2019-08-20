@@ -56,18 +56,19 @@ public class UserServiceImpl implements UserService {
     public User saveUser(EditUserForm editUserForm) {
         this.editUserValidate(editUserForm);
         String curUserId = UserManager.getCurrentUserId();
-
         Date curDate = DateUtils.getCurrentDate();
         int count;
         User user = new User();
-        String encodePassword = PasswordEncode.shiroEncode(editUserForm.getUserName(), editUserForm.getPassword());//shiro加密 密码
+
         BeanMapper.copy(editUserForm, user);
-        user.setPassword(encodePassword);
+
         user.setLastModifyTime(curDate);
-        user.setLastModifyUserId("guest");
+        user.setLastModifyUserId(curUserId);
         if (StringUtils.isEmpty(editUserForm.getUserId())) {//新增
             log.info("service: 新增用户开始");
             String userId = UUIDUtils.getPkUUID();
+            String encodePassword = PasswordEncode.shiroEncode(editUserForm.getUserName(), editUserForm.getPassword());//shiro加密 密码
+            user.setPassword(encodePassword);
             user.setUserId(userId);
             user.setStatus(CodeEnum.ENABLE.getCode());
             user.setCreateTime(curDate);
@@ -80,6 +81,10 @@ public class UserServiceImpl implements UserService {
             return user;
         } else {//修改
             log.info("service: 更新用户信息开始");
+            if (StringUtils.isNotBlank(editUserForm.getPassword())){
+                String encodePassword = PasswordEncode.shiroEncode(editUserForm.getUserName(), editUserForm.getPassword());//shiro加密 密码
+                user.setPassword(encodePassword);
+            }
             userMapper.updateById(user);
             user.setPassword(Constant.NULL_STRING);
             return user;

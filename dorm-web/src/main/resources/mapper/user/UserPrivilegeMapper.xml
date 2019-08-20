@@ -228,7 +228,7 @@
         create_user_id,)
         VALUES
         <foreach collection="list" item="item" index="index" separator=",">
-            (#{item.pkprivilegeId},
+            (#{item.pkPrivilegeId},
             #{item.userId},
             #{item.subjectId},
             #{item.subjectType},
@@ -259,7 +259,7 @@
         create_user_id,)
         VALUES
         <foreach collection="list" item="item" index="index" separator=",">
-            (#{item.pkprivilegeId},
+            (#{item.pkPrivilegeId},
             #{item.userId},
             #{item.subjectId},
             #{item.subjectType},
