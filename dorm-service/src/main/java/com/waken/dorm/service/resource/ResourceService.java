@@ -30,12 +30,13 @@ public interface ResourceService {
 
     /**
      * 查询资源树集合
+     *
      * @param status
      * @param userId
      * @param roleId
      * @return
      */
-    List<Tree<ResourceView>> getResourcesTree(Integer status,String userId,String roleId);
+    List<Tree<ResourceView>> getResourcesTree(Integer status, String userId, String roleId);
 
     /**
      * 通过资源id查询资源

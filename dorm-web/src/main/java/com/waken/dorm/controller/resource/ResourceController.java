@@ -19,8 +19,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -86,7 +84,7 @@ public class ResourceController extends BaseController {
     })
     public ResultView getResourcesTree() {
         log.info("开始调用查询资源树的接口");
-        return ResultUtil.success(resourceService.getResourcesTree(null,null,null));
+        return ResultUtil.success(resourceService.getResourcesTree(null, null, null));
     }
 
     @CrossOrigin
@@ -97,11 +95,12 @@ public class ResourceController extends BaseController {
     })
     public ResultView getTreeByUser(@PathVariable String id) {
         log.info("开始调用通过用户id查询资源树的接口:" + id);
-        if (StringUtils.isBlank(id)){
+        if (StringUtils.isBlank(id)) {
             return ResultUtil.errorByMsg("入参为空！");
         }
-        return ResultUtil.success(resourceService.getResourcesTree(CodeEnum.ENABLE.getCode(),id,null));
+        return ResultUtil.success(resourceService.getResourcesTree(CodeEnum.ENABLE.getCode(), id, null));
     }
+
     @CrossOrigin
     @GetMapping(value = "resources/tree/role/{id}")
     @ApiOperation(value = "根据角色id查询资源树", notes = "根据角色id查询资源树")
@@ -110,10 +109,10 @@ public class ResourceController extends BaseController {
     })
     public ResultView getTreeByRole(@PathVariable String id) {
         log.info("开始调用通过角色id查询资源树的接口:" + id);
-        if (StringUtils.isBlank(id)){
+        if (StringUtils.isBlank(id)) {
             return ResultUtil.errorByMsg("入参为空！");
         }
-        return ResultUtil.success(resourceService.getResourcesTree(CodeEnum.ENABLE.getCode(),null,id));
+        return ResultUtil.success(resourceService.getResourcesTree(CodeEnum.ENABLE.getCode(), null, id));
     }
 
     @CrossOrigin
@@ -124,11 +123,11 @@ public class ResourceController extends BaseController {
     })
     public ResultView selectById(@PathVariable String id) {
         log.info("开始调用通过资源id查询资源的接口:" + id);
-        if (StringUtils.isBlank(id)){
+        if (StringUtils.isBlank(id)) {
             return ResultUtil.errorByMsg("参数为空！");
         }
         Resource resource = resourceService.selectById(id);
-        if (null == resource){
+        if (null == resource) {
             return ResultUtil.errorByMsg("参数错误！");
         }
         return ResultUtil.success(resource);

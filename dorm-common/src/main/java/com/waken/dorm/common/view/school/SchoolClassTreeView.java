@@ -16,9 +16,7 @@ import java.util.List;
 @Getter
 @Setter
 public class SchoolClassTreeView extends BaseView {
-    private String pkSchoolClassId;
-
-    private String className;
-
     List<SchoolClassTreeView> childSchoolClassTreeView = new ArrayList<SchoolClassTreeView>();
+    private String pkSchoolClassId;
+    private String className;
 }

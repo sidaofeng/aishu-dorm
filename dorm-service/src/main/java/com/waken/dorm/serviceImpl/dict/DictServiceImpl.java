@@ -9,15 +9,11 @@ import com.waken.dorm.common.exception.ServerException;
 import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.dict.DictForm;
 import com.waken.dorm.common.form.dict.EditDictForm;
-import com.waken.dorm.common.utils.BeanMapper;
-import com.waken.dorm.common.utils.DateUtils;
-import com.waken.dorm.common.utils.StringUtils;
-import com.waken.dorm.common.utils.UUIDUtils;
+import com.waken.dorm.common.utils.*;
 import com.waken.dorm.common.view.dict.DictView;
 import com.waken.dorm.dao.dict.DictMapper;
 import com.waken.dorm.manager.UserManager;
 import com.waken.dorm.service.dict.DictService;
-import com.waken.dorm.serviceImpl.base.BaseServerImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +32,7 @@ import java.util.List;
  **/
 @Service
 @Transactional(propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Exception.class)
-public class DictServiceImpl extends BaseServerImpl implements DictService {
+public class DictServiceImpl implements DictService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
     DictMapper dictMapper;
@@ -84,11 +80,11 @@ public class DictServiceImpl extends BaseServerImpl implements DictService {
     @Transactional
     public void deleteDict(DeleteForm deleteForm) {
         logger.info("service: 删除字典信息开始");
-        List<String> dictIds = deleteForm.getDelIds();
+        List<String> ids = deleteForm.getDelIds();
         Integer delStatus = deleteForm.getDelStatus();
-        int count = Constant.ZERO;
+        int count;
         if (CodeEnum.YES.getCode() == delStatus) { // 物理删除
-            List<Dict> dictList = dictMapper.selectByIds(dictIds);
+            List<Dict> dictList = dictMapper.selectByIds(ids);
             StringBuffer sb = new StringBuffer();
             for (Dict dict : dictList) {
                 if (CodeEnum.ENABLE.getCode() == dict.getStatus()) {
@@ -98,14 +94,14 @@ public class DictServiceImpl extends BaseServerImpl implements DictService {
             if (StringUtils.isNotEmpty(sb.toString())) {
                 throw new ServerException("以下字典信息处于生效中：" + sb.toString());
             } else {//删除字典
-                count = dictMapper.deleteBatchIds(dictIds);
+                count = dictMapper.deleteBatchIds(ids);
                 if (count == Constant.ZERO) {
                     throw new ServerException("删除字典信息个数为 0 条");
                 }
             }
 
         } else if (CodeEnum.NO.getCode() == delStatus) {//状态删除
-            count = dictMapper.batchUpdateStatus(getToUpdateStatusMap(dictIds, CodeEnum.DELETE.getCode()));
+            count = dictMapper.batchUpdateStatus(DormUtil.getToUpdateStatusMap(ids,UserManager.getCurrentUserId()));
             if (count == Constant.ZERO) {
                 throw new ServerException("状态删除失败");
             }

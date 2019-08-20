@@ -1,29 +1,47 @@
 package com.waken.dorm.serviceImpl.user;
 
+import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.waken.dorm.common.constant.Constant;
+import com.waken.dorm.common.entity.resource.Resource;
 import com.waken.dorm.common.entity.user.User;
+import com.waken.dorm.common.entity.user.UserPrivilege;
+import com.waken.dorm.common.enums.CodeEnum;
+import com.waken.dorm.common.exception.ServerException;
+import com.waken.dorm.common.form.role.UserRoleRelForm;
+import com.waken.dorm.common.form.user.AddUserResourcesForm;
+import com.waken.dorm.common.form.user.AddUserRoleRelForm;
+import com.waken.dorm.common.utils.DateUtils;
+import com.waken.dorm.common.utils.UUIDUtils;
 import com.waken.dorm.common.view.base.Tree;
 import com.waken.dorm.common.view.resource.UserMenuView;
+import com.waken.dorm.dao.resource.ResourceMapper;
 import com.waken.dorm.dao.user.UserPrivilegeMapper;
+import com.waken.dorm.manager.UserManager;
 import com.waken.dorm.service.user.UserPrivilegeService;
 import com.waken.dorm.service.user.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @Description TODO
  * @Author zhaoRong
  * @Date 2019/8/8 22:21
  **/
+@Slf4j
 @Service
 public class UserPrivilegeServiceImpl implements UserPrivilegeService {
     @Autowired
     UserPrivilegeMapper privilegeMapper;
     @Autowired
     UserService userService;
+    @Autowired
+    ResourceMapper resourceMapper;
 
     /**
      * 获取用户的角色信息
@@ -86,6 +104,198 @@ public class UserPrivilegeServiceImpl implements UserPrivilegeService {
         }
         rootList.stream().forEach(root -> this.getChildren(root, var5));
         return rootList;
+    }
+
+    /**
+     * 添加单个用户与角色关联
+     *
+     * @param userRoleRelForm
+     */
+    @Transactional
+    @Override
+    public void addUserRoleRel(UserRoleRelForm userRoleRelForm) {
+        String userId = userRoleRelForm.getUserId();
+        String roleId = userRoleRelForm.getRoleId();
+        if (com.waken.dorm.common.utils.StringUtils.isBlank(userId) || com.waken.dorm.common.utils.StringUtils.isBlank(roleId)) {
+            throw new ServerException("入参为空！");
+        }
+        List<UserPrivilege> privileges = privilegeMapper.selectList(new EntityWrapper<UserPrivilege>()
+                .eq("user_id", userId)
+                .eq("subject_type", CodeEnum.ROLE.getCode())
+        );
+        if (null != privileges && !privileges.isEmpty()) {
+            privilegeMapper.deleteById(privileges.get(0).getPkPrivilegeId());
+        }
+        UserPrivilege privilege = new UserPrivilege();
+        String pkId = UUIDUtils.getPkUUID();
+        Date curTime = DateUtils.getCurrentDate();
+        privilege.setPkPrivilegeId(pkId);
+        privilege.setUserId(userId);
+        privilege.setSubjectId(roleId);
+        privilege.setSubjectType(CodeEnum.ROLE.getCode());
+        privilege.setCreateTime(curTime);
+        privilege.setCreateUserId(UserManager.getCurrentUserId());
+        int count = privilegeMapper.insert(privilege);
+        if (count == Constant.ZERO) {
+            throw new ServerException("单个新增用户与角色关联失败！");
+        }
+    }
+
+    @Transactional // 事务控制
+    @Override
+    public void batchAddUserRoleRel(AddUserRoleRelForm addUserRoleRelForm) {
+        log.info("service: 批量新增用户角色关联开始");
+        StringBuffer sb = new StringBuffer();
+        if (com.waken.dorm.common.utils.StringUtils.isEmpty(addUserRoleRelForm.getUserId())) {
+            sb.append("用户 id为空！");
+        }
+        if (addUserRoleRelForm.getRoleIds().isEmpty()) {
+            sb.append("角色 id集合为空！");
+        }
+        if (com.waken.dorm.common.utils.StringUtils.isEmpty(sb.toString())) {
+            throw new ServerException("批量新增用户角色关联失败，原因：" + sb.toString());
+        }
+        List<UserPrivilege> toBeAddUserRoleRel = this.getToBeAddUserRoleRel(addUserRoleRelForm);
+        if (!toBeAddUserRoleRel.isEmpty()) {
+            int count = privilegeMapper.batchAddUserRoleRel(toBeAddUserRoleRel);
+            if (count == Constant.ZERO) {
+                throw new ServerException("批量新增用户角色关联失败");
+            }
+
+        }
+    }
+
+    private List<UserPrivilege> getToBeAddUserRoleRel(AddUserRoleRelForm addUserRoleRelForm) {
+        String userId = addUserRoleRelForm.getUserId();
+        List<String> roleIds = addUserRoleRelForm.getRoleIds();
+        List<UserPrivilege> userRoleRelList = privilegeMapper.selectList(new EntityWrapper<UserPrivilege>()
+                .eq("user_id", userId)
+                .eq("subject_type", CodeEnum.ROLE.getCode())
+        );
+        if (!userRoleRelList.isEmpty()) {
+            List<String> existIds = new ArrayList<>();// 接收已经存在关联的角色id
+            List<String> toDelIds = new ArrayList<>();// 接收需要删除的角色id
+            List<String> oldIds = new ArrayList<>();// 接收所有已经绑定的角色id
+            for (UserPrivilege userRoleRel : userRoleRelList) {
+                oldIds.add(userRoleRel.getSubjectId());
+            }
+            for (String oldId : oldIds) {
+                if (roleIds.contains(oldId)) {
+                    existIds.add(oldId);
+                } else {
+                    toDelIds.add(oldId);
+                }
+            }
+            roleIds.removeAll(existIds);
+            if (!toDelIds.isEmpty()) {
+                int count = privilegeMapper.deleteByRolesAndUser(existIds, userId);
+                if (count == Constant.ZERO) {
+                    throw new ServerException("删除用户角色关联失败");
+                }
+            }
+
+        }
+        if (!roleIds.isEmpty()) {
+            List<UserPrivilege> toBeAddUserRoleRelList = new ArrayList<>();
+            for (String roleId : roleIds) {
+                String pkId = UUIDUtils.getPkUUID();
+                String curUserId = UserManager.getCurrentUserId();
+                Date curDate = DateUtils.getCurrentDate();
+                UserPrivilege userRoleRel = new UserPrivilege();
+                userRoleRel.setPkPrivilegeId(pkId);
+                userRoleRel.setUserId(userId);
+                userRoleRel.setSubjectId(roleId);
+                userRoleRel.setSubjectType(CodeEnum.ROLE.getCode());
+                userRoleRel.setCreateTime(curDate);
+                userRoleRel.setCreateUserId(curUserId);
+                toBeAddUserRoleRelList.add(userRoleRel);
+            }
+            return toBeAddUserRoleRelList;
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+    /**
+     * 批量新增用户与资源的关联
+     *
+     * @param addForm
+     */
+    @Override
+    public void batchAddUserResourceRel(AddUserResourcesForm addForm) {
+        log.info("service: 批量新增用户资源关联开始");
+        StringBuffer sb = new StringBuffer();
+        if (com.waken.dorm.common.utils.StringUtils.isEmpty(addForm.getUserId())) {
+            sb.append("用户 id为空！");
+        }
+        if (addForm.getResourceIds().isEmpty()) {
+            sb.append("资源 id集合为空！");
+        }
+        if (StringUtils.isEmpty(sb.toString())) {
+            throw new ServerException("批量新增用户角色关联失败，原因：" + sb.toString());
+        }
+        List<UserPrivilege> toBeAddUserRoleRel = this.getToBeAddUserResources(addForm);
+        if (!toBeAddUserRoleRel.isEmpty()) {
+            int count = this.privilegeMapper.batchAddUserResources(toBeAddUserRoleRel);
+            if (count == Constant.ZERO) {
+                throw new ServerException("批量新增用户角色关联失败");
+            }
+
+        }
+    }
+
+    private List<UserPrivilege> getToBeAddUserResources(AddUserResourcesForm addUserRoleRelForm) {
+        String userId = addUserRoleRelForm.getUserId();
+        List<String> resourceIds = addUserRoleRelForm.getResourceIds();
+        List<UserPrivilege> userRoleRelList = privilegeMapper.selectList(new EntityWrapper<UserPrivilege>()
+                .eq("user_id", userId)
+                .eq("subject_type", CodeEnum.MENU.getCode())
+                .or("subject_type", CodeEnum.BUTTON.getCode())
+        );
+        if (!userRoleRelList.isEmpty()) {
+            List<String> existIds = new ArrayList<>();// 接收已经存在关联的角色id
+            List<String> toDelIds = new ArrayList<>();// 接收需要删除的角色id
+            List<String> oldIds = new ArrayList<>();// 接收所有已经绑定的角色id
+            for (UserPrivilege userRoleRel : userRoleRelList) {
+                oldIds.add(userRoleRel.getSubjectId());
+            }
+            for (String oldId : oldIds) {
+                if (resourceIds.contains(oldId)) {
+                    existIds.add(oldId);
+                } else {
+                    toDelIds.add(oldId);
+                }
+            }
+            resourceIds.removeAll(existIds);
+            if (!toDelIds.isEmpty()) {
+                int count = privilegeMapper.deleteByResourcesAndUser(existIds, userId);
+                if (count == Constant.ZERO) {
+                    throw new ServerException("删除用户角色关联失败");
+                }
+            }
+
+        }
+        List<Resource> resourceList = resourceMapper.selectBatchIds(resourceIds);
+        Map<String, Integer> typeMap = resourceList.stream().collect(Collectors.toMap(Resource::getPkResourceId, Resource::getResourceType));
+        if (!resourceIds.isEmpty()) {
+            List<UserPrivilege> toBeAddUserRoleRelList = new ArrayList<>();
+            for (String resourceId : resourceIds) {
+                String pkId = UUIDUtils.getPkUUID();
+                String curUserId = UserManager.getCurrentUserId();
+                Date curDate = DateUtils.getCurrentDate();
+                UserPrivilege userRoleRel = new UserPrivilege();
+                userRoleRel.setPkPrivilegeId(pkId);
+                userRoleRel.setUserId(userId);
+                userRoleRel.setSubjectId(resourceId);
+                userRoleRel.setSubjectType(typeMap.get(resourceId));
+                userRoleRel.setCreateTime(curDate);
+                userRoleRel.setCreateUserId(curUserId);
+                toBeAddUserRoleRelList.add(userRoleRel);
+            }
+            return toBeAddUserRoleRelList;
+        } else {
+            return new ArrayList<>();
+        }
     }
 
     /**

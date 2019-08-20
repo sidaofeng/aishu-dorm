@@ -10,15 +10,11 @@ import com.waken.dorm.common.exception.ServerException;
 import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.dorm.DormRuleForm;
 import com.waken.dorm.common.form.dorm.EditDormRuleForm;
-import com.waken.dorm.common.utils.BeanMapper;
-import com.waken.dorm.common.utils.DateUtils;
-import com.waken.dorm.common.utils.StringUtils;
-import com.waken.dorm.common.utils.UUIDUtils;
+import com.waken.dorm.common.utils.*;
 import com.waken.dorm.common.view.dorm.DormRuleView;
 import com.waken.dorm.dao.dorm.DormRuleMapper;
 import com.waken.dorm.manager.UserManager;
 import com.waken.dorm.service.dorm.DormRuleService;
-import com.waken.dorm.serviceImpl.base.BaseServerImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +33,7 @@ import java.util.List;
  **/
 @Transactional(propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Exception.class)
 @Service
-public class DormRuleServiceImpl extends BaseServerImpl implements DormRuleService {
+public class DormRuleServiceImpl implements DormRuleService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
     DormRuleMapper dormRuleMapper;
@@ -87,11 +83,11 @@ public class DormRuleServiceImpl extends BaseServerImpl implements DormRuleServi
     @Override
     public void deleteDormRule(DeleteForm deleteForm) {
         logger.info("service: 删除宿舍规则开始");
-        List<String> dormRuleIds = deleteForm.getDelIds();
+        List<String> ids = deleteForm.getDelIds();
         Integer delStatus = deleteForm.getDelStatus();
-        int count = Constant.ZERO;
+        int count;
         if (CodeEnum.YES.getCode() == delStatus) { // 物理删除
-            List<DormRule> dormRuleList = dormRuleMapper.selectByIds(dormRuleIds);
+            List<DormRule> dormRuleList = dormRuleMapper.selectByIds(ids);
             StringBuffer sb = new StringBuffer();
             for (DormRule dormRule : dormRuleList) {
                 if (CodeEnum.ENABLE.getCode() == dormRule.getStatus()) {
@@ -101,14 +97,14 @@ public class DormRuleServiceImpl extends BaseServerImpl implements DormRuleServi
             if (StringUtils.isNotEmpty(sb.toString())) {
                 throw new ServerException("以下宿舍规则处于生效中：" + sb.toString());
             } else {//删除宿舍
-                count = dormRuleMapper.deleteBatchIds(dormRuleIds);
+                count = dormRuleMapper.deleteBatchIds(ids);
                 if (count == Constant.ZERO) {
                     throw new ServerException("删除宿舍规则个数为 0 条");
                 }
             }
 
         } else if (CodeEnum.NO.getCode() == delStatus) {
-            count = dormRuleMapper.batchUpdateStatus(getToUpdateStatusMap(dormRuleIds, CodeEnum.DELETE.getCode()));
+            count = dormRuleMapper.batchUpdateStatus(DormUtil.getToUpdateStatusMap(ids,UserManager.getCurrentUserId()));
             if (count == Constant.ZERO) {
                 throw new ServerException("状态删除失败");
             }

@@ -13,10 +13,7 @@ import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.dorm.AddDormViolationForm;
 import com.waken.dorm.common.form.dorm.DormViolationForm;
 import com.waken.dorm.common.form.dorm.UpdateDormViolationForm;
-import com.waken.dorm.common.utils.BeanMapper;
-import com.waken.dorm.common.utils.DateUtils;
-import com.waken.dorm.common.utils.StringUtils;
-import com.waken.dorm.common.utils.UUIDUtils;
+import com.waken.dorm.common.utils.*;
 import com.waken.dorm.common.view.dorm.AppDormViolationView;
 import com.waken.dorm.common.view.dorm.DormViolationView;
 import com.waken.dorm.dao.dorm.DormMapper;
@@ -24,7 +21,6 @@ import com.waken.dorm.dao.dorm.DormViolationMapper;
 import com.waken.dorm.dao.student.StudentMapper;
 import com.waken.dorm.manager.UserManager;
 import com.waken.dorm.service.dorm.DormViolationService;
-import com.waken.dorm.serviceImpl.base.BaseServerImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +39,7 @@ import java.util.List;
  **/
 @Transactional(propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Exception.class)
 @Service
-public class DormViolationServiceImpl extends BaseServerImpl implements DormViolationService {
+public class DormViolationServiceImpl implements DormViolationService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
     DormViolationMapper dormViolationMapper;
@@ -93,11 +89,11 @@ public class DormViolationServiceImpl extends BaseServerImpl implements DormViol
     @Override
     public void deleteDormViolation(DeleteForm deleteForm) {
         logger.info("service: 删除违规记录开始");
-        List<String> pkDormViolationIds = deleteForm.getDelIds();
+        List<String> ids = deleteForm.getDelIds();
         Integer delStatus = deleteForm.getDelStatus();
-        int count = Constant.ZERO;
+        int count;
         if (CodeEnum.YES.getCode() == delStatus) { // 物理删除
-            List<DormViolation> dormViolations = dormViolationMapper.selectByIds(pkDormViolationIds);
+            List<DormViolation> dormViolations = dormViolationMapper.selectByIds(ids);
             StringBuffer sb = new StringBuffer();
             for (DormViolation dormViolation : dormViolations) {
                 if (CodeEnum.UNCOMPLETE.getCode() == dormViolation.getStatus()) {
@@ -107,14 +103,14 @@ public class DormViolationServiceImpl extends BaseServerImpl implements DormViol
             if (StringUtils.isNotEmpty(sb.toString())) {
                 throw new ServerException("以下违规记录处于未处理状态中：" + sb.toString());
             } else {//删除宿舍
-                count = dormViolationMapper.deleteBatchIds(pkDormViolationIds);
+                count = dormViolationMapper.deleteBatchIds(ids);
                 if (count == Constant.ZERO) {
                     throw new ServerException("删除违规记录为 0 条");
                 }
             }
 
         } else if (CodeEnum.NO.getCode() == delStatus) {
-            count = dormViolationMapper.batchUpdateStatus(getToUpdateStatusMap(pkDormViolationIds, CodeEnum.DELETE.getCode()));
+            count = dormViolationMapper.batchUpdateStatus(DormUtil.getToUpdateStatusMap(ids,UserManager.getCurrentUserId()));
             if (count == Constant.ZERO) {
                 throw new ServerException("状态删除失败");
             }

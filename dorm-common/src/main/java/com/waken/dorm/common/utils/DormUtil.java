@@ -1,18 +1,12 @@
 package com.waken.dorm.common.utils;
 
-import com.waken.dorm.common.authentication.JWTUtil;
 import com.waken.dorm.common.base.UpdateStatusEntity;
 import com.waken.dorm.common.constant.Constant;
-import com.waken.dorm.common.entity.user.User;
 import com.waken.dorm.common.enums.CodeEnum;
-import com.waken.dorm.common.exception.ServerException;
-import com.waken.dorm.common.function.CacheSelector;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.shiro.SecurityUtils;
 
 import java.util.*;
-import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
 @Slf4j
@@ -25,7 +19,7 @@ public class DormUtil {
      * @param ids
      * @param userId
      */
-    public Map<String, Object> getToUpdateStatusMap(List<String> ids, String userId) {
+    public static Map<String, Object> getToUpdateStatusMap(List<String> ids, String userId) {
         Map<String, Object> param = new HashMap<>();
         Date curDate = DateUtils.getCurrentDate();
         List<UpdateStatusEntity> updateList = new ArrayList<>();// 接收需要修改的id和状态码

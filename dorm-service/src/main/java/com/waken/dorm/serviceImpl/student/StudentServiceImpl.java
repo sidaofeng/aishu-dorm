@@ -20,7 +20,6 @@ import com.waken.dorm.common.view.student.StudentView;
 import com.waken.dorm.dao.student.StudentMapper;
 import com.waken.dorm.manager.UserManager;
 import com.waken.dorm.service.student.StudentService;
-import com.waken.dorm.serviceImpl.base.BaseServerImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +32,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @ClassName StudentServiceImpl
@@ -42,7 +42,7 @@ import java.util.List;
  **/
 @Transactional(propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Exception.class)
 @Service
-public class StudentServiceImpl extends BaseServerImpl implements StudentService {
+public class StudentServiceImpl implements StudentService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
     StudentMapper studentMapper;
@@ -149,7 +149,8 @@ public class StudentServiceImpl extends BaseServerImpl implements StudentService
             }
 
         } else if (CodeEnum.NO.getCode() == delStatus) {
-            count = studentMapper.batchUpdateStatus(getToUpdateStatusMap(studentIds, CodeEnum.DELETE.getCode()));
+            Map updateStatusMap = DormUtil.getToUpdateStatusMap(studentIds, UserManager.getCurrentUserId());
+            count = studentMapper.batchUpdateStatus(updateStatusMap);
             if (count == Constant.ZERO) {
                 throw new ServerException("状态删除失败");
             }
@@ -311,7 +312,7 @@ public class StudentServiceImpl extends BaseServerImpl implements StudentService
         String studentToken = UUIDUtils.getPkUUID();
         studentInfo.setStudentToken(studentToken);
         long redisCacheTime = 10000 * 60 * 30;// 缓存时间
-        redisCacheManager.setEx(Constant.STUDENT_CACHE_PREFIX+studentToken, studentInfo, redisCacheTime);//redis缓存
+        redisCacheManager.setEx(Constant.STUDENT_CACHE_PREFIX + studentToken, studentInfo, redisCacheTime);//redis缓存
         logger.info("生成学生studentToken为：" + studentToken);
         return studentToken;
     }

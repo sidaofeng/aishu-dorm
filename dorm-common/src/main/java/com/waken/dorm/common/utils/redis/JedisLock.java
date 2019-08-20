@@ -10,10 +10,8 @@ import org.springframework.data.redis.core.StringRedisTemplate;
  */
 public class JedisLock implements DistributedLock {
 
-    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
-
     private static StringRedisTemplate redisTemplate;
-
+    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
     String lockKey; // 锁的键值
     int expireMsecs = 10 * 1000; // 锁超时，防止线程在入锁以后，无限的执行等待
     int timeoutMsecs = 10 * 1000; // 锁等待，防止线程饥饿

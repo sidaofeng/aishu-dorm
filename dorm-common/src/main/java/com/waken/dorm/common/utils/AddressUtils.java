@@ -13,10 +13,10 @@ import java.lang.reflect.Method;
 
 public class AddressUtils {
 
+    private static Logger log = LoggerFactory.getLogger(AddressUtils.class);
+
     private AddressUtils() {
     }
-
-    private static Logger log = LoggerFactory.getLogger(AddressUtils.class);
 
     public static String getCityInfo(String ip) {
         try {

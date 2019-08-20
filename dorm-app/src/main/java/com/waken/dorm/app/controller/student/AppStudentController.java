@@ -4,7 +4,6 @@ import com.waken.dorm.app.controller.base.AppBaseController;
 import com.waken.dorm.common.annotation.PrivilegeResource;
 import com.waken.dorm.common.base.ResultView;
 import com.waken.dorm.common.enums.AccessStrategy;
-import com.waken.dorm.common.enums.ResultEnum;
 import com.waken.dorm.common.utils.ResultUtil;
 import com.waken.dorm.common.utils.StringUtils;
 import com.waken.dorm.common.view.base.ImgView;
@@ -15,8 +14,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -53,7 +50,7 @@ public class AppStudentController extends AppBaseController {
         log.info("开始调用学生登陆接口：" + studentNum);
         ResultView resultView = new ResultView();
         if (null == studentNum || StringUtils.isBlank(password)) {
-           return ResultUtil.errorByMsg("学号或密码不能为空！");
+            return ResultUtil.errorByMsg("学号或密码不能为空！");
         }
         return studentService.studentLogin(studentNum, password);
     }

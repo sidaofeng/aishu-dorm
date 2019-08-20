@@ -6,7 +6,6 @@ import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.role.AddRoleResourceRelForm;
 import com.waken.dorm.common.form.role.EditRoleForm;
 import com.waken.dorm.common.form.role.QueryRoleForm;
-import com.waken.dorm.common.form.role.UserRoleRelForm;
 import com.waken.dorm.common.view.role.UserRoleView;
 
 import java.util.List;
@@ -31,7 +30,7 @@ public interface RoleService {
      * @param userId
      * @return
      */
-    List<UserRoleView> listUserRoleByUserId(String userId);
+    List<UserRoleView> listRolesByUser(String userId);
 
     /**
      * 分页查询角色
@@ -40,13 +39,6 @@ public interface RoleService {
      * @return
      */
     PageInfo<Role> listRoles(QueryRoleForm queryRoleForm);
-
-    /**
-     * 添加单个用户与角色关联
-     *
-     * @param userRoleRelForm
-     */
-    void addUserRoleRel(UserRoleRelForm userRoleRelForm);
 
     /**
      * 新增角色与资源的关联

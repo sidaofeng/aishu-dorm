@@ -9,17 +9,13 @@ import com.waken.dorm.common.exception.ServerException;
 import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.dorm.DormScoreForm;
 import com.waken.dorm.common.form.dorm.ListDormScoreForm;
-import com.waken.dorm.common.utils.BeanMapper;
-import com.waken.dorm.common.utils.DateUtils;
-import com.waken.dorm.common.utils.StringUtils;
-import com.waken.dorm.common.utils.UUIDUtils;
+import com.waken.dorm.common.utils.*;
 import com.waken.dorm.common.view.dorm.AppDormScoreView;
 import com.waken.dorm.common.view.dorm.DormScoreView;
 import com.waken.dorm.dao.dorm.DormMapper;
 import com.waken.dorm.dao.dorm.DormScoreMapper;
 import com.waken.dorm.manager.UserManager;
 import com.waken.dorm.service.dorm.DormScoreService;
-import com.waken.dorm.serviceImpl.base.BaseServerImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +34,7 @@ import java.util.List;
  **/
 @Transactional(propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Exception.class)
 @Service
-public class DormScoreServiceImpl extends BaseServerImpl implements DormScoreService {
+public class DormScoreServiceImpl implements DormScoreService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
     DormScoreMapper dormScoreMapper;
@@ -82,11 +78,11 @@ public class DormScoreServiceImpl extends BaseServerImpl implements DormScoreSer
     @Override
     public void deleteDormScore(DeleteForm deleteForm) {
         logger.info("service: 删除积分开始");
-        List<String> dormScoreIds = deleteForm.getDelIds();
+        List<String> ids = deleteForm.getDelIds();
         Integer delStatus = deleteForm.getDelStatus();
-        int count = Constant.ZERO;
+        int count;
         if (CodeEnum.YES.getCode() == delStatus) { // 物理删除
-            List<DormScore> dormScoreList = dormScoreMapper.selectByIds(dormScoreIds);
+            List<DormScore> dormScoreList = dormScoreMapper.selectByIds(ids);
             StringBuffer sb = new StringBuffer();
             for (DormScore dormScore : dormScoreList) {
                 if (CodeEnum.ENABLE.getCode() == dormScore.getStatus()) {
@@ -96,13 +92,13 @@ public class DormScoreServiceImpl extends BaseServerImpl implements DormScoreSer
             if (StringUtils.isNotEmpty(sb.toString())) {
                 throw new ServerException("以下宿舍评分处于生效中：" + sb.toString());
             } else {//删除宿舍
-                count = dormScoreMapper.deleteBatchIds(dormScoreIds);
+                count = dormScoreMapper.deleteBatchIds(ids);
                 if (count == Constant.ZERO) {
                     throw new ServerException("删除宿舍评分个数为 0 条");
                 }
             }
         } else if (CodeEnum.NO.getCode() == delStatus) {
-            count = dormScoreMapper.batchUpdateStatus(getToUpdateStatusMap(dormScoreIds, CodeEnum.DELETE.getCode()));
+            count = dormScoreMapper.batchUpdateStatus(DormUtil.getToUpdateStatusMap(ids,UserManager.getCurrentUserId()));
             if (count == Constant.ZERO) {
                 throw new ServerException("状态删除失败");
             }

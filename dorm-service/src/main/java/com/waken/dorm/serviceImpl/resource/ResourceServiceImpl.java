@@ -14,6 +14,7 @@ import com.waken.dorm.common.utils.*;
 import com.waken.dorm.common.view.base.Tree;
 import com.waken.dorm.common.view.resource.ResourceView;
 import com.waken.dorm.common.view.resource.UserMenuView;
+import com.waken.dorm.common.view.user.UserRoleResource;
 import com.waken.dorm.dao.resource.ResourceMapper;
 import com.waken.dorm.dao.role.RoleMapper;
 import com.waken.dorm.dao.role.RoleResourceRelMapper;
@@ -21,7 +22,6 @@ import com.waken.dorm.dao.user.UserMapper;
 import com.waken.dorm.dao.user.UserPrivilegeMapper;
 import com.waken.dorm.manager.UserManager;
 import com.waken.dorm.service.resource.ResourceService;
-import com.waken.dorm.serviceImpl.base.BaseServerImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,9 +40,9 @@ import java.util.stream.Collectors;
  **/
 @Transactional(propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Exception.class)
 @Service
-public class ResourceServiceImpl extends BaseServerImpl implements ResourceService {
+public class ResourceServiceImpl implements ResourceService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    @Autowired
+    @javax.annotation.Resource
     ResourceMapper resourceMapper;
     @Autowired
     RoleResourceRelMapper roleResourceRelMapper;
@@ -112,33 +112,49 @@ public class ResourceServiceImpl extends BaseServerImpl implements ResourceServi
         List<String> resourceIds = deleteForm.getDelIds();
         Integer delStatus = deleteForm.getDelStatus();
         List<String> delResourceIds = this.getAllToDelIds(resourceIds);
-        if (CodeEnum.YES.getCode() == delStatus) { // 状态删除
-            //TODO 删除资源与角色的关联 删除资源与人的关联
-            List<RoleResourceRel> roleResourceRelList = roleResourceRelMapper.selectByResourceIds(delResourceIds);
-            if (!roleResourceRelList.isEmpty()) {
-                StringBuffer sb = new StringBuffer();
-                for (RoleResourceRel roleResourceRel : roleResourceRelList) {
-                    sb.append(roleResourceRel.getResourceId());
-                }
-                if (StringUtils.isEmpty(sb.toString())) {//删除资源与角色关联
-                    roleResourceRelMapper.deleteBatchIds(delResourceIds);
-                } else {
-                    throw new ServerException("删除资源失败，原因是以下资源与角色关联生效中：" + sb.toString());
-                }
-            }
+        if (CodeEnum.YES.getCode() == delStatus) { // 物理删除
+//            this.checkResourceRel(delResourceIds);
+            //直接删除关联，此处根据业务需求修改
+            this.deleteResourceRel(delResourceIds);
             // 删除资源本身
             int count = resourceMapper.deleteBatchIds(delResourceIds);
             if (count == Constant.ZERO) {
-                throw new ServerException("状态删除失败");
+                throw new ServerException("删除失败");
             }
         } else if (CodeEnum.NO.getCode() == delStatus) {
-            int count = resourceMapper.batchUpdateStatus(getToUpdateStatusMap(delResourceIds, CodeEnum.DELETE.getCode()));
+//            this.checkResourceRel(delResourceIds);
+            this.deleteResourceRel(delResourceIds);
+            Map toUpdateStatusMap = DormUtil.getToUpdateStatusMap(delResourceIds, UserManager.getCurrentUserId());
+            int count = resourceMapper.batchUpdateStatus(toUpdateStatusMap);
             if (count == Constant.ZERO) {
-                throw new ServerException("状态删除失败");
+                throw new ServerException("删除失败");
             }
             roleResourceRelMapper.deleteBatchIds(resourceIds);
         } else {
             throw new ServerException("删除状态码错误！");
+        }
+    }
+
+    private void deleteResourceRel(List<String> delResourceIds) {
+        this.roleResourceRelMapper.deleteByResources(delResourceIds);
+        this.userPrivilegeMapper.deleteByResources(delResourceIds);
+    }
+
+    /**
+     * 检查资源是否与角色或者用户存在关联关系
+     *
+     * @param delResourceIds
+     */
+    private void checkResourceRel(List<String> delResourceIds) {
+        //找出资源关联的角色或者人员，如果有则不能删除，需要先解除关联后才能删除资源
+        List<UserRoleResource> roles = roleResourceRelMapper.selectByResources(delResourceIds);
+        if (null != roles && !roles.isEmpty()) {
+
+            throw new ServerException("删除资源失败，原因是以下角色与资源绑定中：" + roles.toString() + "请解绑后重试！");
+        }
+        List<UserRoleResource> users = userPrivilegeMapper.selectByResources(delResourceIds);
+        if (null != users && !users.isEmpty()) {
+            throw new ServerException("删除资源失败，原因是以下用户与资源绑定中：" + users.toString() + "请解绑后重试！");
         }
     }
 
@@ -158,21 +174,22 @@ public class ResourceServiceImpl extends BaseServerImpl implements ResourceServi
 
     /**
      * 查询资源树集合
+     *
      * @param status
      * @param userId
      * @param roleId
      * @return
      */
     @Override
-    public List<Tree<ResourceView>> getResourcesTree(Integer status,String userId,String roleId) {
+    public List<Tree<ResourceView>> getResourcesTree(Integer status, String userId, String roleId) {
         //获得用户用户或者角色管理的资源，用于将对应的资源设置为选中状态（checked == true）
-        Map<String,String> var4 = this.getSubjectResource(status,userId,roleId);
+        Map<String, String> var4 = this.getSubjectResource(status, userId, roleId);
 
         //获取到所有的资源信息 null表示查询出所有的状态的资源用于资源树管理查询 1表示查询生效的资源是用于查询用户或者角色关联的资源
         List<ResourceView> allResource = resourceMapper.selectResourceView(status);
 
         //将资源集合转换成树形集合对象
-        List<Tree<ResourceView>> allResourceTree = this.getResourceTreeView(allResource,var4);
+        List<Tree<ResourceView>> allResourceTree = this.getResourceTreeView(allResource, var4);
 
         //资源树根节点
         List<Tree<ResourceView>> rootList = new ArrayList<>();
@@ -213,41 +230,43 @@ public class ResourceServiceImpl extends BaseServerImpl implements ResourceServi
 
     /**
      * 如果status==null表示获取资源管理所需要的所有资源，或者获得用户用户或者角色管理的资源
+     *
      * @param userId
      * @param roleId
      * @return
      */
-    private Map<String,String> getSubjectResource(Integer status, String userId,String roleId){
-        if (null == status){//查询资源管理所需要的资源
+    private Map<String, String> getSubjectResource(Integer status, String userId, String roleId) {
+        if (null == status) {//查询资源管理所需要的资源
             return new HashMap<>();
         }
         List<UserMenuView> var3 = null;
-        if (StringUtils.isNotBlank(roleId)){
+        if (StringUtils.isNotBlank(roleId)) {
             Role role = roleMapper.selectById(roleId);
-            if (null == role){
+            if (null == role) {
                 throw new ServerException("参数错误！");
             }
             var3 = userPrivilegeMapper.selectRoleResources(roleId);
-        }else if (StringUtils.isNotBlank(userId)){
+        } else if (StringUtils.isNotBlank(userId)) {
             User user = userMapper.selectById(userId);
-            if (null == user){
+            if (null == user) {
                 throw new ServerException("参数错误！");
             }
             var3 = userPrivilegeMapper.selectUserMenu(userId);
         }
-        if (null == var3 && var3.isEmpty()){
+        if (null == var3 && var3.isEmpty()) {
             return new HashMap<>();
         }
-        return var3.stream().collect(Collectors.toMap(UserMenuView::getPkResourceId,UserMenuView::getResourceName));
+        return var3.stream().collect(Collectors.toMap(UserMenuView::getPkResourceId, UserMenuView::getResourceName));
     }
 
     /**
      * 将资源集合转换成树形集合对象
+     *
      * @param var1 资源集合
      * @param var2 key为与角色或者用户管理的主键id
      * @return
      */
-    private List<Tree<ResourceView>> getResourceTreeView(List<ResourceView> var1, Map<String,String> var2){
+    private List<Tree<ResourceView>> getResourceTreeView(List<ResourceView> var1, Map<String, String> var2) {
         List<Tree<ResourceView>> allTree = new ArrayList<>();
         //查询到当前登录用户
         Tree<ResourceView> tree;
@@ -256,10 +275,10 @@ public class ResourceServiceImpl extends BaseServerImpl implements ResourceServi
         while (var6.hasNext()) {
             tree = new Tree<>();
             resourceView = var6.next();
-            if (null == var2 && !var2.isEmpty()){
-            if (var2.containsKey(resourceView.getPkResourceId())){
-                tree.setChecked(true);
-              }
+            if (null == var2 && !var2.isEmpty()) {
+                if (var2.containsKey(resourceView.getPkResourceId())) {
+                    tree.setChecked(true);
+                }
             }
             tree.setId(resourceView.getPkResourceId());
             tree.setKey(resourceView.getPkResourceId());
@@ -273,6 +292,7 @@ public class ResourceServiceImpl extends BaseServerImpl implements ResourceServi
         }
         return allTree;
     }
+
     /**
      * 通过资源id查询资源
      *
@@ -357,7 +377,6 @@ public class ResourceServiceImpl extends BaseServerImpl implements ResourceServi
      *
      * @param resourceId
      */
-    @Transactional
     private void addResourceRoleRel(String resourceId, int resourceType) {
         List<Role> roleList = roleMapper.selectList(new EntityWrapper<Role>()
                 .eq("role_name", Constant.SuperAdmin)
@@ -405,7 +424,6 @@ public class ResourceServiceImpl extends BaseServerImpl implements ResourceServi
      *
      * @param parentId
      */
-    @Transactional
     private void updateParent(String parentId) {
         List<Resource> resourceList = resourceMapper.selectList(new EntityWrapper<Resource>()
                 .eq("parent_id", parentId)

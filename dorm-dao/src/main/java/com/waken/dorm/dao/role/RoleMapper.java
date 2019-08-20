@@ -14,8 +14,6 @@ public interface RoleMapper extends BaseMapper<Role> {
 
     List<UserRoleView> listUserRole();
 
-    List<UserRoleRelView> listUserRoleInfo(String curUserId);
-
     List<UserRoleRelView> listAddedRoles(ListAddedRoleForm listAddedRoleForm);
 
     List<UserRoleRelView> listSuperAdminRoles(String userId);

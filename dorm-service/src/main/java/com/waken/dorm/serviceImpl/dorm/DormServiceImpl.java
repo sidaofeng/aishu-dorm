@@ -12,10 +12,7 @@ import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.dorm.AddDormStudentRelForm;
 import com.waken.dorm.common.form.dorm.DormForm;
 import com.waken.dorm.common.form.dorm.EditDormForm;
-import com.waken.dorm.common.utils.BeanMapper;
-import com.waken.dorm.common.utils.DateUtils;
-import com.waken.dorm.common.utils.StringUtils;
-import com.waken.dorm.common.utils.UUIDUtils;
+import com.waken.dorm.common.utils.*;
 import com.waken.dorm.common.view.dorm.AppDormView;
 import com.waken.dorm.common.view.dorm.DormStudentRelView;
 import com.waken.dorm.common.view.dorm.DormStudentsView;
@@ -24,7 +21,6 @@ import com.waken.dorm.dao.dorm.DormMapper;
 import com.waken.dorm.dao.dorm.DormStudentRelMapper;
 import com.waken.dorm.manager.UserManager;
 import com.waken.dorm.service.dorm.DormService;
-import com.waken.dorm.serviceImpl.base.BaseServerImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +40,7 @@ import java.util.List;
  **/
 @Transactional(propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Exception.class)
 @Service
-public class DormServiceImpl extends BaseServerImpl implements DormService {
+public class DormServiceImpl implements DormService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
     DormMapper dormMapper;
@@ -96,11 +92,11 @@ public class DormServiceImpl extends BaseServerImpl implements DormService {
     @Override
     public void deleteDorm(DeleteForm deleteForm) {
         logger.info("service: 删除宿舍开始");
-        List<String> dormIds = deleteForm.getDelIds();
+        List<String> ids = deleteForm.getDelIds();
         Integer delStatus = deleteForm.getDelStatus();
-        int count = Constant.ZERO;
+        int count ;
         if (CodeEnum.YES.getCode() == delStatus) { // 物理删除
-            List<Dorm> dormList = dormMapper.selectByIds(dormIds);
+            List<Dorm> dormList = dormMapper.selectByIds(ids);
             StringBuffer sb = new StringBuffer();
             for (Dorm dorm : dormList) {
                 if (CodeEnum.ENABLE.getCode() == dorm.getStatus()) {
@@ -110,14 +106,14 @@ public class DormServiceImpl extends BaseServerImpl implements DormService {
             if (StringUtils.isNotEmpty(sb.toString())) {
                 throw new ServerException("以下宿舍处于生效中：" + sb.toString());
             } else {//删除宿舍
-                count = dormMapper.deleteBatchIds(dormIds);
+                count = dormMapper.deleteBatchIds(ids);
                 if (count == Constant.ZERO) {
                     throw new ServerException("删除宿舍个数为 0 条");
                 }
             }
 
         } else if (CodeEnum.NO.getCode() == delStatus) {
-            count = dormMapper.batchUpdateStatus(getToUpdateStatusMap(dormIds, CodeEnum.DELETE.getCode()));
+            count = dormMapper.batchUpdateStatus(DormUtil.getToUpdateStatusMap(ids,UserManager.getCurrentUserId()));
             if (count == Constant.ZERO) {
                 throw new ServerException("状态删除失败");
             }

@@ -40,13 +40,11 @@ public class DateUtils {
     public static final String FULL_TIME_PATTERN = "yyyyMMddHHmmss";
 
     public static final String FULL_TIME_SPLIT_PATTERN = "yyyy-MM-dd HH:mm:ss";
-
+    public static final long ONE_HOUR = 60 * 60 * 1000;
     /**
      * The Constant LOGGER.
      */
     private final static Logger LOGGER = LoggerFactory.getLogger(DateUtils.class);
-
-    public static final long ONE_HOUR = 60 * 60 * 1000;
 
     public static String formatFullTime(LocalDateTime localDateTime) {
         return formatFullTime(localDateTime, FULL_TIME_PATTERN);

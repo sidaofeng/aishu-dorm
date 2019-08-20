@@ -1,6 +1,5 @@
 package com.waken.dorm.common.view.role;
 
-import com.waken.dorm.common.enums.CodeEnum;
 import com.waken.dorm.common.view.base.BaseView;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,5 +17,5 @@ public class UserRoleView extends BaseView {
 
     private String roleName;
 
-    private Integer isSelect = CodeEnum.NO.getCode();//角色与用户存在关联表示选中
+    private boolean isSelect = false;//角色与用户存在关联表示选中
 }

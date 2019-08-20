@@ -21,10 +21,9 @@ import java.util.*;
 @Service("redisService")
 public class RedisServiceImpl implements RedisService {
 
+    private static String separator = System.getProperty("line.separator");
     @Autowired
     JedisPool jedisPool;
-
-    private static String separator = System.getProperty("line.separator");
 
     /**
      * 处理 jedis请求

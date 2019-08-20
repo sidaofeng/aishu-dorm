@@ -33,7 +33,7 @@ public class StudentManager {
     public StudentInfo getCurrentStudentInfo() {
         HttpServletRequest request = HttpContextUtils.getHttpServletRequest();
         String studentToken = request.getHeader(Constant.STUDENT_TOKEN);
-        StudentInfo studentInfo = (StudentInfo) redisCacheManager.get(Constant.STUDENT_CACHE_PREFIX+studentToken);
+        StudentInfo studentInfo = (StudentInfo) redisCacheManager.get(Constant.STUDENT_CACHE_PREFIX + studentToken);
         return studentInfo;
     }
 
@@ -56,12 +56,12 @@ public class StudentManager {
         if (StringUtils.isEmpty(studentToken)) {
             throw new ServerException("studentToken 为空！");
         }
-        boolean isExistsToken = redisCacheManager.exists(Constant.STUDENT_CACHE_PREFIX+studentToken);
+        boolean isExistsToken = redisCacheManager.exists(Constant.STUDENT_CACHE_PREFIX + studentToken);
         if (isExistsToken == false) {
             throw new ServerException(ResultEnum.OTHER_LOGIN);
         }
         try {
-            redisCacheManager.delete(Constant.STUDENT_CACHE_PREFIX+studentToken);
+            redisCacheManager.delete(Constant.STUDENT_CACHE_PREFIX + studentToken);
         } catch (Exception e) {
             e.printStackTrace();
             log.info("redis删除失败原因：" + e.getMessage());

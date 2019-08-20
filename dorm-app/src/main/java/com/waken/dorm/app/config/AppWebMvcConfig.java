@@ -17,6 +17,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class AppWebMvcConfig implements WebMvcConfigurer {
     /**
      * 配置自定义拦截器
+     *
      * @param registry
      */
     @Override
@@ -25,7 +26,7 @@ public class AppWebMvcConfig implements WebMvcConfigurer {
     }
 
     @Bean
-    public AppInterceptor initAppInterceptor(){
+    public AppInterceptor initAppInterceptor() {
         return new AppInterceptor();
     }
 }

@@ -11,6 +11,7 @@ import java.util.Map;
 public interface ResourceMapper extends BaseMapper<Resource> {
     /**
      * 查询所有的资源视图信息
+     *
      * @param status
      * @return
      */
@@ -18,6 +19,7 @@ public interface ResourceMapper extends BaseMapper<Resource> {
 
     /**
      * 批量更新资源状态
+     *
      * @param param
      * @return
      */

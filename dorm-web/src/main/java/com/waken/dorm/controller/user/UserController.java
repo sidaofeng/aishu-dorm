@@ -6,16 +6,21 @@ import com.waken.dorm.common.base.ResultView;
 import com.waken.dorm.common.entity.user.User;
 import com.waken.dorm.common.enums.CodeEnum;
 import com.waken.dorm.common.form.base.DeleteForm;
-import com.waken.dorm.common.form.role.ListAddedRoleForm;
+import com.waken.dorm.common.form.role.UserRoleRelForm;
+import com.waken.dorm.common.form.user.AddUserResourcesForm;
 import com.waken.dorm.common.form.user.AddUserRoleRelForm;
 import com.waken.dorm.common.form.user.EditUserForm;
 import com.waken.dorm.common.form.user.UserForm;
 import com.waken.dorm.common.utils.ResultUtil;
+import com.waken.dorm.common.utils.StringUtils;
 import com.waken.dorm.common.view.base.ImgView;
+import com.waken.dorm.common.view.role.UserRoleView;
 import com.waken.dorm.common.view.user.UserRolesView;
 import com.waken.dorm.common.view.user.UserView;
 import com.waken.dorm.controller.base.BaseController;
 import com.waken.dorm.manager.UserManager;
+import com.waken.dorm.service.role.RoleService;
+import com.waken.dorm.service.user.UserPrivilegeService;
 import com.waken.dorm.service.user.UserService;
 import com.wuwenze.poi.ExcelKit;
 import io.swagger.annotations.Api;
@@ -23,13 +28,12 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.NotBlank;
 import java.util.List;
 
 /**
@@ -44,6 +48,10 @@ import java.util.List;
 public class UserController extends BaseController {
     @Autowired
     UserService userService;
+    @Autowired
+    RoleService roleService;
+    @Autowired
+    UserPrivilegeService userPrivilegeService;
 
     /**
      * 用户注册
@@ -86,33 +94,74 @@ public class UserController extends BaseController {
         return ResultUtil.success(pageInfo);
     }
 
-    @Log("批量添加用户角色关联")
-    @PostMapping("user/batch-add-user-role")
-    @ApiOperation(value = "批量添加用户角色关联", notes = "批量添加用户角色关联 ")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "success", response = ResultView.class)
-    })
-    public ResultView batchAddUserRoleRel(@RequestBody AddUserRoleRelForm addUserRoleRelForm) {
-        log.info("开始调用批量添加用户角色关联接口：" + addUserRoleRelForm.toString());
-        userService.batchAddUserRoleRel(addUserRoleRelForm);
-        return ResultUtil.success();
-    }
-
     @GetMapping("user/roles/{id}")
-    @ApiOperation(value = "listUserRoles（根据用户id查询用户角色关联信息）", notes = "查询用户角色关联信息")
+    @ApiOperation(value = "根据用户id查询用户已绑定与未绑定的角色信息", notes = "根据用户id查询用户已绑定与未绑定的角色信息")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = UserRolesView.class)
     })
     public ResultView listUserRoles(@PathVariable String id) {
         log.info("开始调用查询用户角色关联信息接口：" + id);
-        ListAddedRoleForm form = new ListAddedRoleForm();
-        form.setUserId(id);
-        UserRolesView userRolesView = userService.listUserRoles(form);
+        UserRolesView userRolesView = userService.listUserRoles(id);
         return ResultUtil.success(userRolesView);
     }
 
+    @CrossOrigin
+    @GetMapping(value = "user/role/{id}")
+    @ApiOperation(value = "通过用户id获取角色信息(属于用户的角色标记为选中状态)", notes = "通过用户id获取角色信息(属于用户的角色标记为选中状态)")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "success", response = UserRoleView.class)
+    })
+    public ResultView listRolesByUser(@NotBlank(message = "{required}") @PathVariable String id) {
+        log.info("开始调用通过用户id 获取角色信息接口：" + id);
+        if (StringUtils.isBlank(id)) {
+            return ResultUtil.errorByMsg("入参为空！");
+        }
+        return ResultUtil.success(roleService.listRolesByUser(id));
+    }
+
+    @Log("批量添加用户角色关联")
+    @PostMapping("user/batch/add/roles")
+    @ApiOperation(value = "给用户绑定角色", notes = "给用户绑定角色 ")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "success", response = ResultView.class)
+    })
+    public ResultView batchAddUserRoleRel(@RequestBody AddUserRoleRelForm addUserRoleRelForm) {
+        log.info("开始调用批量添加用户角色关联接口：" + addUserRoleRelForm.toString());
+        userPrivilegeService.batchAddUserRoleRel(addUserRoleRelForm);
+        return ResultUtil.success();
+    }
+
+    @Log("批量添加用户资源关联")
+    @PostMapping("user/batch/add/resources")
+    @ApiOperation(value = "给用户绑定资源", notes = "给用户绑定资源 ")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "success", response = ResultView.class)
+    })
+    public ResultView batchAddUserRoleRel(@RequestBody AddUserResourcesForm addForm) {
+        log.info("开始调用批量添加用户角色关联接口：" + addForm.toString());
+        userPrivilegeService.batchAddUserResourceRel(addForm);
+        return ResultUtil.success();
+    }
+
+
+    @Log("新增单个用户与角色关联")
+    @CrossOrigin
+    @PostMapping(value = "user/add/role")
+    @ApiOperation(value = "addUserRoleRel（新增单个用户与角色关联）", notes = "新增单个用户与角色关联 ")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "success", response = ResultView.class)
+    })
+    public ResultView addUserRoleRel(@RequestBody UserRoleRelForm userRoleRelForm) {
+        log.info("开始调用新增单个用户与角色关联接口：" + userRoleRelForm);
+        if (StringUtils.isBlank(userRoleRelForm.getUserId())) {
+            return ResultUtil.errorByMsg("用户id为空");
+        }
+        userPrivilegeService.addUserRoleRel(userRoleRelForm);
+        return ResultUtil.success();
+    }
+
     @Log("用户头像上传")
-    @PostMapping("user/upload-head-img")
+    @PostMapping("user/upload/head-img")
     @ApiOperation(value = "用户头像上传", notes = "用户头像上传")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "success", response = ImgView.class)})
     public ResultView uploadUserImg(@RequestParam(value = "file", required = false) MultipartFile file) {
@@ -129,7 +178,7 @@ public class UserController extends BaseController {
 
     @Log("导出用户信息")
     @GetMapping("user/export")
-    @ApiOperation(value = "export（导出用户信息）", notes = "导出用户信息",produces="application/octet-stream")
+    @ApiOperation(value = "export（导出用户信息）", notes = "导出用户信息", produces = "application/octet-stream")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "success", response = ResultView.class)})
     public ResultView export(HttpServletResponse response) {
         List<User> userList = userService.selectList();

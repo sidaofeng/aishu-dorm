@@ -7,10 +7,7 @@ import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.role.AddRoleResourceRelForm;
 import com.waken.dorm.common.form.role.EditRoleForm;
 import com.waken.dorm.common.form.role.QueryRoleForm;
-import com.waken.dorm.common.form.role.UserRoleRelForm;
 import com.waken.dorm.common.utils.ResultUtil;
-import com.waken.dorm.common.utils.StringUtils;
-import com.waken.dorm.common.view.role.UserRoleView;
 import com.waken.dorm.controller.base.BaseController;
 import com.waken.dorm.service.role.RoleService;
 import io.swagger.annotations.Api;
@@ -18,12 +15,8 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import javax.validation.constraints.NotBlank;
 
 /**
  * @ClassName RoleController
@@ -65,6 +58,7 @@ public class RoleController extends BaseController {
         roleService.deleteRole(deleteFrom);
         return ResultUtil.success();
     }
+
     @CrossOrigin
     @PostMapping(value = "role/page")
     @ApiOperation(value = "分页查询角色信息", notes = "分页查询角色信息 ")
@@ -75,45 +69,17 @@ public class RoleController extends BaseController {
         log.info("开始调用分页查询角色信息接口：" + queryRoleForm.toString());
         return ResultUtil.success(roleService.listRoles(queryRoleForm));
     }
-    @CrossOrigin
-    @GetMapping(value = "roles/user/{id}")
-    @ApiOperation(value = "通过用户id 获取角色信息", notes = "通过用户id 获取角色信息 ")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "success", response = UserRoleView.class)
-    })
-    public ResultView listUserRoleByUserId(@NotBlank(message = "{required}") @PathVariable String id) {
-        log.info("开始调用通过用户id 获取角色信息接口：" + id);
-        if (StringUtils.isBlank(id)){
-            return ResultUtil.errorByMsg("入参为空！");
-        }
-        return ResultUtil.success(roleService.listUserRoleByUserId(id));
-    }
 
-    @Log("新增单个用户与角色关联")
-    @CrossOrigin
-    @PostMapping(value = "role/add-user-role")
-    @ApiOperation(value = "addUserRoleRel（新增单个用户与角色关联）", notes = "新增单个用户与角色关联 ")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "success", response = ResultView.class)
-    })
-    public ResultView addUserRoleRel(@RequestBody UserRoleRelForm userRoleRelForm) {
-        log.info("开始调用新增单个用户与角色关联接口：" + userRoleRelForm);
-        if (StringUtils.isBlank(userRoleRelForm.getUserId())) {
-            return ResultUtil.errorByMsg("用户id为空");
-        }
-        roleService.addUserRoleRel(userRoleRelForm);
-        return ResultUtil.success();
-    }
     @Log("批量新增角色资源关联")
     @CrossOrigin
-    @PostMapping(value = "role/add-resource-role")
+    @PostMapping(value = "role/batch/add/resources")
     @ApiOperation(value = "批量新增角色资源关联", notes = "批量新增角色资源关联")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = ResultView.class)
     })
-    public ResultView batchAddRoleResourceRel(@RequestBody AddRoleResourceRelForm addRoleResourceRelForm) {
-        log.info("开始调用批量新增角色资源关联接口：" + addRoleResourceRelForm.toString());
-        roleService.batchAddRoleResourceRel(addRoleResourceRelForm);
+    public ResultView batchAddRoleResourceRel(@RequestBody AddRoleResourceRelForm addForm) {
+        log.info("开始调用批量新增角色资源关联接口：" + addForm.toString());
+        roleService.batchAddRoleResourceRel(addForm);
         return ResultUtil.success();
     }
 }

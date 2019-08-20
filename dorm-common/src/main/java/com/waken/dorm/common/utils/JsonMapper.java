@@ -32,30 +32,6 @@ public class JsonMapper {
         this(null);
     }
 
-    /**
-     * 将json格式的数据转化为所对应的对象
-     *
-     * @param object        要转化的json对象
-     * @param classList     转化对象中的字段拥有的对象列表{private List<Data> data}，列表中的元素为Data.class
-     * @param toChangeClass 将要转化的对象
-     * @return object可转化为toChangeClass对象
-     */
-    public Object jsonToObject(Object object, List<Class<?>> classList, Class<?> toChangeClass) {
-        Map<String, Class<?>> classMap = new HashMap<String, Class<?>>();
-        JSONObject jsonObject = JSONObject.fromObject(String.valueOf(object));
-        Object toChangeClas = null;
-        if (classList == null) {
-            toChangeClas = JSONObject.toBean(jsonObject, toChangeClass);
-        } else {
-            for (Class<?> cla : classList) {
-                String tr = String.valueOf(cla.getSimpleName());
-                classMap.put(tr.toLowerCase(), cla);
-            }
-            toChangeClas = JSONObject.toBean(jsonObject, toChangeClass, classMap);
-        }
-        return toChangeClas;
-    }
-
     public JsonMapper(JsonInclude.Include include) {
         mapper = new ObjectMappingCustomer();
         // 设置输出时包含属性的风格
@@ -88,6 +64,30 @@ public class JsonMapper {
      */
     public static Object toJsonFormResult(Object data) {
         return new JsonForm(data);
+    }
+
+    /**
+     * 将json格式的数据转化为所对应的对象
+     *
+     * @param object        要转化的json对象
+     * @param classList     转化对象中的字段拥有的对象列表{private List<Data> data}，列表中的元素为Data.class
+     * @param toChangeClass 将要转化的对象
+     * @return object可转化为toChangeClass对象
+     */
+    public Object jsonToObject(Object object, List<Class<?>> classList, Class<?> toChangeClass) {
+        Map<String, Class<?>> classMap = new HashMap<String, Class<?>>();
+        JSONObject jsonObject = JSONObject.fromObject(String.valueOf(object));
+        Object toChangeClas = null;
+        if (classList == null) {
+            toChangeClas = JSONObject.toBean(jsonObject, toChangeClass);
+        } else {
+            for (Class<?> cla : classList) {
+                String tr = String.valueOf(cla.getSimpleName());
+                classMap.put(tr.toLowerCase(), cla);
+            }
+            toChangeClas = JSONObject.toBean(jsonObject, toChangeClass, classMap);
+        }
+        return toChangeClas;
     }
 
     /**

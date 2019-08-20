@@ -3,8 +3,6 @@ package com.waken.dorm.service.user;
 import com.github.pagehelper.PageInfo;
 import com.waken.dorm.common.entity.user.User;
 import com.waken.dorm.common.form.base.DeleteForm;
-import com.waken.dorm.common.form.role.ListAddedRoleForm;
-import com.waken.dorm.common.form.user.AddUserRoleRelForm;
 import com.waken.dorm.common.form.user.EditUserForm;
 import com.waken.dorm.common.form.user.UserForm;
 import com.waken.dorm.common.view.base.ImgView;
@@ -43,19 +41,12 @@ public interface UserService {
     PageInfo<UserView> listUsers(UserForm userForm);
 
     /**
-     * 批量新增用户与角色的关联
-     *
-     * @param addUserRoleRelForm
-     */
-    void batchAddUserRoleRel(AddUserRoleRelForm addUserRoleRelForm);
-
-    /**
      * 查询用户已经存在关联的角色 与 与用户没有的关联的角色
      *
-     * @param listAddedRoleForm
+     * @param userId
      * @return
      */
-    UserRolesView listUserRoles(ListAddedRoleForm listAddedRoleForm);
+    UserRolesView listUserRoles(String userId);
 
     /**
      * 上传头像

@@ -10,15 +10,11 @@ import com.waken.dorm.common.exception.ServerException;
 import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.dorm.DormBuildingForm;
 import com.waken.dorm.common.form.dorm.EditDormBuildingForm;
-import com.waken.dorm.common.utils.BeanMapper;
-import com.waken.dorm.common.utils.DateUtils;
-import com.waken.dorm.common.utils.StringUtils;
-import com.waken.dorm.common.utils.UUIDUtils;
+import com.waken.dorm.common.utils.*;
 import com.waken.dorm.common.view.dorm.DormBuildingView;
 import com.waken.dorm.dao.dorm.DormBuildingMapper;
 import com.waken.dorm.manager.UserManager;
 import com.waken.dorm.service.dorm.DormBuildingService;
-import com.waken.dorm.serviceImpl.base.BaseServerImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +33,7 @@ import java.util.List;
  **/
 @Service
 @Transactional(propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Exception.class)
-public class DormBuildingServiceImpl extends BaseServerImpl implements DormBuildingService {
+public class DormBuildingServiceImpl implements DormBuildingService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
     DormBuildingMapper buildingMapper;
@@ -54,7 +50,7 @@ public class DormBuildingServiceImpl extends BaseServerImpl implements DormBuild
         this.editBuildingValidate(editBuildingForm);
         String userId = UserManager.getCurrentUserId();
         Date curDate = DateUtils.getCurrentDate();
-        int count = Constant.ZERO;
+        int count;
         DormBuilding dormBuilding = new DormBuilding();
         BeanMapper.copy(editBuildingForm, dormBuilding);
         dormBuilding.setLastModifyTime(curDate);
@@ -87,11 +83,11 @@ public class DormBuildingServiceImpl extends BaseServerImpl implements DormBuild
     @Override
     public void deleteDormBuilding(DeleteForm deleteForm) {
         logger.info("service: 删除宿舍楼开始");
-        List<String> dormBuildingIds = deleteForm.getDelIds();
+        List<String> ids = deleteForm.getDelIds();
         Integer delStatus = deleteForm.getDelStatus();
-        int count = Constant.ZERO;
+        int count;
         if (CodeEnum.YES.getCode() == delStatus) { // 物理删除
-            List<DormBuilding> dormBuildingList = buildingMapper.selectByIds(dormBuildingIds);
+            List<DormBuilding> dormBuildingList = buildingMapper.selectByIds(ids);
             StringBuffer sb = new StringBuffer();
             for (DormBuilding dormBuilding : dormBuildingList) {
                 if (CodeEnum.ENABLE.getCode() == dormBuilding.getStatus()) {
@@ -101,14 +97,14 @@ public class DormBuildingServiceImpl extends BaseServerImpl implements DormBuild
             if (StringUtils.isNotEmpty(sb.toString())) {
                 throw new ServerException("以下宿舍楼处于生效中：" + sb.toString());
             } else {//删除宿舍
-                count = buildingMapper.deleteBatchIds(dormBuildingIds);
+                count = buildingMapper.deleteBatchIds(ids);
                 if (count == Constant.ZERO) {
                     throw new ServerException("删除宿舍楼个数为 0 条");
                 }
             }
 
         } else if (CodeEnum.NO.getCode() == delStatus) {//状态删除
-            count = buildingMapper.batchUpdateStatus(getToUpdateStatusMap(dormBuildingIds, CodeEnum.DELETE.getCode()));
+            count = buildingMapper.batchUpdateStatus(DormUtil.getToUpdateStatusMap(ids,UserManager.getCurrentUserId()));
             if (count == Constant.ZERO) {
                 throw new ServerException("状态删除失败");
             }

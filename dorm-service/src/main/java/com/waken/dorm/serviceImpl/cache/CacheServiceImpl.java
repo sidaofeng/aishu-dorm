@@ -6,11 +6,8 @@ import com.waken.dorm.common.constant.Constant;
 import com.waken.dorm.common.entity.user.User;
 import com.waken.dorm.common.enums.ResultEnum;
 import com.waken.dorm.common.exception.ServerException;
-import com.waken.dorm.common.properties.DormProperties;
-import com.waken.dorm.dao.user.UserMapper;
 import com.waken.dorm.service.cache.CacheService;
 import com.waken.dorm.service.cache.RedisService;
-import com.waken.dorm.service.role.RoleService;
 import com.waken.dorm.service.user.UserPrivilegeService;
 import com.waken.dorm.service.user.UserService;
 import org.apache.commons.lang3.StringUtils;
@@ -26,22 +23,13 @@ public class CacheServiceImpl implements CacheService {
     private RedisService redisService;
 
     @Autowired
-    private RoleService roleService;
-
-    @Autowired
     private UserPrivilegeService userPrivilegeService;
 
     @Autowired
     private UserService userService;
 
     @Autowired
-    private UserMapper userMapper;
-
-    @Autowired
     private ObjectMapper mapper;
-
-    @Autowired
-    private DormProperties properties;
 
     @Override
     public void testConnect() throws Exception {

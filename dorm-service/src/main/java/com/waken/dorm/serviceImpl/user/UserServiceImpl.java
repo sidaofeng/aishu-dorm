@@ -3,20 +3,18 @@ package com.waken.dorm.serviceImpl.user;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.waken.dorm.common.base.UpdateStatusEntity;
 import com.waken.dorm.common.constant.Constant;
 import com.waken.dorm.common.entity.user.User;
-import com.waken.dorm.common.entity.user.UserPrivilege;
 import com.waken.dorm.common.enums.CodeEnum;
 import com.waken.dorm.common.exception.ServerException;
 import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.role.ListAddedRoleForm;
-import com.waken.dorm.common.form.user.AddUserRoleRelForm;
 import com.waken.dorm.common.form.user.EditUserForm;
 import com.waken.dorm.common.form.user.UserForm;
 import com.waken.dorm.common.utils.*;
 import com.waken.dorm.common.view.base.ImgView;
 import com.waken.dorm.common.view.user.UserRoleRelView;
+import com.waken.dorm.common.view.user.UserRoleResource;
 import com.waken.dorm.common.view.user.UserRolesView;
 import com.waken.dorm.common.view.user.UserView;
 import com.waken.dorm.dao.role.RoleMapper;
@@ -33,7 +31,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @Slf4j
@@ -105,22 +106,15 @@ public class UserServiceImpl implements UserService {
         List<String> userIds = deleteForm.getDelIds();
         Integer delStatus = deleteForm.getDelStatus();
         if (CodeEnum.YES.getCode() == delStatus) { // 物理删除
-            this.checkUserRef(userIds);
-            List<User> userList = userMapper.selectBatchIds(userIds);
-            StringBuffer sb = new StringBuffer();
-            for (User user : userList) {
-                if (CodeEnum.YES.getCode() == user.getStatus()) {
-                    sb.append(user.getUserName());
-                }
-            }
-            if (StringUtils.isEmpty(sb.toString())) {
-                userMapper.deleteBatchIds(userIds);
-            } else {
-                throw new ServerException("删除失败，原因以下用户处于启用中：" + sb.toString());
-            }
+            this.checkUser(userIds);
+            //直接删除用户与资源或者角色的资源
+            this.userPrivilegeMapper.deleteByUsers(userIds);
+            userMapper.deleteBatchIds(userIds);
         } else if (CodeEnum.NO.getCode() == delStatus) {
-            this.checkUserRef(userIds);
-            int count = userMapper.batchUpdateStatus(getToUpdateStatusMap(userIds, CodeEnum.DELETE.getCode()));
+            this.checkUser(userIds);
+            this.userPrivilegeMapper.deleteByUsers(userIds);
+            Map toUpdateStatusMap = DormUtil.getToUpdateStatusMap(userIds, UserManager.getCurrentUserId());
+            int count = userMapper.batchUpdateStatus(toUpdateStatusMap);
             if (count == Constant.ZERO) {
                 throw new ServerException("状态删除失败");
             }
@@ -150,11 +144,23 @@ public class UserServiceImpl implements UserService {
      *
      * @param userIds
      */
-    private void checkUserRef(List<String> userIds) {
-        List<UserPrivilege> privileges = userPrivilegeMapper.selectBatchUserIds(userIds);
-        if (null != privileges && !privileges.isEmpty()) {
-            throw new ServerException("删除失败，原因是用户与角色或者资源存在关联，请解除关联后重试！");
-        }
+    private void checkUser(List<String> userIds) {
+//        List<User> userList = userMapper.selectBatchIds(userIds);
+//        StringBuffer sb = new StringBuffer();
+//        for (User user : userList) {
+//            if (CodeEnum.YES.getCode() == user.getStatus()) {
+//                sb.append(user.getUserName());
+//            }
+//        }
+//        if (!StringUtils.isEmpty(sb.toString())) {
+//            throw new ServerException("删除失败，原因以下用户处于启用中：" + sb.toString());
+//        }
+        List<UserRoleResource> userRoles = userPrivilegeMapper.selectByUsers(userIds);
+        userRoles.stream().forEach(userRole -> {
+            if (StringUtils.equals(userRole.getRoleName(), Constant.SuperAdmin)) {
+                throw new ServerException("删除失败，用户" + userRole.getUserName() + "是超级管理员，不能删除！");
+            }
+        });
     }
 
     @Override
@@ -171,102 +177,15 @@ public class UserServiceImpl implements UserService {
         return new PageInfo<>(userViews);
     }
 
-    @Transactional // 事务控制
     @Override
-    public void batchAddUserRoleRel(AddUserRoleRelForm addUserRoleRelForm) {
-        log.info("service: 批量新增用户角色关联开始");
-        StringBuffer sb = new StringBuffer();
-        if (StringUtils.isEmpty(addUserRoleRelForm.getUserId())) {
-            sb.append("用户 id为空！");
-        }
-        if (addUserRoleRelForm.getRoleIds().isEmpty()) {
-            sb.append("角色 id集合为空！");
-        }
-        if (StringUtils.isEmpty(sb.toString())) {
-            throw new ServerException("批量新增用户角色关联失败，原因：" + sb.toString());
-        }
-//        List<UserRoleRel> toBeAddUserRoleRel = this.getToBeAddUserRoleRel(addUserRoleRelForm);
-//        if (!toBeAddUserRoleRel.isEmpty()){
-//            int count = Constant.ZERO;
-//            count = userRoleRelMapper.batchAddUserRoleRel(toBeAddUserRoleRel);
-//            if (count == Constant.ZERO){
-//                throw new DormException("批量新增用户角色关联失败");
-//            }
-//
-//        }
-    }
-
-    //    @Transactional
-//    private List<UserRoleRel> getToBeAddUserRoleRel(AddUserRoleRelForm addUserRoleRelForm){
-//        //TODO
-////        String userId = addUserRoleRelForm.getUserId();
-////        List<String> roleIds = addUserRoleRelForm.getRoleIds();
-////        UserRoleRelExample example = new UserRoleRelExample();
-////        UserRoleRelExample.Criteria criteria = example.createCriteria();
-////        criteria.andUserIdEqualTo(userId);
-////        List<UserRoleRel> userRoleRelList = userRoleRelMapper.selectByExample(example);
-////        if (!userRoleRelList.isEmpty()){
-////            List<String> existIds = new ArrayList<>();// 接收已经存在关联的角色id
-////            List<String> toDelIds = new ArrayList<>();// 接收需要删除的角色id
-////            List<String> oldIds = new ArrayList<>();// 接收所有已经绑定的角色id
-////            for (UserRoleRel userRoleRel : userRoleRelList) {
-////                oldIds.add(userRoleRel.getRoleId());
-////            }
-////            for (String oldId : oldIds) {
-////                if (roleIds.contains(oldId)) {
-////                    existIds.add(oldId);
-////                } else {
-////                    toDelIds.add(oldId);
-////                }
-////            }
-////            roleIds.removeAll(existIds);
-////            if (!toDelIds.isEmpty()) {
-////                UserRoleRelExample delExample = new UserRoleRelExample();
-////                UserRoleRelExample.Criteria delCriteria = delExample.createCriteria();
-////                delCriteria.andUserIdEqualTo(userId);
-////                delCriteria.andRoleIdIn(roleIds);
-////                int count = Constant.ZERO;
-////                count = userRoleRelMapper.delete(new EntityWrapper<UserRoleRel>()
-////                     .eq("user_id",userId)
-////                     .allEq()
-////                );
-////                if (count == Constant.ZERO){
-////                    throw new DormException("删除用户角色关联失败");
-////                }
-////            }
-////
-////        }
-////        if (roleIds.isEmpty()){
-////            List<UserRoleRel> toBeAddUserRoleRelList = new ArrayList<UserRoleRel>();
-////            for (String roleId : roleIds) {
-////                String pkUserRoleId = UUIDUtils.getPkUUID();
-////                String curUserId = ShiroUtils.getUserId();
-////                Date curDate = DateUtils.getCurrentDate();
-////                UserRoleRel userRoleRel = new UserRoleRel();
-////                userRoleRel.setPkUserRoleId(pkUserRoleId);
-////                userRoleRel.setUserId(userId);
-////                userRoleRel.setRoleId(roleId);
-////                userRoleRel.setStatus(CodeEnum.ENABLE.getCode());
-////                userRoleRel.setCreateTime(curDate);
-////                userRoleRel.setCreateUserId(curUserId);
-////                userRoleRel.setLastModifyTime(curDate);
-////                userRoleRel.setLastModifyUserId(curUserId);
-////                toBeAddUserRoleRelList.add(userRoleRel);
-////            }
-////            return toBeAddUserRoleRelList;
-////        }else {
-////            return new ArrayList<UserRoleRel>();
-////        }
-//        return null;
-//   }
-    @Override
-    public UserRolesView listUserRoles(ListAddedRoleForm listAddedRoleForm) {
-        String userId = listAddedRoleForm.getUserId();
+    public UserRolesView listUserRoles(String userId) {
+        ListAddedRoleForm listAddedRoleForm = new ListAddedRoleForm();
+        listAddedRoleForm.setUserId(userId);
         String curUserId = UserManager.getCurrentUserId();
         if (StringUtils.isEmpty(userId)) {
             throw new ServerException("用户id为空");
         }
-        List<UserRoleRelView> userRoleRelViewList = new ArrayList<>();
+        List<UserRoleRelView> userRoleRelViewList;
         if (isSuperAdmin(curUserId)) {//超级管理员可以管理所有角色
             userRoleRelViewList = roleMapper.listSuperAdminRoles(curUserId);
         } else {//其他管理员只能管理自己拥有的角色
@@ -364,13 +283,9 @@ public class UserServiceImpl implements UserService {
      * @return
      */
     private boolean isSuperAdmin(String curUserId) {
-        List<UserRoleRelView> roleList = roleMapper.listUserRoleInfo(curUserId);
-        if (!roleList.isEmpty()) {
-            for (UserRoleRelView role : roleList) {
-                if (Constant.SuperAdmin.equals(role.getRoleName())) {
-                    return true;
-                }
-            }
+        List<String> roles = userPrivilegeMapper.selectUserRoles(curUserId);
+        if (roles.contains(Constant.SuperAdmin)) {
+            return true;
         }
         return false;
     }
@@ -418,28 +333,5 @@ public class UserServiceImpl implements UserService {
             }
         }
 
-    }
-
-    public Map<String, Object> getToUpdateStatusMap(List<String> pkIds, Integer status) {
-        if (pkIds.isEmpty()) {
-            throw new ServerException("pkIds为空！");
-        }
-        if (status == null) {
-            throw new ServerException("状态编码为空！");
-        }
-        Map<String, Object> param = new HashMap<>();
-        String curUserId = UserManager.getCurrentUserId();
-        Date curDate = DateUtils.getCurrentDate();
-        List<UpdateStatusEntity> updateList = new ArrayList<>();// 接收需要修改的id和状态码
-        for (String pkId : pkIds) {
-            UpdateStatusEntity statusEntity = new UpdateStatusEntity();
-            statusEntity.setPkId(pkId);
-            statusEntity.setStatus(status);
-            statusEntity.setLastModifyTime(curDate);
-            statusEntity.setLastModifyUserId(curUserId);
-            updateList.add(statusEntity);
-        }
-        param.put("list", updateList);
-        return param;
     }
 }

@@ -13,18 +13,13 @@ import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.role.AddRoleResourceRelForm;
 import com.waken.dorm.common.form.role.EditRoleForm;
 import com.waken.dorm.common.form.role.QueryRoleForm;
-import com.waken.dorm.common.form.role.UserRoleRelForm;
-import com.waken.dorm.common.utils.BeanMapper;
-import com.waken.dorm.common.utils.DateUtils;
-import com.waken.dorm.common.utils.StringUtils;
-import com.waken.dorm.common.utils.UUIDUtils;
+import com.waken.dorm.common.utils.*;
 import com.waken.dorm.common.view.role.UserRoleView;
 import com.waken.dorm.dao.role.RoleMapper;
 import com.waken.dorm.dao.role.RoleResourceRelMapper;
 import com.waken.dorm.dao.user.UserPrivilegeMapper;
 import com.waken.dorm.manager.UserManager;
 import com.waken.dorm.service.role.RoleService;
-import com.waken.dorm.serviceImpl.base.BaseServerImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +28,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @ClassName RoleServiceImpl
@@ -42,7 +38,7 @@ import java.util.*;
  **/
 @Transactional(propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Exception.class)
 @Service
-public class RoleServiceImpl extends BaseServerImpl implements RoleService {
+public class RoleServiceImpl implements RoleService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
     RoleMapper roleMapper;
@@ -68,8 +64,7 @@ public class RoleServiceImpl extends BaseServerImpl implements RoleService {
             role.setStatus(CodeEnum.ENABLE.getCode());
             role.setCreateTime(curDate);
             role.setCreateUserId(userId);
-            int count = Constant.ZERO;
-            count = roleMapper.insert(role);
+            int count = roleMapper.insert(role);
             if (count == Constant.ZERO) {
                 throw new ServerException("新增角色失败");
             }
@@ -90,20 +85,58 @@ public class RoleServiceImpl extends BaseServerImpl implements RoleService {
         Integer delStatus = deleteForm.getDelStatus();
         int count;
         if (CodeEnum.YES.getCode() == delStatus) { // 物理删除
-            this.checkRoleRef(roleIds);
+//            this.checkRoleRef(roleIds);
+            this.delRoleRel(roleIds);
             count = roleMapper.deleteBatchIds(roleIds);
             if (count == Constant.ZERO) {
                 throw new ServerException("物理删除失败");
             }
         } else if (CodeEnum.NO.getCode() == delStatus) {
-            this.checkRoleRef(roleIds);
-            count = roleMapper.batchUpdateStatus(getToUpdateStatusMap(roleIds, CodeEnum.DELETE.getCode()));
+//            this.checkRoleRef(roleIds);
+            this.delRoleRel(roleIds);
+            Map updateStatusMap = DormUtil.getToUpdateStatusMap(roleIds, UserManager.getCurrentUserId());
+            count = roleMapper.batchUpdateStatus(updateStatusMap);
             if (count == Constant.ZERO) {
                 throw new ServerException("状态删除失败");
             }
         } else {
             throw new ServerException("删除状态码错误！");
         }
+    }
+
+    /**
+     * 分页查询
+     *
+     * @param queryRoleForm
+     * @return
+     */
+    @Override
+    public PageInfo<Role> listRoles(QueryRoleForm queryRoleForm) {
+        logger.info("service: 查询角色开始");
+        EntityWrapper wrapper = new EntityWrapper<Role>();
+        if (StringUtils.isNotEmpty(queryRoleForm.getPkRoleId())) {
+            wrapper.eq("pk_role_id", queryRoleForm.getPkRoleId());
+        }
+        if (StringUtils.isNotEmpty(queryRoleForm.getRoleName())) {
+            wrapper.like("role_name", queryRoleForm.getRoleName());
+        }
+        if (queryRoleForm.getStatus() != null) {
+            wrapper.eq("status", queryRoleForm.getStatus());
+        }
+        wrapper.orderBy(true, "last_modify_time", false);
+        PageHelper.startPage(queryRoleForm.getPageNum(), queryRoleForm.getPageSize());
+        List<Role> roles = roleMapper.selectList(wrapper);
+        return new PageInfo<>(roles);
+    }
+
+    /**
+     * 删除角色与资源、用户的关联
+     *
+     * @param roleIds
+     */
+    private void delRoleRel(List<String> roleIds) {
+        this.roleResourceRelMapper.deleteByRoles(roleIds);
+        this.userPrivilegeMapper.deleteByRoles(roleIds);
     }
 
     /**
@@ -134,78 +167,27 @@ public class RoleServiceImpl extends BaseServerImpl implements RoleService {
     }
 
     /**
-     * 通过用户id 获取角色信息 将已存在关联的角色标记为选中
+     * 通过用户id获取角色信息 将已存在关联的角色标记为选中
      *
      * @param userId
      * @return
      */
     @Override
-    public List<UserRoleView> listUserRoleByUserId(String userId) {
+    public List<UserRoleView> listRolesByUser(String userId) {
         List<UserRoleView> userRoleViews = roleMapper.listUserRole();
-//        List<UserRoleRel> userRoleRels = userRoleRelMapper.selectList(new EntityWrapper<UserRoleRel>()
-//                .eq("user_id",userId)
-//        );
-//        if (!userRoleRels.isEmpty()){
-//            for(UserRoleView userRoleView : userRoleViews){
-//                if (StringUtils.equals(userRoleView.getRoleId(),userRoleRels.get(Constant.ZERO).getRoleId())){
-//                    userRoleView.setIsSelect(CodeEnum.YES.getCode());
-//                }
-//            }
-//        }
+        List<UserPrivilege> privileges = userPrivilegeMapper.selectList(new EntityWrapper<UserPrivilege>()
+                .eq("user_id", userId)
+                .eq("subject_type", CodeEnum.ROLE.getCode())
+        );
+        Map roleMap = privileges.stream().collect(Collectors.toMap(UserPrivilege::getSubjectId, UserPrivilege::getUserId));
+        if (null != userRoleViews && !userRoleViews.isEmpty()) {
+            userRoleViews.stream().forEach(userRoleView -> {
+                if (roleMap.containsKey(userRoleView.getRoleId())) {
+                    userRoleView.setSelect(true);
+                }
+            });
+        }
         return userRoleViews;
-    }
-
-    @Override
-    public PageInfo<Role> listRoles(QueryRoleForm queryRoleForm) {
-        logger.info("service: 查询角色开始");
-        EntityWrapper wrapper = new EntityWrapper<Role>();
-        if (StringUtils.isNotEmpty(queryRoleForm.getPkRoleId())) {
-            wrapper.eq("pk_role_id", queryRoleForm.getPkRoleId());
-        }
-        if (StringUtils.isNotEmpty(queryRoleForm.getRoleName())) {
-            wrapper.like("role_name", queryRoleForm.getRoleName());
-        }
-        if (queryRoleForm.getStatus() != null) {
-            wrapper.eq("status", queryRoleForm.getStatus());
-        }
-        wrapper.orderBy(true, "last_modify_time", false);
-        PageHelper.startPage(queryRoleForm.getPageNum(), queryRoleForm.getPageSize());
-        List<Role> roles = roleMapper.selectList(wrapper);
-        return new PageInfo<>(roles);
-    }
-
-    /**
-     * 添加单个用户与角色关联
-     *
-     * @param userRoleRelForm
-     */
-    @Transactional
-    @Override
-    public void addUserRoleRel(UserRoleRelForm userRoleRelForm) {
-
-//        List<UserRoleRel> userRoleRels = userRoleRelMapper.selectList(new EntityWrapper<UserRoleRel>()
-//                .eq("user_id",userRoleRelForm.getUserId())
-//        );
-//        if (!userRoleRels.isEmpty()){//删除已存在的关联
-//            userRoleRelMapper.deleteById(userRoleRels.get(Constant.ZERO).getPkUserRoleId());
-//        }
-//        UserRoleRel userRoleRel = new UserRoleRel();
-//        String pkUserRoleId = UUIDUtils.getPkUUID();
-//        String userId = ShiroUtils.getUserId();
-//        Date curDate = DateUtils.getCurrentDate();
-//        userRoleRel.setPkUserRoleId(pkUserRoleId);
-//        userRoleRel.setUserId(userRoleRelForm.getUserId());
-//        userRoleRel.setRoleId(userRoleRelForm.getRoleId());
-//        userRoleRel.setStatus(CodeEnum.ENABLE.getCode());
-//        userRoleRel.setCreateTime(curDate);
-//        userRoleRel.setCreateUserId(userId);
-//        userRoleRel.setLastModifyTime(curDate);
-//        userRoleRel.setLastModifyUserId(userId);
-//        int count = Constant.ZERO;
-//        count = userRoleRelMapper.insert(userRoleRel);
-//        if (count == Constant.ZERO){
-//            throw new DormException("新增单个用户与角色关联失败！");
-//        }
     }
 
     @Transactional// 事务控制
@@ -215,8 +197,7 @@ public class RoleServiceImpl extends BaseServerImpl implements RoleService {
         this.batchAddRelValidate(addRoleResourceRelForm);
         List<RoleResourceRel> toBeAddRoleResourceRel = this.getToBeAddRoleResourceRel(addRoleResourceRelForm);
         if (!toBeAddRoleResourceRel.isEmpty()) {
-            int count = Constant.ZERO;
-            count = roleResourceRelMapper.batchAddRoleResourceRel(toBeAddRoleResourceRel);
+            int count = roleResourceRelMapper.batchAddRoleResourceRel(toBeAddRoleResourceRel);
             if (count == Constant.ZERO) {
                 throw new ServerException("批量新增角色资源关联失败");
             }
@@ -247,7 +228,6 @@ public class RoleServiceImpl extends BaseServerImpl implements RoleService {
      * @param addRoleResourceRelForm
      * @return
      */
-    @Transactional
     private List<RoleResourceRel> getToBeAddRoleResourceRel(AddRoleResourceRelForm addRoleResourceRelForm) {
         String roleId = addRoleResourceRelForm.getPkRoleId();
         List<String> resourceIds = addRoleResourceRelForm.getPkResourceIds();
@@ -270,15 +250,11 @@ public class RoleServiceImpl extends BaseServerImpl implements RoleService {
             }
             resourceIds.removeAll(existIds);
             if (!toDelIds.isEmpty()) {
-                //TODO
-//                RoleResourceRelExample delExample = new RoleResourceRelExample();
-//                RoleResourceRelExample.Criteria delCriteria = delExample.createCriteria();
-//                delCriteria.andRoleIdEqualTo(roleId);
-//                delCriteria.andResourceIdIn(toDelIds);
+                roleResourceRelMapper.deleteByResourcesAndRole(toDelIds, roleId);
             }
         }
         if (resourceIds.isEmpty()) {
-            return new ArrayList<RoleResourceRel>();
+            return new ArrayList<>();
         } else {
             List<RoleResourceRel> toBeAddRoleResourceRelList = new ArrayList<>();
             for (String resourceId : resourceIds) {

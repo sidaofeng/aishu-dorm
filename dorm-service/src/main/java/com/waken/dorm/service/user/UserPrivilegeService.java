@@ -1,5 +1,8 @@
 package com.waken.dorm.service.user;
 
+import com.waken.dorm.common.form.role.UserRoleRelForm;
+import com.waken.dorm.common.form.user.AddUserResourcesForm;
+import com.waken.dorm.common.form.user.AddUserRoleRelForm;
 import com.waken.dorm.common.view.base.Tree;
 import com.waken.dorm.common.view.resource.UserMenuView;
 
@@ -33,4 +36,25 @@ public interface UserPrivilegeService {
      * @return
      */
     List<Tree<UserMenuView>> getUserMenu(String userId);
+
+    /**
+     * 单个新增用户与角色关联
+     *
+     * @param userRoleRelForm
+     */
+    void addUserRoleRel(UserRoleRelForm userRoleRelForm);
+
+    /**
+     * 批量新增用户与角色的关联
+     *
+     * @param addUserRoleRelForm
+     */
+    void batchAddUserRoleRel(AddUserRoleRelForm addUserRoleRelForm);
+
+    /**
+     * 批量新增用户与资源的关联
+     *
+     * @param addForm
+     */
+    void batchAddUserResourceRel(AddUserResourcesForm addForm);
 }
