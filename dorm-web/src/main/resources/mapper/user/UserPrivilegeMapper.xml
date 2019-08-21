@@ -186,27 +186,6 @@
         </foreach>
     </delete>
 
-    <delete id="deleteByResources">
-        DELETE
-        FROM rm_user_privilege p
-        where p.subject_id in
-        <foreach collection="Ids" item="id" open="(" close=")" separator=",">
-            #{id}
-        </foreach>
-        AND p.subject_type = 1
-        OR p.subject_type = 2
-    </delete>
-
-    <delete id="deleteByRoles">
-        DELETE
-        FROM rm_user_privilege p
-        where p.subject_id in
-        <foreach collection="Ids" item="id" open="(" close=")" separator=",">
-            #{id}
-        </foreach>
-        AND p.subject_type = 3
-    </delete>
-
     <insert id="batchAddUserRoleRel" parameterType="java.util.List">
         INSERT INTO rm_user_privilege
         (pk_privilege_id,

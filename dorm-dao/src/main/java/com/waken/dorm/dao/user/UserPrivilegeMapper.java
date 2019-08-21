@@ -58,22 +58,6 @@ public interface UserPrivilegeMapper extends BaseMapper<UserPrivilege> {
      */
     int deleteByUsers(@Param("Ids") List<String> Ids);
 
-    /**
-     * 通过资源id批量删除与用户的关联
-     *
-     * @param Ids
-     * @return
-     */
-    int deleteByResources(@Param("Ids") List<String> Ids);
-
-    /**
-     * 通过角色id批量删除与用户的关联
-     *
-     * @param Ids
-     * @return
-     */
-    int deleteByRoles(@Param("Ids") List<String> Ids);
-
 
     /**
      * 批量新增用户与角色的关联
@@ -93,14 +77,6 @@ public interface UserPrivilegeMapper extends BaseMapper<UserPrivilege> {
     int batchAddUserResources(List<UserPrivilege> userRoleList);
 
     /**
-     * 通过资源id批量查询
-     *
-     * @param Ids
-     * @return
-     */
-    List<UserRoleResource> selectByResources(@Param("Ids") List<String> Ids);
-
-    /**
      * 通过用户id批量查询用户关联角色信息
      *
      * @param Ids
@@ -115,5 +91,13 @@ public interface UserPrivilegeMapper extends BaseMapper<UserPrivilege> {
      * @return
      */
     List<UserRoleResource> selectByRoles(@Param("Ids") List<String> Ids);
+
+    /**
+     * 通过资源id批量查询
+     *
+     * @param Ids
+     * @return
+     */
+    List<UserRoleResource> selectByResources(@Param("Ids") List<String> Ids);
 
 }
