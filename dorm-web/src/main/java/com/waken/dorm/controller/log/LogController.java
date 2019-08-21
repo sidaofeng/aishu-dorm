@@ -1,10 +1,9 @@
 package com.waken.dorm.controller.log;
 
 import com.waken.dorm.common.annotation.Log;
-import com.waken.dorm.common.base.ResultView;
 import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.log.SysLogForm;
-import com.waken.dorm.common.utils.ResultUtil;
+import com.waken.dorm.common.base.AjaxResponse;
 import com.waken.dorm.controller.base.BaseController;
 import com.waken.dorm.service.log.LogService;
 import io.swagger.annotations.Api;
@@ -36,15 +35,15 @@ public class LogController extends BaseController {
     @PostMapping(value = "log/delete")
     @ApiOperation(value = "删除日志", notes = "删除日志 ")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "success", response = ResultView.class)
+            @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
-    public ResultView deleteLog(@RequestBody DeleteForm deleteFrom) {
+    public AjaxResponse deleteLog(@RequestBody DeleteForm deleteFrom) {
         log.info("开始调用日志删除接口：" + deleteFrom.toString());
         if (null == deleteFrom.getDelIds() || deleteFrom.getDelIds().isEmpty()) {
-            return ResultUtil.errorByMsg("入参为空！");
+            return AjaxResponse.error("入参为空！");
         }
         logService.deleteLog(deleteFrom);
-        return ResultUtil.success();
+        return AjaxResponse.success();
     }
 
     @CrossOrigin
@@ -53,8 +52,8 @@ public class LogController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = Log.class)
     })
-    public ResultView listSysLogViews(@RequestBody SysLogForm logForm) {
+    public AjaxResponse listSysLogViews(@RequestBody SysLogForm logForm) {
         log.info("开始调用分页查询日志信息接口：" + logForm.toString());
-        return ResultUtil.success(logService.listSysLogViews(logForm));
+        return AjaxResponse.success(logService.listSysLogViews(logForm));
     }
 }

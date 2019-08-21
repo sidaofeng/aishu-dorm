@@ -2,12 +2,11 @@ package com.waken.dorm.controller.dorm;
 
 import com.github.pagehelper.PageInfo;
 import com.waken.dorm.common.annotation.Log;
-import com.waken.dorm.common.base.ResultView;
 import com.waken.dorm.common.entity.dorm.DormBuilding;
 import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.dorm.DormBuildingForm;
 import com.waken.dorm.common.form.dorm.EditDormBuildingForm;
-import com.waken.dorm.common.utils.ResultUtil;
+import com.waken.dorm.common.base.AjaxResponse;
 import com.waken.dorm.common.view.dorm.DormBuildingView;
 import com.waken.dorm.controller.base.BaseController;
 import com.waken.dorm.service.dorm.DormBuildingService;
@@ -39,10 +38,10 @@ public class DormBuildingController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = DormBuilding.class)
     })
-    public ResultView saveDormBuilding(@RequestBody EditDormBuildingForm editDormBuildingForm) {
+    public AjaxResponse saveDormBuilding(@RequestBody EditDormBuildingForm editDormBuildingForm) {
         log.info("开始调用(保存/修改)宿舍楼信息接口接口：" + editDormBuildingForm.toString());
         DormBuilding dormBuilding = buildingService.saveDormBuilding(editDormBuildingForm);
-        return ResultUtil.success(dormBuilding);
+        return AjaxResponse.success(dormBuilding);
     }
 
     @Log("删除宿舍楼信息")
@@ -50,15 +49,15 @@ public class DormBuildingController extends BaseController {
     @DeleteMapping(value = "building/delete")
     @ApiOperation(value = "删除宿舍楼信息", notes = "删除宿舍楼信息")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "success", response = ResultView.class)
+            @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
-    public ResultView deleteDormBuilding(@RequestBody DeleteForm deleteFrom) {
+    public AjaxResponse deleteDormBuilding(@RequestBody DeleteForm deleteFrom) {
         log.info("开始调用删除宿舍楼接口：" + deleteFrom.toString());
         if (null == deleteFrom.getDelIds() || deleteFrom.getDelIds().isEmpty()) {
-            return ResultUtil.errorByMsg("入参为空！");
+            return AjaxResponse.error("入参为空！");
         }
         buildingService.deleteDormBuilding(deleteFrom);
-        return ResultUtil.success();
+        return AjaxResponse.success();
     }
 
     @CrossOrigin
@@ -67,9 +66,9 @@ public class DormBuildingController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = DormBuildingView.class)
     })
-    public ResultView listDormBuildings(@RequestBody DormBuildingForm buildingForm) {
+    public AjaxResponse listDormBuildings(@RequestBody DormBuildingForm buildingForm) {
         log.info("开始调用分页查询宿舍楼信息接口：" + buildingForm.toString());
         PageInfo<DormBuildingView> pageInfo = buildingService.listDormBuildings(buildingForm);
-        return ResultUtil.success(pageInfo);
+        return AjaxResponse.success(pageInfo);
     }
 }

@@ -2,7 +2,6 @@ package com.waken.dorm.controller.user;
 
 import com.github.pagehelper.PageInfo;
 import com.waken.dorm.common.annotation.Log;
-import com.waken.dorm.common.base.ResultView;
 import com.waken.dorm.common.entity.user.User;
 import com.waken.dorm.common.enums.CodeEnum;
 import com.waken.dorm.common.form.base.DeleteForm;
@@ -11,7 +10,7 @@ import com.waken.dorm.common.form.user.AddUserResourcesForm;
 import com.waken.dorm.common.form.user.AddUserRoleRelForm;
 import com.waken.dorm.common.form.user.EditUserForm;
 import com.waken.dorm.common.form.user.UserForm;
-import com.waken.dorm.common.utils.ResultUtil;
+import com.waken.dorm.common.base.AjaxResponse;
 import com.waken.dorm.common.utils.StringUtils;
 import com.waken.dorm.common.view.base.ImgView;
 import com.waken.dorm.common.view.role.UserRoleView;
@@ -28,6 +27,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -60,27 +60,29 @@ public class UserController extends BaseController {
     @PostMapping("user/save")
     @ApiOperation(value = "保存或修改用户接口", notes = "保存或修改用户接口")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "success", response = ResultView.class)
+            @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
-    public ResultView saveUser(@RequestBody EditUserForm userForm) {
+    @RequiresPermissions("users::save")
+    public AjaxResponse saveUser(@RequestBody EditUserForm userForm) {
         log.info("开始调用保存或修改用户接口");
         userForm.setUserType(CodeEnum.PLATFORM_USER.getCode());
-        return ResultUtil.success(userService.saveUser(userForm));
+        return AjaxResponse.success(userService.saveUser(userForm));
     }
 
     @Log("删除用户信息")
     @DeleteMapping("user/delete")
     @ApiOperation(value = "删除用户信息", notes = "删除用户信息 ")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "success", response = ResultView.class)
+            @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
-    public ResultView deleteUser(@RequestBody DeleteForm deleteFrom) {
+    @RequiresPermissions("users::delete")
+    public AjaxResponse deleteUser(@RequestBody DeleteForm deleteFrom) {
         log.info("被删除的用户id" + deleteFrom.getDelIds().toString() + "删除操作人id：" + UserManager.getCurrentUserId());
         if (null == deleteFrom.getDelIds() || deleteFrom.getDelIds().isEmpty()) {
-            return ResultUtil.errorByMsg("入参为空！");
+            return AjaxResponse.error("入参为空！");
         }
         userService.deleteUser(deleteFrom);
-        return ResultUtil.success();
+        return AjaxResponse.success();
     }
 
     @PostMapping("user/page")
@@ -88,10 +90,11 @@ public class UserController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = UserView.class)
     })
-    public ResultView listUsers(@RequestBody UserForm userForm) {
+    @RequiresPermissions("users::view")
+    public AjaxResponse listUsers(@RequestBody UserForm userForm) {
         log.info("开始调用用户分页查询接口：" + userForm.toString());
         PageInfo<UserView> pageInfo = userService.listUsers(userForm);
-        return ResultUtil.success(pageInfo);
+        return AjaxResponse.success(pageInfo);
     }
 
     @GetMapping("user/roles/{id}")
@@ -99,10 +102,10 @@ public class UserController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = UserRolesView.class)
     })
-    public ResultView listUserRoles(@PathVariable String id) {
+    public AjaxResponse listUserRoles(@PathVariable String id) {
         log.info("开始调用查询用户角色关联信息接口：" + id);
         UserRolesView userRolesView = userService.listUserRoles(id);
-        return ResultUtil.success(userRolesView);
+        return AjaxResponse.success(userRolesView);
     }
 
     @CrossOrigin
@@ -111,36 +114,38 @@ public class UserController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = UserRoleView.class)
     })
-    public ResultView listRolesByUser(@NotBlank(message = "{required}") @PathVariable String id) {
+    public AjaxResponse listRolesByUser(@NotBlank(message = "{required}") @PathVariable String id) {
         log.info("开始调用通过用户id 获取角色信息接口：" + id);
         if (StringUtils.isBlank(id)) {
-            return ResultUtil.errorByMsg("入参为空！");
+            return AjaxResponse.error("入参为空！");
         }
-        return ResultUtil.success(roleService.listRolesByUser(id));
+        return AjaxResponse.success(roleService.listRolesByUser(id));
     }
 
     @Log("批量添加用户角色关联")
     @PostMapping("user/batch/add/roles")
     @ApiOperation(value = "给用户绑定角色", notes = "给用户绑定角色 ")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "success", response = ResultView.class)
+            @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
-    public ResultView batchAddUserRoleRel(@RequestBody AddUserRoleRelForm addUserRoleRelForm) {
+    @RequiresPermissions("users::roles")
+    public AjaxResponse batchAddUserRoleRel(@RequestBody AddUserRoleRelForm addUserRoleRelForm) {
         log.info("开始调用批量添加用户角色关联接口：" + addUserRoleRelForm.toString());
         userPrivilegeService.batchAddUserRoleRel(addUserRoleRelForm);
-        return ResultUtil.success();
+        return AjaxResponse.success();
     }
 
     @Log("批量添加用户资源关联")
     @PostMapping("user/batch/add/resources")
     @ApiOperation(value = "给用户绑定资源", notes = "给用户绑定资源 ")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "success", response = ResultView.class)
+            @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
-    public ResultView batchAddUserRoleRel(@RequestBody AddUserResourcesForm addForm) {
+    @RequiresPermissions("users::resources")
+    public AjaxResponse batchAddUserRoleRel(@RequestBody AddUserResourcesForm addForm) {
         log.info("开始调用批量添加用户角色关联接口：" + addForm.toString());
         userPrivilegeService.batchAddUserResourceRel(addForm);
-        return ResultUtil.success();
+        return AjaxResponse.success();
     }
 
 
@@ -149,40 +154,42 @@ public class UserController extends BaseController {
     @PostMapping(value = "user/add/role")
     @ApiOperation(value = "addUserRoleRel（新增单个用户与角色关联）", notes = "新增单个用户与角色关联 ")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "success", response = ResultView.class)
+            @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
-    public ResultView addUserRoleRel(@RequestBody UserRoleRelForm userRoleRelForm) {
+    @RequiresPermissions("users::role")
+    public AjaxResponse addUserRoleRel(@RequestBody UserRoleRelForm userRoleRelForm) {
         log.info("开始调用新增单个用户与角色关联接口：" + userRoleRelForm);
         if (StringUtils.isBlank(userRoleRelForm.getUserId())) {
-            return ResultUtil.errorByMsg("用户id为空");
+            return AjaxResponse.error("用户id为空");
         }
         userPrivilegeService.addUserRoleRel(userRoleRelForm);
-        return ResultUtil.success();
+        return AjaxResponse.success();
     }
 
     @Log("用户头像上传")
     @PostMapping("user/upload/head-img")
     @ApiOperation(value = "用户头像上传", notes = "用户头像上传")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "success", response = ImgView.class)})
-    public ResultView uploadUserImg(@RequestParam(value = "file", required = false) MultipartFile file) {
+    public AjaxResponse uploadUserImg(@RequestParam(value = "file", required = false) MultipartFile file) {
         log.info("开始调用图片文件上传接口，上传图片文件为：" + file.getOriginalFilename());
         try {
             ImgView imgView = userService.uploadUserImg(file);
-            return ResultUtil.success(imgView);
+            return AjaxResponse.success(imgView);
         } catch (Exception e) {
             e.printStackTrace();
             log.info("上传用户头像失败:" + e.getMessage());
-            return ResultUtil.error();
+            return AjaxResponse.error();
         }
     }
 
     @Log("导出用户信息")
     @GetMapping("user/export")
     @ApiOperation(value = "export（导出用户信息）", notes = "导出用户信息", produces = "application/octet-stream")
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "success", response = ResultView.class)})
-    public ResultView export(HttpServletResponse response) {
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "success", response = AjaxResponse.class)})
+    @RequiresPermissions("users::export")
+    public AjaxResponse export(HttpServletResponse response) {
         List<User> userList = userService.selectList();
         ExcelKit.$Export(User.class, response).downXlsx(userList, false);
-        return ResultUtil.success();
+        return AjaxResponse.success();
     }
 }

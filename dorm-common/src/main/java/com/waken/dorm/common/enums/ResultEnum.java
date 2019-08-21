@@ -7,9 +7,9 @@ package com.waken.dorm.common.enums;
  * @Date 2019/3/19 11:13
  **/
 public enum ResultEnum {
-    SUCCESS("操作成功", "0"),
-    FAIL("操作失败", "-1"),
-    FIRST_LOGIN("第一次登陆", "1"),
+    SUCCESS("操作成功", "1"),
+    FAIL("操作失败", "0"),
+    FIRST_LOGIN("第一次登陆", "10"),
     OTHER_LOGIN("其他设备登陆", "410"),
     TIME_OUT("登陆过期，请重新登录", "411"),
     UNKNOWN_ERROR("未知错误", "-2"),
@@ -19,7 +19,7 @@ public enum ResultEnum {
     private String msg;
     private String code;
 
-    private ResultEnum(String msg, String code) {
+    ResultEnum(String msg, String code) {
         this.msg = msg;
         this.code = code;
     }

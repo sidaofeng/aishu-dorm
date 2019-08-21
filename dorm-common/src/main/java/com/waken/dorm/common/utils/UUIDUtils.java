@@ -1,5 +1,7 @@
 package com.waken.dorm.common.utils;
 
+import com.baomidou.mybatisplus.toolkit.Sequence;
+
 import java.util.Random;
 import java.util.UUID;
 
@@ -37,5 +39,11 @@ public final class UUIDUtils {
             result += (random.nextInt(9) + 1);
         }
         return result;
+    }
+
+    public static void main(String[] args) {
+        Sequence sequence = new Sequence();
+
+        System.out.println(sequence.nextId());
     }
 }

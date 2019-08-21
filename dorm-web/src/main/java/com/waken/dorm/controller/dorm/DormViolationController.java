@@ -1,13 +1,12 @@
 package com.waken.dorm.controller.dorm;
 
 import com.waken.dorm.common.annotation.Log;
-import com.waken.dorm.common.base.ResultView;
 import com.waken.dorm.common.entity.dorm.DormViolation;
 import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.dorm.AddDormViolationForm;
 import com.waken.dorm.common.form.dorm.DormViolationForm;
 import com.waken.dorm.common.form.dorm.UpdateDormViolationForm;
-import com.waken.dorm.common.utils.ResultUtil;
+import com.waken.dorm.common.base.AjaxResponse;
 import com.waken.dorm.common.view.dorm.DormViolationView;
 import com.waken.dorm.controller.base.BaseController;
 import com.waken.dorm.service.dorm.DormViolationService;
@@ -39,9 +38,9 @@ public class DormViolationController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = DormViolation.class)
     })
-    public ResultView addDormViolation(@RequestBody AddDormViolationForm addDormViolationForm) {
+    public AjaxResponse addDormViolation(@RequestBody AddDormViolationForm addDormViolationForm) {
         log.info("开始调用新增宿舍违规记录接口：" + addDormViolationForm.toString());
-        return ResultUtil.success(dormViolationService.addDormViolation(addDormViolationForm));
+        return AjaxResponse.success(dormViolationService.addDormViolation(addDormViolationForm));
     }
 
     @Log("删除宿舍违规信息")
@@ -49,16 +48,16 @@ public class DormViolationController extends BaseController {
     @RequestMapping(value = "violation/delete", method = RequestMethod.POST)
     @ApiOperation(value = "删除宿舍违规信息", notes = "删除宿舍违规信息")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "success", response = ResultView.class)
+            @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
     @ResponseBody
-    public ResultView deleteDormViolation(@RequestBody DeleteForm deleteFrom) {
+    public AjaxResponse deleteDormViolation(@RequestBody DeleteForm deleteFrom) {
         log.info("开始调用删除宿舍违规信息接口：" + deleteFrom.toString());
         if (null == deleteFrom.getDelIds() || deleteFrom.getDelIds().isEmpty()) {
-            return ResultUtil.errorByMsg("入参为空！");
+            return AjaxResponse.error("入参为空！");
         }
         dormViolationService.deleteDormViolation(deleteFrom);
-        return ResultUtil.success();
+        return AjaxResponse.success();
     }
 
     @CrossOrigin
@@ -67,9 +66,9 @@ public class DormViolationController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = DormViolationView.class)
     })
-    public ResultView listDormViolations(@RequestBody DormViolationForm dormViolationForm) {
+    public AjaxResponse listDormViolations(@RequestBody DormViolationForm dormViolationForm) {
         log.info("开始调用分页查询宿舍违规信息接口：" + dormViolationForm.toString());
-        return ResultUtil.success(dormViolationService.listDormViolations(dormViolationForm));
+        return AjaxResponse.success(dormViolationService.listDormViolations(dormViolationForm));
     }
 
     @Log("修改宿舍违规")
@@ -77,9 +76,9 @@ public class DormViolationController extends BaseController {
     @PutMapping(value = "violation/update")
     @ApiOperation(value = "修改宿舍违规", notes = "修改宿舍违规 ")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "success", response = DormViolation.class)})
-    public ResultView updateDormViolation(@RequestBody UpdateDormViolationForm updateViolationForm) {
+    public AjaxResponse updateDormViolation(@RequestBody UpdateDormViolationForm updateViolationForm) {
         log.info("开始调用修改宿舍违规接口：" + updateViolationForm.toString());
-        return ResultUtil.success(dormViolationService.updateDormViolation(updateViolationForm));
+        return AjaxResponse.success(dormViolationService.updateDormViolation(updateViolationForm));
     }
 
 }

@@ -1,7 +1,7 @@
 package com.waken.dorm.service.student;
 
 import com.github.pagehelper.PageInfo;
-import com.waken.dorm.common.base.ResultView;
+import com.waken.dorm.common.base.AjaxResponse;
 import com.waken.dorm.common.entity.student.Student;
 import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.student.EditStudentForm;
@@ -54,7 +54,7 @@ public interface StudentService {
      * @param password
      * @return
      */
-    ResultView studentLogin(Integer studentNum, String password);
+    AjaxResponse studentLogin(Integer studentNum, String password);
 
     /**
      * 上传头像

@@ -1,9 +1,8 @@
 package com.waken.dorm.app.controller.dorm;
 
 import com.waken.dorm.app.controller.base.AppBaseController;
-import com.waken.dorm.common.base.ResultView;
 import com.waken.dorm.common.form.dorm.ListDormScoreForm;
-import com.waken.dorm.common.utils.ResultUtil;
+import com.waken.dorm.common.base.AjaxResponse;
 import com.waken.dorm.common.view.dorm.AppDormScoreView;
 import com.waken.dorm.manager.StudentManager;
 import com.waken.dorm.service.dorm.DormScoreService;
@@ -37,7 +36,7 @@ public class AppDormScoreController extends AppBaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = AppDormScoreView.class)
     })
-    public ResultView appListDormScoreViews(Integer pageNum, Integer pageSize) {
+    public AjaxResponse appListDormScoreViews(Integer pageNum, Integer pageSize) {
         String studentId = studentManager.getCurrentStudentId();
         log.info("开始调用分页查询学生对应宿舍的评分接口：" + studentId);
         ListDormScoreForm listDormScoreForm = new ListDormScoreForm();
@@ -48,6 +47,6 @@ public class AppDormScoreController extends AppBaseController {
             listDormScoreForm.setPageSize(pageSize);
         }
         listDormScoreForm.setStudentId(studentId);
-        return ResultUtil.success(dormScoreService.appListDormScoreViews(listDormScoreForm));
+        return AjaxResponse.success(dormScoreService.appListDormScoreViews(listDormScoreForm));
     }
 }

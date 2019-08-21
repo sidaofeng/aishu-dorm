@@ -1,6 +1,7 @@
 package com.waken.dorm.serviceImpl.user;
 
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
+import com.google.common.collect.Lists;
 import com.waken.dorm.common.constant.Constant;
 import com.waken.dorm.common.entity.resource.Resource;
 import com.waken.dorm.common.entity.user.User;
@@ -15,6 +16,7 @@ import com.waken.dorm.common.utils.UUIDUtils;
 import com.waken.dorm.common.view.base.Tree;
 import com.waken.dorm.common.view.resource.UserMenuView;
 import com.waken.dorm.dao.resource.ResourceMapper;
+import com.waken.dorm.dao.user.UserMapper;
 import com.waken.dorm.dao.user.UserPrivilegeMapper;
 import com.waken.dorm.manager.UserManager;
 import com.waken.dorm.service.user.UserPrivilegeService;
@@ -40,6 +42,8 @@ public class UserPrivilegeServiceImpl implements UserPrivilegeService {
     UserPrivilegeMapper privilegeMapper;
     @Autowired
     UserService userService;
+    @Autowired
+    UserMapper userMapper;
     @Autowired
     ResourceMapper resourceMapper;
 
@@ -116,7 +120,7 @@ public class UserPrivilegeServiceImpl implements UserPrivilegeService {
     public void addUserRoleRel(UserRoleRelForm userRoleRelForm) {
         String userId = userRoleRelForm.getUserId();
         String roleId = userRoleRelForm.getRoleId();
-        if (com.waken.dorm.common.utils.StringUtils.isBlank(userId) || com.waken.dorm.common.utils.StringUtils.isBlank(roleId)) {
+        if (StringUtils.isBlank(userId) || StringUtils.isBlank(roleId)) {
             throw new ServerException("入参为空！");
         }
         List<UserPrivilege> privileges = privilegeMapper.selectList(new EntityWrapper<UserPrivilege>()
@@ -152,7 +156,7 @@ public class UserPrivilegeServiceImpl implements UserPrivilegeService {
         if (addUserRoleRelForm.getRoleIds().isEmpty()) {
             sb.append("角色 id集合为空！");
         }
-        if (com.waken.dorm.common.utils.StringUtils.isEmpty(sb.toString())) {
+        if (!StringUtils.isEmpty(sb.toString())) {
             throw new ServerException("批量新增用户角色关联失败，原因：" + sb.toString());
         }
         List<UserPrivilege> toBeAddUserRoleRel = this.getToBeAddUserRoleRel(addUserRoleRelForm);
@@ -167,28 +171,25 @@ public class UserPrivilegeServiceImpl implements UserPrivilegeService {
 
     private List<UserPrivilege> getToBeAddUserRoleRel(AddUserRoleRelForm addUserRoleRelForm) {
         String userId = addUserRoleRelForm.getUserId();
+        this.checkSuperAdmin(userId);
         List<String> roleIds = addUserRoleRelForm.getRoleIds();
         List<UserPrivilege> userRoleRelList = privilegeMapper.selectList(new EntityWrapper<UserPrivilege>()
                 .eq("user_id", userId)
                 .eq("subject_type", CodeEnum.ROLE.getCode())
         );
         if (!userRoleRelList.isEmpty()) {
-            List<String> existIds = new ArrayList<>();// 接收已经存在关联的角色id
-            List<String> toDelIds = new ArrayList<>();// 接收需要删除的角色id
-            List<String> oldIds = new ArrayList<>();// 接收所有已经绑定的角色id
+            List<String> existIds = Lists.newArrayList();// 接收已经存在关联的角色id
+            List<String> toDelPkIds = Lists.newArrayList();//接收需要删除的关联主键id
             for (UserPrivilege userRoleRel : userRoleRelList) {
-                oldIds.add(userRoleRel.getSubjectId());
-            }
-            for (String oldId : oldIds) {
-                if (roleIds.contains(oldId)) {
-                    existIds.add(oldId);
+                if (roleIds.contains(userRoleRel.getSubjectId())) {
+                    existIds.add(userRoleRel.getSubjectId());
                 } else {
-                    toDelIds.add(oldId);
+                    toDelPkIds.add(userRoleRel.getPkPrivilegeId());
                 }
             }
             roleIds.removeAll(existIds);
-            if (!toDelIds.isEmpty()) {
-                int count = privilegeMapper.deleteByRolesAndUser(existIds, userId);
+            if (!toDelPkIds.isEmpty()) {
+                int count = privilegeMapper.deleteBatchIds(toDelPkIds);
                 if (count == Constant.ZERO) {
                     throw new ServerException("删除用户角色关联失败");
                 }
@@ -225,13 +226,13 @@ public class UserPrivilegeServiceImpl implements UserPrivilegeService {
     public void batchAddUserResourceRel(AddUserResourcesForm addForm) {
         log.info("service: 批量新增用户资源关联开始");
         StringBuffer sb = new StringBuffer();
-        if (com.waken.dorm.common.utils.StringUtils.isEmpty(addForm.getUserId())) {
+        if (StringUtils.isEmpty(addForm.getUserId())) {
             sb.append("用户 id为空！");
         }
-        if (addForm.getResourceIds().isEmpty()) {
+        if (null == addForm.getResourceIds() && addForm.getResourceIds().isEmpty()) {
             sb.append("资源 id集合为空！");
         }
-        if (StringUtils.isEmpty(sb.toString())) {
+        if (!StringUtils.isEmpty(sb.toString())) {
             throw new ServerException("批量新增用户角色关联失败，原因：" + sb.toString());
         }
         List<UserPrivilege> toBeAddUserRoleRel = this.getToBeAddUserResources(addForm);
@@ -246,29 +247,28 @@ public class UserPrivilegeServiceImpl implements UserPrivilegeService {
 
     private List<UserPrivilege> getToBeAddUserResources(AddUserResourcesForm addUserRoleRelForm) {
         String userId = addUserRoleRelForm.getUserId();
+        this.checkSuperAdmin(userId);
         List<String> resourceIds = addUserRoleRelForm.getResourceIds();
         List<UserPrivilege> userRoleRelList = privilegeMapper.selectList(new EntityWrapper<UserPrivilege>()
                 .eq("user_id", userId)
+                .andNew()
                 .eq("subject_type", CodeEnum.MENU.getCode())
-                .or("subject_type", CodeEnum.BUTTON.getCode())
+                .or()
+                .eq("subject_type", CodeEnum.BUTTON.getCode())
         );
         if (!userRoleRelList.isEmpty()) {
-            List<String> existIds = new ArrayList<>();// 接收已经存在关联的角色id
-            List<String> toDelIds = new ArrayList<>();// 接收需要删除的角色id
-            List<String> oldIds = new ArrayList<>();// 接收所有已经绑定的角色id
+            List<String> existIds = new ArrayList<>();// 接收已经存在关联的资源id
+            List<String> toDelPkIds = new ArrayList<>();// 接收需要删除的关联主键id
             for (UserPrivilege userRoleRel : userRoleRelList) {
-                oldIds.add(userRoleRel.getSubjectId());
-            }
-            for (String oldId : oldIds) {
-                if (resourceIds.contains(oldId)) {
-                    existIds.add(oldId);
+                if (resourceIds.contains(userRoleRel.getSubjectId())) {
+                    existIds.add(userRoleRel.getSubjectId());
                 } else {
-                    toDelIds.add(oldId);
+                    toDelPkIds.add(userRoleRel.getPkPrivilegeId());
                 }
             }
             resourceIds.removeAll(existIds);
-            if (!toDelIds.isEmpty()) {
-                int count = privilegeMapper.deleteByResourcesAndUser(existIds, userId);
+            if (!toDelPkIds.isEmpty()) {
+                int count = privilegeMapper.deleteBatchIds(toDelPkIds);
                 if (count == Constant.ZERO) {
                     throw new ServerException("删除用户角色关联失败");
                 }
@@ -297,6 +297,19 @@ public class UserPrivilegeServiceImpl implements UserPrivilegeService {
             return new ArrayList<>();
         }
     }
+
+    private void checkSuperAdmin(String userId){
+        User user = userMapper.selectById(userId);
+        if (null == user){
+            throw new ServerException("参数错误！");
+        }
+        List<String> roles = privilegeMapper.selectUserRoles(user.getUserId());
+        if (roles.contains(Constant.SuperAdmin)){
+            throw new ServerException("不能操作超级管理员!");
+        }
+
+    }
+
 
     /**
      * 将菜单视图列表转为树形对象

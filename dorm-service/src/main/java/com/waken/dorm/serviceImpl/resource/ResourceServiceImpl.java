@@ -1,11 +1,13 @@
 package com.waken.dorm.serviceImpl.resource;
 
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
+import com.google.common.collect.Lists;
 import com.waken.dorm.common.constant.Constant;
 import com.waken.dorm.common.entity.resource.Resource;
 import com.waken.dorm.common.entity.role.Role;
 import com.waken.dorm.common.entity.role.RoleResourceRel;
 import com.waken.dorm.common.entity.user.User;
+import com.waken.dorm.common.entity.user.UserPrivilege;
 import com.waken.dorm.common.enums.CodeEnum;
 import com.waken.dorm.common.exception.ServerException;
 import com.waken.dorm.common.form.base.DeleteForm;
@@ -70,14 +72,14 @@ public class ResourceServiceImpl implements ResourceService {
         BeanMapper.copy(editResourceForm, resource);
         resource.setLastModifyTime(curDate);
         resource.setLastModifyUserId(userId);
-        if (StringUtils.isEmpty(editResourceForm.getPkResourceId())) {//新增
+        if (StringUtils.isBlank(editResourceForm.getPkResourceId())) {//新增
             logger.info("service: 新增资源开始");
             String pkResourceId = UUIDUtils.getPkUUID();
-            if (StringUtils.isEmpty(editResourceForm.getParentId())) {
-                resource.setIsParent(Boolean.FALSE);
+            if (StringUtils.isBlank(editResourceForm.getParentId())) {
+                resource.setParent(Boolean.TRUE);//根节点是父级
                 resource.setParentId(Constant.ROOT);
             } else {
-                resource.setIsParent(Boolean.FALSE);
+                resource.setParent(Boolean.FALSE);
                 resource.setParentId(editResourceForm.getParentId());
                 this.updateParent(editResourceForm.getParentId());
             }
@@ -113,8 +115,6 @@ public class ResourceServiceImpl implements ResourceService {
         Integer delStatus = deleteForm.getDelStatus();
         List<String> delResourceIds = this.getAllToDelIds(resourceIds);
         if (CodeEnum.YES.getCode() == delStatus) { // 物理删除
-//            this.checkResourceRel(delResourceIds);
-            //直接删除关联，此处根据业务需求修改
             this.deleteResourceRel(delResourceIds);
             // 删除资源本身
             int count = resourceMapper.deleteBatchIds(delResourceIds);
@@ -122,39 +122,52 @@ public class ResourceServiceImpl implements ResourceService {
                 throw new ServerException("删除失败");
             }
         } else if (CodeEnum.NO.getCode() == delStatus) {
-//            this.checkResourceRel(delResourceIds);
             this.deleteResourceRel(delResourceIds);
             Map toUpdateStatusMap = DormUtil.getToUpdateStatusMap(delResourceIds, UserManager.getCurrentUserId());
             int count = resourceMapper.batchUpdateStatus(toUpdateStatusMap);
             if (count == Constant.ZERO) {
                 throw new ServerException("删除失败");
             }
-            roleResourceRelMapper.deleteBatchIds(resourceIds);
         } else {
             throw new ServerException("删除状态码错误！");
         }
     }
 
-    private void deleteResourceRel(List<String> delResourceIds) {
-        this.roleResourceRelMapper.deleteByResources(delResourceIds);
-        this.userPrivilegeMapper.deleteByResources(delResourceIds);
-    }
-
     /**
-     * 检查资源是否与角色或者用户存在关联关系
+     * 删除所有的资源关联
      *
      * @param delResourceIds
      */
-    private void checkResourceRel(List<String> delResourceIds) {
-        //找出资源关联的角色或者人员，如果有则不能删除，需要先解除关联后才能删除资源
-        List<UserRoleResource> roles = roleResourceRelMapper.selectByResources(delResourceIds);
-        if (null != roles && !roles.isEmpty()) {
-
-            throw new ServerException("删除资源失败，原因是以下角色与资源绑定中：" + roles.toString() + "请解绑后重试！");
+    private void deleteResourceRel(List<String> delResourceIds) {
+        //删除与角色的关联
+        List<RoleResourceRel> roleResourceRelList = roleResourceRelMapper.selectList(null);
+        List<String> toDelPkIds = Lists.newArrayList();
+        if (null != roleResourceRelList && !roleResourceRelList.isEmpty()) {
+            roleResourceRelList.stream().forEach(rel -> {
+                if (delResourceIds.contains(rel.getResourceId())) {
+                    toDelPkIds.add(rel.getPkRoleResourceId());
+                }
+            });
         }
-        List<UserRoleResource> users = userPrivilegeMapper.selectByResources(delResourceIds);
-        if (null != users && !users.isEmpty()) {
-            throw new ServerException("删除资源失败，原因是以下用户与资源绑定中：" + users.toString() + "请解绑后重试！");
+        if (null != toDelPkIds && !toDelPkIds.isEmpty()) {
+            roleResourceRelMapper.deleteBatchIds(toDelPkIds);
+        }
+        //删除与用户的关联
+        List<String> toDelPkPrivilegeIds = Lists.newArrayList();
+        List<UserPrivilege> userPrivilegeList = userPrivilegeMapper.selectList(new EntityWrapper<UserPrivilege>()
+            .eq("subject_type",CodeEnum.MENU.getCode())
+            .or()
+            .eq("subject_type",CodeEnum.BUTTON.getCode())
+        );
+        if (null != userPrivilegeList && !userPrivilegeList.isEmpty()) {
+            userPrivilegeList.stream().forEach(userPrivilege -> {
+                if (delResourceIds.contains(userPrivilege.getSubjectId())) {
+                    toDelPkPrivilegeIds.add(userPrivilege.getPkPrivilegeId());
+                }
+            });
+        }
+        if (null != toDelPkPrivilegeIds && !toDelPkPrivilegeIds.isEmpty()) {
+            userPrivilegeMapper.deleteBatchIds(toDelPkPrivilegeIds);
         }
     }
 
@@ -315,19 +328,22 @@ public class ResourceServiceImpl implements ResourceService {
             if (StringUtils.isEmpty(editResourceForm.getResourceName())) {
                 sb.append("资源名称为空！");
             }
-            if (StringUtils.isEmpty(editResourceForm.getResourceUrl())) {
-                sb.append("资源URL为空！");
-            }
-            if (null == editResourceForm.getResourceType()) {
+            Integer type = editResourceForm.getResourceType();
+            if (null == type) {
                 sb.append("资源类型为空！");
             }
             if (StringUtils.isNotEmpty(sb.toString())) {
                 logger.info("新增资源失败,原因是：" + sb.toString());
                 throw new ServerException(sb.toString());
             }
+            if (type != CodeEnum.MENU.getCode() && type != CodeEnum.BUTTON.getCode()){
+                throw new ServerException("资源类型编码错误！");
+            }
+            if (StringUtils.isNotBlank(editResourceForm.getResourceUrl())) {
+                checkExist("resource_url", editResourceForm.getResourceUrl(), 1);
+            }
             checkExist("resource_name", editResourceForm.getResourceName(), 1);
-            checkExist("resource_url", editResourceForm.getResourceUrl(), 1);
-            if (StringUtils.isNotEmpty(editResourceForm.getPerms())) {
+            if (StringUtils.isNotBlank(editResourceForm.getPerms())) {
                 checkExist("perms", editResourceForm.getPerms(), 1);
             }
         } else {
@@ -426,14 +442,13 @@ public class ResourceServiceImpl implements ResourceService {
      */
     private void updateParent(String parentId) {
         List<Resource> resourceList = resourceMapper.selectList(new EntityWrapper<Resource>()
-                .eq("parent_id", parentId)
+                .eq("pk_resource_id", parentId)
         );
         if (!resourceList.isEmpty()) {
-            if (false == resourceList.get(Constant.ZERO).getIsParent()) {
-                resourceList.get(Constant.ZERO).setIsParent(Boolean.TRUE);
+            if (false == resourceList.get(Constant.ZERO).getParent()) {
+                resourceList.get(Constant.ZERO).setParent(Boolean.TRUE);
                 resourceMapper.updateById(resourceList.get(Constant.ZERO));
             }
-
         }
     }
 }

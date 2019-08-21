@@ -5,7 +5,7 @@ import com.waken.dorm.common.annotation.Log;
 import com.waken.dorm.common.authentication.JWTToken;
 import com.waken.dorm.common.authentication.JWTUtil;
 import com.waken.dorm.common.base.ActiveUser;
-import com.waken.dorm.common.base.ResultView;
+import com.waken.dorm.common.base.AjaxResponse;
 import com.waken.dorm.common.constant.Constant;
 import com.waken.dorm.common.entity.user.User;
 import com.waken.dorm.common.enums.CodeEnum;
@@ -58,24 +58,24 @@ public class LoginController extends BaseController {
     @PostMapping("login")
     @ApiOperation(value = "login（用户登录接口）", notes = "用户登录接口")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "success", response = ResultView.class)
+            @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
-    public ResultView login(@RequestBody QueryUserForm queryUserForm, HttpServletRequest request) {
+    public AjaxResponse login(@RequestBody QueryUserForm queryUserForm, HttpServletRequest request) {
         log.info("开始调用登陆接口：" + queryUserForm.getUserName());
         if (StringUtils.isEmpty(queryUserForm.getUserName()) || StringUtils.isEmpty(queryUserForm.getPassword())) {
-            return ResultUtil.errorByMsg("用户名或密码为空！");
+            return AjaxResponse.error("用户名或密码为空！");
         }
         String username = queryUserForm.getUserName();
         String password = PasswordEncode.shiroEncode(username, queryUserForm.getPassword());
         User user = this.userService.queryUserInfo(username);
         if (user == null) {
-            return ResultUtil.errorByMsg("用户名错误！");
+            return AjaxResponse.error("用户名错误！");
         } else if (!StringUtils.equals(user.getPassword(), password)) {
-            return ResultUtil.errorByMsg("密码错误！");
+            return AjaxResponse.error("密码错误！");
         } else if (CodeEnum.DISABLE.getCode() == user.getStatus()) {
-            return ResultUtil.errorByMsg("用户已被禁用,请联系管理员!");
+            return AjaxResponse.error("用户已被禁用,请联系管理员!");
         } else if (CodeEnum.DELETE.getCode() == user.getStatus()) {
-            return ResultUtil.errorByMsg("用户已失效，请联系管理员！");
+            return AjaxResponse.error("用户已失效，请联系管理员！");
         }
 
         String token = TokenUtils.encryptToken(JWTUtil.sign(username, password));
@@ -91,10 +91,10 @@ public class LoginController extends BaseController {
             user.setActiveUserId(activeUserId);
         } catch (Exception e) {
             e.printStackTrace();
-            return ResultUtil.error(ResultEnum.SERVER_ERROR);
+            return AjaxResponse.error(ResultEnum.SERVER_ERROR);
         }
         this.userService.updateLoginTime(user);
-        return ResultUtil.success(this.getUserMapAndCacheUser(jwtToken, user));
+        return AjaxResponse.success(this.getUserMapAndCacheUser(jwtToken, user));
     }
 
     @RequiresPermissions("user:online")
@@ -103,7 +103,7 @@ public class LoginController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = ActiveUser.class)
     })
-    public ResultView userOnline(String username) throws Exception {
+    public AjaxResponse userOnline(String username) throws Exception {
         String now = DateUtils.formatFullTime(LocalDateTime.now());
         Set<String> userOnlineStringSet = redisService.zrangeByScore(Constant.ACTIVE_USERS_ZSET_PREFIX, now, "+inf");
         List<ActiveUser> activeUsers = new ArrayList<>();
@@ -117,7 +117,7 @@ public class LoginController extends BaseController {
                 activeUsers.add(activeUser);
             }
         }
-        return ResultUtil.success(activeUsers);
+        return AjaxResponse.success(activeUsers);
     }
 
     /**
@@ -129,10 +129,11 @@ public class LoginController extends BaseController {
     @GetMapping("logout/{id}")
     @ApiOperation(value = "logout（注销登录接口）", notes = "注销登录接口")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "success", response = ResultView.class)
+            @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
-    public void logout(@NotBlank(message = "{required}") @PathVariable String id) throws Exception {
+    public AjaxResponse logout(@NotBlank(message = "{required}") @PathVariable String id) throws Exception {
         this.kickOut(id);
+        return AjaxResponse.success();
     }
 
     /**
@@ -145,9 +146,9 @@ public class LoginController extends BaseController {
     @RequiresPermissions("user:kickout")
     @ApiOperation(value = "kickout（下线用户接口）", notes = "下线用户接口")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "success", response = ResultView.class)
+            @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
-    public void kickOut(@NotBlank(message = "{required}") @PathVariable String activeUserId) throws Exception {
+    public AjaxResponse kickOut(@NotBlank(message = "{required}") @PathVariable String activeUserId) throws Exception {
         String now = DateUtils.formatFullTime(LocalDateTime.now());
         Set<String> userOnlineStringSet = redisService.zrangeByScore(Constant.ACTIVE_USERS_ZSET_PREFIX, now, "+inf");
         ActiveUser kickoutUser = null;
@@ -165,6 +166,7 @@ public class LoginController extends BaseController {
             // 删除对应的 token缓存
             redisService.del(Constant.TOKEN_CACHE_PREFIX + kickoutUser.getToken() + "." + kickoutUser.getIp());
         }
+        return AjaxResponse.success();
     }
 
     /**

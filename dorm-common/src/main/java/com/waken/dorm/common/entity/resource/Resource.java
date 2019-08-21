@@ -95,4 +95,12 @@ public class Resource implements Serializable {
 
     @TableField("last_modify_user_id")
     private String lastModifyUserId;
+
+    public Boolean getParent() {
+        return isParent;
+    }
+
+    public void setParent(Boolean isParent) {
+        this.isParent = isParent;
+    }
 }

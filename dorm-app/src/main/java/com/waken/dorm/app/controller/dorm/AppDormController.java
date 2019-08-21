@@ -1,8 +1,7 @@
 package com.waken.dorm.app.controller.dorm;
 
 import com.waken.dorm.app.controller.base.AppBaseController;
-import com.waken.dorm.common.base.ResultView;
-import com.waken.dorm.common.utils.ResultUtil;
+import com.waken.dorm.common.base.AjaxResponse;
 import com.waken.dorm.common.view.dorm.AppDormView;
 import com.waken.dorm.manager.StudentManager;
 import com.waken.dorm.service.dorm.DormService;
@@ -35,10 +34,10 @@ public class AppDormController extends AppBaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = AppDormView.class)
     })
-    public ResultView queryAppDormView() {
+    public AjaxResponse queryAppDormView() {
         String studentId = studentManager.getCurrentStudentId();
         log.info("开始调用app查询宿舍信息接口：" + studentId);
         AppDormView appDormView = dormService.queryAppDormView(studentId);
-        return ResultUtil.success(appDormView);
+        return AjaxResponse.success(appDormView);
     }
 }

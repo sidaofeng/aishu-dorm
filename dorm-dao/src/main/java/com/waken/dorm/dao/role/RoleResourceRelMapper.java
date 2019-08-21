@@ -11,22 +11,6 @@ import java.util.List;
 
 public interface RoleResourceRelMapper extends BaseMapper<RoleResourceRel> {
     /**
-     * 通过批量角色Ids批量查询资源名称
-     *
-     * @param Ids
-     * @return
-     */
-    List<UserRoleResource> selectByRoles(@Param("Ids") List<String> Ids);
-
-    /**
-     * 通过批量资源Ids批量查询角色名称
-     *
-     * @param Ids
-     * @return
-     */
-    List<UserRoleResource> selectByResources(@Param("Ids") List<String> Ids);
-
-    /**
      * 批量新增角色资源关联
      * @param roleResourceRelList
      * @return
@@ -50,11 +34,19 @@ public interface RoleResourceRelMapper extends BaseMapper<RoleResourceRel> {
     int deleteByRoles(@Param("Ids") List<String> Ids);
 
     /**
-     * 删除对应角色下的对应的资源的关联
+     * 通过批量角色Ids批量查询资源名称
      *
      * @param Ids
-     * @param roleId
      * @return
      */
-    int deleteByResourcesAndRole(@Param("Ids") List<String> Ids, @Param("roleId") String roleId);
+    List<UserRoleResource> selectByRoles(@Param("Ids") List<String> Ids);
+
+    /**
+     * 通过批量资源Ids批量查询角色名称
+     *
+     * @param Ids
+     * @return
+     */
+    List<UserRoleResource> selectByResources(@Param("Ids") List<String> Ids);
+
 }

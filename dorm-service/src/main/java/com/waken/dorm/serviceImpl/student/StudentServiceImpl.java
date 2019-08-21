@@ -3,7 +3,7 @@ package com.waken.dorm.serviceImpl.student;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.waken.dorm.common.base.ResultView;
+import com.waken.dorm.common.base.AjaxResponse;
 import com.waken.dorm.common.constant.Constant;
 import com.waken.dorm.common.entity.student.Student;
 import com.waken.dorm.common.entity.student.StudentInfo;
@@ -187,31 +187,23 @@ public class StudentServiceImpl implements StudentService {
      * @return
      */
     @Override
-    public ResultView studentLogin(Integer studentNum, String password) {
+    public AjaxResponse studentLogin(Integer studentNum, String password) {
         logger.info("service: 开始进入学生登陆");
-        ResultView resultView = new ResultView();
         List<Student> studentList = studentMapper.selectList(new EntityWrapper<Student>()
                 .eq("student_num", studentNum)
         );
         if (studentList.isEmpty()) {
             logger.info("登陆失败，学号错误！");
-            resultView.setCode(ResultEnum.FAIL.getCode());
-            resultView.setMsg("登录失败，学号错误！");
-            return resultView;
+            return AjaxResponse.error("登录失败，学号错误！");
         } else {
             if (StringUtils.isEmpty(studentList.get(Constant.ZERO).getPassword())) {
                 String studentNumStr = String.valueOf(studentNum);
                 if (StringUtils.equals(studentNumStr, password)) {
-                    logger.info("第一次登陆成功");
-                    resultView.setCode(ResultEnum.FIRST_LOGIN.getCode());
-                    resultView.setData(studentList.get(Constant.ZERO));
-                    resultView.setMsg("第一次登录成功！");
-                    return resultView;
+                    Student student = studentList.get(Constant.ZERO);
+                    return AjaxResponse.success(ResultEnum.FIRST_LOGIN.getCode(),student);
                 } else {
                     logger.info("登陆失败，初始密码错误！");
-                    resultView.setCode(ResultEnum.FAIL.getCode());
-                    resultView.setMsg("登录失败，初始密码错误！");
-                    return resultView;
+                    return AjaxResponse.error("登录失败，初始密码错误！");
                 }
             } else {
                 String passwordMd5 = Md5Utils.encodeByMD5(password);
@@ -220,18 +212,11 @@ public class StudentServiceImpl implements StudentService {
                 student.setPassword(passwordMd5);
                 StudentInfo studentInfo = studentMapper.studentLogin(student);
                 if (studentInfo == null) {
-                    logger.info("登陆失败，密码错误！");
-                    resultView.setCode(ResultEnum.FAIL.getCode());
-                    resultView.setMsg("登录失败，密码错误！");
-                    return resultView;
+                    return AjaxResponse.error("登录失败，密码错误！");
                 } else {
                     String studentToken = this.getStudentToken(studentInfo);
                     studentInfo.setStudentToken(studentToken);
-                    resultView.setData(studentInfo);
-                    logger.info("登陆成功");
-                    resultView.setCode(ResultEnum.SUCCESS.getCode());
-                    resultView.setMsg("登录成功！");
-                    return resultView;
+                    return AjaxResponse.success(studentInfo);
                 }
             }
         }

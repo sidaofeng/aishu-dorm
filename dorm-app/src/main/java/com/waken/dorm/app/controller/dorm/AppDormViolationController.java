@@ -2,9 +2,8 @@ package com.waken.dorm.app.controller.dorm;
 
 import com.github.pagehelper.PageInfo;
 import com.waken.dorm.app.controller.base.AppBaseController;
-import com.waken.dorm.common.base.ResultView;
 import com.waken.dorm.common.form.dorm.DormViolationForm;
-import com.waken.dorm.common.utils.ResultUtil;
+import com.waken.dorm.common.base.AjaxResponse;
 import com.waken.dorm.common.view.dorm.AppDormViolationView;
 import com.waken.dorm.manager.StudentManager;
 import com.waken.dorm.service.dorm.DormViolationService;
@@ -38,7 +37,7 @@ public class AppDormViolationController extends AppBaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = AppDormViolationView.class)
     })
-    public ResultView listDormViolations(Integer pageNum, Integer pageSize) {
+    public AjaxResponse listDormViolations(Integer pageNum, Integer pageSize) {
         String studentId = studentManager.getCurrentStudentId();
         log.info("开始调用分页查询宿舍违规信息接口：" + studentId);
         DormViolationForm dormViolationForm = new DormViolationForm();
@@ -46,6 +45,6 @@ public class AppDormViolationController extends AppBaseController {
         dormViolationForm.setPageSize(pageSize);
         dormViolationForm.setStudentId(studentId);
         PageInfo<AppDormViolationView> pageInfo = dormViolationService.appListDormViolations(dormViolationForm);
-        return ResultUtil.success(pageInfo);
+        return AjaxResponse.success(pageInfo);
     }
 }

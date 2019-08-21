@@ -1,9 +1,8 @@
 package com.waken.dorm.common.handle;
 
-import com.waken.dorm.common.base.ResultView;
 import com.waken.dorm.common.enums.ResultEnum;
 import com.waken.dorm.common.exception.ServerException;
-import com.waken.dorm.common.utils.ResultUtil;
+import com.waken.dorm.common.base.AjaxResponse;
 import org.apache.shiro.authz.UnauthorizedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,24 +22,24 @@ public class ExceptionHandle {
 
     @ExceptionHandler(value = Exception.class)
     @ResponseBody
-    public ResultView handle(Exception e) {
+    public AjaxResponse handle(Exception e) {
         if (e instanceof ServerException) {
             ServerException serverException = (ServerException) e;
             e.printStackTrace();
             logger.info("服务端异常：" + e);
-            return ResultUtil.error(serverException.getCode(), serverException.getMessage());
+            return AjaxResponse.error(serverException.getCode(), serverException.getMessage());
         } else {
             e.printStackTrace();
             logger.info("未知错误：" + e);
-            return ResultUtil.error(ResultEnum.UNKNOWN_ERROR);
+            return AjaxResponse.error(ResultEnum.UNKNOWN_ERROR);
         }
     }
 
     @ExceptionHandler(value = UnauthorizedException.class)
     @ResponseBody
-    public ResultView handle(UnauthorizedException ue) {
+    public AjaxResponse handle(UnauthorizedException ue) {
         logger.info("无权限异常：" + ue.getMessage());
-        return ResultUtil.error(ResultEnum.UN_PERMS.getCode(), getErrorMsg(ue.getMessage()));
+        return AjaxResponse.error(ResultEnum.UN_PERMS.getCode(), getErrorMsg(ue.getMessage()));
     }
 
     /**

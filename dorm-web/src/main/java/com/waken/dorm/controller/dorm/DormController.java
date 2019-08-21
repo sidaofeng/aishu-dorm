@@ -2,13 +2,12 @@ package com.waken.dorm.controller.dorm;
 
 import com.github.pagehelper.PageInfo;
 import com.waken.dorm.common.annotation.Log;
-import com.waken.dorm.common.base.ResultView;
 import com.waken.dorm.common.entity.dorm.Dorm;
 import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.dorm.AddDormStudentRelForm;
 import com.waken.dorm.common.form.dorm.DormForm;
 import com.waken.dorm.common.form.dorm.EditDormForm;
-import com.waken.dorm.common.utils.ResultUtil;
+import com.waken.dorm.common.base.AjaxResponse;
 import com.waken.dorm.common.utils.StringUtils;
 import com.waken.dorm.common.view.dorm.DormStudentsView;
 import com.waken.dorm.common.view.dorm.DormView;
@@ -42,10 +41,10 @@ public class DormController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = Dorm.class)
     })
-    public ResultView saveDorm(@RequestBody EditDormForm editDormForm) {
+    public AjaxResponse saveDorm(@RequestBody EditDormForm editDormForm) {
         log.info("开始调用(保存/修改)宿舍信息接口接口：" + editDormForm.toString());
         Dorm dorm = dormService.saveDorm(editDormForm);
-        return ResultUtil.success(dorm);
+        return AjaxResponse.success(dorm);
     }
 
     @Log("删除宿舍信息")
@@ -53,15 +52,15 @@ public class DormController extends BaseController {
     @DeleteMapping(value = "delete")
     @ApiOperation(value = "删除宿舍信息", notes = "删除宿舍信息")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "success", response = ResultView.class)
+            @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
-    public ResultView deleteDorm(@RequestBody DeleteForm deleteFrom) {
+    public AjaxResponse deleteDorm(@RequestBody DeleteForm deleteFrom) {
         log.info("开始调用删除宿舍接口：" + deleteFrom.toString());
         if (null == deleteFrom.getDelIds() || deleteFrom.getDelIds().isEmpty()) {
-            return ResultUtil.errorByMsg("入参为空！");
+            return AjaxResponse.error("入参为空！");
         }
         dormService.deleteDorm(deleteFrom);
-        return ResultUtil.success();
+        return AjaxResponse.success();
     }
 
     @CrossOrigin
@@ -70,10 +69,10 @@ public class DormController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = DormView.class)
     })
-    public ResultView listDorms(@RequestBody DormForm dormForm) {
+    public AjaxResponse listDorms(@RequestBody DormForm dormForm) {
         log.info("开始调用分页查询宿舍信息接口：" + dormForm.toString());
         PageInfo<DormView> pageInfo = dormService.listDorms(dormForm);
-        return ResultUtil.success(pageInfo);
+        return AjaxResponse.success(pageInfo);
     }
 
     @CrossOrigin
@@ -82,10 +81,10 @@ public class DormController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = DormStudentsView.class)
     })
-    public ResultView queryDormStudentsView(@PathVariable String id) {
+    public AjaxResponse queryDormStudentsView(@PathVariable String id) {
         log.info("开始调用查询宿舍与学生关联信息接口：" + id);
         DormStudentsView dormStudentsView = dormService.queryDormStudentsView(id);
-        return ResultUtil.success(dormStudentsView);
+        return AjaxResponse.success(dormStudentsView);
     }
 
     @Log("批量添加宿舍学生关联")
@@ -93,14 +92,14 @@ public class DormController extends BaseController {
     @PostMapping(value = "students-dorms/batch/add")
     @ApiOperation(value = "批量添加宿舍学生关联", notes = "批量添加宿舍学生关联 ")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "success", response = ResultView.class)
+            @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
-    public ResultView batchAddDormStudentRel(@RequestBody AddDormStudentRelForm addForm) {
+    public AjaxResponse batchAddDormStudentRel(@RequestBody AddDormStudentRelForm addForm) {
         log.info("开始调用批量添加宿舍学生关联接口：" + addForm.toString());
         if (StringUtils.isEmpty(addForm.getDormId()) || null == addForm.getStudentIds() || addForm.getStudentIds().isEmpty()) {
-            return ResultUtil.errorByMsg("参数为空");
+            return AjaxResponse.error("参数为空");
         }
         dormService.batchAddDormStudentRel(addForm);
-        return ResultUtil.success();
+        return AjaxResponse.success();
     }
 }

@@ -96,22 +96,6 @@
         </foreach>
         AND r.`status` = 1
     </select>
-    <select id="selectByUserAndResourceType" resultType="com.waken.dorm.common.entity.role.RoleResourceRel">
-        SELECT
-        rr.pk_role_resource_id AS pkRoleResourceId,
-        rr.role_id AS roleId,
-        rr.resource_id AS resourceId,
-        rr.resource_type AS resourceType,
-        rr.create_time AS createTime,
-        rr.create_user_id AS createUserId
-        FROM rm_role_resource_rel rr
-        LEFT JOIN rm_user_privilege up ON up.subject_id = rr.role_id
-        WHERE up.subject_type = 3
-        AND up.user_id = #{userId,jdbcType=VARCHAR}
-        <if test="resourceType != null">
-            AND rr.resource_type=#{resourceType,jdbcType=INTEGER}
-        </if>
-    </select>
     <delete id="deleteByResources">
         DELETE
         FROM rm_role_resource_rel
@@ -127,14 +111,5 @@
         <foreach collection="Ids" item="id" open="(" close=")" separator=",">
             #{id}
         </foreach>
-    </delete>
-    <delete id="deleteByResourcesAndRole">
-        DELETE
-        FROM rm_role_resource_rel r
-        where r.resource_id in
-        <foreach collection="Ids" item="id" open="(" close=")" separator=",">
-            #{id}
-        </foreach>
-        AND r.role_id = #{roleId,jdbcType=VARCHAR}
     </delete>
 </mapper>

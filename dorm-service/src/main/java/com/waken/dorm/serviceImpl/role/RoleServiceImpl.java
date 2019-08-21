@@ -3,6 +3,7 @@ package com.waken.dorm.serviceImpl.role;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.common.collect.Lists;
 import com.waken.dorm.common.constant.Constant;
 import com.waken.dorm.common.entity.role.Role;
 import com.waken.dorm.common.entity.role.RoleResourceRel;
@@ -85,14 +86,12 @@ public class RoleServiceImpl implements RoleService {
         Integer delStatus = deleteForm.getDelStatus();
         int count;
         if (CodeEnum.YES.getCode() == delStatus) { // 物理删除
-//            this.checkRoleRef(roleIds);
             this.delRoleRel(roleIds);
             count = roleMapper.deleteBatchIds(roleIds);
             if (count == Constant.ZERO) {
                 throw new ServerException("物理删除失败");
             }
         } else if (CodeEnum.NO.getCode() == delStatus) {
-//            this.checkRoleRef(roleIds);
             this.delRoleRel(roleIds);
             Map updateStatusMap = DormUtil.getToUpdateStatusMap(roleIds, UserManager.getCurrentUserId());
             count = roleMapper.batchUpdateStatus(updateStatusMap);
@@ -135,34 +134,39 @@ public class RoleServiceImpl implements RoleService {
      * @param roleIds
      */
     private void delRoleRel(List<String> roleIds) {
-        this.roleResourceRelMapper.deleteByRoles(roleIds);
-        this.userPrivilegeMapper.deleteByRoles(roleIds);
-    }
-
-    /**
-     * 检验角色是否与用户或者资源存在关联，若有关联则不能删除
-     *
-     * @param roleIds
-     */
-    private void checkRoleRef(List<String> roleIds) {
+        List<Role> roles = roleMapper.selectBatchIds(roleIds);
+        roles.stream().forEach(role -> {
+            if (StringUtils.equals(role.getRoleName(),Constant.SuperAdmin)){
+                throw new ServerException("不能操作超级管理员角色！");
+            }
+        });
+        //删除资源与用户的所有关联
         List<UserPrivilege> privileges = userPrivilegeMapper.selectList(new EntityWrapper<UserPrivilege>()
                 .eq("subject_type", CodeEnum.ROLE.getCode())
         );
-        Map<String, String> map = new HashMap<>(16);
-        for (String roleId : roleIds) {
-            map.put(roleId, roleId);
+        List<String> toDelPrivilegeId = Lists.newArrayList();
+        if (null != privileges && !privileges.isEmpty()) {
+            privileges.stream().forEach(userPrivilege -> {
+                if (roleIds.contains(userPrivilege.getSubjectId())) {
+                    toDelPrivilegeId.add(userPrivilege.getPkPrivilegeId());
+                }
+            });
         }
-        for (UserPrivilege privilege : privileges) {
-            if (map.containsKey(privilege.getSubjectId())) {
-                throw new ServerException("删除失败，原因是角色与用户存在关联，请解除关联后重试！");
-            }
+        if (null != toDelPrivilegeId && !toDelPrivilegeId.isEmpty()) {
+            userPrivilegeMapper.deleteBatchIds(toDelPrivilegeId);
         }
-
-        List<RoleResourceRel> roleList = roleResourceRelMapper.selectList(new EntityWrapper<>());
-        for (RoleResourceRel roleRel : roleList) {
-            if (map.containsKey(roleRel.getRoleId())) {
-                throw new ServerException("删除失败，原因是角色与资源存在关联，请解除关联后重试！");
-            }
+        //删除资源与角色的所有关联
+        List<String> toDelRelId = Lists.newArrayList();
+        List<RoleResourceRel> roleList = roleResourceRelMapper.selectList(null);
+        if (null != roleList && !roleList.isEmpty()){
+            roleList.stream().forEach(rel->{
+                if (roleIds.contains(rel.getRoleId())){
+                    toDelRelId.add(rel.getPkRoleResourceId());
+                }
+            });
+        }
+        if (null != toDelRelId && !toDelRelId.isEmpty()) {
+            roleResourceRelMapper.deleteBatchIds(toDelRelId);
         }
     }
 
@@ -218,7 +222,7 @@ public class RoleServiceImpl implements RoleService {
         }
         Role role = roleMapper.selectById(addRoleResourceRelForm.getPkRoleId());
         if (StringUtils.equals(Constant.SuperAdmin, role.getRoleName())) {
-            throw new ServerException("不能修改超级管理员的资源！");
+            throw new ServerException("不能操作超级管理员角色！");
         }
     }
 
@@ -236,21 +240,17 @@ public class RoleServiceImpl implements RoleService {
         );
         if (!roleResourceRelList.isEmpty()) {
             List<String> existIds = new ArrayList<>();// 接收已经存在关联的资源id
-            List<String> toDelIds = new ArrayList<>();// 接收需要删除的资源id
-            List<String> oldIds = new ArrayList<>();// 接收所有已经绑定的资源id
-            for (RoleResourceRel roleResourceRel : roleResourceRelList) {
-                oldIds.add(roleResourceRel.getResourceId());
-            }
-            for (String oldId : oldIds) {
-                if (resourceIds.contains(oldId)) {
-                    existIds.add(oldId);
+            List<String> toDelPkIds = new ArrayList<>();// 接收需要删除的关联主键id
+            for (RoleResourceRel rel : roleResourceRelList) {
+                if (resourceIds.contains(rel.getResourceId())) {
+                    existIds.add(rel.getResourceId());
                 } else {
-                    toDelIds.add(oldId);
+                    toDelPkIds.add(rel.getPkRoleResourceId());
                 }
             }
             resourceIds.removeAll(existIds);
-            if (!toDelIds.isEmpty()) {
-                roleResourceRelMapper.deleteByResourcesAndRole(toDelIds, roleId);
+            if (!toDelPkIds.isEmpty()) {
+                roleResourceRelMapper.deleteBatchIds(toDelPkIds);
             }
         }
         if (resourceIds.isEmpty()) {

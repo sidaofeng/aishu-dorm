@@ -1,12 +1,11 @@
 package com.waken.dorm.controller.resource;
 
 import com.waken.dorm.common.annotation.Log;
-import com.waken.dorm.common.base.ResultView;
 import com.waken.dorm.common.entity.resource.Resource;
 import com.waken.dorm.common.enums.CodeEnum;
 import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.resource.EditResourceForm;
-import com.waken.dorm.common.utils.ResultUtil;
+import com.waken.dorm.common.base.AjaxResponse;
 import com.waken.dorm.common.utils.StringUtils;
 import com.waken.dorm.common.view.base.TreeView;
 import com.waken.dorm.common.view.resource.UserMenuView;
@@ -19,6 +18,8 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,9 +45,10 @@ public class ResourceController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = Resource.class)
     })
-    public ResultView saveResource(@RequestBody EditResourceForm editResourceForm) {
+    @RequiresPermissions("resources::save")
+    public AjaxResponse saveResource(@RequestBody EditResourceForm editResourceForm) {
         log.info("开始调用资源保存或修改接口：" + editResourceForm.toString());
-        return ResultUtil.success(resourceService.saveResource(editResourceForm));
+        return AjaxResponse.success(resourceService.saveResource(editResourceForm));
     }
 
     @Log("删除资源")
@@ -54,15 +56,16 @@ public class ResourceController extends BaseController {
     @DeleteMapping(value = "resources/delete")
     @ApiOperation(value = "删除资源", notes = "删除资源 ")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "success", response = ResultView.class)
+            @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
-    public ResultView deleteResource(@RequestBody DeleteForm deleteFrom) {
+    @RequiresRoles("superAdmin")
+    public AjaxResponse deleteResource(@RequestBody DeleteForm deleteFrom) {
         log.info("开始调用资源删除接口：" + deleteFrom.toString());
         if (null == deleteFrom.getDelIds() || deleteFrom.getDelIds().isEmpty()) {
-            return ResultUtil.errorByMsg("入参为空！");
+            return AjaxResponse.error("入参为空！");
         }
         resourceService.deleteResource(deleteFrom);
-        return ResultUtil.success();
+        return AjaxResponse.success();
     }
 
     @CrossOrigin
@@ -71,9 +74,9 @@ public class ResourceController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = UserMenuView.class)
     })
-    public ResultView getMenuByUser() {
+    public AjaxResponse getMenuByUser() {
         log.info("开始调用查询当前登陆用户所有的菜单资源的接口");
-        return ResultUtil.success(userPrivilegeService.getUserMenu(UserManager.getCurrentUserId()));
+        return AjaxResponse.success(userPrivilegeService.getUserMenu(UserManager.getCurrentUserId()));
     }
 
     @CrossOrigin
@@ -82,9 +85,10 @@ public class ResourceController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = TreeView.class)
     })
-    public ResultView getResourcesTree() {
+    @RequiresPermissions("resources::view")
+    public AjaxResponse getResourcesTree() {
         log.info("开始调用查询资源树的接口");
-        return ResultUtil.success(resourceService.getResourcesTree(null, null, null));
+        return AjaxResponse.success(resourceService.getResourcesTree(null, null, null));
     }
 
     @CrossOrigin
@@ -93,12 +97,12 @@ public class ResourceController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = TreeView.class)
     })
-    public ResultView getTreeByUser(@PathVariable String id) {
+    public AjaxResponse getTreeByUser(@PathVariable String id) {
         log.info("开始调用通过用户id查询资源树的接口:" + id);
         if (StringUtils.isBlank(id)) {
-            return ResultUtil.errorByMsg("入参为空！");
+            return AjaxResponse.error("入参为空！");
         }
-        return ResultUtil.success(resourceService.getResourcesTree(CodeEnum.ENABLE.getCode(), id, null));
+        return AjaxResponse.success(resourceService.getResourcesTree(CodeEnum.ENABLE.getCode(), id, null));
     }
 
     @CrossOrigin
@@ -107,12 +111,12 @@ public class ResourceController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = TreeView.class)
     })
-    public ResultView getTreeByRole(@PathVariable String id) {
+    public AjaxResponse getTreeByRole(@PathVariable String id) {
         log.info("开始调用通过角色id查询资源树的接口:" + id);
         if (StringUtils.isBlank(id)) {
-            return ResultUtil.errorByMsg("入参为空！");
+            return AjaxResponse.error("入参为空！");
         }
-        return ResultUtil.success(resourceService.getResourcesTree(CodeEnum.ENABLE.getCode(), null, id));
+        return AjaxResponse.success(resourceService.getResourcesTree(CodeEnum.ENABLE.getCode(), null, id));
     }
 
     @CrossOrigin
@@ -121,15 +125,15 @@ public class ResourceController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = Resource.class)
     })
-    public ResultView selectById(@PathVariable String id) {
+    public AjaxResponse selectById(@PathVariable String id) {
         log.info("开始调用通过资源id查询资源的接口:" + id);
         if (StringUtils.isBlank(id)) {
-            return ResultUtil.errorByMsg("参数为空！");
+            return AjaxResponse.error("参数为空！");
         }
         Resource resource = resourceService.selectById(id);
         if (null == resource) {
-            return ResultUtil.errorByMsg("参数错误！");
+            return AjaxResponse.error("参数错误！");
         }
-        return ResultUtil.success(resource);
+        return AjaxResponse.success(resource);
     }
 }

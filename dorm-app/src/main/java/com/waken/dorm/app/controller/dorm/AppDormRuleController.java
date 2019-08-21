@@ -2,10 +2,9 @@ package com.waken.dorm.app.controller.dorm;
 
 import com.github.pagehelper.PageInfo;
 import com.waken.dorm.app.controller.base.AppBaseController;
-import com.waken.dorm.common.base.ResultView;
 import com.waken.dorm.common.enums.CodeEnum;
 import com.waken.dorm.common.form.dorm.DormRuleForm;
-import com.waken.dorm.common.utils.ResultUtil;
+import com.waken.dorm.common.base.AjaxResponse;
 import com.waken.dorm.common.view.dorm.DormRuleView;
 import com.waken.dorm.manager.StudentManager;
 import com.waken.dorm.service.dorm.DormRuleService;
@@ -38,7 +37,7 @@ public class AppDormRuleController extends AppBaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = DormRuleView.class)
     })
-    public ResultView listDormRules(Integer pageNum, Integer pageSize) {
+    public AjaxResponse listDormRules(Integer pageNum, Integer pageSize) {
         String studentId = studentManager.getCurrentStudentId();
         log.info("开始调用分页查询宿舍规则信息接口：" + studentId);
         DormRuleForm ruleForm = new DormRuleForm();
@@ -47,6 +46,6 @@ public class AppDormRuleController extends AppBaseController {
         ruleForm.setPageSize(pageSize);
         ruleForm.setTerminal(CodeEnum.APP.getCode());
         PageInfo<DormRuleView> pageInfo = RuleService.listDormRules(ruleForm);
-        return ResultUtil.success(pageInfo);
+        return AjaxResponse.success(pageInfo);
     }
 }

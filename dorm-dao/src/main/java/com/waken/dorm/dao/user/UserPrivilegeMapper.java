@@ -74,15 +74,6 @@ public interface UserPrivilegeMapper extends BaseMapper<UserPrivilege> {
      */
     int deleteByRoles(@Param("Ids") List<String> Ids);
 
-    /**
-     * 删除对应人员下的对应的角色的关联
-     *
-     * @param Ids
-     * @param userId
-     * @return
-     */
-    int deleteByRolesAndUser(@Param("Ids") List<String> Ids, @Param("userId") String userId);
-
 
     /**
      * 批量新增用户与角色的关联
@@ -92,14 +83,6 @@ public interface UserPrivilegeMapper extends BaseMapper<UserPrivilege> {
      */
     int batchAddUserRoleRel(List<UserPrivilege> userRoleList);
 
-    /**
-     * 删除对应人员下的对应的资源的关联
-     *
-     * @param Ids
-     * @param userId
-     * @return
-     */
-    int deleteByResourcesAndUser(@Param("Ids") List<String> Ids, @Param("userId") String userId);
 
     /**
      * 批量新增用户与角色的关联
@@ -118,19 +101,19 @@ public interface UserPrivilegeMapper extends BaseMapper<UserPrivilege> {
     List<UserRoleResource> selectByResources(@Param("Ids") List<String> Ids);
 
     /**
-     * 通过角色id批量查询
-     *
-     * @param Ids
-     * @return
-     */
-    List<UserRoleResource> selectByRoles(@Param("Ids") List<String> Ids);
-
-    /**
      * 通过用户id批量查询用户关联角色信息
      *
      * @param Ids
      * @return
      */
     List<UserRoleResource> selectByUsers(@Param("Ids") List<String> Ids);
+
+    /**
+     * 通过角色id批量查询
+     *
+     * @param Ids
+     * @return
+     */
+    List<UserRoleResource> selectByRoles(@Param("Ids") List<String> Ids);
 
 }

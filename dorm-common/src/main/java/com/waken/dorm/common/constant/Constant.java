@@ -22,6 +22,8 @@ public class Constant {
     public static final String TOKEN_CACHE_PREFIX = "dorm.cache.token.";
     // 存储在线用户的 zset前缀
     public static final String ACTIVE_USERS_ZSET_PREFIX = "dorm.user.active";
+
+    public static final String ANON = "Anon";
     /**
      * 加密key
      */
