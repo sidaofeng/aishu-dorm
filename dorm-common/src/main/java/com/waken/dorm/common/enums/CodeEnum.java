@@ -24,7 +24,7 @@ public enum CodeEnum {
 
     DELETE("已删除", -1), DISCARD("作废", 0), CHECKED("已审核", 1), UNCOMMITTED("未提交", 2), UNCHECED("待审核", 3), UNPASSED("审核不通过", 4),
 
-    MENU("菜单", 1), BUTTON("按钮", 2), ROLE("角色", 3),
+    MENU("menu", 1), BUTTON("button", 2), ROLE("role", 3),
 
     UNCOMPLETE("未完成", 0), COMPLETED("已完成", 1),
 

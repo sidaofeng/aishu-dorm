@@ -71,6 +71,7 @@
         LEFT JOIN rm_user_privilege p ON p.subject_id = rr.role_id
         WHERE
         r.`status` = 1
+        AND r.resource_type = 2
         <if test="userId != null and userId != ''">
             AND p.user_id=#{userId,jdbcType=VARCHAR}
         </if>
@@ -81,6 +82,7 @@
         LEFT JOIN rm_user_privilege p ON p.subject_id = r.pk_resource_id
         WHERE
         r.`status` = 1
+        AND r.resource_type = 2
         <if test="userId != null and userId != ''">
             AND p.user_id=#{userId,jdbcType=VARCHAR}
         </if>

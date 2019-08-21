@@ -16,7 +16,6 @@ import com.waken.dorm.common.utils.*;
 import com.waken.dorm.common.view.base.Tree;
 import com.waken.dorm.common.view.resource.ResourceView;
 import com.waken.dorm.common.view.resource.UserMenuView;
-import com.waken.dorm.common.view.user.UserRoleResource;
 import com.waken.dorm.dao.resource.ResourceMapper;
 import com.waken.dorm.dao.role.RoleMapper;
 import com.waken.dorm.dao.role.RoleResourceRelMapper;
@@ -324,28 +323,27 @@ public class ResourceServiceImpl implements ResourceService {
      */
     private void editResourceValidate(EditResourceForm editResourceForm) {
         if (StringUtils.isEmpty(editResourceForm.getPkResourceId())) {//新增验证
-            StringBuffer sb = new StringBuffer();
             if (StringUtils.isEmpty(editResourceForm.getResourceName())) {
-                sb.append("资源名称为空！");
+                throw new ServerException("资源名称为空！");
             }
             Integer type = editResourceForm.getResourceType();
             if (null == type) {
-                sb.append("资源类型为空！");
+                throw new ServerException("资源类型为空！");
             }
-            if (StringUtils.isNotEmpty(sb.toString())) {
-                logger.info("新增资源失败,原因是：" + sb.toString());
-                throw new ServerException(sb.toString());
-            }
-            if (type != CodeEnum.MENU.getCode() && type != CodeEnum.BUTTON.getCode()){
+            if (CodeEnum.MENU.getCode() == type){
+                editResourceForm.setPerms(CodeEnum.MENU.getMsg());
+            }else if (CodeEnum.BUTTON.getCode() == type){
+                if (StringUtils.isBlank(editResourceForm.getPerms())){
+                    throw new ServerException("按钮权限不能为为空");
+                }
+                checkExist("perms", editResourceForm.getPerms(), 1);
+            }else {
                 throw new ServerException("资源类型编码错误！");
             }
             if (StringUtils.isNotBlank(editResourceForm.getResourceUrl())) {
                 checkExist("resource_url", editResourceForm.getResourceUrl(), 1);
             }
             checkExist("resource_name", editResourceForm.getResourceName(), 1);
-            if (StringUtils.isNotBlank(editResourceForm.getPerms())) {
-                checkExist("perms", editResourceForm.getPerms(), 1);
-            }
         } else {
             Resource resource = resourceMapper.selectById(editResourceForm.getPkResourceId());
             if (resource == null) {

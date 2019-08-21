@@ -50,7 +50,7 @@ public class DormRuleServiceImpl implements DormRuleService {
         this.editRuleValidate(editRuleForm);
         String userId = UserManager.getCurrentUserId();
         Date curDate = DateUtils.getCurrentDate();
-        int count = Constant.ZERO;
+        int count;
         DormRule dormRule = new DormRule();
         BeanMapper.copy(editRuleForm, dormRule);
         dormRule.setLastModifyTime(curDate);
