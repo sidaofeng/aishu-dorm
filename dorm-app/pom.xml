@@ -5,11 +5,11 @@
     <parent>
         <groupId>com.waken.dorm</groupId>
         <artifactId>dorm</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>2.0.0-SNAPSHOT</version>
     </parent>
     <groupId>com.waken.dorm.app</groupId>
     <artifactId>dorm-app</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>2.0.0-SNAPSHOT</version>
     <name>dorm-app</name>
     <description>dorm-app project for Spring Boot</description>
 
