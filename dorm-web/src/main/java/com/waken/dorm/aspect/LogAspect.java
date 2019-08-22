@@ -4,6 +4,7 @@ import com.waken.dorm.common.entity.log.SysLog;
 import com.waken.dorm.common.utils.HttpContextUtils;
 import com.waken.dorm.common.utils.IPUtils;
 import com.waken.dorm.service.log.LogService;
+import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -21,10 +22,10 @@ import javax.servlet.http.HttpServletRequest;
  * @Author zhaoRong
  * @Date 2019/4/16 11:22
  **/
+@Slf4j
 @Aspect
 @Component
 public class LogAspect {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
     private LogService logService;
 
@@ -35,8 +36,7 @@ public class LogAspect {
 
     @Around("pointcut()")
     public Object around(ProceedingJoinPoint point) throws Throwable {
-        logger.info("LogAspect: AOP记录用户操作日志开始");
-        Object result = null;
+        Object result;
         long beginTime = System.currentTimeMillis();
         // 执行方法
         result = point.proceed();
@@ -46,11 +46,12 @@ public class LogAspect {
         String ip = IPUtils.getIpAddr(request);
         // 执行时长(毫秒)
         long time = System.currentTimeMillis() - beginTime;
+
         // 保存日志
-        SysLog log = new SysLog();
-        log.setIp(ip);
-        log.setDuration((int) time);
-        logService.saveLog(point, log);
+        SysLog sysLog = new SysLog();
+        sysLog.setIp(ip);
+        sysLog.setDuration((int) time);
+        logService.saveLog(point, sysLog);
         return result;
     }
 }

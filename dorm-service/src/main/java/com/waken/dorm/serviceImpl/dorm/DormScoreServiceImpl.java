@@ -9,6 +9,7 @@ import com.waken.dorm.common.exception.ServerException;
 import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.dorm.DormScoreForm;
 import com.waken.dorm.common.form.dorm.ListDormScoreForm;
+import com.waken.dorm.common.sequence.UUIDSequence;
 import com.waken.dorm.common.utils.*;
 import com.waken.dorm.common.view.dorm.AppDormScoreView;
 import com.waken.dorm.common.view.dorm.DormScoreView;
@@ -50,12 +51,12 @@ public class DormScoreServiceImpl implements DormScoreService {
     @Override
     public void batchAddDormScore(List<DormScore> dormScoreList) {
         if (dormScoreList.isEmpty()) {
-            throw new ServerException("批量导入失败，原因传入数据为空！");
+            throw new ServerException("参数为空！");
         }
         Date curDate = DateUtils.getCurrentDate();
         String userId = UserManager.getCurrentUserId();
         for (DormScore dormScore : dormScoreList) {
-            String pkDormScoreId = UUIDUtils.getPkUUID();
+            String pkDormScoreId = UUIDSequence.next();
             dormScore.setPkDormScoreId(pkDormScoreId);
             dormScore.setStatus(CodeEnum.ENABLE.getCode());
             dormScore.setCreateTime(curDate);
@@ -91,11 +92,11 @@ public class DormScoreServiceImpl implements DormScoreService {
             }
             if (StringUtils.isNotEmpty(sb.toString())) {
                 throw new ServerException("以下宿舍评分处于生效中：" + sb.toString());
-            } else {//删除宿舍
-                count = dormScoreMapper.deleteBatchIds(ids);
-                if (count == Constant.ZERO) {
-                    throw new ServerException("删除宿舍评分个数为 0 条");
-                }
+            }
+            //删除宿舍
+            count = dormScoreMapper.deleteBatchIds(ids);
+            if (count == Constant.ZERO) {
+                throw new ServerException("删除宿舍评分个数为 0 条");
             }
         } else if (CodeEnum.NO.getCode() == delStatus) {
             count = dormScoreMapper.batchUpdateStatus(DormUtil.getToUpdateStatusMap(ids,UserManager.getCurrentUserId()));
@@ -143,23 +144,16 @@ public class DormScoreServiceImpl implements DormScoreService {
     /**
      * 修改评分
      *
-     * @param dormScoreForm
+     * @param form
      * @return
      */
     @Transactional
     @Override
-    public DormScore updateDormScore(DormScoreForm dormScoreForm) {
-        if (StringUtils.isEmpty(dormScoreForm.getPkDormScoreId())) {
-            throw new ServerException("宿舍评分id为空");
-        }
+    public DormScore updateDormScore(DormScoreForm form) {
+        Assert.notNull(form.getPkDormScoreId());
         DormScore dormScore = new DormScore();
-        BeanMapper.copy(dormScoreForm, dormScore);
-        int count = Constant.ZERO;
-        count = dormScoreMapper.updateById(dormScore);
-        if (count == Constant.ZERO) {
-            throw new ServerException("更新宿舍评分个数为 0 条");
-        }
-
-        return null;
+        BeanMapper.copy(form, dormScore);
+        dormScoreMapper.updateById(dormScore);
+        return dormScore;
     }
 }

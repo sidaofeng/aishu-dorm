@@ -13,7 +13,7 @@ import java.util.LinkedHashMap;
 /**
  * Shiro 配置类
  *
- * @author MrBird
+ * @author aishu
  */
 @Configuration
 public class ShiroConfig {

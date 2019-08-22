@@ -14,6 +14,7 @@ import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.role.AddRoleResourceRelForm;
 import com.waken.dorm.common.form.role.EditRoleForm;
 import com.waken.dorm.common.form.role.QueryRoleForm;
+import com.waken.dorm.common.sequence.UUIDSequence;
 import com.waken.dorm.common.utils.*;
 import com.waken.dorm.common.view.role.UserRoleView;
 import com.waken.dorm.dao.role.RoleMapper;
@@ -60,7 +61,7 @@ public class RoleServiceImpl implements RoleService {
         role.setLastModifyUserId(userId);
         if (StringUtils.isEmpty(editRoleForm.getPkRoleId())) {//新增
             logger.info("service: 新增角色开始");
-            String pkRoleId = UUIDUtils.getPkUUID();
+            String pkRoleId = UUIDSequence.next();
             role.setPkRoleId(pkRoleId);
             role.setStatus(CodeEnum.ENABLE.getCode());
             role.setCreateTime(curDate);
@@ -73,7 +74,7 @@ public class RoleServiceImpl implements RoleService {
         } else {//修改
             logger.info("service: 更新角色信息开始");
             roleMapper.updateById(role);
-            return roleMapper.selectById(editRoleForm.getPkRoleId());
+            return role;
         }
 
     }
@@ -209,18 +210,12 @@ public class RoleServiceImpl implements RoleService {
         }
     }
 
-    private void batchAddRelValidate(AddRoleResourceRelForm addRoleResourceRelForm) {
-        StringBuffer sb = new StringBuffer();
-        if (StringUtils.isEmpty(addRoleResourceRelForm.getPkRoleId())) {
-            sb.append("角色id为空！");
+    private void batchAddRelValidate(AddRoleResourceRelForm addForm) {
+        Assert.notNull(addForm.getPkRoleId());
+        if (addForm.getPkResourceIds().isEmpty()) {
+            throw new ServerException("参数为空！");
         }
-        if (addRoleResourceRelForm.getPkResourceIds().isEmpty()) {
-            sb.append("资源id集合为空！");
-        }
-        if (!StringUtils.isEmpty(sb.toString())) {
-            throw new ServerException("批量新增角色资源关联失败，原因：" + sb.toString());
-        }
-        Role role = roleMapper.selectById(addRoleResourceRelForm.getPkRoleId());
+        Role role = roleMapper.selectById(addForm.getPkRoleId());
         if (StringUtils.equals(Constant.SuperAdmin, role.getRoleName())) {
             throw new ServerException("不能操作超级管理员角色！");
         }
@@ -258,7 +253,7 @@ public class RoleServiceImpl implements RoleService {
         } else {
             List<RoleResourceRel> toBeAddRoleResourceRelList = new ArrayList<>();
             for (String resourceId : resourceIds) {
-                String pkRoleResourceId = UUIDUtils.getPkUUID();
+                String pkRoleResourceId = UUIDSequence.next();
                 String userId = UserManager.getCurrentUserId();
                 Date curDate = DateUtils.getCurrentDate();
                 RoleResourceRel roleResourceRel = new RoleResourceRel();
@@ -273,28 +268,24 @@ public class RoleServiceImpl implements RoleService {
         }
     }
 
-    private void editRoleValidate(EditRoleForm editRoleForm) {
-        if (StringUtils.isEmpty(editRoleForm.getPkRoleId())) {//新增验证
-            if (StringUtils.isEmpty(editRoleForm.getRoleName())) {
-                throw new ServerException("角色名称不能为空！");
-            }
+    private void editRoleValidate(EditRoleForm editForm) {
+        if (StringUtils.isEmpty(editForm.getPkRoleId())) {//新增验证
+            Assert.notNull(editForm.getRoleName());
             List<Role> roles = roleMapper.selectList(new EntityWrapper<Role>()
-                    .eq("role_name", editRoleForm.getRoleName())
+                    .eq("role_name", editForm.getRoleName())
             );
             if (!roles.isEmpty()) {
                 throw new ServerException("角色名称已存在！");
             }
         } else {//修改验证
-            Role role = roleMapper.selectById(editRoleForm.getPkRoleId());
-            if (role == null) {
-                throw new ServerException("角色id无效!");
-            }
-            if (StringUtils.isNotEmpty(editRoleForm.getRoleName())) {
+            Role role = roleMapper.selectById(editForm.getPkRoleId());
+            Assert.notNull(role,"参数错误");
+            if (StringUtils.isNotEmpty(editForm.getRoleName())) {
                 List<Role> roles = roleMapper.selectList(new EntityWrapper<Role>()
-                        .eq("role_name", editRoleForm.getRoleName())
+                        .eq("role_name", editForm.getRoleName())
                 );
                 if (!roles.isEmpty()) {
-                    if (!StringUtils.equals(roles.get(Constant.ZERO).getPkRoleId(), editRoleForm.getPkRoleId())) {
+                    if (!StringUtils.equals(roles.get(Constant.ZERO).getPkRoleId(), editForm.getPkRoleId())) {
                         throw new ServerException("角色名称已存在！");
                     }
                 }

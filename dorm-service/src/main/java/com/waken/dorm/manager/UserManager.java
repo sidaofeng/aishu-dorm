@@ -2,6 +2,7 @@ package com.waken.dorm.manager;
 
 import com.waken.dorm.common.authentication.JWTToken;
 import com.waken.dorm.common.authentication.JWTUtil;
+import com.waken.dorm.common.constant.CacheConstant;
 import com.waken.dorm.common.constant.Constant;
 import com.waken.dorm.common.entity.user.User;
 import com.waken.dorm.common.utils.HttpContextUtils;
@@ -28,7 +29,7 @@ public class UserManager {
      */
     public static User getCurrentUser() {
         HttpServletRequest request = HttpContextUtils.getHttpServletRequest();
-        String token = request.getHeader(Constant.USER_TOKEN);
+        String token = request.getHeader(CacheConstant.USER_TOKEN);
         JWTToken jwtToken = new JWTToken(TokenUtils.decryptToken(token));
         String username = JWTUtil.getUsername(jwtToken.getToken());
 

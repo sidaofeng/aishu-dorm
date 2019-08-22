@@ -9,11 +9,13 @@ import com.waken.dorm.common.exception.ServerException;
 import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.dict.DictForm;
 import com.waken.dorm.common.form.dict.EditDictForm;
+import com.waken.dorm.common.sequence.UUIDSequence;
 import com.waken.dorm.common.utils.*;
 import com.waken.dorm.common.view.dict.DictView;
 import com.waken.dorm.dao.dict.DictMapper;
 import com.waken.dorm.manager.UserManager;
 import com.waken.dorm.service.dict.DictService;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,10 +32,10 @@ import java.util.List;
  * @Author zhaoRong
  * @Date 2019/4/19 13:08
  **/
+@Slf4j
 @Service
 @Transactional(propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Exception.class)
 public class DictServiceImpl implements DictService {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
     DictMapper dictMapper;
 
@@ -54,8 +56,8 @@ public class DictServiceImpl implements DictService {
         dict.setLastModifyTime(curDate);
         dict.setLastModifyUserId(userId);
         if (StringUtils.isEmpty(editDictForm.getPkDictId())) {//新增
-            int count = Constant.ZERO;
-            String pkDictId = UUIDUtils.getPkUUID();
+            int count;
+            String pkDictId = UUIDSequence.next();
             dict.setPkDictId(pkDictId);
             dict.setStatus(CodeEnum.ENABLE.getCode());
             dict.setCreateTime(curDate);
@@ -79,7 +81,7 @@ public class DictServiceImpl implements DictService {
     @Override
     @Transactional
     public void deleteDict(DeleteForm deleteForm) {
-        logger.info("service: 删除字典信息开始");
+        log.info("service: 删除字典信息开始");
         List<String> ids = deleteForm.getDelIds();
         Integer delStatus = deleteForm.getDelStatus();
         int count;
@@ -93,11 +95,11 @@ public class DictServiceImpl implements DictService {
             }
             if (StringUtils.isNotEmpty(sb.toString())) {
                 throw new ServerException("以下字典信息处于生效中：" + sb.toString());
-            } else {//删除字典
-                count = dictMapper.deleteBatchIds(ids);
-                if (count == Constant.ZERO) {
-                    throw new ServerException("删除字典信息个数为 0 条");
-                }
+            }
+            //删除字典
+            count = dictMapper.deleteBatchIds(ids);
+            if (count == Constant.ZERO) {
+                throw new ServerException("删除字典信息个数为 0 条");
             }
 
         } else if (CodeEnum.NO.getCode() == delStatus) {//状态删除
@@ -118,7 +120,7 @@ public class DictServiceImpl implements DictService {
      */
     @Override
     public PageInfo<DictView> listDicts(DictForm dictForm) {
-        logger.info("service: 分页查询宿舍楼信息开始");
+        log.info("service: 分页查询宿舍楼信息开始");
         if (dictForm.getStartTime() != null) {
             dictForm.setStartTime(DateUtils.formatDate2DateTimeStart(dictForm.getStartTime()));
         }
@@ -127,36 +129,24 @@ public class DictServiceImpl implements DictService {
         }
         PageHelper.startPage(dictForm.getPageNum(), dictForm.getPageSize());
         List<DictView> dictViews = dictMapper.listDicts(dictForm);
-        return new PageInfo<DictView>(dictViews);
+        return new PageInfo<>(dictViews);
     }
 
     /**
      * 编辑字典验证
      *
-     * @param editDictForm
+     * @param editForm
      */
-    private void editDictValidate(EditDictForm editDictForm) {
-        if (StringUtils.isEmpty(editDictForm.getPkDictId())) {//新增验证
-            StringBuffer sb = new StringBuffer();
-            if (StringUtils.isEmpty(editDictForm.getDictKey())) {
-                sb.append("键为空！");
-            }
-            if (StringUtils.isEmpty(editDictForm.getDictValue())) {
-                sb.append("值为空！");
-            }
-            if (StringUtils.isEmpty(editDictForm.getColumnName())) {
-                sb.append("字段名为空！");
-            }
-            if (StringUtils.isEmpty(editDictForm.getTableName())) {
-                sb.append("表名为空！");
-            }
-            if (StringUtils.isNotEmpty(sb.toString())) {
-                throw new ServerException("保存或修改字典失败，原因：" + sb.toString());
-            }
-            this.keyValidate(editDictForm);
-            this.valueValidate(editDictForm);
+    private void editDictValidate(EditDictForm editForm) {
+        if (StringUtils.isEmpty(editForm.getPkDictId())) {//新增验证
+            Assert.notNull(editForm.getDictKey());
+            Assert.notNull(editForm.getDictValue());
+            Assert.notNull(editForm.getColumnName());
+            Assert.notNull(editForm.getTableName());
+            this.keyValidate(editForm);
+            this.valueValidate(editForm);
         } else {//修改验证
-            if (null == dictMapper.selectById(editDictForm.getPkDictId())) {
+            if (null == dictMapper.selectById(editForm.getPkDictId())) {
                 throw new ServerException("字典id不正确！");
             }
         }

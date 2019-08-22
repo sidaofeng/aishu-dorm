@@ -1,4 +1,4 @@
-package com.waken.dorm.common.utils;
+package com.waken.dorm.common.authentication;
 
 
 import javax.crypto.Cipher;
@@ -18,7 +18,7 @@ public class EncryptUtil {
         this(strDefaultKey);
     }
 
-    EncryptUtil(String strKey) throws Exception {
+    public EncryptUtil(String strKey) throws Exception {
         Security.addProvider(new com.sun.crypto.provider.SunJCE());
         Key key = getKey(strKey.getBytes());
 
@@ -61,7 +61,7 @@ public class EncryptUtil {
         return encryptCipher.doFinal(arrB);
     }
 
-    String encrypt(String strIn) throws Exception {
+    public String encrypt(String strIn) throws Exception {
         return byteArr2HexStr(encrypt(strIn.getBytes()));
     }
 
@@ -69,7 +69,7 @@ public class EncryptUtil {
         return decryptCipher.doFinal(arrB);
     }
 
-    String decrypt(String strIn) {
+    public String decrypt(String strIn) {
         try {
             return new String(decrypt(hexStr2ByteArr(strIn)));
         } catch (Exception e) {

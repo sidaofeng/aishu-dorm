@@ -13,14 +13,14 @@ import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.log.SysLogForm;
 import com.waken.dorm.common.utils.AddressUtils;
 import com.waken.dorm.common.utils.DateUtils;
-import com.waken.dorm.common.utils.UUIDUtils;
+import com.waken.dorm.common.sequence.UUIDSequence;
 import com.waken.dorm.common.view.log.SysLogView;
 import com.waken.dorm.dao.log.SysLogMapper;
+import com.waken.dorm.manager.UserManager;
 import com.waken.dorm.service.log.LogService;
+import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
 import org.springframework.stereotype.Service;
@@ -38,10 +38,10 @@ import java.util.*;
  * @Author zhaoRong
  * @Date 2019/4/15 20:48
  **/
+@Slf4j
 @Service
 @Transactional(propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Exception.class)
 public class LogServiceImpl implements LogService {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
     SysLogMapper logMapper;
 
@@ -50,20 +50,21 @@ public class LogServiceImpl implements LogService {
 
     @Override
     @Transactional(rollbackFor = {RuntimeException.class, Exception.class})
-    public void saveLog(ProceedingJoinPoint joinPoint, SysLog log) throws JsonProcessingException {
-        logger.info("service:开始进入保存系统日志接口");
+    public void saveLog(ProceedingJoinPoint joinPoint, SysLog sysLog) throws JsonProcessingException {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();
         Log logAnnotation = method.getAnnotation(Log.class);
         if (logAnnotation != null) {
             // 注解上的描述
-            log.setOperationContent(logAnnotation.value());
+            sysLog.setOperationContent(logAnnotation.value());
         }
         // 请求的类名
         String className = joinPoint.getTarget().getClass().getName();
         // 请求的方法名
         String methodName = signature.getName();
-        log.setMethod(className + "." + methodName + "()");
+        String methodPath = className + "." + methodName + "()";
+        log.info("执行方法耗时："+sysLog.getDuration()+" ms | 方法索引："+methodPath);
+        sysLog.setMethod(methodPath);
         // 请求的方法参数值
         Object[] args = joinPoint.getArgs();
         // 请求的方法参数名称
@@ -72,17 +73,30 @@ public class LogServiceImpl implements LogService {
         if (args != null && paramNames != null) {
             StringBuilder params = new StringBuilder();
             params = handleParams(params, args, Arrays.asList(paramNames));
-            log.setParams(params.toString());
+            sysLog.setParams(params.toString());
         }
-        log.setLocation(AddressUtils.getCityInfo(log.getIp()));
-        String pkId = UUIDUtils.getPkUUID();
-//        String curUserId = ShiroUtils.getUserId();
+        sysLog.setLocation(AddressUtils.getCityInfo(sysLog.getIp()));
+        String pkId = UUIDSequence.next();
+        String curUserId = UserManager.getCurrentUserId();
         Date curDate = DateUtils.getCurrentDate();
-        log.setPkLogId(pkId);
-//        log.setUserId(curUserId);
-        log.setCreateTime(curDate);
+        sysLog.setPkLogId(pkId);
+        sysLog.setUserId(curUserId);
+        sysLog.setCreateTime(curDate);
         // 保存系统日志
-        logMapper.insert(log);
+        logMapper.insert(sysLog);
+    }
+
+    /**
+     * 新增登录日志
+     * @param sysLog
+     */
+    @Override
+    public void addLoginLog(SysLog sysLog) {
+        sysLog.setPkLogId(UUIDSequence.next());
+        sysLog.setOperationContent(Constant.LOGIN);
+        sysLog.setMethod(Constant.LOGIN_METHOD);
+        sysLog.setCreateTime(DateUtils.getCurrentDate());
+        logMapper.insert(sysLog);
     }
 
     /**
@@ -93,15 +107,11 @@ public class LogServiceImpl implements LogService {
     @Transactional
     @Override
     public void deleteLog(DeleteForm deleteForm) {
-        logger.info("service: 删除日志开始");
+        log.info("service: 删除日志开始");
         List<String> logIds = deleteForm.getDelIds();
         Integer delStatus = deleteForm.getDelStatus();
         if (CodeEnum.YES.getCode() == delStatus) { // 物理删除
-            int count = Constant.ZERO;
-            count = logMapper.deleteBatchIds(logIds);
-            if (Constant.ZERO == count) {
-                throw new ServerException("删除日志失败！");
-            }
+            logMapper.deleteBatchIds(logIds);
         } else {
             throw new ServerException("删除状态码错误！");
         }
@@ -115,7 +125,7 @@ public class LogServiceImpl implements LogService {
      */
     @Override
     public PageInfo<SysLogView> listSysLogViews(SysLogForm sysLogForm) {
-        logger.info("service: 分页查询宿舍信息开始");
+        log.info("service: 分页查询宿舍信息开始");
         if (sysLogForm.getStartTime() != null) {
             sysLogForm.setStartTime(DateUtils.formatDate2DateTimeStart(sysLogForm.getStartTime()));
         }
@@ -124,7 +134,7 @@ public class LogServiceImpl implements LogService {
         }
         PageHelper.startPage(sysLogForm.getPageNum(), sysLogForm.getPageSize());
         List<SysLogView> sysLogViews = logMapper.listSysLogViews(sysLogForm);
-        return new PageInfo<SysLogView>(sysLogViews);
+        return new PageInfo<>(sysLogViews);
     }
 
     private StringBuilder handleParams(StringBuilder params, Object[] args, List paramNames) throws JsonProcessingException {

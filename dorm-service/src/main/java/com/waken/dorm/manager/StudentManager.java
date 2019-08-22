@@ -1,5 +1,6 @@
 package com.waken.dorm.manager;
 
+import com.waken.dorm.common.constant.CacheConstant;
 import com.waken.dorm.common.constant.Constant;
 import com.waken.dorm.common.entity.student.StudentInfo;
 import com.waken.dorm.common.enums.ResultEnum;
@@ -32,8 +33,8 @@ public class StudentManager {
      */
     public StudentInfo getCurrentStudentInfo() {
         HttpServletRequest request = HttpContextUtils.getHttpServletRequest();
-        String studentToken = request.getHeader(Constant.STUDENT_TOKEN);
-        StudentInfo studentInfo = (StudentInfo) redisCacheManager.get(Constant.STUDENT_CACHE_PREFIX + studentToken);
+        String studentToken = request.getHeader(CacheConstant.STUDENT_TOKEN);
+        StudentInfo studentInfo = (StudentInfo) redisCacheManager.get(CacheConstant.STUDENT_CACHE_PREFIX + studentToken);
         return studentInfo;
     }
 
@@ -52,16 +53,16 @@ public class StudentManager {
      */
     public void delCacheStudentInfo() {
         HttpServletRequest request = HttpContextUtils.getHttpServletRequest();
-        String studentToken = request.getHeader(Constant.STUDENT_TOKEN);
+        String studentToken = request.getHeader(CacheConstant.STUDENT_TOKEN);
         if (StringUtils.isEmpty(studentToken)) {
             throw new ServerException("studentToken 为空！");
         }
-        boolean isExistsToken = redisCacheManager.exists(Constant.STUDENT_CACHE_PREFIX + studentToken);
+        boolean isExistsToken = redisCacheManager.exists(CacheConstant.STUDENT_CACHE_PREFIX + studentToken);
         if (isExistsToken == false) {
             throw new ServerException(ResultEnum.OTHER_LOGIN);
         }
         try {
-            redisCacheManager.delete(Constant.STUDENT_CACHE_PREFIX + studentToken);
+            redisCacheManager.delete(CacheConstant.STUDENT_CACHE_PREFIX + studentToken);
         } catch (Exception e) {
             e.printStackTrace();
             log.info("redis删除失败原因：" + e.getMessage());

@@ -1,6 +1,7 @@
 package com.waken.dorm.app.interceptor;
 
 import com.waken.dorm.common.annotation.PrivilegeResource;
+import com.waken.dorm.common.constant.CacheConstant;
 import com.waken.dorm.common.constant.Constant;
 import com.waken.dorm.common.entity.student.StudentInfo;
 import com.waken.dorm.common.enums.AccessStrategy;
@@ -41,16 +42,16 @@ public class AppInterceptor extends HandlerInterceptorAdapter {
                 }
             }
         }
-        String studentToken = request.getHeader(Constant.STUDENT_TOKEN);
+        String studentToken = request.getHeader(CacheConstant.STUDENT_TOKEN);
         if (StringUtils.isEmpty(studentToken)) {
             throw new ServerException(ResultEnum.UN_AUTH);
         }
-        boolean isExistsToken = redisCacheManager.exists(Constant.STUDENT_CACHE_PREFIX + studentToken);
+        boolean isExistsToken = redisCacheManager.exists(CacheConstant.STUDENT_CACHE_PREFIX + studentToken);
         if (isExistsToken == false) {
             log.info("登录过期");
             throw new ServerException(ResultEnum.TIME_OUT);
         }
-        StudentInfo studentInfo = (StudentInfo) redisCacheManager.get(Constant.STUDENT_CACHE_PREFIX + studentToken);
+        StudentInfo studentInfo = (StudentInfo) redisCacheManager.get(CacheConstant.STUDENT_CACHE_PREFIX + studentToken);
         if (studentInfo == null) {
             log.info("登录过期");
             throw new ServerException(ResultEnum.TIME_OUT);

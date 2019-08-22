@@ -11,8 +11,10 @@ import com.waken.dorm.common.exception.ServerException;
 import com.waken.dorm.common.form.role.UserRoleRelForm;
 import com.waken.dorm.common.form.user.AddUserResourcesForm;
 import com.waken.dorm.common.form.user.AddUserRoleRelForm;
+import com.waken.dorm.common.utils.Assert;
 import com.waken.dorm.common.utils.DateUtils;
-import com.waken.dorm.common.utils.UUIDUtils;
+import com.waken.dorm.common.sequence.UUIDSequence;
+import com.waken.dorm.common.utils.TreeUtil;
 import com.waken.dorm.common.view.base.Tree;
 import com.waken.dorm.common.view.resource.UserMenuView;
 import com.waken.dorm.dao.resource.ResourceMapper;
@@ -46,6 +48,8 @@ public class UserPrivilegeServiceImpl implements UserPrivilegeService {
     UserMapper userMapper;
     @Autowired
     ResourceMapper resourceMapper;
+    @Autowired
+    TreeUtil treeUtil;
 
     /**
      * 获取用户的角色信息
@@ -96,18 +100,7 @@ public class UserPrivilegeServiceImpl implements UserPrivilegeService {
         //将list对象转化为菜单树形视图对象
         List<Tree<UserMenuView>> var5 = this.toUserMenuTree(var3);
 
-        //菜单树根节点
-        List<Tree<UserMenuView>> rootList = new ArrayList<>();
-
-        Iterator<Tree<UserMenuView>> var6 = var5.iterator();
-        while (var6.hasNext()) {
-            Tree<UserMenuView> menuTree = var6.next();
-            if (StringUtils.equals(menuTree.getAttribute().getParentId(), Constant.ROOT)) {
-                rootList.add(menuTree);
-            }
-        }
-        rootList.stream().forEach(root -> this.getChildren(root, var5));
-        return rootList;
+        return treeUtil.toTree(var5,Constant.ROOT);
     }
 
     /**
@@ -120,9 +113,8 @@ public class UserPrivilegeServiceImpl implements UserPrivilegeService {
     public void addUserRoleRel(UserRoleRelForm userRoleRelForm) {
         String userId = userRoleRelForm.getUserId();
         String roleId = userRoleRelForm.getRoleId();
-        if (StringUtils.isBlank(userId) || StringUtils.isBlank(roleId)) {
-            throw new ServerException("入参为空！");
-        }
+        Assert.notNull(userId);
+        Assert.notNull(roleId);
         List<UserPrivilege> privileges = privilegeMapper.selectList(new EntityWrapper<UserPrivilege>()
                 .eq("user_id", userId)
                 .eq("subject_type", CodeEnum.ROLE.getCode())
@@ -131,7 +123,7 @@ public class UserPrivilegeServiceImpl implements UserPrivilegeService {
             privilegeMapper.deleteById(privileges.get(0).getPkPrivilegeId());
         }
         UserPrivilege privilege = new UserPrivilege();
-        String pkId = UUIDUtils.getPkUUID();
+        String pkId = UUIDSequence.next();
         Date curTime = DateUtils.getCurrentDate();
         privilege.setPkPrivilegeId(pkId);
         privilege.setUserId(userId);
@@ -140,31 +132,21 @@ public class UserPrivilegeServiceImpl implements UserPrivilegeService {
         privilege.setCreateTime(curTime);
         privilege.setCreateUserId(UserManager.getCurrentUserId());
         int count = privilegeMapper.insert(privilege);
-        if (count == Constant.ZERO) {
-            throw new ServerException("单个新增用户与角色关联失败！");
-        }
+        Assert.isTrue(count == Constant.ZERO);
     }
 
     @Transactional // 事务控制
     @Override
-    public void batchAddUserRoleRel(AddUserRoleRelForm addUserRoleRelForm) {
+    public void batchAddUserRoleRel(AddUserRoleRelForm addForm) {
         log.info("service: 批量新增用户角色关联开始");
-        StringBuffer sb = new StringBuffer();
-        if (com.waken.dorm.common.utils.StringUtils.isEmpty(addUserRoleRelForm.getUserId())) {
-            sb.append("用户 id为空！");
+        Assert.notNull(addForm.getUserId());
+        if (addForm.getRoleIds().isEmpty()) {
+            throw new ServerException("参数为空！");
         }
-        if (addUserRoleRelForm.getRoleIds().isEmpty()) {
-            sb.append("角色 id集合为空！");
-        }
-        if (!StringUtils.isEmpty(sb.toString())) {
-            throw new ServerException("批量新增用户角色关联失败，原因：" + sb.toString());
-        }
-        List<UserPrivilege> toBeAddUserRoleRel = this.getToBeAddUserRoleRel(addUserRoleRelForm);
+        List<UserPrivilege> toBeAddUserRoleRel = this.getToBeAddUserRoleRel(addForm);
         if (!toBeAddUserRoleRel.isEmpty()) {
             int count = privilegeMapper.batchAddUserRoleRel(toBeAddUserRoleRel);
-            if (count == Constant.ZERO) {
-                throw new ServerException("批量新增用户角色关联失败");
-            }
+            Assert.isTrue(count == Constant.ZERO);
 
         }
     }
@@ -190,16 +172,14 @@ public class UserPrivilegeServiceImpl implements UserPrivilegeService {
             roleIds.removeAll(existIds);
             if (!toDelPkIds.isEmpty()) {
                 int count = privilegeMapper.deleteBatchIds(toDelPkIds);
-                if (count == Constant.ZERO) {
-                    throw new ServerException("删除用户角色关联失败");
-                }
+                Assert.isTrue(count == Constant.ZERO);
             }
 
         }
         if (!roleIds.isEmpty()) {
             List<UserPrivilege> toBeAddUserRoleRelList = new ArrayList<>();
             for (String roleId : roleIds) {
-                String pkId = UUIDUtils.getPkUUID();
+                String pkId = UUIDSequence.next();
                 String curUserId = UserManager.getCurrentUserId();
                 Date curDate = DateUtils.getCurrentDate();
                 UserPrivilege userRoleRel = new UserPrivilege();
@@ -225,23 +205,14 @@ public class UserPrivilegeServiceImpl implements UserPrivilegeService {
     @Override
     public void batchAddUserResourceRel(AddUserResourcesForm addForm) {
         log.info("service: 批量新增用户资源关联开始");
-        StringBuffer sb = new StringBuffer();
-        if (StringUtils.isEmpty(addForm.getUserId())) {
-            sb.append("用户 id为空！");
-        }
+        Assert.notNull(addForm.getUserId());
         if (null == addForm.getResourceIds() && addForm.getResourceIds().isEmpty()) {
-            sb.append("资源 id集合为空！");
-        }
-        if (!StringUtils.isEmpty(sb.toString())) {
-            throw new ServerException("批量新增用户角色关联失败，原因：" + sb.toString());
+            throw new ServerException("参数为空！");
         }
         List<UserPrivilege> toBeAddUserRoleRel = this.getToBeAddUserResources(addForm);
         if (!toBeAddUserRoleRel.isEmpty()) {
             int count = this.privilegeMapper.batchAddUserResources(toBeAddUserRoleRel);
-            if (count == Constant.ZERO) {
-                throw new ServerException("批量新增用户角色关联失败");
-            }
-
+            Assert.isTrue(count == Constant.ZERO);
         }
     }
 
@@ -269,9 +240,7 @@ public class UserPrivilegeServiceImpl implements UserPrivilegeService {
             resourceIds.removeAll(existIds);
             if (!toDelPkIds.isEmpty()) {
                 int count = privilegeMapper.deleteBatchIds(toDelPkIds);
-                if (count == Constant.ZERO) {
-                    throw new ServerException("删除用户角色关联失败");
-                }
+                Assert.isTrue(count == Constant.ZERO);
             }
 
         }
@@ -280,7 +249,7 @@ public class UserPrivilegeServiceImpl implements UserPrivilegeService {
         if (!resourceIds.isEmpty()) {
             List<UserPrivilege> toBeAddUserRoleRelList = new ArrayList<>();
             for (String resourceId : resourceIds) {
-                String pkId = UUIDUtils.getPkUUID();
+                String pkId = UUIDSequence.next();
                 String curUserId = UserManager.getCurrentUserId();
                 Date curDate = DateUtils.getCurrentDate();
                 UserPrivilege userRoleRel = new UserPrivilege();
@@ -300,13 +269,9 @@ public class UserPrivilegeServiceImpl implements UserPrivilegeService {
 
     private void checkSuperAdmin(String userId){
         User user = userMapper.selectById(userId);
-        if (null == user){
-            throw new ServerException("参数错误！");
-        }
+        Assert.notNull(user);
         List<String> roles = privilegeMapper.selectUserRoles(user.getUserId());
-        if (roles.contains(Constant.SuperAdmin)){
-            throw new ServerException("不能操作超级管理员!");
-        }
+        Assert.isTrue(roles.contains(Constant.SuperAdmin),"不能操作超级管理员!");
 
     }
 
@@ -326,6 +291,7 @@ public class UserPrivilegeServiceImpl implements UserPrivilegeService {
             tree = new Tree<>();
             menuView = var3.next();
             tree.setId(menuView.getPkResourceId());
+            tree.setParentId(menuView.getParentId());
             tree.setKey(menuView.getPkResourceId());
             tree.setTitle(menuView.getResourceName());
             tree.setIcon(menuView.getResourceIcon());
@@ -335,28 +301,5 @@ public class UserPrivilegeServiceImpl implements UserPrivilegeService {
             menuTree.add(tree);
         }
         return menuTree;
-    }
-
-    /**
-     * 找到菜单子节点并设置进去
-     *
-     * @param root
-     * @param menuTreeList
-     */
-    private void getChildren(Tree<UserMenuView> root, List<Tree<UserMenuView>> menuTreeList) {
-        Iterator<Tree<UserMenuView>> var3 = menuTreeList.iterator();
-        Tree<UserMenuView> tree;
-        List<Tree<UserMenuView>> childrenTree = new ArrayList<>();
-        while (var3.hasNext()) {
-            tree = var3.next();
-            if (StringUtils.equals(root.getId(), tree.getAttribute().getParentId())) {
-                childrenTree.add(tree);
-                root.setChildren(childrenTree);
-                var3.remove();
-            }
-        }
-        if (!childrenTree.isEmpty()) {
-            childrenTree.stream().forEach(childTree -> this.getChildren(childTree, menuTreeList));
-        }
     }
 }

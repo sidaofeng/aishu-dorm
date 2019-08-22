@@ -13,6 +13,7 @@ import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.dorm.AddDormViolationForm;
 import com.waken.dorm.common.form.dorm.DormViolationForm;
 import com.waken.dorm.common.form.dorm.UpdateDormViolationForm;
+import com.waken.dorm.common.sequence.UUIDSequence;
 import com.waken.dorm.common.utils.*;
 import com.waken.dorm.common.view.dorm.AppDormViolationView;
 import com.waken.dorm.common.view.dorm.DormViolationView;
@@ -60,7 +61,7 @@ public class DormViolationServiceImpl implements DormViolationService {
         this.addViolationValidate(addDormViolationForm);//验证合法性
         String dormId = this.validateDorm(addDormViolationForm.getDormNum());//验证宿舍是否存在
         String studentId = this.validateStudent(addDormViolationForm.getStudentNum());//验证学生是否存在
-        String pkDormViolationId = UUIDUtils.getPkUUID();
+        String pkDormViolationId = UUIDSequence.next();
         String userId = UserManager.getCurrentUserId();
         Date curDate = DateUtils.getCurrentDate();
         DormViolation dormViolation = new DormViolation();
@@ -72,11 +73,7 @@ public class DormViolationServiceImpl implements DormViolationService {
         dormViolation.setCreateUserId(userId);
         dormViolation.setLastModifyTime(curDate);
         dormViolation.setLastModifyUserId(userId);
-        int count = Constant.ZERO;
-        count = dormViolationMapper.insert(dormViolation);
-        if (count == Constant.ZERO) {
-            throw new ServerException("新增个数为 0 条");
-        }
+        dormViolationMapper.insert(dormViolation);
         return dormViolation;
     }
 
@@ -102,18 +99,14 @@ public class DormViolationServiceImpl implements DormViolationService {
             }
             if (StringUtils.isNotEmpty(sb.toString())) {
                 throw new ServerException("以下违规记录处于未处理状态中：" + sb.toString());
-            } else {//删除宿舍
-                count = dormViolationMapper.deleteBatchIds(ids);
-                if (count == Constant.ZERO) {
-                    throw new ServerException("删除违规记录为 0 条");
-                }
+            }//删除宿舍
+            count = dormViolationMapper.deleteBatchIds(ids);
+            if (count == Constant.ZERO) {
+                throw new ServerException("删除违规记录为 0 条");
             }
 
         } else if (CodeEnum.NO.getCode() == delStatus) {
-            count = dormViolationMapper.batchUpdateStatus(DormUtil.getToUpdateStatusMap(ids,UserManager.getCurrentUserId()));
-            if (count == Constant.ZERO) {
-                throw new ServerException("状态删除失败");
-            }
+            dormViolationMapper.batchUpdateStatus(DormUtil.getToUpdateStatusMap(ids,UserManager.getCurrentUserId()));
         } else {
             throw new ServerException("删除状态码错误！");
         }
@@ -136,27 +129,27 @@ public class DormViolationServiceImpl implements DormViolationService {
         }
         PageHelper.startPage(dormViolationForm.getPageNum(), dormViolationForm.getPageSize());
         List<DormViolationView> dormViolationViews = dormViolationMapper.listDormViolations(dormViolationForm);
-        return new PageInfo<DormViolationView>(dormViolationViews);
+        return new PageInfo<>(dormViolationViews);
     }
 
     /**
      * 更新宿舍违规记录（提交违规结果）
      *
-     * @param updateViolationForm
+     * @param updateForm
      * @return
      */
     @Transactional
     @Override
-    public DormViolation updateDormViolation(UpdateDormViolationForm updateViolationForm) {
-        this.updateViolationValidate(updateViolationForm);//验证合法性
-        DormViolation dormViolation = dormViolationMapper.selectById(updateViolationForm.getPkDormViolationId());
-        BeanMapper.copy(updateViolationForm, dormViolation);
+    public DormViolation updateDormViolation(UpdateDormViolationForm updateForm) {
+        Assert.notNull(updateForm.getPkDormViolationId());
+        Assert.notNull(updateForm.getStatus());
+        DormViolation dormViolation = dormViolationMapper.selectById(updateForm.getPkDormViolationId());
+        BeanMapper.copy(updateForm, dormViolation);
         String userId = UserManager.getCurrentUserId();
         Date curDate = DateUtils.getCurrentDate();
         dormViolation.setLastModifyTime(curDate);
         dormViolation.setLastModifyUserId(userId);
-        int count = Constant.ZERO;
-        count = dormViolationMapper.updateById(dormViolation);
+        int count = dormViolationMapper.updateById(dormViolation);
         if (count == Constant.ZERO) {
             throw new ServerException("修改违规记录为 0 条");
         }
@@ -174,55 +167,20 @@ public class DormViolationServiceImpl implements DormViolationService {
         logger.info("service: 违规记录分页查询开始");
         PageHelper.startPage(dormViolationForm.getPageNum(), dormViolationForm.getPageSize());
         List<AppDormViolationView> appDormViolationViews = dormViolationMapper.appListDormViolations(dormViolationForm);
-        return new PageInfo<AppDormViolationView>(appDormViolationViews);
-    }
-
-    /**
-     * 修改验证
-     *
-     * @param updateViolationForm
-     */
-    private void updateViolationValidate(UpdateDormViolationForm updateViolationForm) {
-        StringBuffer sb = new StringBuffer();
-        if (StringUtils.isEmpty(updateViolationForm.getPkDormViolationId())) {
-            sb.append("违规主id为空！");
-        }
-        if (updateViolationForm.getStatus() == null) {
-            sb.append("状态为空！");
-        }
-        if (StringUtils.isNotEmpty(sb.toString())) {
-            throw new ServerException("验证失败：" + sb.toString());
-        }
+        return new PageInfo<>(appDormViolationViews);
     }
 
     /**
      * 新增验证
      *
-     * @param addDormViolationForm
+     * @param addForm
      */
-    private void addViolationValidate(AddDormViolationForm addDormViolationForm) {
-        StringBuffer sb = new StringBuffer();
-        if (StringUtils.isEmpty(addDormViolationForm.getDormNum())) {
-            sb.append("宿舍号为空！");
-        }
-        if (StringUtils.isEmpty(addDormViolationForm.getDormRuleId())) {
-            sb.append("违规规则id为空");
-        }
-        if (addDormViolationForm.getStudentNum() == null) {
-            sb.append("学号为空！");
-        }
-        if (StringUtils.isEmpty(addDormViolationForm.getViolationReason())) {
-            sb.append("违规原因为空");
-        }
-        if (addDormViolationForm.getStatus() == null) {
-            sb.append("状态码为空！");
-        }
-        if (StringUtils.isEmpty(addDormViolationForm.getSolveResult())) {
-            sb.append("违规处理结果为空");
-        }
-        if (StringUtils.isNotEmpty(sb.toString())) {
-            throw new ServerException("验证失败：" + sb.toString());
-        }
+    private void addViolationValidate(AddDormViolationForm addForm) {
+        Assert.notNull(addForm.getDormNum());
+        Assert.notNull(addForm.getDormRuleId());
+        Assert.notNull(addForm.getStudentNum());
+        Assert.notNull(addForm.getViolationReason());
+        Assert.notNull(addForm.getSolveResult());
     }
 
     private String validateDorm(String dormNum) {
@@ -231,9 +189,8 @@ public class DormViolationServiceImpl implements DormViolationService {
         );
         if (dorms.isEmpty()) {
             throw new ServerException("宿舍号不存在!");
-        } else {
-            return dorms.get(Constant.ZERO).getPkDormId();
         }
+        return dorms.get(Constant.ZERO).getPkDormId();
     }
 
     private String validateStudent(Integer studentNum) {
@@ -242,9 +199,8 @@ public class DormViolationServiceImpl implements DormViolationService {
         );
         if (studentList.isEmpty()) {
             throw new ServerException("学号不存在!");
-        } else {
-            return studentList.get(Constant.ZERO).getPkStudentId();
         }
+        return studentList.get(Constant.ZERO).getPkStudentId();
     }
 
 }

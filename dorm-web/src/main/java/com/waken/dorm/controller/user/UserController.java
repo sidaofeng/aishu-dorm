@@ -97,6 +97,7 @@ public class UserController extends BaseController {
         return AjaxResponse.success(pageInfo);
     }
 
+    @Log("根据用户id查询用户已绑定与未绑定的角色信息")
     @GetMapping("user/roles/{id}")
     @ApiOperation(value = "根据用户id查询用户已绑定与未绑定的角色信息", notes = "根据用户id查询用户已绑定与未绑定的角色信息")
     @ApiResponses(value = {

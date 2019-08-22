@@ -12,6 +12,7 @@ import com.waken.dorm.common.enums.CodeEnum;
 import com.waken.dorm.common.exception.ServerException;
 import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.resource.EditResourceForm;
+import com.waken.dorm.common.sequence.UUIDSequence;
 import com.waken.dorm.common.utils.*;
 import com.waken.dorm.common.view.base.Tree;
 import com.waken.dorm.common.view.resource.ResourceView;
@@ -23,6 +24,7 @@ import com.waken.dorm.dao.user.UserMapper;
 import com.waken.dorm.dao.user.UserPrivilegeMapper;
 import com.waken.dorm.manager.UserManager;
 import com.waken.dorm.service.resource.ResourceService;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,11 +41,11 @@ import java.util.stream.Collectors;
  * @Author zhaoRong
  * @Date 2019/3/21 19:58
  **/
+@Slf4j
 @Transactional(propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Exception.class)
 @Service
 public class ResourceServiceImpl implements ResourceService {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    @javax.annotation.Resource
+    @Autowired
     ResourceMapper resourceMapper;
     @Autowired
     RoleResourceRelMapper roleResourceRelMapper;
@@ -53,6 +55,8 @@ public class ResourceServiceImpl implements ResourceService {
     UserMapper userMapper;
     @Autowired
     UserPrivilegeMapper userPrivilegeMapper;
+    @Autowired
+    TreeUtil treeUtil;
 
     /**
      * 新增或修改资源
@@ -72,8 +76,8 @@ public class ResourceServiceImpl implements ResourceService {
         resource.setLastModifyTime(curDate);
         resource.setLastModifyUserId(userId);
         if (StringUtils.isBlank(editResourceForm.getPkResourceId())) {//新增
-            logger.info("service: 新增资源开始");
-            String pkResourceId = UUIDUtils.getPkUUID();
+            log.info("service: 新增资源开始");
+            String pkResourceId = UUIDSequence.next();
             if (StringUtils.isBlank(editResourceForm.getParentId())) {
                 resource.setParent(Boolean.TRUE);//根节点是父级
                 resource.setParentId(Constant.ROOT);
@@ -95,7 +99,7 @@ public class ResourceServiceImpl implements ResourceService {
             //新增的资源必须与超级管理员关联
             this.addResourceRoleRel(pkResourceId, editResourceForm.getResourceType());
         } else {//修改
-            logger.info("service: 更新资源开始");
+            log.info("service: 更新资源开始");
             resourceMapper.updateById(resource);
         }
         return resource;
@@ -109,24 +113,18 @@ public class ResourceServiceImpl implements ResourceService {
     @Transactional
     @Override
     public void deleteResource(DeleteForm deleteForm) {
-        logger.info("service: 删除资源开始");
+        log.info("service: 删除资源开始");
         List<String> resourceIds = deleteForm.getDelIds();
         Integer delStatus = deleteForm.getDelStatus();
         List<String> delResourceIds = this.getAllToDelIds(resourceIds);
         if (CodeEnum.YES.getCode() == delStatus) { // 物理删除
             this.deleteResourceRel(delResourceIds);
             // 删除资源本身
-            int count = resourceMapper.deleteBatchIds(delResourceIds);
-            if (count == Constant.ZERO) {
-                throw new ServerException("删除失败");
-            }
+            resourceMapper.deleteBatchIds(delResourceIds);
         } else if (CodeEnum.NO.getCode() == delStatus) {
             this.deleteResourceRel(delResourceIds);
             Map toUpdateStatusMap = DormUtil.getToUpdateStatusMap(delResourceIds, UserManager.getCurrentUserId());
-            int count = resourceMapper.batchUpdateStatus(toUpdateStatusMap);
-            if (count == Constant.ZERO) {
-                throw new ServerException("删除失败");
-            }
+            resourceMapper.batchUpdateStatus(toUpdateStatusMap);
         } else {
             throw new ServerException("删除状态码错误！");
         }
@@ -203,41 +201,7 @@ public class ResourceServiceImpl implements ResourceService {
         //将资源集合转换成树形集合对象
         List<Tree<ResourceView>> allResourceTree = this.getResourceTreeView(allResource, var4);
 
-        //资源树根节点
-        List<Tree<ResourceView>> rootList = new ArrayList<>();
-
-        Iterator<Tree<ResourceView>> var8 = allResourceTree.iterator();
-        while (var8.hasNext()) {
-            Tree<ResourceView> resourceTree = var8.next();
-            if (StringUtils.equals(resourceTree.getAttribute().getParentId(), Constant.ROOT)) {
-                rootList.add(resourceTree);
-            }
-        }
-        rootList.stream().forEach(root -> this.getChildren(root, allResourceTree));
-        return rootList;
-    }
-
-    /**
-     * 找到菜单子节点并设置进去
-     *
-     * @param root
-     * @param var2
-     */
-    private void getChildren(Tree<ResourceView> root, List<Tree<ResourceView>> var2) {
-        Iterator<Tree<ResourceView>> var3 = var2.iterator();
-        Tree<ResourceView> tree;
-        List<Tree<ResourceView>> childrenTree = new ArrayList<>();
-        while (var3.hasNext()) {
-            tree = var3.next();
-            if (StringUtils.equals(root.getId(), tree.getAttribute().getParentId())) {
-                childrenTree.add(tree);
-                root.setChildren(childrenTree);
-                var3.remove();
-            }
-        }
-        if (!childrenTree.isEmpty()) {
-            childrenTree.stream().forEach(childTree -> this.getChildren(childTree, var2));
-        }
+        return treeUtil.toTree(allResourceTree,Constant.ROOT);
     }
 
     /**
@@ -293,6 +257,7 @@ public class ResourceServiceImpl implements ResourceService {
                 }
             }
             tree.setId(resourceView.getPkResourceId());
+            tree.setParentId(resourceView.getParentId());
             tree.setKey(resourceView.getPkResourceId());
             tree.setTitle(resourceView.getResourceName());
             tree.setIcon(resourceView.getResourceIcon());
@@ -319,44 +284,36 @@ public class ResourceServiceImpl implements ResourceService {
     /**
      * 编辑资源时验证
      *
-     * @param editResourceForm
+     * @param editForm
      */
-    private void editResourceValidate(EditResourceForm editResourceForm) {
-        if (StringUtils.isEmpty(editResourceForm.getPkResourceId())) {//新增验证
-            if (StringUtils.isEmpty(editResourceForm.getResourceName())) {
-                throw new ServerException("资源名称为空！");
-            }
-            Integer type = editResourceForm.getResourceType();
-            if (null == type) {
-                throw new ServerException("资源类型为空！");
-            }
+    private void editResourceValidate(EditResourceForm editForm) {
+        if (StringUtils.isEmpty(editForm.getPkResourceId())) {//新增验证
+            Integer type = editForm.getResourceType();
+            Assert.notNull(editForm.getResourceName());
+            Assert.notNull(type);
             if (CodeEnum.MENU.getCode() == type){
-                editResourceForm.setPerms(CodeEnum.MENU.getMsg());
+                editForm.setPerms(CodeEnum.MENU.getMsg());
             }else if (CodeEnum.BUTTON.getCode() == type){
-                if (StringUtils.isBlank(editResourceForm.getPerms())){
-                    throw new ServerException("按钮权限不能为为空");
-                }
-                checkExist("perms", editResourceForm.getPerms(), 1);
+                Assert.notNull(editForm.getPerms(),"按钮权限为空");
+                checkExist("perms", editForm.getPerms(), 1);
             }else {
                 throw new ServerException("资源类型编码错误！");
             }
-            if (StringUtils.isNotBlank(editResourceForm.getResourceUrl())) {
-                checkExist("resource_url", editResourceForm.getResourceUrl(), 1);
+            if (StringUtils.isNotBlank(editForm.getResourceUrl())) {
+                checkExist("resource_url", editForm.getResourceUrl(), 1);
             }
-            checkExist("resource_name", editResourceForm.getResourceName(), 1);
+            checkExist("resource_name", editForm.getResourceName(), 1);
         } else {
-            Resource resource = resourceMapper.selectById(editResourceForm.getPkResourceId());
-            if (resource == null) {
-                throw new ServerException("资源id无效!");
+            Resource resource = resourceMapper.selectById(editForm.getPkResourceId());
+            Assert.notNull(resource,"参数错误！");
+            if (StringUtils.isNotEmpty(editForm.getResourceName())) {
+                checkExist("resource_name", editForm.getResourceName(), 2);
             }
-            if (StringUtils.isNotEmpty(editResourceForm.getResourceName())) {
-                checkExist("resource_name", editResourceForm.getResourceName(), 2);
+            if (StringUtils.isNotEmpty(editForm.getResourceUrl())) {
+                checkExist("resource_url", editForm.getResourceUrl(), 2);
             }
-            if (StringUtils.isNotEmpty(editResourceForm.getResourceUrl())) {
-                checkExist("resource_url", editResourceForm.getResourceUrl(), 2);
-            }
-            if (StringUtils.isNotEmpty(editResourceForm.getPerms())) {
-                checkExist("perms", editResourceForm.getPerms(), 2);
+            if (StringUtils.isNotEmpty(editForm.getPerms())) {
+                checkExist("perms", editForm.getPerms(), 2);
             }
         }
 
@@ -396,7 +353,7 @@ public class ResourceServiceImpl implements ResourceService {
                 .eq("role_name", Constant.SuperAdmin)
         );
         if (!roleList.isEmpty()) {
-            String pkRoleResourceId = UUIDUtils.getPkUUID();
+            String pkRoleResourceId = UUIDSequence.next();
             String userId = UserManager.getCurrentUserId();
             Date curDate = DateUtils.getCurrentDate();
             String roleId = roleList.get(Constant.ZERO).getPkRoleId();

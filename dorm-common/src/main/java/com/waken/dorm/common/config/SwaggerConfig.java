@@ -1,5 +1,6 @@
 package com.waken.dorm.common.config;
 
+import com.waken.dorm.common.constant.CacheConstant;
 import com.waken.dorm.common.constant.Constant;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -37,7 +38,7 @@ public class SwaggerConfig {
     public Docket createAdminRestApi() {
         ParameterBuilder tokenPar = new ParameterBuilder();
         List<Parameter> pars = new ArrayList<>();
-        tokenPar.name(Constant.USER_TOKEN)
+        tokenPar.name(CacheConstant.USER_TOKEN)
                 .description("宿舍管理系统PC端访问令牌")
                 .modelRef(new ModelRef("string"))
                 .parameterType("header")
@@ -67,7 +68,7 @@ public class SwaggerConfig {
     public Docket createAppRestApi() {
         ParameterBuilder tokenPar = new ParameterBuilder();
         List<Parameter> pars = new ArrayList<>();
-        tokenPar.name(Constant.STUDENT_TOKEN)
+        tokenPar.name(CacheConstant.STUDENT_TOKEN)
                 .description("宿舍管理系统APP端访问令牌")
                 .modelRef(new ModelRef("string"))
                 .parameterType("header")

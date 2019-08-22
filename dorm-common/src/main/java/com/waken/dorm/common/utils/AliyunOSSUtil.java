@@ -6,6 +6,7 @@ import com.aliyun.oss.OSSException;
 import com.aliyun.oss.model.*;
 import com.waken.dorm.common.config.OssConstantConfig;
 import com.waken.dorm.common.constant.Constant;
+import com.waken.dorm.common.sequence.UUIDSequence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +53,7 @@ public class AliyunOSSUtil {
             if (Constant.ONE < strings.length) {
                 string = strings[1];
             }
-            String newFileName = fileHost + "/" + (folderName + "/" + dateStr + "/" + UUIDUtils.getPkUUID() + "." + string);
+            String newFileName = fileHost + "/" + (folderName + "/" + dateStr + "/" + UUIDSequence.next() + "." + string);
             // 上传文件
             PutObjectResult result = client.putObject(new PutObjectRequest(bucketName, newFileName, file));
             // 设置权限(公开读)

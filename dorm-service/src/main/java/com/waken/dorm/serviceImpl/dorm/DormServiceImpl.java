@@ -12,6 +12,7 @@ import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.dorm.AddDormStudentRelForm;
 import com.waken.dorm.common.form.dorm.DormForm;
 import com.waken.dorm.common.form.dorm.EditDormForm;
+import com.waken.dorm.common.sequence.UUIDSequence;
 import com.waken.dorm.common.utils.*;
 import com.waken.dorm.common.view.dorm.AppDormView;
 import com.waken.dorm.common.view.dorm.DormStudentRelView;
@@ -59,19 +60,18 @@ public class DormServiceImpl implements DormService {
         this.editValidate(editForm);
         String userId = UserManager.getCurrentUserId();
         Date curDate = DateUtils.getCurrentDate();
-        int count = Constant.ZERO;
         Dorm dorm = new Dorm();
         BeanMapper.copy(editForm, dorm);
         dorm.setLastModifyTime(curDate);
         dorm.setLastModifyUserId(userId);
         if (StringUtils.isEmpty(editForm.getPkDormId())) {//新增
             logger.info("service: 开始进入新增宿舍信息");
-            String pkDormId = UUIDUtils.getPkUUID();
+            String pkDormId = UUIDSequence.next();
             dorm.setPkDormId(pkDormId);
             dorm.setStatus(CodeEnum.ENABLE.getCode());
             dorm.setCreateTime(curDate);
             dorm.setCreateUserId(userId);
-            count = dormMapper.insert(dorm);
+            int count = dormMapper.insert(dorm);
             if (count == Constant.ZERO) {
                 throw new ServerException("新增个数为 0 条");
             }
@@ -139,7 +139,7 @@ public class DormServiceImpl implements DormService {
         }
         PageHelper.startPage(dormForm.getPageNum(), dormForm.getPageSize());
         List<DormView> dormList = dormMapper.listDorms(dormForm);
-        return new PageInfo<DormView>(dormList);
+        return new PageInfo<>(dormList);
     }
 
     /**
@@ -150,10 +150,7 @@ public class DormServiceImpl implements DormService {
      */
     @Override
     public DormStudentsView queryDormStudentsView(String dormId) {
-        String curUserId = UserManager.getCurrentUserId();
-        if (StringUtils.isEmpty(dormId)) {
-            throw new ServerException("宿舍 id为空");
-        }
+        Assert.notNull(dormId);
         List<DormStudentRelView> dormStudentRelViewList = dormStudentRelMapper.listDormStudentRelView(dormId);
         if (!dormStudentRelViewList.isEmpty()) {
             List<DormStudentRelView> addedList = new ArrayList<>();//用于接收已经存在关联的学生信息
@@ -184,8 +181,7 @@ public class DormServiceImpl implements DormService {
         logger.info("service: 批量新增宿舍与学生关联开始");
         List<DormStudentRel> toBeAddDormStudentRel = this.getToBeAddDormStudentRel(addDormStudentRelForm);
         if (!toBeAddDormStudentRel.isEmpty()) {
-            int count = Constant.ZERO;
-            count = dormStudentRelMapper.batchAddDormStudentRel(toBeAddDormStudentRel);
+            int count = dormStudentRelMapper.batchAddDormStudentRel(toBeAddDormStudentRel);
             if (count == Constant.ZERO) {
                 throw new ServerException("批量新增宿舍与学生关联个数为 0 条");
             }
@@ -226,25 +222,16 @@ public class DormServiceImpl implements DormService {
         if (!dormStudentRelList.isEmpty()) {
             List<String> existIds = new ArrayList<>();// 接收已经存在关联的学生id
             List<String> toDelIds = new ArrayList<>();// 接收需要删除的学生id
-            List<String> oldIds = new ArrayList<>();// 接收所有已经绑定的学生id
-            for (DormStudentRel dormStudentRel : dormStudentRelList) {
-                oldIds.add(dormStudentRel.getStudentId());
-            }
-            for (String oldId : oldIds) {
-                if (studentIds.contains(oldId)) {
-                    existIds.add(oldId);
+            for (DormStudentRel rel : dormStudentRelList) {
+                if (studentIds.contains(rel.getStudentId())) {
+                    existIds.add(rel.getStudentId());
                 } else {
-                    toDelIds.add(oldId);
+                    toDelIds.add(rel.getPkDormStudentId());
                 }
             }
             studentIds.removeAll(existIds);
             if (!toDelIds.isEmpty()) {
-//                DormStudentRelExample delExample = new DormStudentRelExample();
-//                DormStudentRelExample.Criteria delCriteria = delExample.createCriteria();
-//                delCriteria.andDormIdEqualTo(dormId);
-//                delCriteria.andStudentIdIn(studentIds);
-                int count = Constant.ZERO;
-                count = dormStudentRelMapper.deleteBatchIds(studentIds);
+                int count = dormStudentRelMapper.deleteBatchIds(toDelIds);
                 if (count == Constant.ZERO) {
                     throw new ServerException("删除用户角色关联的个数为 0 条！");
                 }
@@ -253,7 +240,7 @@ public class DormServiceImpl implements DormService {
         if (!studentIds.isEmpty()) {
             List<DormStudentRel> toBeAddDormStudentRelList = new ArrayList<>();
             for (String studentId : studentIds) {
-                String pkDormStudentId = UUIDUtils.getPkUUID();
+                String pkDormStudentId = UUIDSequence.next();
                 String curUserId = UserManager.getCurrentUserId();
                 Date curDate = DateUtils.getCurrentDate();
                 DormStudentRel DormStudentRel = new DormStudentRel();
@@ -280,22 +267,11 @@ public class DormServiceImpl implements DormService {
      */
     private void editValidate(EditDormForm editForm) {
         if (StringUtils.isEmpty(editForm.getPkDormId())) {//新增验证
-            StringBuffer sb = new StringBuffer();
-            if (StringUtils.isEmpty(editForm.getDormBuildingId())) {
-                sb.append("宿舍楼id为空");
-            }
-            if (editForm.getDormType() == null) {
-                sb.append("宿舍类型为空");
-            }
-            if (StringUtils.isEmpty(editForm.getDormNum())) {
-                sb.append("宿舍编号为空");
-            }
-            if (editForm.getBuildingLevelth() == null) {
-                sb.append("宿舍楼层为空");
-            }
-            if (StringUtils.isNotEmpty(sb.toString())) {
-                throw new ServerException("验证失败：" + sb.toString());
-            }
+            Assert.notNull(editForm.getDormBuildingId());
+            Assert.notNull(editForm.getDormType());
+            Assert.notNull(editForm.getDormNum());
+            Assert.notNull(editForm.getBuildingLevelth());
+            Assert.notNull(editForm.getDormBuildingId());
             List<Dorm> dorms = dormMapper.selectList(new EntityWrapper<Dorm>()
                     .eq("dorm_num", editForm.getDormNum())
             );
@@ -304,9 +280,7 @@ public class DormServiceImpl implements DormService {
             }
         } else {//修改验证
             Dorm dorm = dormMapper.selectById(editForm.getPkDormId());
-            if (dorm == null) {
-                throw new ServerException("宿舍id不正确");
-            }
+            Assert.notNull(dorm,"参数错误！");
             if (StringUtils.isNotEmpty(editForm.getDormNum())) {
                 List<Dorm> dorms = dormMapper.selectList(new EntityWrapper<Dorm>()
                         .eq("dorm_num", editForm.getDormNum())

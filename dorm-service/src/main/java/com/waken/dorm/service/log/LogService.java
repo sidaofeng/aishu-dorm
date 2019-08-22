@@ -24,14 +24,20 @@ public interface LogService {
      * @throws JsonProcessingException
      */
     @Async
-    public void saveLog(ProceedingJoinPoint point, SysLog log) throws JsonProcessingException;
+    void saveLog(ProceedingJoinPoint point, SysLog log) throws JsonProcessingException;
+
+    /**
+     * 保存登录日志
+     * @param sysLog
+     */
+    void addLoginLog(SysLog sysLog);
 
     /**
      * 删除日志
      *
      * @param deleteForm
      */
-    public void deleteLog(DeleteForm deleteForm);
+    void deleteLog(DeleteForm deleteForm);
 
     /**
      * 分页查询日志
@@ -39,5 +45,7 @@ public interface LogService {
      * @param sysLogForm
      * @return
      */
-    public PageInfo<SysLogView> listSysLogViews(SysLogForm sysLogForm);
+    PageInfo<SysLogView> listSysLogViews(SysLogForm sysLogForm);
+
+
 }

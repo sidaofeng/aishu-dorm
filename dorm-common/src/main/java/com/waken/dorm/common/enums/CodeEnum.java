@@ -12,9 +12,9 @@ public enum CodeEnum {
 
     YES("是", 1), NO("否", 0),
 
-    FILE("文件", 1), FILEDIRECTORY("文件夹", 0),
+    FILE("文件", 1), FILE_DIRECTORY("文件夹", 0),
 
-    IDCARD("身份证.", 1), PASSPORT("护照.", 2),
+    ID_CARD("身份证.", 1), PASSPORT("护照.", 2),
 
     PLATFORM_USER("后台用户", 1), SCHOOL_USER("学校用户", 2),
 
@@ -39,7 +39,7 @@ public enum CodeEnum {
     private String msg;
     private Integer code;
 
-    private CodeEnum(String msg, Integer code) {
+    CodeEnum(String msg, Integer code) {
         this.msg = msg;
         this.code = code;
     }

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.waken.dorm.common.base.AjaxResponse;
+import com.waken.dorm.common.constant.CacheConstant;
 import com.waken.dorm.common.constant.Constant;
 import com.waken.dorm.common.entity.student.Student;
 import com.waken.dorm.common.entity.student.StudentInfo;
@@ -13,6 +14,7 @@ import com.waken.dorm.common.exception.ServerException;
 import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.student.EditStudentForm;
 import com.waken.dorm.common.form.student.StudentForm;
+import com.waken.dorm.common.sequence.UUIDSequence;
 import com.waken.dorm.common.utils.*;
 import com.waken.dorm.common.utils.redis.RedisCacheManager;
 import com.waken.dorm.common.view.base.ImgView;
@@ -61,7 +63,7 @@ public class StudentServiceImpl implements StudentService {
         String userId = UserManager.getCurrentUserId();
         List<String> studentIds = new ArrayList<>();
         for (Student student : studentList) {
-            String studentId = UUIDUtils.getPkUUID();
+            String studentId = UUIDSequence.next();
             studentIds.add(studentId);
             student.setPkStudentId(studentId);
             student.setStatus(CodeEnum.ENABLE.getCode());
@@ -96,7 +98,7 @@ public class StudentServiceImpl implements StudentService {
         student.setLastModifyUserId(userId);
         if (StringUtils.isEmpty(editStudentForm.getPkStudentId())) {//新增
             logger.info("service: 开始进入单个添加学生");
-            String studentId = UUIDUtils.getPkUUID();
+            String studentId = UUIDSequence.next();
             student.setPkStudentId(studentId);
             if (editStudentForm.getGender() == null) {
                 student.setGender(CodeEnum.MALE.getCode());//默认性别男
@@ -106,11 +108,7 @@ public class StudentServiceImpl implements StudentService {
             student.setStatus(CodeEnum.ENABLE.getCode());
             student.setCreateTime(curDate);
             student.setCreateUserId(userId);
-            int count = Constant.ZERO;
-            count = studentMapper.insert(student);
-            if (count == Constant.ZERO) {
-                throw new ServerException("添加单个学生失败");
-            }
+            studentMapper.insert(student);
             return student;
         } else {//修改
             logger.info("service: 开始进入修改学生信息");
@@ -130,7 +128,6 @@ public class StudentServiceImpl implements StudentService {
         logger.info("service: 删除学生开始");
         List<String> studentIds = deleteForm.getDelIds();
         Integer delStatus = deleteForm.getDelStatus();
-        int count = Constant.ZERO;
         if (CodeEnum.YES.getCode() == delStatus) { // 物理删除
             List<Student> studentList = studentMapper.selectByIds(studentIds);
             StringBuffer sb = new StringBuffer();
@@ -140,20 +137,14 @@ public class StudentServiceImpl implements StudentService {
                 }
             }
             if (StringUtils.isEmpty(sb.toString())) {//删除学生
-                count = studentMapper.deleteBatchIds(studentIds);
-                if (count == Constant.ZERO) {
-                    throw new ServerException("删除学生个数为 0 条");
-                }
+                studentMapper.deleteBatchIds(studentIds);
             } else {
                 throw new ServerException("以下学生处于生效中：" + sb.toString());
             }
 
         } else if (CodeEnum.NO.getCode() == delStatus) {
             Map updateStatusMap = DormUtil.getToUpdateStatusMap(studentIds, UserManager.getCurrentUserId());
-            count = studentMapper.batchUpdateStatus(updateStatusMap);
-            if (count == Constant.ZERO) {
-                throw new ServerException("状态删除失败");
-            }
+            studentMapper.batchUpdateStatus(updateStatusMap);
         } else {
             throw new ServerException("删除状态码错误！");
         }
@@ -176,7 +167,7 @@ public class StudentServiceImpl implements StudentService {
         }
         PageHelper.startPage(studentForm.getPageNum(), studentForm.getPageSize());
         List<StudentView> studentViews = studentMapper.listStudents(studentForm);
-        return new PageInfo<StudentView>(studentViews);
+        return new PageInfo<>(studentViews);
     }
 
     /**
@@ -211,13 +202,10 @@ public class StudentServiceImpl implements StudentService {
                 student.setStudentNum(studentNum);
                 student.setPassword(passwordMd5);
                 StudentInfo studentInfo = studentMapper.studentLogin(student);
-                if (studentInfo == null) {
-                    return AjaxResponse.error("登录失败，密码错误！");
-                } else {
-                    String studentToken = this.getStudentToken(studentInfo);
-                    studentInfo.setStudentToken(studentToken);
-                    return AjaxResponse.success(studentInfo);
-                }
+                Assert.notNull(studentInfo,"密码错误!");
+                String studentToken = this.getStudentToken(studentInfo);
+                studentInfo.setStudentToken(studentToken);
+                return AjaxResponse.success(studentInfo);
             }
         }
     }
@@ -233,18 +221,11 @@ public class StudentServiceImpl implements StudentService {
     public void updatePasswordByNew(String studentId, String newPassword) {
         logger.info("service : 开始进入修改密码");
         Student student = studentMapper.selectById(studentId);
-        if (student == null) {
-            logger.info("service：设置新密码失败");
-            throw new ServerException("service：设置新密码失败");
-        } else {
-            String password = Md5Utils.encodeByMD5(newPassword);
-            student.setPassword(password);
-            int count = Constant.ZERO;
-            count = studentMapper.updateById(student);
-            if (count == Constant.ZERO) {
-                throw new ServerException("更新的个数为 0 条！");
-            }
-        }
+        Assert.notNull(student,"设置新密码失败");
+        String password = Md5Utils.encodeByMD5(newPassword);
+        student.setPassword(password);
+        int count = studentMapper.updateById(student);
+        Assert.isTrue(count == Constant.ZERO);
     }
 
     /**
@@ -258,22 +239,17 @@ public class StudentServiceImpl implements StudentService {
     @Transactional
     public ImgView uploadHeadImg(MultipartFile file, String studentId) {
         String fileName = file.getOriginalFilename();
+        Assert.notNull(fileName);
         String folderName = Constant.STUDENT;
-        if (StringUtils.isEmpty(fileName)) {
-            throw new ServerException("您上传的头像图片文件为空！");
-        }
         try {
             Student updateStuff = studentMapper.selectById(studentId);
             if (!StringUtils.isEmpty(updateStuff.getImgUrl())) {
                 aliyunOSSUtil.deleteFile(updateStuff.getImgUrl());// 删除已经存在的头像
-                logger.info("删除已经存在的学生头像成功！");
             }
             File toFile = FileUtils.multipartFileToFile(file);
             // 上传到OSS
             String headImgUrl = aliyunOSSUtil.upLoad(toFile, folderName);
-            if (StringUtils.isEmpty(headImgUrl)) {
-                throw new ServerException("上传学生头像失败！");
-            }
+            Assert.notNull(headImgUrl,"上传失败");
             updateStuff.setImgUrl(headImgUrl);
             studentMapper.updateById(updateStuff);
             logger.info("学生头像访问路径：" + headImgUrl);
@@ -294,48 +270,36 @@ public class StudentServiceImpl implements StudentService {
      * @return
      */
     private String getStudentToken(StudentInfo studentInfo) {
-        String studentToken = UUIDUtils.getPkUUID();
+        String studentToken = UUIDSequence.next();
         studentInfo.setStudentToken(studentToken);
         long redisCacheTime = 10000 * 60 * 30;// 缓存时间
-        redisCacheManager.setEx(Constant.STUDENT_CACHE_PREFIX + studentToken, studentInfo, redisCacheTime);//redis缓存
-        logger.info("生成学生studentToken为：" + studentToken);
+        redisCacheManager.setEx(CacheConstant.STUDENT_CACHE_PREFIX + studentToken, studentInfo, redisCacheTime);//redis缓存
+        logger.info("studentToken为：" + studentToken);
         return studentToken;
     }
 
     /**
      * 编辑资源时验证
      *
-     * @param editStudentForm
+     * @param editForm
      */
-    private void editStudentValidate(EditStudentForm editStudentForm) {
-        if (StringUtils.isEmpty(editStudentForm.getPkStudentId())) {//新增验证
-            StringBuffer sb = new StringBuffer();
-            if (StringUtils.isEmpty(editStudentForm.getStudentName())) {
-                sb.append("学生姓名为空！");
-            }
-            if (editStudentForm.getStudentNum() != null) {
-                sb.append("学号为空！");
-            }
-            if (StringUtils.isEmpty(editStudentForm.getMobile())) {
-                sb.append("手机号码不能为空！");
-            }
-            if (StringUtils.isNotEmpty(sb.toString())) {
-                logger.info("新增学生失败,原因是：" + sb.toString());
-                throw new ServerException(sb.toString());
-            }
+    private void editStudentValidate(EditStudentForm editForm) {
+        if (StringUtils.isEmpty(editForm.getPkStudentId())) {//新增验证
+            Assert.notNull(editForm.getStudentName());
+            Assert.notNull(editForm.getStudentNum());
+            Assert.notNull(editForm.getMobile());
+            Assert.isTrue(CheckUtils.isPhoneLegality(editForm.getMobile()),"请输入正确的手机号！");
             List<Student> StudentList = studentMapper.selectList(new EntityWrapper<Student>()
-                    .eq("student_name", editStudentForm.getStudentName())
+                    .eq("student_name", editForm.getStudentName())
                     .or()
-                    .eq("student_num", editStudentForm.getStudentNum())
+                    .eq("student_num", editForm.getStudentNum())
             );
             if (!StudentList.isEmpty()) {
                 throw new ServerException("已经存在相同姓名或学号的学生！");
             }
         } else {
-            Student student = studentMapper.selectById(editStudentForm.getPkStudentId());
-            if (student == null) {
-                throw new ServerException("学生id无效");
-            }
+            Student student = studentMapper.selectById(editForm.getPkStudentId());
+            Assert.notNull(student,"参数错误");
         }
     }
 }

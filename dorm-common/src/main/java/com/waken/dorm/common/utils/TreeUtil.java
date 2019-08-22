@@ -1,5 +1,8 @@
 package com.waken.dorm.common.utils;
 
+import com.waken.dorm.common.view.base.Tree;
+import org.springframework.stereotype.Service;
+
 import java.util.*;
 
 /**
@@ -7,12 +10,56 @@ import java.util.*;
  * @Author zhaoRong
  * @Date 2019/8/15 23:01
  **/
+@Service
 public class TreeUtil {
+    /**
+     * 将树集合对象转为树
+     * @param treeList 树形集合（子节点）
+     * @param rootName 树的跟节点名称，根据具体系统的设计而言，此系统中的根节点统一为 "root"
+     * @return
+     */
+    public <T> List<Tree<T>> toTree(List<Tree<T>> treeList,String rootName){
+        //树根节点
+        List<Tree<T>> rootList = new ArrayList<>();
+        Iterator<Tree<T>> var3 = treeList.iterator();
+        while (var3.hasNext()) {
+            Tree tree = var3.next();
+            if (StringUtils.equals(tree.getParentId(), rootName)) {
+                rootList.add(tree);
+            }
+        }
+        rootList.stream().forEach(root -> this.getChildren(root, treeList));
+        return rootList;
+    }
+
+    /**
+     * 找到子节点并设置进去
+     *
+     * @param rootTree
+     * @param treeList
+     */
+    private <T> void getChildren(Tree<T> rootTree, List<Tree<T>> treeList) {
+        Iterator<Tree<T>> var3 = treeList.iterator();
+        Tree<T> tree;
+        List<Tree<T>> childrenTree = new ArrayList<>();
+        while (var3.hasNext()) {
+            tree = var3.next();
+            if (StringUtils.equals(rootTree.getId(), tree.getParentId())) {
+                childrenTree.add(tree);
+                rootTree.setChildren(childrenTree);
+                var3.remove();
+            }
+        }
+        if (!childrenTree.isEmpty()) {
+            childrenTree.stream().forEach(childTree -> this.getChildren(childTree, treeList));
+        }
+    }
+
     /**
      * 查询出tree指定节点下的所有的子节点
      *
      * @param idAndPidMap(k=id,v=pid)
-     * @param ids                     主键id集合
+     * @param ids 主键id集合
      * @return
      */
     public static List<String> getNodesByIds(Map<String, String> idAndPidMap, List<String> ids) {

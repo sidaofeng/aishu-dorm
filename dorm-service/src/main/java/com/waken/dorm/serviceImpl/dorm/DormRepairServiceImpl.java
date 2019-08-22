@@ -13,16 +13,18 @@ import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.dorm.AddDormRepairForm;
 import com.waken.dorm.common.form.dorm.DormRepairForm;
 import com.waken.dorm.common.form.dorm.UpdateRepairForm;
+import com.waken.dorm.common.utils.Assert;
 import com.waken.dorm.common.utils.DateUtils;
 import com.waken.dorm.common.utils.DormUtil;
 import com.waken.dorm.common.utils.StringUtils;
-import com.waken.dorm.common.utils.UUIDUtils;
+import com.waken.dorm.common.sequence.UUIDSequence;
 import com.waken.dorm.common.view.dorm.DormRepairView;
 import com.waken.dorm.dao.dorm.DormMapper;
 import com.waken.dorm.dao.dorm.DormRepairMapper;
 import com.waken.dorm.dao.student.StudentMapper;
 import com.waken.dorm.manager.UserManager;
 import com.waken.dorm.service.dorm.DormRepairService;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,10 +41,10 @@ import java.util.List;
  * @Author zhaoRong
  * @Date 2019/4/1 21:14
  **/
+@Slf4j
 @Transactional(propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Exception.class)
 @Service
 public class DormRepairServiceImpl implements DormRepairService {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
     DormRepairMapper dormRepairMapper;
     @Autowired
@@ -59,11 +61,11 @@ public class DormRepairServiceImpl implements DormRepairService {
     @Transactional
     @Override
     public DormRepair addDormRepair(AddDormRepairForm addDormRepairForm) {
-        logger.info("service : 开始进入新增维修记录");
+        log.info("service : 开始进入新增维修记录");
         this.addRepairValidate(addDormRepairForm);//验证合法性
         String studentId;
         String dormId = this.validateDorm(addDormRepairForm.getDormNum());//验证宿舍是否存在
-        String pkDormRepairId = UUIDUtils.getPkUUID();
+        String pkDormRepairId = UUIDSequence.next();
         Date curDate = DateUtils.getCurrentDate();
         DormRepair dormRepair = new DormRepair();
         if (addDormRepairForm.getTerminal() == CodeEnum.WEB.getCode()) {//web端请求
@@ -105,7 +107,7 @@ public class DormRepairServiceImpl implements DormRepairService {
     @Transactional
     @Override
     public void deleteDormRepair(DeleteForm deleteForm) {
-        logger.info("service: 删除维修记录开始");
+        log.info("service: 删除维修记录开始");
         List<String> ids = deleteForm.getDelIds();
         Integer delStatus = deleteForm.getDelStatus();
         int count ;
@@ -144,7 +146,7 @@ public class DormRepairServiceImpl implements DormRepairService {
      */
     @Override
     public PageInfo<DormRepairView> listDormRepairs(DormRepairForm dormRepairForm) {
-        logger.info("service: 分页查询宿舍维修信息开始");
+        log.info("service: 分页查询宿舍维修信息开始");
         if (dormRepairForm.getStartTime() != null) {
             dormRepairForm.setStartTime(DateUtils.formatDate2DateTimeStart(dormRepairForm.getStartTime()));
         }
@@ -181,8 +183,7 @@ public class DormRepairServiceImpl implements DormRepairService {
         Date curDate = DateUtils.getCurrentDate();
         dormRepair.setLastModifyTime(curDate);
         dormRepair.setLastModifyUserId(userId);
-        int count = Constant.ZERO;
-        count = dormRepairMapper.updateById(dormRepair);
+        int count = dormRepairMapper.updateById(dormRepair);
         if (count == Constant.ZERO) {
             throw new ServerException("修改维修记录为 0 条");
         }
@@ -210,31 +211,15 @@ public class DormRepairServiceImpl implements DormRepairService {
     /**
      * 新增验证
      *
-     * @param addDormRepairForm
+     * @param addForm
      */
-    private void addRepairValidate(AddDormRepairForm addDormRepairForm) {
-        StringBuffer sb = new StringBuffer();
-        if (StringUtils.isEmpty(addDormRepairForm.getDormNum())) {
-            sb.append("宿舍号为空！");
-        }
-        if (addDormRepairForm.getRepairType() == null) {
-            sb.append("维修类型为空！");
-        }
-        if (StringUtils.isEmpty(addDormRepairForm.getRepairDesc())) {
-            sb.append("维修描述为空");
-        }
-        if (StringUtils.isEmpty(addDormRepairForm.getRepairImgUrl())) {
-            sb.append("维修图片为空");
-        }
-        if (addDormRepairForm.getStudentNum() == null) {
-            sb.append("学号为空！");
-        }
-        if (StringUtils.isEmpty(addDormRepairForm.getStudentMobile())) {
-            sb.append("手机号为空");
-        }
-        if (StringUtils.isNotEmpty(sb.toString())) {
-            throw new ServerException("验证失败：" + sb.toString());
-        }
+    private void addRepairValidate(AddDormRepairForm addForm) {
+        Assert.notNull(addForm.getDormNum());
+        Assert.notNull(addForm.getRepairType());
+        Assert.notNull(addForm.getRepairDesc());
+        Assert.notNull(addForm.getRepairImgUrl());
+        Assert.notNull(addForm.getStudentNum());
+        Assert.notNull(addForm.getStudentMobile());
     }
 
     private String validateDorm(String dormNum) {
@@ -243,9 +228,8 @@ public class DormRepairServiceImpl implements DormRepairService {
         );
         if (dorms.isEmpty()) {
             throw new ServerException("宿舍号不存在!");
-        } else {
-            return dorms.get(Constant.ZERO).getPkDormId();
         }
+        return dorms.get(Constant.ZERO).getPkDormId();
     }
 
     private String validateStudent(Integer studentNum) {
@@ -254,9 +238,8 @@ public class DormRepairServiceImpl implements DormRepairService {
         );
         if (studentList.isEmpty()) {
             throw new ServerException("学号不存在!");
-        } else {
-            return studentList.get(Constant.ZERO).getPkStudentId();
         }
+        return studentList.get(Constant.ZERO).getPkStudentId();
     }
 
 }

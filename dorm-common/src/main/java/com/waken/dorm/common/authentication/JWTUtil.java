@@ -31,7 +31,6 @@ public class JWTUtil {
                     .withClaim("username", username)
                     .build();
             verifier.verify(token);
-            log.info("token is valid");
             return true;
         } catch (Exception e) {
             log.info("token is invalid{}", e.getMessage());

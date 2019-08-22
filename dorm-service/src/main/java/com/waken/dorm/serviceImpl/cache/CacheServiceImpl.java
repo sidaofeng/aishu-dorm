@@ -2,6 +2,7 @@ package com.waken.dorm.serviceImpl.cache;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.waken.dorm.common.constant.CacheConstant;
 import com.waken.dorm.common.constant.Constant;
 import com.waken.dorm.common.entity.user.User;
 import com.waken.dorm.common.enums.ResultEnum;
@@ -38,7 +39,7 @@ public class CacheServiceImpl implements CacheService {
 
     @Override
     public User getUser(String username) throws Exception {
-        String userString = this.redisService.get(Constant.USER_CACHE_PREFIX + username);
+        String userString = this.redisService.get(CacheConstant.USER_CACHE_PREFIX + username);
         if (StringUtils.isBlank(userString))
             throw new ServerException(ResultEnum.UN_AUTH);
         else
@@ -47,7 +48,7 @@ public class CacheServiceImpl implements CacheService {
 
     @Override
     public Set<String> getRoles(String username) throws Exception {
-        String roleListString = this.redisService.get(Constant.USER_ROLE_CACHE_PREFIX + username);
+        String roleListString = this.redisService.get(CacheConstant.USER_ROLE_CACHE_PREFIX + username);
         if (StringUtils.isBlank(roleListString)) {
             throw new ServerException(ResultEnum.UN_AUTH);
         } else {
@@ -58,7 +59,7 @@ public class CacheServiceImpl implements CacheService {
 
     @Override
     public Set<String> getPermissions(String username) throws Exception {
-        String permissionListString = this.redisService.get(Constant.USER_PERMISSION_CACHE_PREFIX + username);
+        String permissionListString = this.redisService.get(CacheConstant.USER_PERMISSION_CACHE_PREFIX + username);
         if (StringUtils.isBlank(permissionListString)) {
             throw new ServerException(ResultEnum.UN_AUTH);
         } else {
@@ -71,21 +72,21 @@ public class CacheServiceImpl implements CacheService {
     public void saveUser(User user) throws Exception {
         String username = user.getUserName();
         this.deleteUser(username);
-        redisService.set(Constant.USER_CACHE_PREFIX + username, mapper.writeValueAsString(user));
+        redisService.set(CacheConstant.USER_CACHE_PREFIX + username, mapper.writeValueAsString(user));
     }
 
     @Override
     public void saveUser(String username) throws Exception {
         User user = userService.queryUserInfo(username);
         this.deleteUser(username);
-        redisService.set(Constant.USER_CACHE_PREFIX + username, mapper.writeValueAsString(user));
+        redisService.set(CacheConstant.USER_CACHE_PREFIX + username, mapper.writeValueAsString(user));
     }
 
     @Override
     public Set<String> saveRoles(String username) throws Exception {
         Set<String> userRoles = userPrivilegeService.getUserRoles(username);
         this.deleteRoles(username);
-        redisService.set(Constant.USER_ROLE_CACHE_PREFIX + username, mapper.writeValueAsString(userRoles));
+        redisService.set(CacheConstant.USER_ROLE_CACHE_PREFIX + username, mapper.writeValueAsString(userRoles));
         return userRoles;
     }
 
@@ -93,25 +94,25 @@ public class CacheServiceImpl implements CacheService {
     public Set<String> savePermissions(String username) throws Exception {
         Set<String> perms = userPrivilegeService.getUserPrivileges(username);
         this.deletePermissions(username);
-        redisService.set(Constant.USER_PERMISSION_CACHE_PREFIX + username, mapper.writeValueAsString(perms));
+        redisService.set(CacheConstant.USER_PERMISSION_CACHE_PREFIX + username, mapper.writeValueAsString(perms));
         return perms;
     }
 
     @Override
     public void deleteUser(String username) throws Exception {
         username = username.toLowerCase();
-        redisService.del(Constant.USER_CACHE_PREFIX + username);
+        redisService.del(CacheConstant.USER_CACHE_PREFIX + username);
     }
 
     @Override
     public void deleteRoles(String username) throws Exception {
         username = username.toLowerCase();
-        redisService.del(Constant.USER_ROLE_CACHE_PREFIX + username);
+        redisService.del(CacheConstant.USER_ROLE_CACHE_PREFIX + username);
     }
 
     @Override
     public void deletePermissions(String username) throws Exception {
         username = username.toLowerCase();
-        redisService.del(Constant.USER_PERMISSION_CACHE_PREFIX + username);
+        redisService.del(CacheConstant.USER_PERMISSION_CACHE_PREFIX + username);
     }
 }

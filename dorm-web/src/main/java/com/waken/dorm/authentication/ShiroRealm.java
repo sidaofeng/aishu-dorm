@@ -2,6 +2,7 @@ package com.waken.dorm.authentication;
 
 import com.waken.dorm.common.authentication.JWTToken;
 import com.waken.dorm.common.authentication.JWTUtil;
+import com.waken.dorm.common.constant.CacheConstant;
 import com.waken.dorm.common.constant.Constant;
 import com.waken.dorm.common.entity.user.User;
 import com.waken.dorm.common.utils.HttpContextUtils;
@@ -27,7 +28,7 @@ import java.util.Set;
 /**
  * 自定义实现 ShiroRealm，包含认证和授权两大模块
  *
- * @author MrBird
+ * @author aishu
  */
 @Slf4j
 public class ShiroRealm extends AuthorizingRealm {
@@ -88,7 +89,7 @@ public class ShiroRealm extends AuthorizingRealm {
         String encryptToken = TokenUtils.encryptToken(token);
         String encryptTokenInRedis = null;
         try {
-            encryptTokenInRedis = redisService.get(Constant.TOKEN_CACHE_PREFIX + encryptToken + "." + ip);
+            encryptTokenInRedis = redisService.get(CacheConstant.TOKEN_CACHE_PREFIX + encryptToken + "." + ip);
         } catch (Exception ignore) {
         }
         // 如果找不到，说明已经失效

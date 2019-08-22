@@ -15,7 +15,7 @@ import java.util.List;
  **/
 @Getter
 @Setter
-@ApiModel(value = "Tree", description = "Ant树形结构")
+@ApiModel(value = "Tree", description = "树形结构")
 public class Tree<T> implements Serializable {
     private static final long serialVersionUID = 7932221411557490900L;
 
@@ -23,6 +23,11 @@ public class Tree<T> implements Serializable {
      * 树节点id
      */
     private String id;
+
+    /**
+     * 父节点id
+     */
+    private String parentId;
 
     /**
      * 节点唯一标识,在整个树范围内唯一

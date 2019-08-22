@@ -3,7 +3,7 @@ package com.waken.dorm.common.exception;
 import com.waken.dorm.common.enums.ResultEnum;
 
 /**
- * @ClassName ZhouException
+ * @ClassName ServerException
  * @Description 异常处理
  * @Author zhaoRong
  * @Date 2019/3/19 10:51

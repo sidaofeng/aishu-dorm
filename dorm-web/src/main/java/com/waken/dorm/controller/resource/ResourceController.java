@@ -68,8 +68,9 @@ public class ResourceController extends BaseController {
         return AjaxResponse.success();
     }
 
+    @Log("查询菜单")
     @CrossOrigin
-    @GetMapping(value = "resources/menu")
+    @GetMapping("resources/menu")
     @ApiOperation(value = "查询当前登陆用户拥有的菜单资源", notes = "查询当前登陆用户所有的菜单资源")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = UserMenuView.class)
@@ -79,6 +80,7 @@ public class ResourceController extends BaseController {
         return AjaxResponse.success(userPrivilegeService.getUserMenu(UserManager.getCurrentUserId()));
     }
 
+    @Log("查询资源树")
     @CrossOrigin
     @GetMapping(value = "resources/tree")
     @ApiOperation(value = "查询资源树", notes = "查询资源树")
@@ -91,6 +93,7 @@ public class ResourceController extends BaseController {
         return AjaxResponse.success(resourceService.getResourcesTree(null, null, null));
     }
 
+    @Log("根据用户id查询资源树")
     @CrossOrigin
     @GetMapping(value = "resources/tree/user/{id}")
     @ApiOperation(value = "根据用户id查询资源树", notes = "根据用户id查询资源树")
@@ -105,6 +108,7 @@ public class ResourceController extends BaseController {
         return AjaxResponse.success(resourceService.getResourcesTree(CodeEnum.ENABLE.getCode(), id, null));
     }
 
+    @Log("根据角色id查询资源树")
     @CrossOrigin
     @GetMapping(value = "resources/tree/role/{id}")
     @ApiOperation(value = "根据角色id查询资源树", notes = "根据角色id查询资源树")

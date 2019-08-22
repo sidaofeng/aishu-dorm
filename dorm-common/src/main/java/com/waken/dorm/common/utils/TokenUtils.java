@@ -1,6 +1,7 @@
 package com.waken.dorm.common.utils;
 
-import com.waken.dorm.common.constant.Constant;
+import com.waken.dorm.common.authentication.EncryptUtil;
+import com.waken.dorm.common.constant.CacheConstant;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -18,7 +19,7 @@ public class TokenUtils {
      */
     public static String encryptToken(String token) {
         try {
-            EncryptUtil encryptUtil = new EncryptUtil(Constant.TOKEN_CACHE_PREFIX);
+            EncryptUtil encryptUtil = new EncryptUtil(CacheConstant.TOKEN_CACHE_PREFIX);
             return encryptUtil.encrypt(token);
         } catch (Exception e) {
             log.info("token加密失败：", e);
@@ -34,7 +35,7 @@ public class TokenUtils {
      */
     public static String decryptToken(String encryptToken) {
         try {
-            EncryptUtil encryptUtil = new EncryptUtil(Constant.TOKEN_CACHE_PREFIX);
+            EncryptUtil encryptUtil = new EncryptUtil(CacheConstant.TOKEN_CACHE_PREFIX);
             return encryptUtil.decrypt(encryptToken);
         } catch (Exception e) {
             log.info("token解密失败：", e);

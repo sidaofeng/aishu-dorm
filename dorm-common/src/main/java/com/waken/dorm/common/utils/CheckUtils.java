@@ -17,7 +17,7 @@ public class CheckUtils {
     private HashMap<String, HttpSession> map;
 
     private CheckUtils() {
-        map = new HashMap<String, HttpSession>();
+        map = new HashMap<>();
     }
 
     public static CheckUtils getInstance() {

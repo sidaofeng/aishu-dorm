@@ -10,6 +10,7 @@ import com.waken.dorm.common.exception.ServerException;
 import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.dorm.DormRuleForm;
 import com.waken.dorm.common.form.dorm.EditDormRuleForm;
+import com.waken.dorm.common.sequence.UUIDSequence;
 import com.waken.dorm.common.utils.*;
 import com.waken.dorm.common.view.dorm.DormRuleView;
 import com.waken.dorm.dao.dorm.DormRuleMapper;
@@ -57,7 +58,7 @@ public class DormRuleServiceImpl implements DormRuleService {
         dormRule.setLastModifyUserId(userId);
         if (StringUtils.isEmpty(editRuleForm.getPkDormRuleId())) {//新增
             logger.info("service: 开始进入新增宿舍规则信息");
-            String pkDormRuleId = UUIDUtils.getPkUUID();
+            String pkDormRuleId = UUIDSequence.next();
             dormRule.setPkDormRuleId(pkDormRuleId);
             dormRule.setStatus(CodeEnum.ENABLE.getCode());
             dormRule.setCreateTime(curDate);
@@ -136,37 +137,27 @@ public class DormRuleServiceImpl implements DormRuleService {
     /**
      * 编辑宿舍规则时 验证
      *
-     * @param editRuleForm
+     * @param editForm
      */
-    private void editRuleValidate(EditDormRuleForm editRuleForm) {
-        if (StringUtils.isEmpty(editRuleForm.getPkDormRuleId())) {//新增验证
-            StringBuffer sb = new StringBuffer();
-            if (StringUtils.isEmpty(editRuleForm.getRuleName())) {
-                sb.append("规则名称为空");
-            }
-            if (StringUtils.isEmpty(editRuleForm.getRuleDesc())) {
-                sb.append("规则描述为空");
-            }
-            if (StringUtils.isNotEmpty(sb.toString())) {
-                throw new ServerException("验证失败：" + sb.toString());
-            }
+    private void editRuleValidate(EditDormRuleForm editForm) {
+        if (StringUtils.isEmpty(editForm.getPkDormRuleId())) {//新增验证
+            Assert.notNull(editForm.getRuleName());
+            Assert.notNull(editForm.getRuleDesc());
             List<DormRule> dormRules = dormRuleMapper.selectList(new EntityWrapper<DormRule>()
-                    .eq("rule_name", editRuleForm.getRuleName())
+                    .eq("rule_name", editForm.getRuleName())
             );
             if (!dormRules.isEmpty()) {
                 throw new ServerException("已存在相同名称的规则名！");
             }
         } else {//修改验证
-            DormRule dormRule = dormRuleMapper.selectById(editRuleForm.getPkDormRuleId());
-            if (dormRule == null) {
-                throw new ServerException("宿舍规则id不正确");
-            }
-            if (StringUtils.isNotEmpty(editRuleForm.getRuleName())) {
+            DormRule dormRule = dormRuleMapper.selectById(editForm.getPkDormRuleId());
+            Assert.notNull(dormRule,"参数错误！");
+            if (StringUtils.isNotEmpty(editForm.getRuleName())) {
                 List<DormRule> dormRules = dormRuleMapper.selectList(new EntityWrapper<DormRule>()
-                        .eq("rule_name", editRuleForm.getRuleName())
+                        .eq("rule_name", editForm.getRuleName())
                 );
                 if (!dormRules.isEmpty()) {
-                    if (!StringUtils.equals(dormRules.get(Constant.ZERO).getPkDormRuleId(), editRuleForm.getPkDormRuleId())) {
+                    if (!StringUtils.equals(dormRules.get(Constant.ZERO).getPkDormRuleId(), editForm.getPkDormRuleId())) {
                         throw new ServerException("已存在相同名称的规则名！");
                     }
                 }

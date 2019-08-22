@@ -6,7 +6,9 @@ import com.waken.dorm.common.authentication.JWTToken;
 import com.waken.dorm.common.authentication.JWTUtil;
 import com.waken.dorm.common.base.ActiveUser;
 import com.waken.dorm.common.base.AjaxResponse;
+import com.waken.dorm.common.constant.CacheConstant;
 import com.waken.dorm.common.constant.Constant;
+import com.waken.dorm.common.entity.log.SysLog;
 import com.waken.dorm.common.entity.user.User;
 import com.waken.dorm.common.enums.CodeEnum;
 import com.waken.dorm.common.enums.ResultEnum;
@@ -16,6 +18,7 @@ import com.waken.dorm.common.utils.*;
 import com.waken.dorm.controller.base.BaseController;
 import com.waken.dorm.service.cache.CacheService;
 import com.waken.dorm.service.cache.RedisService;
+import com.waken.dorm.service.log.LogService;
 import com.waken.dorm.service.user.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -50,11 +53,12 @@ public class LoginController extends BaseController {
     ObjectMapper mapper;
     @Autowired
     CacheService cacheService;
+    @Autowired
+    LogService logService;
 
     /**
      * 用户登录
      */
-    @Log("用户登录")
     @PostMapping("login")
     @ApiOperation(value = "login（用户登录接口）", notes = "用户登录接口")
     @ApiResponses(value = {
@@ -105,7 +109,7 @@ public class LoginController extends BaseController {
     })
     public AjaxResponse userOnline(String username) throws Exception {
         String now = DateUtils.formatFullTime(LocalDateTime.now());
-        Set<String> userOnlineStringSet = redisService.zrangeByScore(Constant.ACTIVE_USERS_ZSET_PREFIX, now, "+inf");
+        Set<String> userOnlineStringSet = redisService.zrangeByScore(CacheConstant.ACTIVE_USERS_ZSET_PREFIX, now, "+inf");
         List<ActiveUser> activeUsers = new ArrayList<>();
         for (String userOnlineString : userOnlineStringSet) {
             ActiveUser activeUser = mapper.readValue(userOnlineString, ActiveUser.class);
@@ -150,7 +154,7 @@ public class LoginController extends BaseController {
     })
     public AjaxResponse kickOut(@NotBlank(message = "{required}") @PathVariable String activeUserId) throws Exception {
         String now = DateUtils.formatFullTime(LocalDateTime.now());
-        Set<String> userOnlineStringSet = redisService.zrangeByScore(Constant.ACTIVE_USERS_ZSET_PREFIX, now, "+inf");
+        Set<String> userOnlineStringSet = redisService.zrangeByScore(CacheConstant.ACTIVE_USERS_ZSET_PREFIX, now, "+inf");
         ActiveUser kickoutUser = null;
         String kickoutUserString = "";
         for (String userOnlineString : userOnlineStringSet) {
@@ -162,9 +166,9 @@ public class LoginController extends BaseController {
         }
         if (kickoutUser != null && org.apache.commons.lang3.StringUtils.isNotBlank(kickoutUserString)) {
             // 删除 zset中的记录
-            redisService.zrem(Constant.ACTIVE_USERS_ZSET_PREFIX, kickoutUserString);
+            redisService.zrem(CacheConstant.ACTIVE_USERS_ZSET_PREFIX, kickoutUserString);
             // 删除对应的 token缓存
-            redisService.del(Constant.TOKEN_CACHE_PREFIX + kickoutUser.getToken() + "." + kickoutUser.getIp());
+            redisService.del(CacheConstant.TOKEN_CACHE_PREFIX + kickoutUser.getToken() + "." + kickoutUser.getIp());
         }
         return AjaxResponse.success();
     }
@@ -179,6 +183,12 @@ public class LoginController extends BaseController {
      */
     private String saveTokenToRedis(User user, JWTToken token, HttpServletRequest request) throws Exception {
         String ip = IPUtils.getIpAddr(request);
+        //保存登录日志
+        SysLog sysLog = new SysLog();
+        sysLog.setUserId(user.getUserId());
+        sysLog.setIp(ip);
+        sysLog.setLocation(AddressUtils.getCityInfo(ip));
+        logService.addLoginLog(sysLog);
         // 构建在线用户
         ActiveUser activeUser = new ActiveUser();
         activeUser.setUsername(user.getUserName());
@@ -187,9 +197,9 @@ public class LoginController extends BaseController {
         activeUser.setLoginAddress(AddressUtils.getCityInfo(ip));
 
         // zset 存储登录用户，score 为过期时间戳
-        this.redisService.zadd(Constant.ACTIVE_USERS_ZSET_PREFIX, Double.valueOf(token.getExipreAt()), mapper.writeValueAsString(activeUser));
+        this.redisService.zadd(CacheConstant.ACTIVE_USERS_ZSET_PREFIX, Double.valueOf(token.getExipreAt()), mapper.writeValueAsString(activeUser));
         // redis 中存储这个加密 token，key = 前缀 + 加密 token + .ip
-        this.redisService.set(Constant.TOKEN_CACHE_PREFIX + token.getToken() + Constant.SPOT + ip, token.getToken(), properties.getProperties().getJwtTimeOut() * 1000);
+        this.redisService.set(CacheConstant.TOKEN_CACHE_PREFIX + token.getToken() + Constant.SPOT + ip, token.getToken(), properties.getProperties().getJwtTimeOut() * 1000);
         return activeUser.getId();
     }
 

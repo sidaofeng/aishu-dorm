@@ -11,6 +11,7 @@ import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.role.ListAddedRoleForm;
 import com.waken.dorm.common.form.user.EditUserForm;
 import com.waken.dorm.common.form.user.UserForm;
+import com.waken.dorm.common.sequence.UUIDSequence;
 import com.waken.dorm.common.utils.*;
 import com.waken.dorm.common.view.base.ImgView;
 import com.waken.dorm.common.view.user.UserRoleRelView;
@@ -66,13 +67,13 @@ public class UserServiceImpl implements UserService {
         user.setLastModifyUserId(curUserId);
         if (StringUtils.isEmpty(editUserForm.getUserId())) {//新增
             log.info("service: 新增用户开始");
-            String userId = UUIDUtils.getPkUUID();
+            String userId = UUIDSequence.next();
             String encodePassword = PasswordEncode.shiroEncode(editUserForm.getUserName(), editUserForm.getPassword());//shiro加密 密码
             user.setPassword(encodePassword);
             user.setUserId(userId);
             user.setStatus(CodeEnum.ENABLE.getCode());
             user.setCreateTime(curDate);
-            user.setCreateUserId("guest");
+            user.setCreateUserId(curUserId);
             count = userMapper.insert(user);
             if (count == Constant.ZERO) {
                 throw new ServerException("新增用户失败");
@@ -94,7 +95,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User queryUserInfo(String userName) {
-        log.info("service: 查询用户开始");
         List<User> userList = userMapper.selectList(new EntityWrapper<User>()
                 .eq("user_name", userName)
         );
@@ -184,12 +184,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserRolesView listUserRoles(String userId) {
+        Assert.notNull(userId);
         ListAddedRoleForm listAddedRoleForm = new ListAddedRoleForm();
         listAddedRoleForm.setUserId(userId);
         String curUserId = UserManager.getCurrentUserId();
-        if (StringUtils.isEmpty(userId)) {
-            throw new ServerException("用户id为空");
-        }
         List<UserRoleRelView> userRoleRelViewList;
         if (isSuperAdmin(curUserId)) {//超级管理员可以管理所有角色
             userRoleRelViewList = roleMapper.listSuperAdminRoles(curUserId);
@@ -227,21 +225,16 @@ public class UserServiceImpl implements UserService {
         String fileName = file.getOriginalFilename();
         String userId = UserManager.getCurrentUserId();
         String folderName = Constant.STUDENT;
-        if (StringUtils.isEmpty(fileName)) {
-            throw new ServerException("您上传的头像图片文件为空！");
-        }
+        Assert.notNull(fileName);
         try {
             User user = userMapper.selectById(userId);
             if (!StringUtils.isEmpty(user.getImgUrl())) {
                 aliyunOSSUtil.deleteFile(user.getImgUrl());// 删除已经存在的头像
-                log.info("删除已经存在的用户头像成功！");
             }
             File toFile = FileUtils.multipartFileToFile(file);
             // 上传到OSS
             String headImgUrl = aliyunOSSUtil.upLoad(toFile, folderName);
-            if (StringUtils.isEmpty(headImgUrl)) {
-                throw new ServerException("上传学生头像失败！");
-            }
+            Assert.notNull(headImgUrl,"上传头像失败!");
             user.setImgUrl(headImgUrl);
             userMapper.updateById(user);
             log.info("用户头像访问路径：" + headImgUrl);
@@ -264,12 +257,6 @@ public class UserServiceImpl implements UserService {
     public void updateLoginTime(User user) {
         user.setLastLoginTime(new Date());
         userMapper.updateById(user);
-        // 重新将用户信息加载到 redis中
-        try {
-            cacheService.saveUser(user.getUserName());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     /**
@@ -302,23 +289,12 @@ public class UserServiceImpl implements UserService {
      */
     private void editUserValidate(EditUserForm userForm) {
         if (StringUtils.isEmpty(userForm.getUserId())) {//新增验证
-            if (StringUtils.isEmpty(userForm.getUserName()) || StringUtils.isEmpty(userForm.getPassword())) {
-                throw new ServerException("用户名或密码为空！");
-            }
-            if (StringUtils.isEmpty(userForm.getMobile())) {
-                throw new ServerException("电话不能为空！");
-            } else {
-                if (!CheckUtils.isPhoneLegality(userForm.getMobile())) {
-                    throw new ServerException("请输入正确的手机号码！");
-                }
-            }
-            if (StringUtils.isEmpty(userForm.getEmail())) {
-                throw new ServerException("电子邮箱不能为空！");
-            } else {
-                if (!CheckUtils.isEmailLegality(userForm.getEmail())) {
-                    throw new ServerException("请输入正确的电子邮箱！");
-                }
-            }
+            Assert.notNull(userForm.getUserName(),"用户名为空！");
+            Assert.notNull(userForm.getPassword(),"密码为空！");
+            Assert.notNull(userForm.getMobile(),"手机号码为空！");
+            Assert.isTrue(CheckUtils.isPhoneLegality(userForm.getMobile()),"请输入正确的手机号码！");
+            Assert.notNull(userForm.getEmail(),"邮箱为空！");
+            Assert.isTrue(CheckUtils.isPhoneLegality(userForm.getEmail()),"请输入正确的邮箱！");
             List<User> userList = userMapper.selectList(new EntityWrapper<User>()
                     .eq("user_name", userForm.getUserName())
             );

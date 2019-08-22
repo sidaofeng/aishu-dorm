@@ -10,11 +10,13 @@ import com.waken.dorm.common.exception.ServerException;
 import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.dorm.DormBuildingForm;
 import com.waken.dorm.common.form.dorm.EditDormBuildingForm;
+import com.waken.dorm.common.sequence.UUIDSequence;
 import com.waken.dorm.common.utils.*;
 import com.waken.dorm.common.view.dorm.DormBuildingView;
 import com.waken.dorm.dao.dorm.DormBuildingMapper;
 import com.waken.dorm.manager.UserManager;
 import com.waken.dorm.service.dorm.DormBuildingService;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,10 +33,10 @@ import java.util.List;
  * @Author zhaoRong
  * @Date 2019/3/31 11:00
  **/
+@Slf4j
 @Service
 @Transactional(propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Exception.class)
 public class DormBuildingServiceImpl implements DormBuildingService {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
     DormBuildingMapper buildingMapper;
 
@@ -56,8 +58,8 @@ public class DormBuildingServiceImpl implements DormBuildingService {
         dormBuilding.setLastModifyTime(curDate);
         dormBuilding.setLastModifyUserId(userId);
         if (StringUtils.isEmpty(editBuildingForm.getPkDormBuildingId())) {//新增
-            logger.info("service: 开始进入新增宿舍楼信息");
-            String pkDormBuildingId = UUIDUtils.getPkUUID();
+            log.info("service: 开始进入新增宿舍楼信息");
+            String pkDormBuildingId = UUIDSequence.next();
             dormBuilding.setPkDormBuildingId(pkDormBuildingId);
             dormBuilding.setStatus(CodeEnum.ENABLE.getCode());
             dormBuilding.setCreateTime(curDate);
@@ -68,7 +70,7 @@ public class DormBuildingServiceImpl implements DormBuildingService {
             }
             return dormBuilding;
         } else {//更新宿舍楼信息
-            logger.info("service: 开始进入更新宿舍楼信息");
+            log.info("service: 开始进入更新宿舍楼信息");
             buildingMapper.updateById(dormBuilding);
             return buildingMapper.selectById(editBuildingForm.getPkDormBuildingId());
         }
@@ -82,7 +84,7 @@ public class DormBuildingServiceImpl implements DormBuildingService {
     @Transactional
     @Override
     public void deleteDormBuilding(DeleteForm deleteForm) {
-        logger.info("service: 删除宿舍楼开始");
+        log.info("service: 删除宿舍楼开始");
         List<String> ids = deleteForm.getDelIds();
         Integer delStatus = deleteForm.getDelStatus();
         int count;
@@ -121,7 +123,7 @@ public class DormBuildingServiceImpl implements DormBuildingService {
      */
     @Override
     public PageInfo<DormBuildingView> listDormBuildings(DormBuildingForm buildingForm) {
-        logger.info("service: 分页查询宿舍楼信息开始");
+        log.info("service: 分页查询宿舍楼信息开始");
         if (buildingForm.getStartTime() != null) {
             buildingForm.setStartTime(DateUtils.formatDate2DateTimeStart(buildingForm.getStartTime()));
         }
@@ -130,46 +132,34 @@ public class DormBuildingServiceImpl implements DormBuildingService {
         }
         PageHelper.startPage(buildingForm.getPageNum(), buildingForm.getPageSize());
         List<DormBuildingView> dormBuildingList = buildingMapper.listDormBuildings(buildingForm);
-        return new PageInfo<DormBuildingView>(dormBuildingList);
+        return new PageInfo<>(dormBuildingList);
     }
 
     /**
      * 编辑宿舍楼时 验证
      *
-     * @param editBuildingForm
+     * @param editForm
      */
-    private void editBuildingValidate(EditDormBuildingForm editBuildingForm) {
-        if (StringUtils.isEmpty(editBuildingForm.getPkDormBuildingId())) {//新增验证
-            StringBuffer sb = new StringBuffer();
-            if (editBuildingForm.getDormBuildingType() == null) {
-                sb.append("宿舍楼类型为空");
-            }
-            if (StringUtils.isEmpty(editBuildingForm.getDormBuildingNum())) {
-                sb.append("宿舍楼编号为空");
-            }
-            if (editBuildingForm.getDormBuildingLevels() == null) {
-                sb.append("宿舍楼楼层总数为空");
-            }
-            if (StringUtils.isNotEmpty(sb.toString())) {
-                throw new ServerException("验证失败：" + sb.toString());
-            }
+    private void editBuildingValidate(EditDormBuildingForm editForm) {
+        if (StringUtils.isEmpty(editForm.getPkDormBuildingId())) {//新增验证
+            Assert.notNull(editForm.getDormBuildingType());
+            Assert.notNull(editForm.getDormBuildingNum());
+            Assert.notNull(editForm.getDormBuildingLevels());
             List<DormBuilding> dormBuildings = buildingMapper.selectList(new EntityWrapper<DormBuilding>()
-                    .eq("dorm_building_num", editBuildingForm.getDormBuildingNum())
+                    .eq("dorm_building_num", editForm.getDormBuildingNum())
             );
             if (!dormBuildings.isEmpty()) {
                 throw new ServerException("已存在相同名称的楼栋号");
             }
         } else {//修改验证
-            DormBuilding dormBuilding = buildingMapper.selectById(editBuildingForm.getPkDormBuildingId());
-            if (dormBuilding == null) {
-                throw new ServerException("宿舍楼id不正确");
-            }
-            if (StringUtils.isNotEmpty(editBuildingForm.getDormBuildingNum())) {
+            DormBuilding dormBuilding = buildingMapper.selectById(editForm.getPkDormBuildingId());
+            Assert.notNull(dormBuilding,"参数错误");
+            if (StringUtils.isNotEmpty(editForm.getDormBuildingNum())) {
                 List<DormBuilding> dormBuildings = buildingMapper.selectList(new EntityWrapper<DormBuilding>()
-                        .eq("dorm_building_num", editBuildingForm.getDormBuildingNum())
+                        .eq("dorm_building_num", editForm.getDormBuildingNum())
                 );
                 if (!dormBuildings.isEmpty()) {
-                    if (!StringUtils.equals(dormBuildings.get(Constant.ZERO).getPkDormBuildingId(), editBuildingForm.getPkDormBuildingId())) {
+                    if (!StringUtils.equals(dormBuildings.get(Constant.ZERO).getPkDormBuildingId(), editForm.getPkDormBuildingId())) {
                         throw new ServerException("已存在相同名称的楼栋号");
                     }
                 }

@@ -1,6 +1,7 @@
 package com.waken.dorm.authentication;
 
 import com.waken.dorm.common.authentication.JWTToken;
+import com.waken.dorm.common.constant.CacheConstant;
 import com.waken.dorm.common.constant.Constant;
 import com.waken.dorm.common.enums.ResultEnum;
 import com.waken.dorm.common.properties.DormProperties;
@@ -9,7 +10,6 @@ import com.waken.dorm.common.utils.TokenUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.UnauthorizedException;
-import org.apache.shiro.subject.Subject;
 import org.apache.shiro.web.filter.authc.BasicHttpAuthenticationFilter;
 import org.apache.shiro.web.util.WebUtils;
 import org.springframework.http.HttpStatus;
@@ -49,19 +49,17 @@ public class JWTFilter extends BasicHttpAuthenticationFilter {
     @Override
     protected boolean isLoginAttempt(ServletRequest request, ServletResponse response) {
         HttpServletRequest req = (HttpServletRequest) request;
-        String token = req.getHeader(Constant.USER_TOKEN);
+        String token = req.getHeader(CacheConstant.USER_TOKEN);
         return token != null;
     }
 
     @Override
     protected boolean executeLogin(ServletRequest request, ServletResponse response) {
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
-        String token = httpServletRequest.getHeader(Constant.USER_TOKEN);
+        String token = httpServletRequest.getHeader(CacheConstant.USER_TOKEN);
         JWTToken jwtToken = new JWTToken(TokenUtils.decryptToken(token));
         try {
-            Subject subject = getSubject(request, response);
-            subject.login(jwtToken);
-//            getSubject(request, response).login(jwtToken);
+            getSubject(request, response).login(jwtToken);
             return true;
         } catch (Exception e) {
             log.error(e.getMessage());
