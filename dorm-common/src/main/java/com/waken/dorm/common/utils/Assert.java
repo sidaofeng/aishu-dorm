@@ -52,6 +52,36 @@ public class Assert {
             throw new ServerException(message);
         }
     }
+    public static void notNull(Object object,boolean expression, String message) {
+        if (null == object || expression) {
+            throw new ServerException(message);
+        }
+    }
+    public static void isNull(Object object, String message) {
+        if (null != object) {
+            throw new ServerException(message);
+        }
+    }
+    public static void isNull(String str, String message) {
+        if (StringUtils.isNotBlank(str)) {
+            throw new ServerException(message);
+        }
+    }
+    public static void isNull(Integer i, String message) {
+        if (null != i) {
+            throw new ServerException(message);
+        }
+    }
+    public static void isNull(Long L, String message) {
+        if (null != L) {
+            throw new ServerException(message);
+        }
+    }
+    public static void isNull(Object object,boolean expression, String message) {
+        if (null != object && !expression) {
+            throw new ServerException(message);
+        }
+    }
     public static void isTrue(boolean expression,String message){
         if (!expression){
             throw new ServerException(message);
@@ -59,6 +89,16 @@ public class Assert {
     }
     public static void isTrue(boolean expression){
         if (!expression){
+            throw new ServerException(FAIL_MSG);
+        }
+    }
+    public static void isFalse(boolean expression,String message){
+        if (expression){
+            throw new ServerException(message);
+        }
+    }
+    public static void isFalse(boolean expression){
+        if (expression){
             throw new ServerException(FAIL_MSG);
         }
     }

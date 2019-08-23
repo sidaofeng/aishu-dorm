@@ -56,20 +56,17 @@ public class DictServiceImpl implements DictService {
         dict.setLastModifyTime(curDate);
         dict.setLastModifyUserId(userId);
         if (StringUtils.isEmpty(editDictForm.getPkDictId())) {//新增
-            int count;
             String pkDictId = UUIDSequence.next();
             dict.setPkDictId(pkDictId);
             dict.setStatus(CodeEnum.ENABLE.getCode());
             dict.setCreateTime(curDate);
             dict.setCreateUserId(userId);
-            count = dictMapper.insert(dict);
-            if (count == Constant.ZERO) {
-                throw new ServerException("新增个数为 0 条！");
-            }
+            int count = dictMapper.insert(dict);
+            Assert.isFalse(count == Constant.ZERO);
             return dict;
         } else {//修改
             dictMapper.updateById(dict);
-            return dictMapper.selectById(dict.getPkDictId());
+            return dict;
         }
     }
 
@@ -93,20 +90,13 @@ public class DictServiceImpl implements DictService {
                     sb.append(dict.getDictValue());
                 }
             }
-            if (StringUtils.isNotEmpty(sb.toString())) {
-                throw new ServerException("以下字典信息处于生效中：" + sb.toString());
-            }
+            Assert.isNull(sb.toString(),"以下字典生效中"+sb.toString());
             //删除字典
             count = dictMapper.deleteBatchIds(ids);
-            if (count == Constant.ZERO) {
-                throw new ServerException("删除字典信息个数为 0 条");
-            }
-
+            Assert.isFalse(count == Constant.ZERO);
         } else if (CodeEnum.NO.getCode() == delStatus) {//状态删除
             count = dictMapper.batchUpdateStatus(DormUtil.getToUpdateStatusMap(ids,UserManager.getCurrentUserId()));
-            if (count == Constant.ZERO) {
-                throw new ServerException("状态删除失败");
-            }
+            Assert.isFalse(count == Constant.ZERO);
         } else {
             throw new ServerException("删除状态码错误！");
         }
@@ -146,31 +136,25 @@ public class DictServiceImpl implements DictService {
             this.keyValidate(editForm);
             this.valueValidate(editForm);
         } else {//修改验证
-            if (null == dictMapper.selectById(editForm.getPkDictId())) {
-                throw new ServerException("字典id不正确！");
-            }
+            Assert.notNull(dictMapper.selectById(editForm.getPkDictId()),"参数错误");
         }
     }
 
-    private void keyValidate(EditDictForm editDictForm) {
+    private void keyValidate(EditDictForm editForm) {
         DictForm dictForm = new DictForm();
-        dictForm.setTableName(editDictForm.getTableName());
-        dictForm.setColumnName(editDictForm.getColumnName());
-        dictForm.setDictKey(editDictForm.getDictKey());
+        dictForm.setTableName(editForm.getTableName());
+        dictForm.setColumnName(editForm.getColumnName());
+        dictForm.setDictKey(editForm.getDictKey());
         List<DictView> dicts = dictMapper.listDicts(dictForm);
-        if (!dicts.isEmpty()) {
-            throw new ServerException("新增验证失败，原因是" + editDictForm.getColumnName() + "字段中存在相同key");
-        }
+        Assert.isNull(dicts,dicts.isEmpty(),"操作失败，原因是" + editForm.getColumnName() + "字段中存在相同key");
     }
 
-    private void valueValidate(EditDictForm editDictForm) {
+    private void valueValidate(EditDictForm editForm) {
         DictForm dictForm = new DictForm();
-        dictForm.setTableName(editDictForm.getTableName());
-        dictForm.setColumnName(editDictForm.getColumnName());
-        dictForm.setDictValue(editDictForm.getDictValue());
+        dictForm.setTableName(editForm.getTableName());
+        dictForm.setColumnName(editForm.getColumnName());
+        dictForm.setDictValue(editForm.getDictValue());
         List<DictView> dicts = dictMapper.listDicts(dictForm);
-        if (!dicts.isEmpty()) {
-            throw new ServerException("新增验证失败，原因是" + editDictForm.getColumnName() + "字段中存在相同value");
-        }
+        Assert.isNull(dicts,dicts.isEmpty(),"操作失败，原因是" + editForm.getColumnName() + "字段中存在相同value");
     }
 }

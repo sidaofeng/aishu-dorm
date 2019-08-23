@@ -97,13 +97,10 @@ public class DormViolationServiceImpl implements DormViolationService {
                     sb.append(dormViolation.getPkDormViolationId());
                 }
             }
-            if (StringUtils.isNotEmpty(sb.toString())) {
-                throw new ServerException("以下违规记录处于未处理状态中：" + sb.toString());
-            }//删除宿舍
+            Assert.isNull(sb.toString(),"以下违规记录处于未处理状态中：" + sb.toString());
+            //删除宿舍
             count = dormViolationMapper.deleteBatchIds(ids);
-            if (count == Constant.ZERO) {
-                throw new ServerException("删除违规记录为 0 条");
-            }
+            Assert.isFalse(count == Constant.ZERO);
 
         } else if (CodeEnum.NO.getCode() == delStatus) {
             dormViolationMapper.batchUpdateStatus(DormUtil.getToUpdateStatusMap(ids,UserManager.getCurrentUserId()));

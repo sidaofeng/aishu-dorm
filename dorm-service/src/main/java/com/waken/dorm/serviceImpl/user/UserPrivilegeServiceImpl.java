@@ -132,7 +132,7 @@ public class UserPrivilegeServiceImpl implements UserPrivilegeService {
         privilege.setCreateTime(curTime);
         privilege.setCreateUserId(UserManager.getCurrentUserId());
         int count = privilegeMapper.insert(privilege);
-        Assert.isTrue(count == Constant.ZERO);
+        Assert.isFalse(count == Constant.ZERO);
     }
 
     @Transactional // 事务控制
@@ -146,7 +146,7 @@ public class UserPrivilegeServiceImpl implements UserPrivilegeService {
         List<UserPrivilege> toBeAddUserRoleRel = this.getToBeAddUserRoleRel(addForm);
         if (!toBeAddUserRoleRel.isEmpty()) {
             int count = privilegeMapper.batchAddUserRoleRel(toBeAddUserRoleRel);
-            Assert.isTrue(count == Constant.ZERO);
+            Assert.isFalse(count == Constant.ZERO);
 
         }
     }
@@ -172,7 +172,7 @@ public class UserPrivilegeServiceImpl implements UserPrivilegeService {
             roleIds.removeAll(existIds);
             if (!toDelPkIds.isEmpty()) {
                 int count = privilegeMapper.deleteBatchIds(toDelPkIds);
-                Assert.isTrue(count == Constant.ZERO);
+                Assert.isFalse(count == Constant.ZERO);
             }
 
         }
@@ -212,7 +212,7 @@ public class UserPrivilegeServiceImpl implements UserPrivilegeService {
         List<UserPrivilege> toBeAddUserRoleRel = this.getToBeAddUserResources(addForm);
         if (!toBeAddUserRoleRel.isEmpty()) {
             int count = this.privilegeMapper.batchAddUserResources(toBeAddUserRoleRel);
-            Assert.isTrue(count == Constant.ZERO);
+            Assert.isFalse(count == Constant.ZERO);
         }
     }
 
@@ -240,41 +240,40 @@ public class UserPrivilegeServiceImpl implements UserPrivilegeService {
             resourceIds.removeAll(existIds);
             if (!toDelPkIds.isEmpty()) {
                 int count = privilegeMapper.deleteBatchIds(toDelPkIds);
-                Assert.isTrue(count == Constant.ZERO);
+                Assert.isFalse(count == Constant.ZERO);
             }
 
         }
-        List<Resource> resourceList = resourceMapper.selectBatchIds(resourceIds);
-        Map<String, Integer> typeMap = resourceList.stream().collect(Collectors.toMap(Resource::getPkResourceId, Resource::getResourceType));
-        if (!resourceIds.isEmpty()) {
-            List<UserPrivilege> toBeAddUserRoleRelList = new ArrayList<>();
-            for (String resourceId : resourceIds) {
-                String pkId = UUIDSequence.next();
-                String curUserId = UserManager.getCurrentUserId();
-                Date curDate = DateUtils.getCurrentDate();
-                UserPrivilege userRoleRel = new UserPrivilege();
-                userRoleRel.setPkPrivilegeId(pkId);
-                userRoleRel.setUserId(userId);
-                userRoleRel.setSubjectId(resourceId);
-                userRoleRel.setSubjectType(typeMap.get(resourceId));
-                userRoleRel.setCreateTime(curDate);
-                userRoleRel.setCreateUserId(curUserId);
-                toBeAddUserRoleRelList.add(userRoleRel);
-            }
-            return toBeAddUserRoleRelList;
-        } else {
+        if (null == resourceIds && resourceIds.isEmpty()){
             return new ArrayList<>();
         }
+        List<Resource> resourceList = resourceMapper.selectBatchIds(resourceIds);
+        Assert.notNull(resourceList,resourceList.isEmpty(),"参数错误！");
+        Map<String, Integer> typeMap = resourceList.stream().collect(Collectors.toMap(Resource::getPkResourceId, Resource::getResourceType));
+        List<UserPrivilege> toBeAddUserRoleRelList = new ArrayList<>();
+        for (String resourceId : resourceIds) {
+            String pkId = UUIDSequence.next();
+            String curUserId = UserManager.getCurrentUserId();
+            Date curDate = DateUtils.getCurrentDate();
+            UserPrivilege userRoleRel = new UserPrivilege();
+            userRoleRel.setPkPrivilegeId(pkId);
+            userRoleRel.setUserId(userId);
+            userRoleRel.setSubjectId(resourceId);
+            userRoleRel.setSubjectType(typeMap.get(resourceId));
+            userRoleRel.setCreateTime(curDate);
+            userRoleRel.setCreateUserId(curUserId);
+            toBeAddUserRoleRelList.add(userRoleRel);
+        }
+        return toBeAddUserRoleRelList;
     }
 
     private void checkSuperAdmin(String userId){
         User user = userMapper.selectById(userId);
         Assert.notNull(user);
         List<String> roles = privilegeMapper.selectUserRoles(user.getUserId());
-        Assert.isTrue(roles.contains(Constant.SuperAdmin),"不能操作超级管理员!");
+        Assert.isFalse(roles.contains(Constant.SuperAdmin),"不能操作超级管理员!");
 
     }
-
 
     /**
      * 将菜单视图列表转为树形对象

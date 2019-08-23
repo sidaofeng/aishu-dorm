@@ -91,11 +91,8 @@ public class DormRepairServiceImpl implements DormRepairService {
         if (StringUtils.isEmpty(addDormRepairForm.getMemo())) {
             dormRepair.setMemo(addDormRepairForm.getMemo());
         }
-        int count;
-        count = dormRepairMapper.insert(dormRepair);
-        if (count == Constant.ZERO) {
-            throw new ServerException("新增个数为 0 条");
-        }
+        int count = dormRepairMapper.insert(dormRepair);
+        Assert.isFalse(count == Constant.ZERO);
         return dormRepair;
     }
 
@@ -110,7 +107,6 @@ public class DormRepairServiceImpl implements DormRepairService {
         log.info("service: 删除维修记录开始");
         List<String> ids = deleteForm.getDelIds();
         Integer delStatus = deleteForm.getDelStatus();
-        int count ;
         if (CodeEnum.YES.getCode() == delStatus) { // 物理删除
             List<DormRepair> dormRepairs = dormRepairMapper.selectByIds(ids);
             StringBuffer sb = new StringBuffer();
@@ -119,20 +115,14 @@ public class DormRepairServiceImpl implements DormRepairService {
                     sb.append(dormRepair.getPkDormRepairId());
                 }
             }
-            if (StringUtils.isNotEmpty(sb.toString())) {
-                throw new ServerException("以下维修记录处于正在维修状态中：" + sb.toString());
-            } else {//删除宿舍
-                count = dormRepairMapper.deleteBatchIds(ids);
-                if (count == Constant.ZERO) {
-                    throw new ServerException("删除维修记录为 0 条");
-                }
-            }
+            Assert.isNull(sb.toString(),"以下维修记录处于正在维修状态中：" + sb.toString());
+            //删除宿舍
+            int count = dormRepairMapper.deleteBatchIds(ids);
+            Assert.isFalse(count == Constant.ZERO);
 
         } else if (CodeEnum.NO.getCode() == delStatus) {
-            count = dormRepairMapper.batchUpdateStatus(DormUtil.getToUpdateStatusMap(ids,UserManager.getCurrentUserId()));
-            if (count == Constant.ZERO) {
-                throw new ServerException("状态删除失败");
-            }
+            int count = dormRepairMapper.batchUpdateStatus(DormUtil.getToUpdateStatusMap(ids,UserManager.getCurrentUserId()));
+            Assert.isFalse(count == Constant.ZERO);
         } else {
             throw new ServerException("删除状态码错误！");
         }
@@ -155,29 +145,30 @@ public class DormRepairServiceImpl implements DormRepairService {
         }
         PageHelper.startPage(dormRepairForm.getPageNum(), dormRepairForm.getPageSize());
         List<DormRepairView> dormRepairs = dormRepairMapper.listDormRepairs(dormRepairForm);
-        return new PageInfo<DormRepairView>(dormRepairs);
+        return new PageInfo<>(dormRepairs);
     }
 
     /**
      * 更新宿舍维修记录（提交维修结果）
      *
-     * @param updateRepairForm
+     * @param updateForm
      * @return
      */
     @Transactional
     @Override
-    public DormRepair updateDormRepair(UpdateRepairForm updateRepairForm) {
-        this.updateRepairValidate(updateRepairForm);//验证合法性
-        DormRepair dormRepair = dormRepairMapper.selectById(updateRepairForm.getPkDormRepairId());
-        dormRepair.setStatus(updateRepairForm.getStatus());
-        if (updateRepairForm.getRepairCost() != null) {
-            dormRepair.setRepairCost(updateRepairForm.getRepairCost());
+    public DormRepair updateDormRepair(UpdateRepairForm updateForm) {
+        Assert.notNull(updateForm.getPkDormRepairId());
+        Assert.notNull(updateForm.getStatus());
+        DormRepair dormRepair = dormRepairMapper.selectById(updateForm.getPkDormRepairId());
+        dormRepair.setStatus(updateForm.getStatus());
+        if (updateForm.getRepairCost() != null) {
+            dormRepair.setRepairCost(updateForm.getRepairCost());
         }
-        if (StringUtils.isNotEmpty(updateRepairForm.getRepairBillUrl())) {
-            dormRepair.setRepairBillUrl(updateRepairForm.getRepairBillUrl());
+        if (StringUtils.isNotEmpty(updateForm.getRepairBillUrl())) {
+            dormRepair.setRepairBillUrl(updateForm.getRepairBillUrl());
         }
-        if (StringUtils.isNotEmpty(updateRepairForm.getMemo())) {
-            dormRepair.setMemo(updateRepairForm.getMemo());
+        if (StringUtils.isNotEmpty(updateForm.getMemo())) {
+            dormRepair.setMemo(updateForm.getMemo());
         }
         String userId = UserManager.getCurrentUserId();
         Date curDate = DateUtils.getCurrentDate();
@@ -188,24 +179,6 @@ public class DormRepairServiceImpl implements DormRepairService {
             throw new ServerException("修改维修记录为 0 条");
         }
         return dormRepair;
-    }
-
-    /**
-     * 修改验证
-     *
-     * @param updateRepairForm
-     */
-    private void updateRepairValidate(UpdateRepairForm updateRepairForm) {
-        StringBuffer sb = new StringBuffer();
-        if (StringUtils.isEmpty(updateRepairForm.getPkDormRepairId())) {
-            sb.append("维修主id为空！");
-        }
-        if (updateRepairForm.getStatus() == null) {
-            sb.append("状态为空！");
-        }
-        if (StringUtils.isNotEmpty(sb.toString())) {
-            throw new ServerException("验证失败：" + sb.toString());
-        }
     }
 
     /**

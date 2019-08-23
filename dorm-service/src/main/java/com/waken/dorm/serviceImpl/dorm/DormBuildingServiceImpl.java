@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @ClassName DormBuildingServiceImpl
@@ -96,20 +97,13 @@ public class DormBuildingServiceImpl implements DormBuildingService {
                     sb.append(dormBuilding.getDormBuildingNum());
                 }
             }
-            if (StringUtils.isNotEmpty(sb.toString())) {
-                throw new ServerException("以下宿舍楼处于生效中：" + sb.toString());
-            } else {//删除宿舍
-                count = buildingMapper.deleteBatchIds(ids);
-                if (count == Constant.ZERO) {
-                    throw new ServerException("删除宿舍楼个数为 0 条");
-                }
-            }
-
+            Assert.isNull(sb.toString(),"操作失败,以下宿舍楼处于生效中：" + sb.toString());
+            //删除宿舍
+            count = buildingMapper.deleteBatchIds(ids);
+            Assert.isFalse(count == Constant.ZERO);
         } else if (CodeEnum.NO.getCode() == delStatus) {//状态删除
             count = buildingMapper.batchUpdateStatus(DormUtil.getToUpdateStatusMap(ids,UserManager.getCurrentUserId()));
-            if (count == Constant.ZERO) {
-                throw new ServerException("状态删除失败");
-            }
+            Assert.isFalse(count == Constant.ZERO);
         } else {
             throw new ServerException("删除状态码错误！");
         }
@@ -148,9 +142,7 @@ public class DormBuildingServiceImpl implements DormBuildingService {
             List<DormBuilding> dormBuildings = buildingMapper.selectList(new EntityWrapper<DormBuilding>()
                     .eq("dorm_building_num", editForm.getDormBuildingNum())
             );
-            if (!dormBuildings.isEmpty()) {
-                throw new ServerException("已存在相同名称的楼栋号");
-            }
+            Assert.isNull(dormBuildings,dormBuildings.isEmpty(),"已存在相同名称的楼栋号");
         } else {//修改验证
             DormBuilding dormBuilding = buildingMapper.selectById(editForm.getPkDormBuildingId());
             Assert.notNull(dormBuilding,"参数错误");

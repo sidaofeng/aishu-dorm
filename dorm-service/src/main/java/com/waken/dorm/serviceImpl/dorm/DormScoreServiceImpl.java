@@ -50,9 +50,7 @@ public class DormScoreServiceImpl implements DormScoreService {
     @Transactional
     @Override
     public void batchAddDormScore(List<DormScore> dormScoreList) {
-        if (dormScoreList.isEmpty()) {
-            throw new ServerException("参数为空！");
-        }
+        Assert.notNull(dormScoreList,dormScoreList.isEmpty(),"参数为空！");
         Date curDate = DateUtils.getCurrentDate();
         String userId = UserManager.getCurrentUserId();
         for (DormScore dormScore : dormScoreList) {
@@ -65,9 +63,7 @@ public class DormScoreServiceImpl implements DormScoreService {
             dormScore.setLastModifyUserId(userId);
         }
         int count = dormScoreMapper.batchAddDormScore(dormScoreList);
-        if (count == Constant.ZERO) {
-            throw new ServerException("批量新增评分的个数为 0 条！");
-        }
+        Assert.isFalse(count == Constant.ZERO);
     }
 
     /**
@@ -90,19 +86,13 @@ public class DormScoreServiceImpl implements DormScoreService {
                     sb.append(dormScore.getDormNum());
                 }
             }
-            if (StringUtils.isNotEmpty(sb.toString())) {
-                throw new ServerException("以下宿舍评分处于生效中：" + sb.toString());
-            }
-            //删除宿舍
+            Assert.isNull(sb.toString(),"以下宿舍评分处于生效中：" + sb.toString());
+            //删除宿舍积分
             count = dormScoreMapper.deleteBatchIds(ids);
-            if (count == Constant.ZERO) {
-                throw new ServerException("删除宿舍评分个数为 0 条");
-            }
+            Assert.isFalse(count == Constant.ZERO);
         } else if (CodeEnum.NO.getCode() == delStatus) {
             count = dormScoreMapper.batchUpdateStatus(DormUtil.getToUpdateStatusMap(ids,UserManager.getCurrentUserId()));
-            if (count == Constant.ZERO) {
-                throw new ServerException("状态删除失败");
-            }
+            Assert.isFalse(count == Constant.ZERO);
         } else {
             throw new ServerException("删除状态码错误！");
         }

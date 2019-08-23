@@ -120,9 +120,7 @@ public class UserServiceImpl implements UserService {
             this.userPrivilegeMapper.deleteByUsers(userIds);
             Map toUpdateStatusMap = DormUtil.getToUpdateStatusMap(userIds, UserManager.getCurrentUserId());
             int count = userMapper.batchUpdateStatus(toUpdateStatusMap);
-            if (count == Constant.ZERO) {
-                throw new ServerException("状态删除失败");
-            }
+            Assert.isFalse(count == Constant.ZERO);
         } else {
             throw new ServerException("删除状态码错误！");
         }
@@ -298,9 +296,7 @@ public class UserServiceImpl implements UserService {
             List<User> userList = userMapper.selectList(new EntityWrapper<User>()
                     .eq("user_name", userForm.getUserName())
             );
-            if (!userList.isEmpty()) {
-                throw new ServerException("用户名已存在！");
-            }
+            Assert.isNull(userList,userList.isEmpty(),"用户名已存在！");
         } else {//修改验证
             if (StringUtils.isNotEmpty(userForm.getUserName())) {
                 List<User> userList = userMapper.selectList(new EntityWrapper<User>()

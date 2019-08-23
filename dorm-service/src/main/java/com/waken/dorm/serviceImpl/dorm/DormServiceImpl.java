@@ -72,9 +72,7 @@ public class DormServiceImpl implements DormService {
             dorm.setCreateTime(curDate);
             dorm.setCreateUserId(userId);
             int count = dormMapper.insert(dorm);
-            if (count == Constant.ZERO) {
-                throw new ServerException("新增个数为 0 条");
-            }
+            Assert.isFalse(count == Constant.ZERO);
             return dorm;
         } else {//更新宿舍信息
             logger.info("service: 开始进入更新宿舍信息");
@@ -105,18 +103,14 @@ public class DormServiceImpl implements DormService {
             }
             if (StringUtils.isNotEmpty(sb.toString())) {
                 throw new ServerException("以下宿舍处于生效中：" + sb.toString());
-            } else {//删除宿舍
-                count = dormMapper.deleteBatchIds(ids);
-                if (count == Constant.ZERO) {
-                    throw new ServerException("删除宿舍个数为 0 条");
-                }
             }
+            //删除宿舍
+            count = dormMapper.deleteBatchIds(ids);
+            Assert.isFalse(count == Constant.ZERO);
 
         } else if (CodeEnum.NO.getCode() == delStatus) {
             count = dormMapper.batchUpdateStatus(DormUtil.getToUpdateStatusMap(ids,UserManager.getCurrentUserId()));
-            if (count == Constant.ZERO) {
-                throw new ServerException("状态删除失败");
-            }
+            Assert.isFalse(count == Constant.ZERO);
         } else {
             throw new ServerException("删除状态码错误！");
         }
@@ -151,23 +145,23 @@ public class DormServiceImpl implements DormService {
     @Override
     public DormStudentsView queryDormStudentsView(String dormId) {
         Assert.notNull(dormId);
-        List<DormStudentRelView> dormStudentRelViewList = dormStudentRelMapper.listDormStudentRelView(dormId);
-        if (!dormStudentRelViewList.isEmpty()) {
-            List<DormStudentRelView> addedList = new ArrayList<>();//用于接收已经存在关联的学生信息
-            List<DormStudentRelView> unAddedList = new ArrayList<>();//用于接收没有关联的学生信息
-            for (DormStudentRelView dormStudentRelView : dormStudentRelViewList) {
-                if (StringUtils.isEmpty(dormStudentRelView.getPkDormStudentId())) {//关联id为空，表示是未关联的学生
-                    unAddedList.add(dormStudentRelView);
-                } else {
-                    addedList.add(dormStudentRelView);
-                }
-            }
-            DormStudentsView dormStudentsView = new DormStudentsView();
-            dormStudentsView.setAddedList(addedList);
-            dormStudentsView.setToBeAddList(unAddedList);
-            return dormStudentsView;
+        List<DormStudentRelView> relList = dormStudentRelMapper.listDormStudentRelView(dormId);
+        if (null == relList || relList.isEmpty()){
+            return new DormStudentsView();
         }
-        return new DormStudentsView();
+        List<DormStudentRelView> addedList = new ArrayList<>();//用于接收已经存在关联的学生信息
+        List<DormStudentRelView> unAddedList = new ArrayList<>();//用于接收没有关联的学生信息
+        for (DormStudentRelView dormStudentRelView : relList) {
+            if (StringUtils.isEmpty(dormStudentRelView.getPkDormStudentId())) {//关联id为空，表示是未关联的学生
+                unAddedList.add(dormStudentRelView);
+            } else {
+                addedList.add(dormStudentRelView);
+            }
+        }
+        DormStudentsView dormStudentsView = new DormStudentsView();
+        dormStudentsView.setAddedList(addedList);
+        dormStudentsView.setToBeAddList(unAddedList);
+        return dormStudentsView;
     }
 
     /**
@@ -200,7 +194,7 @@ public class DormServiceImpl implements DormService {
                 .eq("student_id", studentId)
                 .eq("status", CodeEnum.ENABLE.getCode())
         );
-        if (!dormStudentRelList.isEmpty()) {
+        if (null != dormStudentRelList && !dormStudentRelList.isEmpty()) {
             return dormStudentRelList.get(Constant.ZERO).getDormId();
         }
         return Constant.NULL_STRING;
@@ -232,32 +226,29 @@ public class DormServiceImpl implements DormService {
             studentIds.removeAll(existIds);
             if (!toDelIds.isEmpty()) {
                 int count = dormStudentRelMapper.deleteBatchIds(toDelIds);
-                if (count == Constant.ZERO) {
-                    throw new ServerException("删除用户角色关联的个数为 0 条！");
-                }
+                Assert.isFalse(count == Constant.ZERO);
             }
         }
-        if (!studentIds.isEmpty()) {
-            List<DormStudentRel> toBeAddDormStudentRelList = new ArrayList<>();
-            for (String studentId : studentIds) {
-                String pkDormStudentId = UUIDSequence.next();
-                String curUserId = UserManager.getCurrentUserId();
-                Date curDate = DateUtils.getCurrentDate();
-                DormStudentRel DormStudentRel = new DormStudentRel();
-                DormStudentRel.setPkDormStudentId(pkDormStudentId);
-                DormStudentRel.setDormId(dormId);
-                DormStudentRel.setStudentId(studentId);
-                DormStudentRel.setStatus(CodeEnum.ENABLE.getCode());
-                DormStudentRel.setCreateTime(curDate);
-                DormStudentRel.setCreateUserId(curUserId);
-                DormStudentRel.setLastModifyTime(curDate);
-                DormStudentRel.setLastModifyUserId(curUserId);
-                toBeAddDormStudentRelList.add(DormStudentRel);
-            }
-            return toBeAddDormStudentRelList;
-        } else {
+        if (null == studentIds || studentIds.isEmpty()){
             return new ArrayList<>();
         }
+        List<DormStudentRel> toBeAddDormStudentRelList = new ArrayList<>();
+        for (String studentId : studentIds) {
+            String pkDormStudentId = UUIDSequence.next();
+            String curUserId = UserManager.getCurrentUserId();
+            Date curDate = DateUtils.getCurrentDate();
+            DormStudentRel DormStudentRel = new DormStudentRel();
+            DormStudentRel.setPkDormStudentId(pkDormStudentId);
+            DormStudentRel.setDormId(dormId);
+            DormStudentRel.setStudentId(studentId);
+            DormStudentRel.setStatus(CodeEnum.ENABLE.getCode());
+            DormStudentRel.setCreateTime(curDate);
+            DormStudentRel.setCreateUserId(curUserId);
+            DormStudentRel.setLastModifyTime(curDate);
+            DormStudentRel.setLastModifyUserId(curUserId);
+            toBeAddDormStudentRelList.add(DormStudentRel);
+        }
+        return toBeAddDormStudentRelList;
     }
 
     /**
@@ -275,9 +266,7 @@ public class DormServiceImpl implements DormService {
             List<Dorm> dorms = dormMapper.selectList(new EntityWrapper<Dorm>()
                     .eq("dorm_num", editForm.getDormNum())
             );
-            if (!dorms.isEmpty()) {
-                throw new ServerException("已存在相同名称的宿舍编号！");
-            }
+            Assert.isNull(dorms,dorms.isEmpty(),"已存在相同名称的宿舍编号！");
         } else {//修改验证
             Dorm dorm = dormMapper.selectById(editForm.getPkDormId());
             Assert.notNull(dorm,"参数错误！");
@@ -305,9 +294,7 @@ public class DormServiceImpl implements DormService {
         AppDormView appDormView = dormMapper.queryAppDormView(studentId);
         if (appDormView == null) {
             return new AppDormView();
-        } else {
-            return appDormView;
         }
-
+        return appDormView;
     }
 }

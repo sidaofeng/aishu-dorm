@@ -225,7 +225,7 @@ public class StudentServiceImpl implements StudentService {
         String password = Md5Utils.encodeByMD5(newPassword);
         student.setPassword(password);
         int count = studentMapper.updateById(student);
-        Assert.isTrue(count == Constant.ZERO);
+        Assert.isFalse(count == Constant.ZERO);
     }
 
     /**
@@ -289,14 +289,12 @@ public class StudentServiceImpl implements StudentService {
             Assert.notNull(editForm.getStudentNum());
             Assert.notNull(editForm.getMobile());
             Assert.isTrue(CheckUtils.isPhoneLegality(editForm.getMobile()),"请输入正确的手机号！");
-            List<Student> StudentList = studentMapper.selectList(new EntityWrapper<Student>()
+            List<Student> studentList = studentMapper.selectList(new EntityWrapper<Student>()
                     .eq("student_name", editForm.getStudentName())
                     .or()
                     .eq("student_num", editForm.getStudentNum())
             );
-            if (!StudentList.isEmpty()) {
-                throw new ServerException("已经存在相同姓名或学号的学生！");
-            }
+            Assert.isNull(studentList,studentList.isEmpty(),"已经存在相同姓名或学号的学生！");
         } else {
             Student student = studentMapper.selectById(editForm.getPkStudentId());
             Assert.notNull(student,"参数错误");

@@ -64,9 +64,7 @@ public class DormRuleServiceImpl implements DormRuleService {
             dormRule.setCreateTime(curDate);
             dormRule.setCreateUserId(userId);
             count = dormRuleMapper.insert(dormRule);
-            if (count == Constant.ZERO) {
-                throw new ServerException("新增个数为 0 条");
-            }
+            Assert.isFalse(count == Constant.ZERO);
             return dormRule;
         } else {//更新宿舍规则信息
             logger.info("service: 开始进入更新宿舍规则信息");
@@ -95,20 +93,14 @@ public class DormRuleServiceImpl implements DormRuleService {
                     sb.append(dormRule.getRuleName());
                 }
             }
-            if (StringUtils.isNotEmpty(sb.toString())) {
-                throw new ServerException("以下宿舍规则处于生效中：" + sb.toString());
-            } else {//删除宿舍
-                count = dormRuleMapper.deleteBatchIds(ids);
-                if (count == Constant.ZERO) {
-                    throw new ServerException("删除宿舍规则个数为 0 条");
-                }
-            }
+            Assert.isNull(sb.toString(),"以下宿舍规则处于生效中：" + sb.toString());
+            //删除宿舍规则
+            count = dormRuleMapper.deleteBatchIds(ids);
+            Assert.isFalse(count == Constant.ZERO);
 
         } else if (CodeEnum.NO.getCode() == delStatus) {
             count = dormRuleMapper.batchUpdateStatus(DormUtil.getToUpdateStatusMap(ids,UserManager.getCurrentUserId()));
-            if (count == Constant.ZERO) {
-                throw new ServerException("状态删除失败");
-            }
+            Assert.isFalse(count == Constant.ZERO);
         } else {
             throw new ServerException("删除状态码错误！");
         }
@@ -146,9 +138,7 @@ public class DormRuleServiceImpl implements DormRuleService {
             List<DormRule> dormRules = dormRuleMapper.selectList(new EntityWrapper<DormRule>()
                     .eq("rule_name", editForm.getRuleName())
             );
-            if (!dormRules.isEmpty()) {
-                throw new ServerException("已存在相同名称的规则名！");
-            }
+            Assert.isNull(dormRules,dormRules.isEmpty(),"已存在相同名称的规则名！");
         } else {//修改验证
             DormRule dormRule = dormRuleMapper.selectById(editForm.getPkDormRuleId());
             Assert.notNull(dormRule,"参数错误！");

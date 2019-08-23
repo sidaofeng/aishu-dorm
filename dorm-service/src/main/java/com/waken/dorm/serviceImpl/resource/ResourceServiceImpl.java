@@ -25,8 +25,6 @@ import com.waken.dorm.dao.user.UserPrivilegeMapper;
 import com.waken.dorm.manager.UserManager;
 import com.waken.dorm.service.resource.ResourceService;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -93,9 +91,7 @@ public class ResourceServiceImpl implements ResourceService {
             resource.setCreateTime(curDate);
             resource.setCreateUserId(userId);
             count = resourceMapper.insert(resource);
-            if (Constant.ZERO == count) {
-                throw new ServerException("新增资源失败");
-            }
+            Assert.isFalse(Constant.ZERO == count);
             //新增的资源必须与超级管理员关联
             this.addResourceRoleRel(pkResourceId, editResourceForm.getResourceType());
         } else {//修改
@@ -218,18 +214,14 @@ public class ResourceServiceImpl implements ResourceService {
         List<UserMenuView> var3 = null;
         if (StringUtils.isNotBlank(roleId)) {
             Role role = roleMapper.selectById(roleId);
-            if (null == role) {
-                throw new ServerException("参数错误！");
-            }
+            Assert.notNull(role,"参数错误!");
             var3 = userPrivilegeMapper.selectRoleResources(roleId);
         } else if (StringUtils.isNotBlank(userId)) {
             User user = userMapper.selectById(userId);
-            if (null == user) {
-                throw new ServerException("参数错误！");
-            }
+            Assert.notNull(user,"参数错误!");
             var3 = userPrivilegeMapper.selectUserMenu(userId);
         }
-        if (null == var3 && var3.isEmpty()) {
+        if (null == var3 || var3.isEmpty()) {
             return new HashMap<>();
         }
         return var3.stream().collect(Collectors.toMap(UserMenuView::getPkResourceId, UserMenuView::getResourceName));
@@ -251,7 +243,7 @@ public class ResourceServiceImpl implements ResourceService {
         while (var6.hasNext()) {
             tree = new Tree<>();
             resourceView = var6.next();
-            if (null == var2 && !var2.isEmpty()) {
+            if (null != var2 && !var2.isEmpty()) {
                 if (var2.containsKey(resourceView.getPkResourceId())) {
                     tree.setChecked(true);
                 }
@@ -332,13 +324,9 @@ public class ResourceServiceImpl implements ResourceService {
                 .eq("status", CodeEnum.ENABLE.getCode())
         );
         if (1 == addOrUpdate) {
-            if (!resourceList.isEmpty()) {
-                throw new ServerException("已经存在相同的" + params);
-            }
+            Assert.isNull(resourceList,resourceList.isEmpty(),"已经存在相同的" + params);
         } else if (2 == addOrUpdate) {
-            if (Constant.ONE < resourceList.size()) {
-                throw new ServerException("已经存在相同的" + params);
-            }
+            Assert.isNull(resourceList,resourceList.size() <= Constant.ONE,"已经存在相同的" + params);
         }
 
     }
@@ -352,7 +340,7 @@ public class ResourceServiceImpl implements ResourceService {
         List<Role> roleList = roleMapper.selectList(new EntityWrapper<Role>()
                 .eq("role_name", Constant.SuperAdmin)
         );
-        if (!roleList.isEmpty()) {
+        if (null != roleList && !roleList.isEmpty()) {
             String pkRoleResourceId = UUIDSequence.next();
             String userId = UserManager.getCurrentUserId();
             Date curDate = DateUtils.getCurrentDate();
@@ -364,11 +352,7 @@ public class ResourceServiceImpl implements ResourceService {
             roleResourceRel.setResourceType(resourceType);
             roleResourceRel.setCreateTime(curDate);
             roleResourceRel.setCreateUserId(userId);
-            int count;
-            count = roleResourceRelMapper.insert(roleResourceRel);
-            if (count == Constant.ZERO) {
-                throw new ServerException("单个新增角色资源关联个数为 0 条！");
-            }
+            roleResourceRelMapper.insert(roleResourceRel);
         }
     }
 

@@ -274,9 +274,7 @@ public class RoleServiceImpl implements RoleService {
             List<Role> roles = roleMapper.selectList(new EntityWrapper<Role>()
                     .eq("role_name", editForm.getRoleName())
             );
-            if (!roles.isEmpty()) {
-                throw new ServerException("角色名称已存在！");
-            }
+            Assert.isNull(roles,roles.isEmpty(),"角色名称已存在！");
         } else {//修改验证
             Role role = roleMapper.selectById(editForm.getPkRoleId());
             Assert.notNull(role,"参数错误");
