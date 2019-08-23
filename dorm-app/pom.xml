@@ -15,23 +15,24 @@
 
     <properties>
         <java.version>1.8</java.version>
+        <dorm.version>2.0.0-SNAPSHOT</dorm.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>com.waken.dorm.common</groupId>
             <artifactId>dorm-common</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>${dorm.version}</version>
         </dependency>
         <dependency>
             <groupId>com.waken.dorm.dao</groupId>
             <artifactId>dorm-dao</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>${dorm.version}</version>
         </dependency>
         <dependency>
             <groupId>com.waken.dorm.service</groupId>
             <artifactId>dorm-service</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>${dorm.version}</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>

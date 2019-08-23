@@ -4,7 +4,6 @@ import com.github.pagehelper.PageInfo;
 import com.waken.dorm.app.controller.base.AppBaseController;
 import com.waken.dorm.common.entity.dorm.DormRepair;
 import com.waken.dorm.common.enums.CodeEnum;
-import com.waken.dorm.common.enums.ResultEnum;
 import com.waken.dorm.common.form.dorm.AddDormRepairForm;
 import com.waken.dorm.common.form.dorm.DormRepairForm;
 import com.waken.dorm.common.base.AjaxResponse;
