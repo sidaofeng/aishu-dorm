@@ -117,17 +117,17 @@ public class TreeUtil {
 
     private void testGetNodes(){
         Map<Long,Long> map = new HashMap();
-        for (Long i = 0L; i < 5000; i++) {
+        for (Long i = 0L; i < 1000; i++) {
             map.put(i+1L,i);
         }
         List<Long> ids = new ArrayList<>();
         ids.add(1L);
-//        List<Long> nodes = TreeUtil.getNodes(map,ids);
+        List<Long> nodes = TreeUtil.getNodes(map,ids);
         TreeUtil treeUtil = new TreeUtil();
         treeUtil.getAllNodes(map,ids);
 
 
-//        System.out.println(nodes);
+        System.out.println();
     }
 
     /**
