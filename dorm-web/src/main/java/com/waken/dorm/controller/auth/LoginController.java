@@ -1,7 +1,6 @@
 package com.waken.dorm.controller.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.waken.dorm.common.annotation.Log;
 import com.waken.dorm.common.authentication.JWTToken;
 import com.waken.dorm.common.authentication.JWTUtil;
 import com.waken.dorm.common.base.ActiveUser;
@@ -60,7 +59,11 @@ public class LoginController extends BaseController {
      * 用户登录
      */
     @PostMapping("login")
-    @ApiOperation(value = "login（用户登录接口）", notes = "用户登录接口")
+    @ApiOperation(value = "login（用户登录接口）", notes = "用户登录接口 " +
+            "<br/>请求参数JSON示例:{\"userName\":\"xiaozhu\",\"password\":\"xiaozhu\"}" +
+            "<br/>必填参数：userName（用户名） " +
+            "<br/>必填参数：password（密码） " +
+            "")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })

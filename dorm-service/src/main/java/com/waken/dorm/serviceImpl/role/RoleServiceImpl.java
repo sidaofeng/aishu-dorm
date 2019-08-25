@@ -211,11 +211,11 @@ public class RoleServiceImpl implements RoleService {
     }
 
     private void batchAddRelValidate(AddRoleResourceRelForm addForm) {
-        Assert.notNull(addForm.getPkRoleId());
-        if (addForm.getPkResourceIds().isEmpty()) {
+        Assert.notNull(addForm.getRoleId());
+        if (addForm.getResourceIds().isEmpty()) {
             throw new ServerException("参数为空！");
         }
-        Role role = roleMapper.selectById(addForm.getPkRoleId());
+        Role role = roleMapper.selectById(addForm.getRoleId());
         if (StringUtils.equals(Constant.SuperAdmin, role.getRoleName())) {
             throw new ServerException("不能操作超级管理员角色！");
         }
@@ -228,8 +228,8 @@ public class RoleServiceImpl implements RoleService {
      * @return
      */
     private List<RoleResourceRel> getToBeAddRoleResourceRel(AddRoleResourceRelForm addRoleResourceRelForm) {
-        String roleId = addRoleResourceRelForm.getPkRoleId();
-        List<String> resourceIds = addRoleResourceRelForm.getPkResourceIds();
+        String roleId = addRoleResourceRelForm.getRoleId();
+        List<String> resourceIds = addRoleResourceRelForm.getResourceIds();
         List<RoleResourceRel> roleResourceRelList = roleResourceRelMapper.selectList(new EntityWrapper<RoleResourceRel>()
                 .eq("role_id", roleId)
         );

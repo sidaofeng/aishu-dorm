@@ -18,7 +18,7 @@ import java.util.List;
 @Getter
 @Setter
 public class AddRoleResourceRelForm {
-    private String pkRoleId; //需要绑定的角色id
+    private String roleId; //需要绑定的角色id
 
-    private List<String> pkResourceIds; //需要绑定的资源 id 集合
+    private List<String> resourceIds; //需要绑定的资源 id 集合
 }

@@ -21,15 +21,15 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
- * @ClassName AppStudentController
- * @Description AppStudentController
+ * @ClassName AppLoginController
+ * @Description AppLoginController
  * @Author zhaoRong
  * @Date 2019/3/29 21:26
  **/
 @Slf4j
-@Api(value = "APP端学生相关接口", description = "APP端学生相关接口(赵荣)")
+@Api(value = "APP端登陆相关接口", description = "APP端登陆相关接口(赵荣)")
 @RestController
-public class AppStudentController extends AppBaseController {
+public class AppLoginController extends AppBaseController {
 
     @Autowired
     StudentService studentService;
@@ -41,7 +41,11 @@ public class AppStudentController extends AppBaseController {
      */
     @PrivilegeResource(strategy = AccessStrategy.Guest)
     @PostMapping(value = {"student/studentLogin"})
-    @ApiOperation(value = "studentLogin（学生登录）", notes = "学生登录,密码默认与学号一样")
+    @ApiOperation(value = "studentLogin（学生登录）", notes = "学生登录,密码默认与学号一样"+
+            "<br/>请求参数JSON示例:{\"studentNum\":\"20161545\",\"password\":\"123456\"}" +
+            "<br/>必填参数：studentNum（学号） " +
+            "<br/>必填参数：password（密码） " +
+            "")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
