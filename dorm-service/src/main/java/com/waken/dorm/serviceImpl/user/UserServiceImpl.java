@@ -292,7 +292,7 @@ public class UserServiceImpl implements UserService {
             Assert.notNull(userForm.getMobile(),"手机号码为空！");
             Assert.isTrue(CheckUtils.isPhoneLegality(userForm.getMobile()),"请输入正确的手机号码！");
             Assert.notNull(userForm.getEmail(),"邮箱为空！");
-            Assert.isTrue(CheckUtils.isPhoneLegality(userForm.getEmail()),"请输入正确的邮箱！");
+            Assert.isTrue(CheckUtils.isEmailLegality(userForm.getEmail()),"请输入正确的邮箱！");
             List<User> userList = userMapper.selectList(new EntityWrapper<User>()
                     .eq("user_name", userForm.getUserName())
             );
