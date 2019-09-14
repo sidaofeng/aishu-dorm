@@ -2,11 +2,11 @@ package com.waken.dorm.controller.dict;
 
 import com.github.pagehelper.PageInfo;
 import com.waken.dorm.common.annotation.Log;
+import com.waken.dorm.common.base.AjaxResponse;
 import com.waken.dorm.common.entity.dict.Dict;
 import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.dict.DictForm;
 import com.waken.dorm.common.form.dict.EditDictForm;
-import com.waken.dorm.common.base.AjaxResponse;
 import com.waken.dorm.common.view.dict.DictView;
 import com.waken.dorm.controller.base.BaseController;
 import com.waken.dorm.service.dict.DictService;
@@ -16,7 +16,6 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -27,7 +26,7 @@ import org.springframework.web.bind.annotation.*;
  **/
 @Slf4j
 @Api(value = "字典模块相关接口", description = "字典模块相关接口(AiShu)")
-@Controller
+@RestController
 public class DictController extends BaseController {
     @Autowired
     private DictService dictService;
@@ -39,7 +38,6 @@ public class DictController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = Dict.class)
     })
-    @ResponseBody
     public AjaxResponse saveDict(@RequestBody EditDictForm editDictForm) {
         log.info("开始调用(保存/修改)字典信息接口接口：" + editDictForm.toString());
         Dict dict = dictService.saveDict(editDictForm);
@@ -53,7 +51,6 @@ public class DictController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
-    @ResponseBody
     public AjaxResponse deleteDict(@RequestBody DeleteForm deleteFrom) {
         log.info("开始调用删除字典接口：" + deleteFrom.toString());
         if (null == deleteFrom.getDelIds() || deleteFrom.getDelIds().isEmpty()) {
@@ -64,13 +61,12 @@ public class DictController extends BaseController {
     }
 
     @CrossOrigin
-    @GetMapping(value = "dict/page")
+    @PostMapping(value = "dict/page")
     @ApiOperation(value = "分页查询字典信息", notes = "分页查询字典信息 ")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = DictView.class)
     })
-    @ResponseBody
-    public AjaxResponse listDicts(DictForm dictForm) {
+    public AjaxResponse listDicts(@RequestBody DictForm dictForm) {
         log.info("开始调用分页查询字典信息接口：" + dictForm.toString());
         PageInfo<DictView> pageInfo = dictService.listDicts(dictForm);
         return AjaxResponse.success(pageInfo);
