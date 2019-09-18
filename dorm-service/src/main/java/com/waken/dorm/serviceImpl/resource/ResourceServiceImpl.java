@@ -62,7 +62,7 @@ public class ResourceServiceImpl implements ResourceService {
      * @param editResourceForm
      * @return
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public Resource saveResource(EditResourceForm editResourceForm) {
         this.editResourceValidate(editResourceForm);
@@ -73,11 +73,12 @@ public class ResourceServiceImpl implements ResourceService {
         BeanMapper.copy(editResourceForm, resource);
         resource.setLastModifyTime(curDate);
         resource.setLastModifyUserId(userId);
-        if (StringUtils.isBlank(editResourceForm.getPkResourceId())) {//新增
+        if (StringUtils.isBlank(editResourceForm.getPkResourceId())) {
             log.info("service: 新增资源开始");
             String pkResourceId = UUIDSequence.next();
             if (StringUtils.isBlank(editResourceForm.getParentId())) {
-                resource.setParent(Boolean.TRUE);//根节点是父级
+                //根节点是父级
+                resource.setParent(Boolean.TRUE);
                 resource.setParentId(Constant.ROOT);
             } else {
                 resource.setParent(Boolean.FALSE);
@@ -106,18 +107,19 @@ public class ResourceServiceImpl implements ResourceService {
      *
      * @param deleteForm
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public void deleteResource(DeleteForm deleteForm) {
         log.info("service: 删除资源开始");
         List<String> resourceIds = deleteForm.getDelIds();
         Integer delStatus = deleteForm.getDelStatus();
         List<String> delResourceIds = this.getAllToDelIds(resourceIds);
-        if (CodeEnum.YES.getCode() == delStatus) { // 物理删除
+        // 物理删除
+        if (CodeEnum.YES.getCode().equals(delStatus)) {
             this.deleteResourceRel(delResourceIds);
             // 删除资源本身
             resourceMapper.deleteBatchIds(delResourceIds);
-        } else if (CodeEnum.NO.getCode() == delStatus) {
+        } else if (CodeEnum.NO.getCode().equals(delStatus)) {
             this.deleteResourceRel(delResourceIds);
             Map toUpdateStatusMap = DormUtil.getToUpdateStatusMap(delResourceIds, UserManager.getCurrentUserId());
             resourceMapper.batchUpdateStatus(toUpdateStatusMap);
@@ -208,7 +210,8 @@ public class ResourceServiceImpl implements ResourceService {
      * @return
      */
     private Map<String, String> getSubjectResource(Integer status, String userId, String roleId) {
-        if (null == status) {//查询资源管理所需要的资源
+        //查询资源管理所需要的资源
+        if (null == status) {
             return new HashMap<>();
         }
         List<UserMenuView> var3 = null;
@@ -279,13 +282,14 @@ public class ResourceServiceImpl implements ResourceService {
      * @param editForm
      */
     private void editResourceValidate(EditResourceForm editForm) {
-        if (StringUtils.isEmpty(editForm.getPkResourceId())) {//新增验证
+        if (StringUtils.isEmpty(editForm.getPkResourceId())) {
+            //新增验证
             Integer type = editForm.getResourceType();
             Assert.notNull(editForm.getResourceName());
             Assert.notNull(type);
-            if (CodeEnum.MENU.getCode() == type){
+            if (CodeEnum.MENU.getCode().equals(type)){
                 editForm.setPerms(CodeEnum.MENU.getMsg());
-            }else if (CodeEnum.BUTTON.getCode() == type){
+            }else if (CodeEnum.BUTTON.getCode().equals(type)){
                 Assert.notNull(editForm.getPerms(),"按钮权限为空");
                 checkExist("perms", editForm.getPerms(), 1);
             }else {

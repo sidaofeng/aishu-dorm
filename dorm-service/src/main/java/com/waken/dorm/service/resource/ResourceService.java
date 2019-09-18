@@ -25,6 +25,7 @@ public interface ResourceService {
 
     /**
      * 删除资源
+     * @param deleteForm
      */
     void deleteResource(DeleteForm deleteForm);
 

@@ -11,9 +11,9 @@ import com.waken.dorm.common.exception.ServerException;
 import com.waken.dorm.common.form.role.UserRoleRelForm;
 import com.waken.dorm.common.form.user.AddUserResourcesForm;
 import com.waken.dorm.common.form.user.AddUserRoleRelForm;
+import com.waken.dorm.common.sequence.UUIDSequence;
 import com.waken.dorm.common.utils.Assert;
 import com.waken.dorm.common.utils.DateUtils;
-import com.waken.dorm.common.sequence.UUIDSequence;
 import com.waken.dorm.common.utils.TreeUtil;
 import com.waken.dorm.common.view.base.Tree;
 import com.waken.dorm.common.view.resource.UserMenuView;
@@ -24,7 +24,6 @@ import com.waken.dorm.manager.UserManager;
 import com.waken.dorm.service.user.UserPrivilegeService;
 import com.waken.dorm.service.user.UserService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -108,7 +107,7 @@ public class UserPrivilegeServiceImpl implements UserPrivilegeService {
      *
      * @param userRoleRelForm
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public void addUserRoleRel(UserRoleRelForm userRoleRelForm) {
         String userId = userRoleRelForm.getUserId();
@@ -135,7 +134,12 @@ public class UserPrivilegeServiceImpl implements UserPrivilegeService {
         Assert.isFalse(count == Constant.ZERO);
     }
 
-    @Transactional // 事务控制
+    /**
+     * 批量新增用户与角色的关联
+     *
+     * @param addForm
+     */
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public void batchAddUserRoleRel(AddUserRoleRelForm addForm) {
         log.info("service: 批量新增用户角色关联开始");
@@ -160,8 +164,10 @@ public class UserPrivilegeServiceImpl implements UserPrivilegeService {
                 .eq("subject_type", CodeEnum.ROLE.getCode())
         );
         if (!userRoleRelList.isEmpty()) {
-            List<String> existIds = Lists.newArrayList();// 接收已经存在关联的角色id
-            List<String> toDelPkIds = Lists.newArrayList();//接收需要删除的关联主键id
+            // 接收已经存在关联的角色id
+            List<String> existIds = Lists.newArrayList();
+            //接收需要删除的关联主键id
+            List<String> toDelPkIds = Lists.newArrayList();
             for (UserPrivilege userRoleRel : userRoleRelList) {
                 if (roleIds.contains(userRoleRel.getSubjectId())) {
                     existIds.add(userRoleRel.getSubjectId());
@@ -228,8 +234,10 @@ public class UserPrivilegeServiceImpl implements UserPrivilegeService {
                 .eq("subject_type", CodeEnum.BUTTON.getCode())
         );
         if (!userRoleRelList.isEmpty()) {
-            List<String> existIds = new ArrayList<>();// 接收已经存在关联的资源id
-            List<String> toDelPkIds = new ArrayList<>();// 接收需要删除的关联主键id
+            // 接收已经存在关联的资源id
+            List<String> existIds = new ArrayList<>();
+            // 接收需要删除的关联主键id
+            List<String> toDelPkIds = new ArrayList<>();
             for (UserPrivilege userRoleRel : userRoleRelList) {
                 if (resourceIds.contains(userRoleRel.getSubjectId())) {
                     existIds.add(userRoleRel.getSubjectId());

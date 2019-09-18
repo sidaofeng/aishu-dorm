@@ -65,10 +65,11 @@ public class UserServiceImpl implements UserService {
 
         user.setLastModifyTime(curDate);
         user.setLastModifyUserId(curUserId);
-        if (StringUtils.isEmpty(editUserForm.getUserId())) {//新增
+        if (StringUtils.isEmpty(editUserForm.getUserId())) {
             log.info("service: 新增用户开始");
             String userId = UUIDSequence.next();
-            String encodePassword = PasswordEncode.shiroEncode(editUserForm.getUserName(), editUserForm.getPassword());//shiro加密 密码
+            //shiro加密 密码
+            String encodePassword = PasswordEncode.shiroEncode(editUserForm.getUserName(), editUserForm.getPassword());
             user.setPassword(encodePassword);
             user.setUserId(userId);
             user.setStatus(CodeEnum.ENABLE.getCode());
@@ -83,7 +84,8 @@ public class UserServiceImpl implements UserService {
         } else {//修改
             log.info("service: 更新用户信息开始");
             if (StringUtils.isNotBlank(editUserForm.getPassword())){
-                String encodePassword = PasswordEncode.shiroEncode(editUserForm.getUserName(), editUserForm.getPassword());//shiro加密 密码
+                //shiro加密 密码
+                String encodePassword = PasswordEncode.shiroEncode(editUserForm.getUserName(), editUserForm.getPassword());
                 user.setPassword(encodePassword);
             }
             userMapper.updateById(user);
@@ -105,17 +107,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional// 事务控制
+    @Transactional(rollbackFor = Exception.class)// 事务控制
     public void deleteUser(DeleteForm deleteForm) {
         log.info("service: 删除用户开始");
         List<String> userIds = deleteForm.getDelIds();
         Integer delStatus = deleteForm.getDelStatus();
-        if (CodeEnum.YES.getCode() == delStatus) { // 物理删除
+        // 物理删除
+        if (CodeEnum.YES.getCode().equals(delStatus)) {
             this.checkUser(userIds);
             //直接删除用户与资源或者角色的资源
             this.userPrivilegeMapper.deleteByUsers(userIds);
             userMapper.deleteBatchIds(userIds);
-        } else if (CodeEnum.NO.getCode() == delStatus) {
+        } else if (CodeEnum.NO.getCode().equals(delStatus)) {
             this.checkUser(userIds);
             this.userPrivilegeMapper.deleteByUsers(userIds);
             Map toUpdateStatusMap = DormUtil.getToUpdateStatusMap(userIds, UserManager.getCurrentUserId());

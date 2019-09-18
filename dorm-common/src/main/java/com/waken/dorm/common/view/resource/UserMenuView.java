@@ -29,6 +29,16 @@ public class UserMenuView {
     private String resourceName;
 
     /**
+     * 路由名称
+     */
+    private String routeName;
+
+    /**
+     * 路由组件
+     */
+    private String component;
+
+    /**
      * 资源图标
      */
     private String resourceIcon;

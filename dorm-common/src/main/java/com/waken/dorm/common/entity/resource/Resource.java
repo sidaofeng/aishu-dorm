@@ -45,6 +45,18 @@ public class Resource implements Serializable {
     private String resourceName;
 
     /**
+     * 路由名称
+     */
+    @TableField("route_name")
+    private String routeName;
+
+    /**
+     * 路由组件
+     */
+    @TableField("component")
+    private String component;
+
+    /**
      * 权限
      */
     @TableField("perms")

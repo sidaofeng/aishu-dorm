@@ -18,6 +18,10 @@ public class EditResourceForm {
 
     private String resourceName;
 
+    private String routeName;
+
+    private String component;
+
     private String resourceIcon;
 
     private Integer resourceType;

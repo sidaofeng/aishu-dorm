@@ -8,6 +8,8 @@
         r.parent_id AS parentId,
         rr.resource_name AS parentName,
         r.resource_name AS resourceName,
+        r.route_name AS routeName,
+        r.component,
         r.resource_icon AS resourceIcon,
         r.resource_type AS resourceType,
         r.resource_url AS resourceUrl,

@@ -173,7 +173,7 @@ public class TreeUtil {
         List<TreeView> childrenTree = new ArrayList<>();
         while (var3.hasNext()) {
             tree = var3.next();
-            if (rootTree.getId() ==  tree.getPId()){
+            if (rootTree.getId().equals(tree.getPId())){
                 childrenTree.add(tree);
                 rootTree.setChildren(childrenTree);
                 var3.remove();
@@ -210,7 +210,7 @@ public class TreeUtil {
                     while (var6.hasNext()) {
                         key = var6.next();
                         //如果key这个节点的父节点id等于当前这个childId节点，说明key这个节点是childId这个节点的子节点，需要删除
-                        if (idAndPidMap.get(key) == childId) {
+                        if (idAndPidMap.get(key).equals(childId)) {
                             allNodes.add(key);
                             temp.add(key);
                             var6.remove();//移除当前这个节点
@@ -241,7 +241,7 @@ public class TreeUtil {
     private void getChild(Map<Long,Long> map,Long id,List<Long> all){
         List<Long> children = new ArrayList<>();
         map.entrySet().stream().forEach(entry->{
-            if (entry.getValue() == id){
+            if (entry.getValue().equals(id)){
                 children.add(entry.getKey());
                 all.add(entry.getKey());
 //                map.remove(entry.getKey());
