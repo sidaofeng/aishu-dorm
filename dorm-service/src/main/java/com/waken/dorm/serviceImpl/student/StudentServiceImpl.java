@@ -20,6 +20,7 @@ import com.waken.dorm.common.utils.redis.RedisCacheManager;
 import com.waken.dorm.common.view.base.ImgView;
 import com.waken.dorm.common.view.student.StudentView;
 import com.waken.dorm.dao.student.StudentMapper;
+import com.waken.dorm.manager.StudentManager;
 import com.waken.dorm.manager.UserManager;
 import com.waken.dorm.service.student.StudentService;
 import org.slf4j.Logger;
@@ -49,6 +50,8 @@ public class StudentServiceImpl implements StudentService {
     @Autowired
     StudentMapper studentMapper;
     @Autowired
+    StudentManager studentManager;
+    @Autowired
     RedisCacheManager redisCacheManager;
     @Autowired
     AliyunOSSUtil aliyunOSSUtil;
@@ -72,8 +75,7 @@ public class StudentServiceImpl implements StudentService {
             student.setLastModifyTime(curDate);
             student.setLastModifyUserId(userId);
         }
-        int count = Constant.ZERO;
-        count = studentMapper.batchAddStudent(studentList);
+        int count = studentMapper.batchAddStudent(studentList);
         if (count == Constant.ZERO) {
             throw new ServerException("mysql 批量新增失败");
         }
@@ -87,7 +89,7 @@ public class StudentServiceImpl implements StudentService {
      * @return
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public Student saveStudent(EditStudentForm editStudentForm) {
         this.editStudentValidate(editStudentForm);
         Date curDate = DateUtils.getCurrentDate();
@@ -96,12 +98,14 @@ public class StudentServiceImpl implements StudentService {
         BeanMapper.copy(editStudentForm, student);
         student.setLastModifyTime(curDate);
         student.setLastModifyUserId(userId);
-        if (StringUtils.isEmpty(editStudentForm.getPkStudentId())) {//新增
+        //新增
+        if (StringUtils.isEmpty(editStudentForm.getPkStudentId())) {
             logger.info("service: 开始进入单个添加学生");
             String studentId = UUIDSequence.next();
             student.setPkStudentId(studentId);
             if (editStudentForm.getGender() == null) {
-                student.setGender(CodeEnum.MALE.getCode());//默认性别男
+                //默认性别男
+                student.setGender(CodeEnum.MALE.getCode());
             } else {
                 student.setGender(editStudentForm.getGender());
             }
@@ -123,12 +127,13 @@ public class StudentServiceImpl implements StudentService {
      * @param deleteForm
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void deleteStudent(DeleteForm deleteForm) {
         logger.info("service: 删除学生开始");
         List<String> studentIds = deleteForm.getDelIds();
         Integer delStatus = deleteForm.getDelStatus();
-        if (CodeEnum.YES.getCode() == delStatus) { // 物理删除
+        // 物理删除
+        if (CodeEnum.YES.getCode().equals(delStatus)) {
             List<Student> studentList = studentMapper.selectByIds(studentIds);
             StringBuffer sb = new StringBuffer();
             for (Student student : studentList) {
@@ -136,13 +141,14 @@ public class StudentServiceImpl implements StudentService {
                     sb.append(student.getStudentName());
                 }
             }
-            if (StringUtils.isEmpty(sb.toString())) {//删除学生
+            //删除学生
+            if (StringUtils.isEmpty(sb.toString())) {
                 studentMapper.deleteBatchIds(studentIds);
             } else {
                 throw new ServerException("以下学生处于生效中：" + sb.toString());
             }
 
-        } else if (CodeEnum.NO.getCode() == delStatus) {
+        } else if (CodeEnum.NO.getCode().equals(delStatus)) {
             Map updateStatusMap = DormUtil.getToUpdateStatusMap(studentIds, UserManager.getCurrentUserId());
             studentMapper.batchUpdateStatus(updateStatusMap);
         } else {
@@ -184,7 +190,6 @@ public class StudentServiceImpl implements StudentService {
                 .eq("student_num", studentNum)
         );
         if (studentList.isEmpty()) {
-            logger.info("登陆失败，学号错误！");
             return AjaxResponse.error("登录失败，学号错误！");
         } else {
             if (StringUtils.isEmpty(studentList.get(Constant.ZERO).getPassword())) {
@@ -193,7 +198,6 @@ public class StudentServiceImpl implements StudentService {
                     Student student = studentList.get(Constant.ZERO);
                     return AjaxResponse.success(ResultEnum.FIRST_LOGIN.getCode(),student);
                 } else {
-                    logger.info("登陆失败，初始密码错误！");
                     return AjaxResponse.error("登录失败，初始密码错误！");
                 }
             } else {
@@ -213,14 +217,13 @@ public class StudentServiceImpl implements StudentService {
     /**
      * 第一次登陆后必须先设置新密码
      *
-     * @param studentId
      * @param newPassword
      */
     @Override
-    @Transactional
-    public void updatePasswordByNew(String studentId, String newPassword) {
+    @Transactional(rollbackFor = Exception.class)
+    public void updatePasswordByNew(String newPassword) {
         logger.info("service : 开始进入修改密码");
-        Student student = studentMapper.selectById(studentId);
+        Student student = studentMapper.selectById(studentManager.getCurrentStudentId());
         Assert.notNull(student,"设置新密码失败");
         String password = Md5Utils.encodeByMD5(newPassword);
         student.setPassword(password);
@@ -244,7 +247,8 @@ public class StudentServiceImpl implements StudentService {
         try {
             Student updateStuff = studentMapper.selectById(studentId);
             if (!StringUtils.isEmpty(updateStuff.getImgUrl())) {
-                aliyunOSSUtil.deleteFile(updateStuff.getImgUrl());// 删除已经存在的头像
+                // 删除已经存在的头像
+                aliyunOSSUtil.deleteFile(updateStuff.getImgUrl());
             }
             File toFile = FileUtils.multipartFileToFile(file);
             // 上传到OSS
@@ -270,11 +274,13 @@ public class StudentServiceImpl implements StudentService {
      * @return
      */
     private String getStudentToken(StudentInfo studentInfo) {
+        //TODO 暂且用uuid作为学生token，后面按具体需求修改
         String studentToken = UUIDSequence.next();
         studentInfo.setStudentToken(studentToken);
-        long redisCacheTime = 10000 * 60 * 30;// 缓存时间
-        redisCacheManager.setEx(CacheConstant.STUDENT_CACHE_PREFIX + studentToken, studentInfo, redisCacheTime);//redis缓存
-        logger.info("studentToken为：" + studentToken);
+        // 缓存时间
+        long redisCacheTime = 10000 * 60 * 30;
+        //redis缓存
+        redisCacheManager.setEx(CacheConstant.STUDENT_CACHE_PREFIX + studentToken, studentInfo, redisCacheTime);
         return studentToken;
     }
 
@@ -284,7 +290,8 @@ public class StudentServiceImpl implements StudentService {
      * @param editForm
      */
     private void editStudentValidate(EditStudentForm editForm) {
-        if (StringUtils.isEmpty(editForm.getPkStudentId())) {//新增验证
+        //新增验证
+        if (StringUtils.isEmpty(editForm.getPkStudentId())) {
             Assert.notNull(editForm.getStudentName());
             Assert.notNull(editForm.getStudentNum());
             Assert.notNull(editForm.getMobile());

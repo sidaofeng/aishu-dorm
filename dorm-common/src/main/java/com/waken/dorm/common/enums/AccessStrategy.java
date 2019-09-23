@@ -1,10 +1,26 @@
 package com.waken.dorm.common.enums;
 
+/**
+ *
+ * @author zhaoRong
+ */
 public enum AccessStrategy {
-    Verification,//需要验证权限
-    Auth,//登录之后便能访问
-    Guest,//测试用户不拦截过滤
-    Anon;//测试用户不拦截过滤
+    /**
+     * 需要验证权限
+     */
+    Verification,
+    /**
+     * 登录之后便能访问
+     */
+    Auth,
+    /**
+     * 测试用户不拦截过滤
+     */
+    Guest,
+    /**
+     * 测试用户不拦截过滤
+     */
+    Anon;
 
     private AccessStrategy() {
     }

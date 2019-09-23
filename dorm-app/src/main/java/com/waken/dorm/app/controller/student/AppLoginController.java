@@ -39,7 +39,7 @@ public class AppLoginController extends AppBaseController {
     /**
      * 学生登录
      */
-    @PrivilegeResource(strategy = AccessStrategy.Guest)
+    @PrivilegeResource(strategy = AccessStrategy.Anon)
     @PostMapping(value = {"student/studentLogin"})
     @ApiOperation(value = "studentLogin（学生登录）", notes = "学生登录,密码默认与学号一样"+
             "<br/>请求参数JSON示例:{\"studentNum\":\"20161545\",\"password\":\"123456\"}" +
@@ -60,15 +60,14 @@ public class AppLoginController extends AppBaseController {
     /**
      * 学生第一次登陆必须先设置密码
      */
-    @PrivilegeResource(strategy = AccessStrategy.Guest)
     @PostMapping(value = {"student/updatePasswordByNew"})
     @ApiOperation(value = "updatePasswordByNew（学生第一次登陆必须先设置密码）", notes = "学生第一次登陆必须先设置密码")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
-    public AjaxResponse updatePasswordByNew(@RequestParam String studentId, String newPassword) {
-        log.info("开始调用学生设置密码接口：" + studentId);
-        studentService.updatePasswordByNew(studentId, newPassword);
+    public AjaxResponse updatePasswordByNew(@RequestParam String newPassword) {
+        log.info("开始调用学生设置密码接口：");
+        studentService.updatePasswordByNew(newPassword);
         return AjaxResponse.success();
     }
 
@@ -88,8 +87,8 @@ public class AppLoginController extends AppBaseController {
      * @return
      */
     @PrivilegeResource(strategy = AccessStrategy.Guest)
-    @GetMapping(value = "/student/loginout")
-    @ApiOperation(value = "loginout（学生注销登录）", notes = "学生注销登录 ")
+    @GetMapping(value = "/student/logout")
+    @ApiOperation(value = "logout（学生注销登录）", notes = "学生注销登录 ")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })

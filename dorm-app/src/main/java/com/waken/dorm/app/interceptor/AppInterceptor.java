@@ -2,7 +2,6 @@ package com.waken.dorm.app.interceptor;
 
 import com.waken.dorm.common.annotation.PrivilegeResource;
 import com.waken.dorm.common.constant.CacheConstant;
-import com.waken.dorm.common.constant.Constant;
 import com.waken.dorm.common.entity.student.StudentInfo;
 import com.waken.dorm.common.enums.AccessStrategy;
 import com.waken.dorm.common.enums.ResultEnum;
@@ -30,30 +29,29 @@ public class AppInterceptor extends HandlerInterceptorAdapter {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
-        log.info("APP拦截开始------");
 
         if (handler instanceof HandlerMethod) {
             HandlerMethod handlerMethod = (HandlerMethod) handler;
-            Method method = handlerMethod.getMethod();//获取方法上的注解
+            //获取方法上的注解
+            Method method = handlerMethod.getMethod();
             PrivilegeResource privilegeResource = method.getAnnotation(PrivilegeResource.class);
             if (null != privilegeResource) {
-                if (AccessStrategy.Guest.equals(privilegeResource.strategy())) {//匿名用户不做拦截
+                //Anon注解不做拦截
+                if (AccessStrategy.Anon.equals(privilegeResource.strategy())) {
                     return true;
                 }
             }
         }
         String studentToken = request.getHeader(CacheConstant.STUDENT_TOKEN);
         if (StringUtils.isEmpty(studentToken)) {
-            throw new ServerException(ResultEnum.UN_AUTH);
+            throw new ServerException("学生登陆token为空！");
         }
         boolean isExistsToken = redisCacheManager.exists(CacheConstant.STUDENT_CACHE_PREFIX + studentToken);
-        if (isExistsToken == false) {
-            log.info("登录过期");
+        if (!isExistsToken) {
             throw new ServerException(ResultEnum.TIME_OUT);
         }
         StudentInfo studentInfo = (StudentInfo) redisCacheManager.get(CacheConstant.STUDENT_CACHE_PREFIX + studentToken);
         if (studentInfo == null) {
-            log.info("登录过期");
             throw new ServerException(ResultEnum.TIME_OUT);
         } else {
             return true;

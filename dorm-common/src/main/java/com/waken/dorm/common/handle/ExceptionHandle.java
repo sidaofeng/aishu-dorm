@@ -26,11 +26,11 @@ public class ExceptionHandle {
         if (e instanceof ServerException) {
             ServerException serverException = (ServerException) e;
             e.printStackTrace();
-            logger.info("服务端异常：" + e);
+            logger.error("服务端异常：" + e);
             return AjaxResponse.error(serverException.getCode(), serverException.getMessage());
         } else {
             e.printStackTrace();
-            logger.info("未知错误：" + e);
+            logger.error("未知错误：" + e);
             return AjaxResponse.error(ResultEnum.UNKNOWN_ERROR);
         }
     }
@@ -38,7 +38,7 @@ public class ExceptionHandle {
     @ExceptionHandler(value = UnauthorizedException.class)
     @ResponseBody
     public AjaxResponse handle(UnauthorizedException ue) {
-        logger.info("无权限异常：" + ue.getMessage());
+        logger.error("无权限异常：" + ue.getMessage());
         return AjaxResponse.error(ResultEnum.UN_PERMS.getCode(), getErrorMsg(ue.getMessage()));
     }
 
@@ -58,7 +58,7 @@ public class ExceptionHandle {
             return message;
         }
         errorMsg = errorMsg + message.substring(message.indexOf("["), message.indexOf("]") + 1);
-        logger.info(errorMsg);
+        logger.error(errorMsg);
         return errorMsg;
     }
 }

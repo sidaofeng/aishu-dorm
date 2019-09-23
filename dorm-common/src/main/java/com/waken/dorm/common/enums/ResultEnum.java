@@ -12,7 +12,7 @@ public enum ResultEnum {
     FIRST_LOGIN("第一次登陆", "10"),
     OTHER_LOGIN("其他设备登陆", "410"),
     TIME_OUT("登陆过期，请重新登录", "411"),
-    UNKNOWN_ERROR("未知错误", "-2"),
+    UNKNOWN_ERROR("服务端发生了未知错误,请联系管理员", "-2"),
     SERVER_ERROR("服务端异常", "500"),
     UN_PERMS("您没有对应的权限", "403"),
     UN_AUTH("尚未登录，无权限访问", "401");

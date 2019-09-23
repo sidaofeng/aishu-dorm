@@ -68,8 +68,7 @@ public interface StudentService {
     /**
      * 第一次登陆后必须先设置新密码
      *
-     * @param studentId
      * @param newPassword
      */
-    void updatePasswordByNew(String studentId, String newPassword);
+    void updatePasswordByNew(String newPassword);
 }
