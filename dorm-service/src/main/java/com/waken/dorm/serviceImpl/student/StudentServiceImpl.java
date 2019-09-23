@@ -229,6 +229,7 @@ public class StudentServiceImpl implements StudentService {
         student.setPassword(password);
         int count = studentMapper.updateById(student);
         Assert.isFalse(count == Constant.ZERO);
+        studentManager.delCacheStudentInfo();
     }
 
     /**

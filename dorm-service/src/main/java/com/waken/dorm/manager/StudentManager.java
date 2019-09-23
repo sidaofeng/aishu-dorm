@@ -1,7 +1,6 @@
 package com.waken.dorm.manager;
 
 import com.waken.dorm.common.constant.CacheConstant;
-import com.waken.dorm.common.constant.Constant;
 import com.waken.dorm.common.entity.student.StudentInfo;
 import com.waken.dorm.common.enums.ResultEnum;
 import com.waken.dorm.common.exception.ServerException;
@@ -58,8 +57,8 @@ public class StudentManager {
             throw new ServerException("studentToken 为空！");
         }
         boolean isExistsToken = redisCacheManager.exists(CacheConstant.STUDENT_CACHE_PREFIX + studentToken);
-        if (isExistsToken == false) {
-            throw new ServerException(ResultEnum.OTHER_LOGIN);
+        if (!isExistsToken) {
+            throw new ServerException(ResultEnum.TIME_OUT);
         }
         try {
             redisCacheManager.delete(CacheConstant.STUDENT_CACHE_PREFIX + studentToken);
