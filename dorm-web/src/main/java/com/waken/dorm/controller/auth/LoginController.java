@@ -79,9 +79,9 @@ public class LoginController extends BaseController {
             return AjaxResponse.error("用户名错误！");
         } else if (!StringUtils.equals(user.getPassword(), password)) {
             return AjaxResponse.error("密码错误！");
-        } else if (CodeEnum.DISABLE.getCode() == user.getStatus()) {
+        } else if (CodeEnum.DISABLE.getCode().equals(user.getStatus())) {
             return AjaxResponse.error("用户已被禁用,请联系管理员!");
-        } else if (CodeEnum.DELETE.getCode() == user.getStatus()) {
+        } else if (CodeEnum.DELETE.getCode().equals(user.getStatus())) {
             return AjaxResponse.error("用户已失效，请联系管理员！");
         }
 
@@ -118,8 +118,9 @@ public class LoginController extends BaseController {
             ActiveUser activeUser = mapper.readValue(userOnlineString, ActiveUser.class);
             activeUser.setToken(null);
             if (StringUtils.isNotBlank(username)) {
-                if (StringUtils.equalsIgnoreCase(username, activeUser.getUsername()))
+                if (StringUtils.equalsIgnoreCase(username, activeUser.getUsername())){
                     activeUsers.add(activeUser);
+                }
             } else {
                 activeUsers.add(activeUser);
             }
