@@ -55,3 +55,4 @@ dorm:
     anonUrl: /waken/dorm/login,/waken/dorm/logout/**,/waken/dorm/user/check/**
     # token有效期，单位秒
     jwtTimeOut: 3600
+
