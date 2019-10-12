@@ -22,8 +22,8 @@ import com.waken.dorm.dao.dorm.DormMapper;
 import com.waken.dorm.dao.dorm.DormStudentRelMapper;
 import com.waken.dorm.manager.UserManager;
 import com.waken.dorm.service.dorm.DormService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -39,14 +39,13 @@ import java.util.List;
  * @Author zhaoRong
  * @Date 2019/3/31 13:16
  **/
-@Transactional(propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Exception.class)
+@Slf4j
 @Service
+@Transactional(propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Exception.class)
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class DormServiceImpl implements DormService {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    @Autowired
-    DormMapper dormMapper;
-    @Autowired
-    DormStudentRelMapper dormStudentRelMapper;
+    private final DormMapper dormMapper;
+    private final DormStudentRelMapper dormStudentRelMapper;
 
     /**
      * 保存/修改宿舍信息
@@ -65,7 +64,7 @@ public class DormServiceImpl implements DormService {
         dorm.setLastModifyTime(curDate);
         dorm.setLastModifyUserId(userId);
         if (StringUtils.isEmpty(editForm.getPkDormId())) {//新增
-            logger.info("service: 开始进入新增宿舍信息");
+            log.info("service: 开始进入新增宿舍信息");
             String pkDormId = UUIDSequence.next();
             dorm.setPkDormId(pkDormId);
             dorm.setStatus(CodeEnum.ENABLE.getCode());
@@ -75,7 +74,7 @@ public class DormServiceImpl implements DormService {
             Assert.isFalse(count == Constant.ZERO);
             return dorm;
         } else {//更新宿舍信息
-            logger.info("service: 开始进入更新宿舍信息");
+            log.info("service: 开始进入更新宿舍信息");
             dormMapper.updateById(dorm);
             return dormMapper.selectById(editForm.getPkDormId());
         }
@@ -89,7 +88,7 @@ public class DormServiceImpl implements DormService {
     @Transactional
     @Override
     public void deleteDorm(DeleteForm deleteForm) {
-        logger.info("service: 删除宿舍开始");
+        log.info("service: 删除宿舍开始");
         List<String> ids = deleteForm.getDelIds();
         Integer delStatus = deleteForm.getDelStatus();
         int count ;
@@ -124,7 +123,7 @@ public class DormServiceImpl implements DormService {
      */
     @Override
     public PageInfo<DormView> listDorms(DormForm dormForm) {
-        logger.info("service: 分页查询宿舍信息开始");
+        log.info("service: 分页查询宿舍信息开始");
         if (dormForm.getStartTime() != null) {
             dormForm.setStartTime(DateUtils.formatDate2DateTimeStart(dormForm.getStartTime()));
         }
@@ -172,7 +171,7 @@ public class DormServiceImpl implements DormService {
     @Transactional
     @Override
     public void batchAddDormStudentRel(AddDormStudentRelForm addDormStudentRelForm) {
-        logger.info("service: 批量新增宿舍与学生关联开始");
+        log.info("service: 批量新增宿舍与学生关联开始");
         List<DormStudentRel> toBeAddDormStudentRel = this.getToBeAddDormStudentRel(addDormStudentRelForm);
         if (!toBeAddDormStudentRel.isEmpty()) {
             int count = dormStudentRelMapper.batchAddDormStudentRel(toBeAddDormStudentRel);

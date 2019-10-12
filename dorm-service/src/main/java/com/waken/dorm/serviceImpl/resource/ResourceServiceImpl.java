@@ -24,6 +24,7 @@ import com.waken.dorm.dao.user.UserMapper;
 import com.waken.dorm.dao.user.UserPrivilegeMapper;
 import com.waken.dorm.manager.UserManager;
 import com.waken.dorm.service.resource.ResourceService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -40,21 +41,16 @@ import java.util.stream.Collectors;
  * @Date 2019/3/21 19:58
  **/
 @Slf4j
-@Transactional(propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Exception.class)
 @Service
+@Transactional(propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Exception.class)
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class ResourceServiceImpl implements ResourceService {
-    @Autowired
-    ResourceMapper resourceMapper;
-    @Autowired
-    RoleResourceRelMapper roleResourceRelMapper;
-    @Autowired
-    RoleMapper roleMapper;
-    @Autowired
-    UserMapper userMapper;
-    @Autowired
-    UserPrivilegeMapper userPrivilegeMapper;
-    @Autowired
-    TreeUtil treeUtil;
+    private final ResourceMapper resourceMapper;
+    private final RoleResourceRelMapper roleResourceRelMapper;
+    private final RoleMapper roleMapper;
+    private final UserMapper userMapper;
+    private final UserPrivilegeMapper userPrivilegeMapper;
+    private final TreeUtil treeUtil;
 
     /**
      * 新增或修改资源

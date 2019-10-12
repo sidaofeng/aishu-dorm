@@ -24,6 +24,7 @@ import com.waken.dorm.dao.user.UserPrivilegeMapper;
 import com.waken.dorm.manager.UserManager;
 import com.waken.dorm.service.cache.CacheService;
 import com.waken.dorm.service.user.UserService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,20 +38,16 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-@Service
 @Slf4j
+@Service
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @Transactional(propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Exception.class)
 public class UserServiceImpl implements UserService {
-    @Autowired
-    UserMapper userMapper;
-    @Autowired
-    RoleMapper roleMapper;
-    @Autowired
-    UserPrivilegeMapper userPrivilegeMapper;
-    @Autowired
-    AliyunOSSUtil aliyunOSSUtil;
-    @Autowired
-    CacheService cacheService;
+    private final UserMapper userMapper;
+    private final RoleMapper roleMapper;
+    private final UserPrivilegeMapper userPrivilegeMapper;
+    private final AliyunOSSUtil aliyunOSSUtil;
+    private final CacheService cacheService;
 
     @Override
     @Transactional

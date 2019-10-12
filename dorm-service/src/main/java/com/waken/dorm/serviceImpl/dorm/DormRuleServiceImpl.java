@@ -16,8 +16,8 @@ import com.waken.dorm.common.view.dorm.DormRuleView;
 import com.waken.dorm.dao.dorm.DormRuleMapper;
 import com.waken.dorm.manager.UserManager;
 import com.waken.dorm.service.dorm.DormRuleService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -32,12 +32,12 @@ import java.util.List;
  * @Author zhaoRong
  * @Date 2019/4/2 10:42
  **/
-@Transactional(propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Exception.class)
+@Slf4j
 @Service
+@Transactional(propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Exception.class)
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class DormRuleServiceImpl implements DormRuleService {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    @Autowired
-    DormRuleMapper dormRuleMapper;
+    private final DormRuleMapper dormRuleMapper;
 
     /**
      * 保存/修改宿舍规则信息
@@ -57,7 +57,7 @@ public class DormRuleServiceImpl implements DormRuleService {
         dormRule.setLastModifyTime(curDate);
         dormRule.setLastModifyUserId(userId);
         if (StringUtils.isEmpty(editRuleForm.getPkDormRuleId())) {//新增
-            logger.info("service: 开始进入新增宿舍规则信息");
+            log.info("service: 开始进入新增宿舍规则信息");
             String pkDormRuleId = UUIDSequence.next();
             dormRule.setPkDormRuleId(pkDormRuleId);
             dormRule.setStatus(CodeEnum.ENABLE.getCode());
@@ -67,7 +67,7 @@ public class DormRuleServiceImpl implements DormRuleService {
             Assert.isFalse(count == Constant.ZERO);
             return dormRule;
         } else {//更新宿舍规则信息
-            logger.info("service: 开始进入更新宿舍规则信息");
+            log.info("service: 开始进入更新宿舍规则信息");
             dormRuleMapper.updateById(dormRule);
             return dormRuleMapper.selectById(editRuleForm.getPkDormRuleId());
         }
@@ -81,7 +81,7 @@ public class DormRuleServiceImpl implements DormRuleService {
     @Transactional
     @Override
     public void deleteDormRule(DeleteForm deleteForm) {
-        logger.info("service: 删除宿舍规则开始");
+        log.info("service: 删除宿舍规则开始");
         List<String> ids = deleteForm.getDelIds();
         Integer delStatus = deleteForm.getDelStatus();
         int count;
@@ -114,7 +114,7 @@ public class DormRuleServiceImpl implements DormRuleService {
      */
     @Override
     public PageInfo<DormRuleView> listDormRules(DormRuleForm dormRuleForm) {
-        logger.info("service: 分页查询宿舍规则信息开始");
+        log.info("service: 分页查询宿舍规则信息开始");
         if (dormRuleForm.getStartTime() != null) {
             dormRuleForm.setStartTime(DateUtils.formatDate2DateTimeStart(dormRuleForm.getStartTime()));
         }

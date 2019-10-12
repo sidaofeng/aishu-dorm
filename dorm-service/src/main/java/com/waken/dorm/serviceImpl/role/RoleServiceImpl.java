@@ -22,14 +22,17 @@ import com.waken.dorm.dao.role.RoleResourceRelMapper;
 import com.waken.dorm.dao.user.UserPrivilegeMapper;
 import com.waken.dorm.manager.UserManager;
 import com.waken.dorm.service.role.RoleService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -38,16 +41,14 @@ import java.util.stream.Collectors;
  * @Author zhaoRong
  * @Date 2019/3/25 14:04
  **/
-@Transactional(propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Exception.class)
+@Slf4j
 @Service
+@Transactional(propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Exception.class)
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class RoleServiceImpl implements RoleService {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    @Autowired
-    RoleMapper roleMapper;
-    @Autowired
-    RoleResourceRelMapper roleResourceRelMapper;
-    @Autowired
-    UserPrivilegeMapper userPrivilegeMapper;
+    private final RoleMapper roleMapper;
+    private final RoleResourceRelMapper roleResourceRelMapper;
+    private final UserPrivilegeMapper userPrivilegeMapper;
 
     @Transactional
     @Override
@@ -60,7 +61,7 @@ public class RoleServiceImpl implements RoleService {
         role.setLastModifyTime(curDate);
         role.setLastModifyUserId(userId);
         if (StringUtils.isEmpty(editRoleForm.getPkRoleId())) {//新增
-            logger.info("service: 新增角色开始");
+            log.info("service: 新增角色开始");
             String pkRoleId = UUIDSequence.next();
             role.setPkRoleId(pkRoleId);
             role.setStatus(CodeEnum.ENABLE.getCode());
@@ -72,7 +73,7 @@ public class RoleServiceImpl implements RoleService {
             }
             return role;
         } else {//修改
-            logger.info("service: 更新角色信息开始");
+            log.info("service: 更新角色信息开始");
             roleMapper.updateById(role);
             return role;
         }
@@ -82,7 +83,7 @@ public class RoleServiceImpl implements RoleService {
     @Transactional // 事务控制
     @Override
     public void deleteRole(DeleteForm deleteForm) {
-        logger.info("service: 删除角色开始");
+        log.info("service: 删除角色开始");
         List<String> roleIds = deleteForm.getDelIds();
         Integer delStatus = deleteForm.getDelStatus();
         int count;
@@ -112,7 +113,7 @@ public class RoleServiceImpl implements RoleService {
      */
     @Override
     public PageInfo<Role> listRoles(QueryRoleForm queryRoleForm) {
-        logger.info("service: 查询角色开始");
+        log.info("service: 查询角色开始");
         EntityWrapper wrapper = new EntityWrapper<Role>();
         if (StringUtils.isNotEmpty(queryRoleForm.getPkRoleId())) {
             wrapper.eq("pk_role_id", queryRoleForm.getPkRoleId());
@@ -198,7 +199,7 @@ public class RoleServiceImpl implements RoleService {
     @Transactional// 事务控制
     @Override
     public void batchAddRoleResourceRel(AddRoleResourceRelForm addRoleResourceRelForm) {
-        logger.info("service: 批量新增角色资源关联开始");
+        log.info("service: 批量新增角色资源关联开始");
         this.batchAddRelValidate(addRoleResourceRelForm);
         List<RoleResourceRel> toBeAddRoleResourceRel = this.getToBeAddRoleResourceRel(addRoleResourceRelForm);
         if (!toBeAddRoleResourceRel.isEmpty()) {

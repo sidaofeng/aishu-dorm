@@ -14,7 +14,10 @@ import com.waken.dorm.common.form.dorm.AddDormViolationForm;
 import com.waken.dorm.common.form.dorm.DormViolationForm;
 import com.waken.dorm.common.form.dorm.UpdateDormViolationForm;
 import com.waken.dorm.common.sequence.UUIDSequence;
-import com.waken.dorm.common.utils.*;
+import com.waken.dorm.common.utils.Assert;
+import com.waken.dorm.common.utils.BeanMapper;
+import com.waken.dorm.common.utils.DateUtils;
+import com.waken.dorm.common.utils.DormUtil;
 import com.waken.dorm.common.view.dorm.AppDormViolationView;
 import com.waken.dorm.common.view.dorm.DormViolationView;
 import com.waken.dorm.dao.dorm.DormMapper;
@@ -22,8 +25,8 @@ import com.waken.dorm.dao.dorm.DormViolationMapper;
 import com.waken.dorm.dao.student.StudentMapper;
 import com.waken.dorm.manager.UserManager;
 import com.waken.dorm.service.dorm.DormViolationService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -38,16 +41,14 @@ import java.util.List;
  * @Author zhaoRong
  * @Date 2019/4/2 13:00
  **/
-@Transactional(propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Exception.class)
+@Slf4j
 @Service
+@Transactional(propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Exception.class)
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class DormViolationServiceImpl implements DormViolationService {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    @Autowired
-    DormViolationMapper dormViolationMapper;
-    @Autowired
-    DormMapper dormMapper;
-    @Autowired
-    StudentMapper studentMapper;
+    private final DormViolationMapper dormViolationMapper;
+    private final DormMapper dormMapper;
+    private final StudentMapper studentMapper;
 
     /**
      * 新增违规记录
@@ -85,7 +86,7 @@ public class DormViolationServiceImpl implements DormViolationService {
     @Transactional
     @Override
     public void deleteDormViolation(DeleteForm deleteForm) {
-        logger.info("service: 删除违规记录开始");
+        log.info("service: 删除违规记录开始");
         List<String> ids = deleteForm.getDelIds();
         Integer delStatus = deleteForm.getDelStatus();
         int count;
@@ -117,7 +118,7 @@ public class DormViolationServiceImpl implements DormViolationService {
      */
     @Override
     public PageInfo<DormViolationView> listDormViolations(DormViolationForm dormViolationForm) {
-        logger.info("service: 违规记录分页查询开始");
+        log.info("service: 违规记录分页查询开始");
         if (dormViolationForm.getStartTime() != null) {
             dormViolationForm.setStartTime(DateUtils.formatDate2DateTimeStart(dormViolationForm.getStartTime()));
         }
@@ -161,7 +162,7 @@ public class DormViolationServiceImpl implements DormViolationService {
      */
     @Override
     public PageInfo<AppDormViolationView> appListDormViolations(DormViolationForm dormViolationForm) {
-        logger.info("service: 违规记录分页查询开始");
+        log.info("service: 违规记录分页查询开始");
         PageHelper.startPage(dormViolationForm.getPageNum(), dormViolationForm.getPageSize());
         List<AppDormViolationView> appDormViolationViews = dormViolationMapper.appListDormViolations(dormViolationForm);
         return new PageInfo<>(appDormViolationViews);

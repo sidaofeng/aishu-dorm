@@ -23,8 +23,8 @@ import com.waken.dorm.dao.student.StudentMapper;
 import com.waken.dorm.manager.StudentManager;
 import com.waken.dorm.manager.UserManager;
 import com.waken.dorm.service.student.StudentService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -43,18 +43,15 @@ import java.util.Map;
  * @Author zhaoRong
  * @Date 2019/3/29 21:22
  **/
-@Transactional(propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Exception.class)
+@Slf4j
 @Service
+@Transactional(propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Exception.class)
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class StudentServiceImpl implements StudentService {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    @Autowired
-    StudentMapper studentMapper;
-    @Autowired
-    StudentManager studentManager;
-    @Autowired
-    RedisCacheManager redisCacheManager;
-    @Autowired
-    AliyunOSSUtil aliyunOSSUtil;
+    private final StudentMapper studentMapper;
+    private final StudentManager studentManager;
+    private final RedisCacheManager redisCacheManager;
+    private final AliyunOSSUtil aliyunOSSUtil;
 
     /**
      * 批量新增学生
@@ -100,7 +97,7 @@ public class StudentServiceImpl implements StudentService {
         student.setLastModifyUserId(userId);
         //新增
         if (StringUtils.isEmpty(editStudentForm.getPkStudentId())) {
-            logger.info("service: 开始进入单个添加学生");
+            log.info("service: 开始进入单个添加学生");
             String studentId = UUIDSequence.next();
             student.setPkStudentId(studentId);
             if (editStudentForm.getGender() == null) {
@@ -115,7 +112,7 @@ public class StudentServiceImpl implements StudentService {
             studentMapper.insert(student);
             return student;
         } else {//修改
-            logger.info("service: 开始进入修改学生信息");
+            log.info("service: 开始进入修改学生信息");
             studentMapper.updateById(student);
             return studentMapper.selectById(editStudentForm.getPkStudentId());
         }
@@ -129,7 +126,7 @@ public class StudentServiceImpl implements StudentService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void deleteStudent(DeleteForm deleteForm) {
-        logger.info("service: 删除学生开始");
+        log.info("service: 删除学生开始");
         List<String> studentIds = deleteForm.getDelIds();
         Integer delStatus = deleteForm.getDelStatus();
         // 物理删除
@@ -164,7 +161,7 @@ public class StudentServiceImpl implements StudentService {
      */
     @Override
     public PageInfo<StudentView> listStudents(StudentForm studentForm) {
-        logger.info("service: 分页查询宿舍评分信息开始");
+        log.info("service: 分页查询宿舍评分信息开始");
         if (studentForm.getStartTime() != null) {
             studentForm.setStartTime(DateUtils.formatDate2DateTimeStart(studentForm.getStartTime()));
         }
@@ -185,7 +182,7 @@ public class StudentServiceImpl implements StudentService {
      */
     @Override
     public AjaxResponse studentLogin(Integer studentNum, String password) {
-        logger.info("service: 开始进入学生登陆");
+        log.info("service: 开始进入学生登陆");
         List<Student> studentList = studentMapper.selectList(new EntityWrapper<Student>()
                 .eq("student_num", studentNum)
         );
@@ -222,7 +219,7 @@ public class StudentServiceImpl implements StudentService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void updatePasswordByNew(String newPassword) {
-        logger.info("service : 开始进入修改密码");
+        log.info("service : 开始进入修改密码");
         Student student = studentMapper.selectById(studentManager.getCurrentStudentId());
         Assert.notNull(student,"设置新密码失败");
         String password = Md5Utils.encodeByMD5(newPassword);
@@ -257,13 +254,13 @@ public class StudentServiceImpl implements StudentService {
             Assert.notNull(headImgUrl,"上传失败");
             updateStuff.setImgUrl(headImgUrl);
             studentMapper.updateById(updateStuff);
-            logger.info("学生头像访问路径：" + headImgUrl);
+            log.info("学生头像访问路径：" + headImgUrl);
             ImgView imgView = new ImgView();
             imgView.setImgUrl(headImgUrl);
             return imgView;
         } catch (Exception e) {
             e.printStackTrace();
-            logger.info("学生头像上传失败，原因是：" + e.getMessage());
+            log.info("学生头像上传失败，原因是：" + e.getMessage());
         }
         return null;
     }

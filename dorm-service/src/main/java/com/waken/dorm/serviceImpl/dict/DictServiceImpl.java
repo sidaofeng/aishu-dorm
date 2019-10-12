@@ -15,9 +15,8 @@ import com.waken.dorm.common.view.dict.DictView;
 import com.waken.dorm.dao.dict.DictMapper;
 import com.waken.dorm.manager.UserManager;
 import com.waken.dorm.service.dict.DictService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -34,10 +33,10 @@ import java.util.List;
  **/
 @Slf4j
 @Service
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @Transactional(propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Exception.class)
 public class DictServiceImpl implements DictService {
-    @Autowired
-    DictMapper dictMapper;
+    private final DictMapper dictMapper;
 
     /**
      * 保存或修改系统字典

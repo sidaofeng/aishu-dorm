@@ -13,20 +13,19 @@ import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.dorm.AddDormRepairForm;
 import com.waken.dorm.common.form.dorm.DormRepairForm;
 import com.waken.dorm.common.form.dorm.UpdateRepairForm;
+import com.waken.dorm.common.sequence.UUIDSequence;
 import com.waken.dorm.common.utils.Assert;
 import com.waken.dorm.common.utils.DateUtils;
 import com.waken.dorm.common.utils.DormUtil;
 import com.waken.dorm.common.utils.StringUtils;
-import com.waken.dorm.common.sequence.UUIDSequence;
 import com.waken.dorm.common.view.dorm.DormRepairView;
 import com.waken.dorm.dao.dorm.DormMapper;
 import com.waken.dorm.dao.dorm.DormRepairMapper;
 import com.waken.dorm.dao.student.StudentMapper;
 import com.waken.dorm.manager.UserManager;
 import com.waken.dorm.service.dorm.DormRepairService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -42,15 +41,13 @@ import java.util.List;
  * @Date 2019/4/1 21:14
  **/
 @Slf4j
-@Transactional(propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Exception.class)
 @Service
+@Transactional(propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Exception.class)
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class DormRepairServiceImpl implements DormRepairService {
-    @Autowired
-    DormRepairMapper dormRepairMapper;
-    @Autowired
-    DormMapper dormMapper;
-    @Autowired
-    StudentMapper studentMapper;
+    private final DormRepairMapper dormRepairMapper;
+    private final DormMapper dormMapper;
+    private final StudentMapper studentMapper;
 
     /**
      * 新增维修记录

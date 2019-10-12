@@ -23,6 +23,7 @@ import com.waken.dorm.dao.user.UserPrivilegeMapper;
 import com.waken.dorm.manager.UserManager;
 import com.waken.dorm.service.user.UserPrivilegeService;
 import com.waken.dorm.service.user.UserService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -38,17 +39,13 @@ import java.util.stream.Collectors;
  **/
 @Slf4j
 @Service
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class UserPrivilegeServiceImpl implements UserPrivilegeService {
-    @Autowired
-    UserPrivilegeMapper privilegeMapper;
-    @Autowired
-    UserService userService;
-    @Autowired
-    UserMapper userMapper;
-    @Autowired
-    ResourceMapper resourceMapper;
-    @Autowired
-    TreeUtil treeUtil;
+    private final UserPrivilegeMapper privilegeMapper;
+    private final UserService userService;
+    private final UserMapper userMapper;
+    private final ResourceMapper resourceMapper;
+    private final TreeUtil treeUtil;
 
     /**
      * 获取用户的角色信息

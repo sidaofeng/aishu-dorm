@@ -11,13 +11,14 @@ import com.waken.dorm.common.enums.CodeEnum;
 import com.waken.dorm.common.exception.ServerException;
 import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.log.SysLogForm;
+import com.waken.dorm.common.sequence.UUIDSequence;
 import com.waken.dorm.common.utils.AddressUtils;
 import com.waken.dorm.common.utils.DateUtils;
-import com.waken.dorm.common.sequence.UUIDSequence;
 import com.waken.dorm.common.view.log.SysLogView;
 import com.waken.dorm.dao.log.SysLogMapper;
 import com.waken.dorm.manager.UserManager;
 import com.waken.dorm.service.log.LogService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
@@ -40,13 +41,12 @@ import java.util.*;
  **/
 @Slf4j
 @Service
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @Transactional(propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Exception.class)
 public class LogServiceImpl implements LogService {
-    @Autowired
-    SysLogMapper logMapper;
+    private final SysLogMapper logMapper;
 
-    @Autowired
-    ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper;
 
     @Override
     @Transactional(rollbackFor = {RuntimeException.class, Exception.class})

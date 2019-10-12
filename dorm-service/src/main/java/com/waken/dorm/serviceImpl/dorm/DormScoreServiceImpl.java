@@ -10,15 +10,18 @@ import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.dorm.DormScoreForm;
 import com.waken.dorm.common.form.dorm.ListDormScoreForm;
 import com.waken.dorm.common.sequence.UUIDSequence;
-import com.waken.dorm.common.utils.*;
+import com.waken.dorm.common.utils.Assert;
+import com.waken.dorm.common.utils.BeanMapper;
+import com.waken.dorm.common.utils.DateUtils;
+import com.waken.dorm.common.utils.DormUtil;
 import com.waken.dorm.common.view.dorm.AppDormScoreView;
 import com.waken.dorm.common.view.dorm.DormScoreView;
 import com.waken.dorm.dao.dorm.DormMapper;
 import com.waken.dorm.dao.dorm.DormScoreMapper;
 import com.waken.dorm.manager.UserManager;
 import com.waken.dorm.service.dorm.DormScoreService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -33,14 +36,13 @@ import java.util.List;
  * @Author zhaoRong
  * @Date 2019/3/31 19:45
  **/
-@Transactional(propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Exception.class)
+@Slf4j
 @Service
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
+@Transactional(propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Exception.class)
 public class DormScoreServiceImpl implements DormScoreService {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    @Autowired
-    DormScoreMapper dormScoreMapper;
-    @Autowired
-    DormMapper dormMapper;
+    private final DormScoreMapper dormScoreMapper;
+    private final DormMapper dormMapper;
 
     /**
      * 批量导入宿舍评分记录（excel）
@@ -74,7 +76,7 @@ public class DormScoreServiceImpl implements DormScoreService {
     @Transactional
     @Override
     public void deleteDormScore(DeleteForm deleteForm) {
-        logger.info("service: 删除积分开始");
+        log.info("service: 删除积分开始");
         List<String> ids = deleteForm.getDelIds();
         Integer delStatus = deleteForm.getDelStatus();
         int count;
@@ -119,7 +121,7 @@ public class DormScoreServiceImpl implements DormScoreService {
      */
     @Override
     public PageInfo<DormScoreView> listDormScores(ListDormScoreForm listDormScoreForm) {
-        logger.info("service: 分页查询宿舍评分信息开始");
+        log.info("service: 分页查询宿舍评分信息开始");
         if (listDormScoreForm.getStartTime() != null) {
             listDormScoreForm.setStartTime(DateUtils.formatDate2DateTimeStart(listDormScoreForm.getStartTime()));
         }

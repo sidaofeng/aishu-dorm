@@ -16,9 +16,8 @@ import com.waken.dorm.common.view.dorm.DormBuildingView;
 import com.waken.dorm.dao.dorm.DormBuildingMapper;
 import com.waken.dorm.manager.UserManager;
 import com.waken.dorm.service.dorm.DormBuildingService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -26,7 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * @ClassName DormBuildingServiceImpl
@@ -36,10 +34,10 @@ import java.util.Optional;
  **/
 @Slf4j
 @Service
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @Transactional(propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Exception.class)
 public class DormBuildingServiceImpl implements DormBuildingService {
-    @Autowired
-    DormBuildingMapper buildingMapper;
+    private final DormBuildingMapper buildingMapper;
 
     /**
      * 保存/修改宿舍楼信息
