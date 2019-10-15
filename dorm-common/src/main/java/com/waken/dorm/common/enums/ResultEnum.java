@@ -15,7 +15,8 @@ public enum ResultEnum {
     UNKNOWN_ERROR("服务端发生了未知错误,请联系管理员", "-2"),
     SERVER_ERROR("服务端异常", "500"),
     UN_PERMS("您没有对应的权限", "403"),
-    UN_AUTH("尚未登录，无权限访问", "401");
+    UN_AUTH("尚未登录，无权限访问", "401"),
+    LIMIT("你手速太快了，请稍后再试！", "501");
     private String msg;
     private String code;
 

@@ -1,11 +1,11 @@
 package com.waken.dorm.common.handle;
 
-import com.waken.dorm.common.enums.ResultEnum;
-import com.waken.dorm.common.exception.ServerException;
 import com.waken.dorm.common.base.AjaxResponse;
+import com.waken.dorm.common.enums.ResultEnum;
+import com.waken.dorm.common.exception.LimitAccessException;
+import com.waken.dorm.common.exception.ServerException;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.authz.UnauthorizedException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -16,29 +16,34 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * @Author zhaoRong
  * @Date 2019/6/10 16:49
  **/
+@Slf4j
 @ControllerAdvice
 public class ExceptionHandle {
-    private static final Logger logger = LoggerFactory.getLogger(ExceptionHandle.class);
 
     @ExceptionHandler(value = Exception.class)
     @ResponseBody
     public AjaxResponse handle(Exception e) {
         if (e instanceof ServerException) {
             ServerException serverException = (ServerException) e;
-            e.printStackTrace();
-            logger.error("服务端异常：" + e);
+            log.error("服务端异常：{}", e.getMessage());
             return AjaxResponse.error(serverException.getCode(), serverException.getMessage());
         } else {
-            e.printStackTrace();
-            logger.error("未知错误：" + e);
+            log.error("未知错误：{}", e.getMessage());
             return AjaxResponse.error(ResultEnum.UNKNOWN_ERROR);
         }
+    }
+
+    @ExceptionHandler(value = LimitAccessException.class)
+    @ResponseBody
+    public AjaxResponse handle(LimitAccessException le) {
+        log.error("接口访问超出频率限制: {}", le.getMessage());
+        return AjaxResponse.error(ResultEnum.LIMIT);
     }
 
     @ExceptionHandler(value = UnauthorizedException.class)
     @ResponseBody
     public AjaxResponse handle(UnauthorizedException ue) {
-        logger.error("无权限异常：" + ue.getMessage());
+        log.error("无权限异常：{}", ue.getMessage());
         return AjaxResponse.error(ResultEnum.UN_PERMS.getCode(), getErrorMsg(ue.getMessage()));
     }
 
@@ -58,7 +63,7 @@ public class ExceptionHandle {
             return message;
         }
         errorMsg = errorMsg + message.substring(message.indexOf("["), message.indexOf("]") + 1);
-        logger.error(errorMsg);
+        log.error(errorMsg);
         return errorMsg;
     }
 }

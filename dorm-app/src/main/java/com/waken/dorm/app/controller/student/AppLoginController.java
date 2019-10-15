@@ -1,9 +1,10 @@
 package com.waken.dorm.app.controller.student;
 
 import com.waken.dorm.app.controller.base.AppBaseController;
+import com.waken.dorm.common.annotation.Limit;
 import com.waken.dorm.common.annotation.PrivilegeResource;
-import com.waken.dorm.common.enums.AccessStrategy;
 import com.waken.dorm.common.base.AjaxResponse;
+import com.waken.dorm.common.enums.AccessStrategy;
 import com.waken.dorm.common.utils.StringUtils;
 import com.waken.dorm.common.view.base.ImgView;
 import com.waken.dorm.manager.StudentManager;
@@ -12,6 +13,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,14 +29,13 @@ import org.springframework.web.multipart.MultipartFile;
  * @Date 2019/3/29 21:26
  **/
 @Slf4j
-@Api(value = "APP端登陆相关接口", description = "APP端登陆相关接口(赵荣)")
 @RestController
+@Api(value = "APP端登陆相关接口", description = "APP端登陆相关接口(赵荣)")
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class AppLoginController extends AppBaseController {
 
-    @Autowired
-    StudentService studentService;
-    @Autowired
-    StudentManager studentManager;
+    private final StudentService studentService;
+    private final StudentManager studentManager;
 
     /**
      * 学生登录
@@ -49,6 +50,7 @@ public class AppLoginController extends AppBaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
+    @Limit(key = "login", period = 60, count = 20, name = "学生登录接口", prefix = "limit")
     public AjaxResponse studentLogin(@RequestParam Integer studentNum, String password) {
         log.info("开始调用学生登陆接口：" + studentNum);
         if (null == studentNum || StringUtils.isBlank(password)) {

@@ -1,6 +1,7 @@
 package com.waken.dorm.controller.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.waken.dorm.common.annotation.Limit;
 import com.waken.dorm.common.authentication.JWTToken;
 import com.waken.dorm.common.authentication.JWTUtil;
 import com.waken.dorm.common.base.ActiveUser;
@@ -67,6 +68,7 @@ public class LoginController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
+    @Limit(key = "login", period = 60, count = 20, name = "用户登录接口", prefix = "limit")
     public AjaxResponse login(@RequestBody QueryUserForm queryUserForm, HttpServletRequest request) {
         log.info("开始调用登陆接口：" + queryUserForm.getUserName());
         if (StringUtils.isEmpty(queryUserForm.getUserName()) || StringUtils.isEmpty(queryUserForm.getPassword())) {
