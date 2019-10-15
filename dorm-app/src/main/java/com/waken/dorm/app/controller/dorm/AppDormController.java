@@ -9,6 +9,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,11 +24,10 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @Api(value = "APP端宿舍相关接口", description = "APP端宿舍相关接口(AiShu)")
 @RestController
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class AppDormController extends AppBaseController {
-    @Autowired
-    StudentManager studentManager;
-    @Autowired
-    DormService dormService;
+    private final StudentManager studentManager;
+    private final DormService dormService;
 
     @GetMapping("room/query")
     @ApiOperation(value = "queryAppDormView（app查询宿舍信息）", notes = "app查询宿舍信息 ")

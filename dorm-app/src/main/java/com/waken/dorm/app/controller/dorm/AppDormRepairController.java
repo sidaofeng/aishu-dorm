@@ -2,11 +2,11 @@ package com.waken.dorm.app.controller.dorm;
 
 import com.github.pagehelper.PageInfo;
 import com.waken.dorm.app.controller.base.AppBaseController;
+import com.waken.dorm.common.base.AjaxResponse;
 import com.waken.dorm.common.entity.dorm.DormRepair;
 import com.waken.dorm.common.enums.CodeEnum;
 import com.waken.dorm.common.form.dorm.AddDormRepairForm;
 import com.waken.dorm.common.form.dorm.DormRepairForm;
-import com.waken.dorm.common.base.AjaxResponse;
 import com.waken.dorm.common.view.dorm.DormRepairView;
 import com.waken.dorm.manager.StudentManager;
 import com.waken.dorm.service.dorm.DormRepairService;
@@ -15,6 +15,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,13 +32,11 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @Api(value = "APP端宿舍维修相关接口", description = "APP端宿舍维修相关接口(AiShu)")
 @RestController
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class AppDormRepairController extends AppBaseController {
-    @Autowired
-    DormRepairService dormRepairService;
-    @Autowired
-    StudentManager studentManager;
-    @Autowired
-    DormService dormService;
+    private final DormRepairService dormRepairService;
+    private final StudentManager studentManager;
+    private final DormService dormService;
 
     @PostMapping(value = "repair/add")
     @ApiOperation(value = "新增宿舍维修记录", notes = "新增宿舍维修记录")

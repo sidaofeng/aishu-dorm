@@ -8,6 +8,7 @@ import com.waken.dorm.common.enums.ResultEnum;
 import com.waken.dorm.common.exception.ServerException;
 import com.waken.dorm.common.utils.StringUtils;
 import com.waken.dorm.common.utils.redis.RedisCacheManager;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.method.HandlerMethod;
@@ -23,9 +24,10 @@ import java.lang.reflect.Method;
  * @Date 2019/8/6 22:20
  **/
 @Slf4j
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class AppInterceptor extends HandlerInterceptorAdapter {
-    @Autowired
-    RedisCacheManager redisCacheManager;
+
+    private final RedisCacheManager redisCacheManager;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {

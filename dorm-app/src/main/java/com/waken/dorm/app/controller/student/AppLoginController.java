@@ -36,7 +36,6 @@ public class AppLoginController extends AppBaseController {
 
     private final StudentService studentService;
     private final StudentManager studentManager;
-
     /**
      * 学生登录
      */

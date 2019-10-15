@@ -1,8 +1,8 @@
 package com.waken.dorm.app.controller.dorm;
 
 import com.waken.dorm.app.controller.base.AppBaseController;
-import com.waken.dorm.common.form.dorm.ListDormScoreForm;
 import com.waken.dorm.common.base.AjaxResponse;
+import com.waken.dorm.common.form.dorm.ListDormScoreForm;
 import com.waken.dorm.common.view.dorm.AppDormScoreView;
 import com.waken.dorm.manager.StudentManager;
 import com.waken.dorm.service.dorm.DormScoreService;
@@ -10,6 +10,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,14 +23,13 @@ import org.springframework.web.bind.annotation.RestController;
  * @Date 2019/3/31 21:07
  **/
 @Slf4j
-@Api(value = "APP端宿舍评分相关接口", description = "APP端宿舍评分相关接口(AiShu)")
 @RestController
+@Api(value = "APP端宿舍评分相关接口", description = "APP端宿舍评分相关接口(AiShu)")
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class AppDormScoreController extends AppBaseController {
-    @Autowired
-    DormScoreService dormScoreService;
 
-    @Autowired
-    StudentManager studentManager;
+    private final DormScoreService dormScoreService;
+    private final StudentManager studentManager;
 
     @GetMapping(value = "score/page")
     @ApiOperation(value = "分页查询学生对应宿舍的评分", notes = "分页查询学生对应宿舍的评分 ")
