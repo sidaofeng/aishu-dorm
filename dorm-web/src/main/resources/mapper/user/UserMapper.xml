@@ -49,7 +49,6 @@
             resultType="com.waken.dorm.common.view.user.UserView">
         SELECT
         u.user_id AS userId,
-        r.role_name AS roleName,
         u.mobile ,
         u.user_name AS userName,
         u.gender,
@@ -65,8 +64,6 @@
         FROM rm_user u
         LEFT JOIN rm_user uu ON uu.user_id = u.create_user_id
         LEFT JOIN rm_user uuu ON uuu.user_id = u.last_modify_user_id
-        LEFT JOIN rm_user_privilege up ON up.user_id = u.user_id
-        LEFT JOIN rm_role r ON r.pk_role_id = up.subject_id
         WHERE
         1 = 1
         <if test="form.userId != null and form.userId != ''">

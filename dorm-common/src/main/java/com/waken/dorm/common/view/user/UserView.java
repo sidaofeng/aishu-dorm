@@ -17,8 +17,6 @@ import java.util.Date;
 public class UserView extends BaseView {
     private String userId;
 
-    private String roleName;
-
     private String mobile;
 
     private String userName;
