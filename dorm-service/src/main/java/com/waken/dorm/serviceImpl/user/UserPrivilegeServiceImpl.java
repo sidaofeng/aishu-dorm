@@ -1,6 +1,6 @@
 package com.waken.dorm.serviceImpl.user;
 
-import com.baomidou.mybatisplus.mapper.EntityWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.google.common.collect.Lists;
 import com.waken.dorm.common.constant.Constant;
 import com.waken.dorm.common.entity.resource.Resource;
@@ -111,12 +111,12 @@ public class UserPrivilegeServiceImpl implements UserPrivilegeService {
         String roleId = userRoleRelForm.getRoleId();
         Assert.notNull(userId);
         Assert.notNull(roleId);
-        List<UserPrivilege> privileges = privilegeMapper.selectList(new EntityWrapper<UserPrivilege>()
-                .eq("user_id", userId)
-                .eq("subject_type", CodeEnum.ROLE.getCode())
+        UserPrivilege userPrivilege = privilegeMapper.selectOne(new LambdaQueryWrapper<UserPrivilege>()
+                .eq(UserPrivilege::getUserId, userId)
+                .eq(UserPrivilege::getSubjectType, CodeEnum.ROLE.getCode())
         );
-        if (null != privileges && !privileges.isEmpty()) {
-            privilegeMapper.deleteById(privileges.get(0).getPkPrivilegeId());
+        if (null != userPrivilege) {
+            privilegeMapper.deleteById(userPrivilege.getPkPrivilegeId());
         }
         UserPrivilege privilege = new UserPrivilege();
         String pkId = UUIDSequence.next();
@@ -156,9 +156,9 @@ public class UserPrivilegeServiceImpl implements UserPrivilegeService {
         String userId = addUserRoleRelForm.getUserId();
         this.checkSuperAdmin(userId);
         List<String> roleIds = addUserRoleRelForm.getRoleIds();
-        List<UserPrivilege> userRoleRelList = privilegeMapper.selectList(new EntityWrapper<UserPrivilege>()
-                .eq("user_id", userId)
-                .eq("subject_type", CodeEnum.ROLE.getCode())
+        List<UserPrivilege> userRoleRelList = privilegeMapper.selectList(new LambdaQueryWrapper<UserPrivilege>()
+                .eq(UserPrivilege::getUserId, userId)
+                .eq(UserPrivilege::getSubjectType, CodeEnum.ROLE.getCode())
         );
         if (!userRoleRelList.isEmpty()) {
             // 接收已经存在关联的角色id
@@ -182,16 +182,13 @@ public class UserPrivilegeServiceImpl implements UserPrivilegeService {
         if (!roleIds.isEmpty()) {
             List<UserPrivilege> toBeAddUserRoleRelList = new ArrayList<>();
             for (String roleId : roleIds) {
-                String pkId = UUIDSequence.next();
-                String curUserId = UserManager.getCurrentUserId();
-                Date curDate = DateUtils.getCurrentDate();
                 UserPrivilege userRoleRel = new UserPrivilege();
-                userRoleRel.setPkPrivilegeId(pkId);
+                userRoleRel.setPkPrivilegeId(UUIDSequence.next());
                 userRoleRel.setUserId(userId);
                 userRoleRel.setSubjectId(roleId);
                 userRoleRel.setSubjectType(CodeEnum.ROLE.getCode());
-                userRoleRel.setCreateTime(curDate);
-                userRoleRel.setCreateUserId(curUserId);
+                userRoleRel.setCreateTime(DateUtils.getCurrentDate());
+                userRoleRel.setCreateUserId(UserManager.getCurrentUserId());
                 toBeAddUserRoleRelList.add(userRoleRel);
             }
             return toBeAddUserRoleRelList;
@@ -223,12 +220,9 @@ public class UserPrivilegeServiceImpl implements UserPrivilegeService {
         String userId = addUserRoleRelForm.getUserId();
         this.checkSuperAdmin(userId);
         List<String> resourceIds = addUserRoleRelForm.getResourceIds();
-        List<UserPrivilege> userRoleRelList = privilegeMapper.selectList(new EntityWrapper<UserPrivilege>()
-                .eq("user_id", userId)
-                .andNew()
-                .eq("subject_type", CodeEnum.MENU.getCode())
-                .or()
-                .eq("subject_type", CodeEnum.BUTTON.getCode())
+        List<UserPrivilege> userRoleRelList = privilegeMapper.selectList(new LambdaQueryWrapper<UserPrivilege>()
+                .eq(UserPrivilege::getUserId, userId)
+                .ne(UserPrivilege::getSubjectType,CodeEnum.ROLE.getCode())
         );
         if (!userRoleRelList.isEmpty()) {
             // 接收已经存在关联的资源id

@@ -3,7 +3,6 @@ package com.waken.dorm.authentication;
 import com.waken.dorm.common.authentication.JWTToken;
 import com.waken.dorm.common.authentication.JWTUtil;
 import com.waken.dorm.common.constant.CacheConstant;
-import com.waken.dorm.common.constant.Constant;
 import com.waken.dorm.common.entity.user.User;
 import com.waken.dorm.common.utils.HttpContextUtils;
 import com.waken.dorm.common.utils.IPUtils;
@@ -63,7 +62,6 @@ public class ShiroRealm extends AuthorizingRealm {
             Set<String> permissionSet = cacheService.getPermissions(username);
             simpleAuthorizationInfo.setStringPermissions(permissionSet);
         } catch (Exception e) {
-            e.printStackTrace();
             log.info("获取用户缓存权限信息错误");
         }
 

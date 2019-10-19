@@ -1,8 +1,8 @@
 package com.waken.dorm.serviceImpl.student;
 
-import com.baomidou.mybatisplus.mapper.EntityWrapper;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.waken.dorm.common.base.AjaxResponse;
 import com.waken.dorm.common.constant.CacheConstant;
 import com.waken.dorm.common.constant.Constant;
@@ -160,7 +160,7 @@ public class StudentServiceImpl implements StudentService {
      * @return
      */
     @Override
-    public PageInfo<StudentView> listStudents(StudentForm studentForm) {
+    public IPage<StudentView> listStudents(StudentForm studentForm) {
         log.info("service: 分页查询宿舍评分信息开始");
         if (studentForm.getStartTime() != null) {
             studentForm.setStartTime(DateUtils.formatDate2DateTimeStart(studentForm.getStartTime()));
@@ -168,9 +168,8 @@ public class StudentServiceImpl implements StudentService {
         if (studentForm.getEndTime() != null) {
             studentForm.setEndTime(DateUtils.formatDate2DateTimeEnd(studentForm.getEndTime()));
         }
-        PageHelper.startPage(studentForm.getPageNum(), studentForm.getPageSize());
-        List<StudentView> studentViews = studentMapper.listStudents(studentForm);
-        return new PageInfo<>(studentViews);
+        Page page  = new Page(studentForm.getPageNum(),studentForm.getPageSize());
+        return studentMapper.listStudents(page,studentForm);
     }
 
     /**
@@ -183,31 +182,29 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public AjaxResponse studentLogin(Integer studentNum, String password) {
         log.info("service: 开始进入学生登陆");
-        List<Student> studentList = studentMapper.selectList(new EntityWrapper<Student>()
-                .eq("student_num", studentNum)
+        Student student= studentMapper.selectOne(new LambdaQueryWrapper<Student>()
+                .eq(Student::getStudentNum, studentNum)
         );
-        if (studentList.isEmpty()) {
+        if (null == student){
             return AjaxResponse.error("登录失败，学号错误！");
-        } else {
-            if (StringUtils.isEmpty(studentList.get(Constant.ZERO).getPassword())) {
-                String studentNumStr = String.valueOf(studentNum);
-                if (StringUtils.equals(studentNumStr, password)) {
-                    Student student = studentList.get(Constant.ZERO);
-                    return AjaxResponse.success(ResultEnum.FIRST_LOGIN.getCode(),student);
-                } else {
-                    return AjaxResponse.error("登录失败，初始密码错误！");
-                }
+        }
+        if (StringUtils.isEmpty(student.getPassword())) {
+            String studentNumStr = String.valueOf(studentNum);
+            if (StringUtils.equals(studentNumStr, password)) {
+                return AjaxResponse.success(ResultEnum.FIRST_LOGIN.getCode(),student);
             } else {
-                String passwordMd5 = Md5Utils.encodeByMD5(password);
-                Student student = new Student();
-                student.setStudentNum(studentNum);
-                student.setPassword(passwordMd5);
-                StudentInfo studentInfo = studentMapper.studentLogin(student);
-                Assert.notNull(studentInfo,"密码错误!");
-                String studentToken = this.getStudentToken(studentInfo);
-                studentInfo.setStudentToken(studentToken);
-                return AjaxResponse.success(studentInfo);
+                return AjaxResponse.error("登录失败，初始密码错误！");
             }
+        } else {
+            String passwordMd5 = Md5Utils.encodeByMD5(password);
+            Student studentL = new Student();
+            studentL.setStudentNum(studentNum);
+            studentL.setPassword(passwordMd5);
+            StudentInfo studentInfo = studentMapper.studentLogin(studentL);
+            Assert.notNull(studentInfo,"密码错误!");
+            String studentToken = this.getStudentToken(studentInfo);
+            studentInfo.setStudentToken(studentToken);
+            return AjaxResponse.success(studentInfo);
         }
     }
 
@@ -294,12 +291,12 @@ public class StudentServiceImpl implements StudentService {
             Assert.notNull(editForm.getStudentNum());
             Assert.notNull(editForm.getMobile());
             Assert.isTrue(CheckUtils.isPhoneLegality(editForm.getMobile()),"请输入正确的手机号！");
-            List<Student> studentList = studentMapper.selectList(new EntityWrapper<Student>()
-                    .eq("student_name", editForm.getStudentName())
+            Student student = studentMapper.selectOne(new LambdaQueryWrapper<Student>()
+                    .eq(Student::getStudentName, editForm.getStudentName())
                     .or()
-                    .eq("student_num", editForm.getStudentNum())
+                    .eq(Student::getStudentNum, editForm.getStudentNum())
             );
-            Assert.isNull(studentList,studentList.isEmpty(),"已经存在相同姓名或学号的学生！");
+            Assert.isNull(student,"已经存在相同姓名或学号的学生！");
         } else {
             Student student = studentMapper.selectById(editForm.getPkStudentId());
             Assert.notNull(student,"参数错误");

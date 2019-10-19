@@ -1,6 +1,6 @@
 package com.waken.dorm.service.dorm;
 
-import com.github.pagehelper.PageInfo;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.waken.dorm.common.entity.dorm.DormRepair;
 import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.dorm.AddDormRepairForm;
@@ -15,14 +15,14 @@ public interface DormRepairService {
      * @param addDormRepairForm
      * @return
      */
-    public DormRepair addDormRepair(AddDormRepairForm addDormRepairForm);
+    DormRepair addDormRepair(AddDormRepairForm addDormRepairForm);
 
     /**
      * 删除维修记录
      *
      * @param deleteForm
      */
-    public void deleteDormRepair(DeleteForm deleteForm);
+    void deleteDormRepair(DeleteForm deleteForm);
 
     /**
      * 分页查询宿舍维修记录
@@ -30,7 +30,7 @@ public interface DormRepairService {
      * @param dormRepairForm
      * @return
      */
-    public PageInfo<DormRepairView> listDormRepairs(DormRepairForm dormRepairForm);
+    IPage<DormRepairView> listDormRepairs(DormRepairForm dormRepairForm);
 
     /**
      * 更新宿舍维修记录（提交维修结果）
@@ -38,5 +38,5 @@ public interface DormRepairService {
      * @param updateRepairForm
      * @return
      */
-    public DormRepair updateDormRepair(UpdateRepairForm updateRepairForm);
+    DormRepair updateDormRepair(UpdateRepairForm updateRepairForm);
 }

@@ -8,7 +8,7 @@ import java.util.Date;
 
 /**
  * @ClassName DormScoreView
- * @Description TODO
+ * @Description 宿舍积分视图层
  * @Author zhaoRong
  * @Date 2019/3/31 19:36
  **/

@@ -1,6 +1,6 @@
 package com.waken.dorm.service.dorm;
 
-import com.github.pagehelper.PageInfo;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.waken.dorm.common.entity.dorm.DormScore;
 import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.dorm.DormScoreForm;
@@ -20,14 +20,14 @@ public interface DormScoreService {
      *
      * @param dormScoreList
      */
-    public void batchAddDormScore(List<DormScore> dormScoreList);
+    void batchAddDormScore(List<DormScore> dormScoreList);
 
     /**
      * 删除评分记录
      *
      * @param deleteForm
      */
-    public void deleteDormScore(DeleteForm deleteForm);
+    void deleteDormScore(DeleteForm deleteForm);
 
     /**
      * app端通过学生id查询对应宿舍的评分记录
@@ -35,7 +35,7 @@ public interface DormScoreService {
      * @param listDormScoreForm
      * @return
      */
-    public PageInfo<AppDormScoreView> appListDormScoreViews(ListDormScoreForm listDormScoreForm);
+    IPage<AppDormScoreView> appListDormScoreViews(ListDormScoreForm listDormScoreForm);
 
     /**
      * 分页查询宿舍评分
@@ -43,7 +43,7 @@ public interface DormScoreService {
      * @param listDormScoreForm
      * @return
      */
-    public PageInfo<DormScoreView> listDormScores(ListDormScoreForm listDormScoreForm);
+    IPage<DormScoreView> listDormScores(ListDormScoreForm listDormScoreForm);
 
     /**
      * 修改评分
@@ -51,5 +51,5 @@ public interface DormScoreService {
      * @param dormScoreForm
      * @return
      */
-    public DormScore updateDormScore(DormScoreForm dormScoreForm);
+    DormScore updateDormScore(DormScoreForm dormScoreForm);
 }

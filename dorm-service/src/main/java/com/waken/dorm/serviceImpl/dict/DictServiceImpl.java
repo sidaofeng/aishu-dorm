@@ -1,7 +1,8 @@
 package com.waken.dorm.serviceImpl.dict;
 
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.waken.dorm.common.constant.Constant;
 import com.waken.dorm.common.entity.dict.Dict;
 import com.waken.dorm.common.enums.CodeEnum;
@@ -108,7 +109,7 @@ public class DictServiceImpl implements DictService {
      * @return
      */
     @Override
-    public PageInfo<DictView> listDicts(DictForm dictForm) {
+    public IPage<DictView> listDicts(DictForm dictForm) {
         log.info("service: 分页查询宿舍楼信息开始");
         if (dictForm.getStartTime() != null) {
             dictForm.setStartTime(DateUtils.formatDate2DateTimeStart(dictForm.getStartTime()));
@@ -116,9 +117,8 @@ public class DictServiceImpl implements DictService {
         if (dictForm.getEndTime() != null) {
             dictForm.setEndTime(DateUtils.formatDate2DateTimeEnd(dictForm.getEndTime()));
         }
-        PageHelper.startPage(dictForm.getPageNum(), dictForm.getPageSize());
-        List<DictView> dictViews = dictMapper.listDicts(dictForm);
-        return new PageInfo<>(dictViews);
+        Page page  = new Page(dictForm.getPageNum(),dictForm.getPageSize());
+        return dictMapper.listDicts(page,dictForm);
     }
 
     /**
@@ -140,20 +140,20 @@ public class DictServiceImpl implements DictService {
     }
 
     private void keyValidate(EditDictForm editForm) {
-        DictForm dictForm = new DictForm();
-        dictForm.setTableName(editForm.getTableName());
-        dictForm.setColumnName(editForm.getColumnName());
-        dictForm.setDictKey(editForm.getDictKey());
-        List<DictView> dicts = dictMapper.listDicts(dictForm);
-        Assert.isNull(dicts,dicts.isEmpty(),"操作失败，原因是" + editForm.getColumnName() + "字段中存在相同key");
+        List<Dict> dictList = dictMapper.selectList(new LambdaQueryWrapper<Dict>()
+                .eq(Dict::getTableName, editForm.getTableName())
+                .eq(Dict::getColumnName, editForm.getColumnName())
+                .eq(Dict::getDictKey, editForm.getDictKey())
+        );
+        Assert.isNull(dictList,dictList.isEmpty(),"操作失败，原因是" + editForm.getColumnName() + "字段中存在相同key");
     }
 
     private void valueValidate(EditDictForm editForm) {
-        DictForm dictForm = new DictForm();
-        dictForm.setTableName(editForm.getTableName());
-        dictForm.setColumnName(editForm.getColumnName());
-        dictForm.setDictValue(editForm.getDictValue());
-        List<DictView> dicts = dictMapper.listDicts(dictForm);
-        Assert.isNull(dicts,dicts.isEmpty(),"操作失败，原因是" + editForm.getColumnName() + "字段中存在相同value");
+        List<Dict> dictList = dictMapper.selectList(new LambdaQueryWrapper<Dict>()
+                .eq(Dict::getTableName, editForm.getTableName())
+                .eq(Dict::getColumnName, editForm.getColumnName())
+                .eq(Dict::getDictValue, editForm.getDictValue())
+        );
+        Assert.isNull(dictList,dictList.isEmpty(),"操作失败，原因是" + editForm.getColumnName() + "字段中存在相同value");
     }
 }

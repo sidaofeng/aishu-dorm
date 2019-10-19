@@ -1,6 +1,8 @@
 package com.waken.dorm.dao.dorm;
 
-import com.baomidou.mybatisplus.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.waken.dorm.common.entity.dorm.Dorm;
 import com.waken.dorm.common.form.dorm.DormForm;
 import com.waken.dorm.common.view.dorm.AppDormView;
@@ -16,7 +18,7 @@ public interface DormMapper extends BaseMapper<Dorm> {
 
     AppDormView queryAppDormView(String studentId);
 
-    List<DormView> listDorms(DormForm dormForm);
+    IPage<DormView> listDorms(Page page,@Param("form") DormForm dormForm);
 
     List<Dorm> selectByDormNums(@Param("dormNums") List<String> dormNums);//通过批量dormNums批量查询
 

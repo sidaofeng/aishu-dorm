@@ -1,9 +1,9 @@
 package com.waken.dorm.serviceImpl.log;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import com.waken.dorm.common.annotation.Log;
 import com.waken.dorm.common.constant.Constant;
 import com.waken.dorm.common.entity.log.SysLog;
@@ -124,7 +124,7 @@ public class LogServiceImpl implements LogService {
      * @return
      */
     @Override
-    public PageInfo<SysLogView> listSysLogViews(SysLogForm sysLogForm) {
+    public IPage<SysLogView> listSysLogViews(SysLogForm sysLogForm) {
         log.info("service: 分页查询宿舍信息开始");
         if (sysLogForm.getStartTime() != null) {
             sysLogForm.setStartTime(DateUtils.formatDate2DateTimeStart(sysLogForm.getStartTime()));
@@ -132,9 +132,8 @@ public class LogServiceImpl implements LogService {
         if (sysLogForm.getEndTime() != null) {
             sysLogForm.setEndTime(DateUtils.formatDate2DateTimeEnd(sysLogForm.getEndTime()));
         }
-        PageHelper.startPage(sysLogForm.getPageNum(), sysLogForm.getPageSize());
-        List<SysLogView> sysLogViews = logMapper.listSysLogViews(sysLogForm);
-        return new PageInfo<>(sysLogViews);
+        Page page  = new Page(sysLogForm.getPageNum(),sysLogForm.getPageSize());
+        return logMapper.listSysLogViews(page,sysLogForm);
     }
 
     private StringBuilder handleParams(StringBuilder params, Object[] args, List paramNames) throws JsonProcessingException {

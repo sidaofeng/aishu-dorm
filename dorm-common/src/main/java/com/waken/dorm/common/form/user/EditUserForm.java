@@ -18,8 +18,6 @@ public class EditUserForm {
 
     private String userName;
 
-    private String password;
-
     private String name;
 
     private String mobile;

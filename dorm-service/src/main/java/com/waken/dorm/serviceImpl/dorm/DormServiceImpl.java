@@ -1,8 +1,8 @@
 package com.waken.dorm.serviceImpl.dorm;
 
-import com.baomidou.mybatisplus.mapper.EntityWrapper;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.waken.dorm.common.constant.Constant;
 import com.waken.dorm.common.entity.dorm.Dorm;
 import com.waken.dorm.common.entity.dorm.DormStudentRel;
@@ -122,7 +122,7 @@ public class DormServiceImpl implements DormService {
      * @return
      */
     @Override
-    public PageInfo<DormView> listDorms(DormForm dormForm) {
+    public IPage<DormView> listDorms(DormForm dormForm) {
         log.info("service: 分页查询宿舍信息开始");
         if (dormForm.getStartTime() != null) {
             dormForm.setStartTime(DateUtils.formatDate2DateTimeStart(dormForm.getStartTime()));
@@ -130,9 +130,8 @@ public class DormServiceImpl implements DormService {
         if (dormForm.getEndTime() != null) {
             dormForm.setEndTime(DateUtils.formatDate2DateTimeEnd(dormForm.getEndTime()));
         }
-        PageHelper.startPage(dormForm.getPageNum(), dormForm.getPageSize());
-        List<DormView> dormList = dormMapper.listDorms(dormForm);
-        return new PageInfo<>(dormList);
+        Page page  = new Page(dormForm.getPageNum(),dormForm.getPageSize());
+        return dormMapper.listDorms(page,dormForm);
     }
 
     /**
@@ -189,12 +188,13 @@ public class DormServiceImpl implements DormService {
      */
     @Override
     public String getDormIdByStudentId(String studentId) {
-        List<DormStudentRel> dormStudentRelList = dormStudentRelMapper.selectList(new EntityWrapper<DormStudentRel>()
-                .eq("student_id", studentId)
-                .eq("status", CodeEnum.ENABLE.getCode())
+        DormStudentRel dormStudentRel = dormStudentRelMapper.selectOne(new LambdaQueryWrapper<DormStudentRel>()
+                .eq(DormStudentRel::getStudentId, studentId)
+                .eq(DormStudentRel::getStatus, CodeEnum.ENABLE.getCode())
         );
-        if (null != dormStudentRelList && !dormStudentRelList.isEmpty()) {
-            return dormStudentRelList.get(Constant.ZERO).getDormId();
+
+        if (null != dormStudentRel) {
+            return dormStudentRel.getDormId();
         }
         return Constant.NULL_STRING;
     }
@@ -208,9 +208,9 @@ public class DormServiceImpl implements DormService {
     private List<DormStudentRel> getToBeAddDormStudentRel(AddDormStudentRelForm addDormStudentRelForm) {
         String dormId = addDormStudentRelForm.getDormId();
         List<String> studentIds = addDormStudentRelForm.getStudentIds();
-        List<DormStudentRel> dormStudentRelList = dormStudentRelMapper.selectList(new EntityWrapper<DormStudentRel>()
-                .eq("dorm_id", dormId)
-                .eq("status", CodeEnum.ENABLE.getCode())
+        List<DormStudentRel> dormStudentRelList = dormStudentRelMapper.selectList(new LambdaQueryWrapper<DormStudentRel>()
+                .eq(DormStudentRel::getDormId, dormId)
+                .eq(DormStudentRel::getStatus, CodeEnum.ENABLE.getCode())
         );
         if (!dormStudentRelList.isEmpty()) {
             List<String> existIds = new ArrayList<>();// 接收已经存在关联的学生id
@@ -262,19 +262,18 @@ public class DormServiceImpl implements DormService {
             Assert.notNull(editForm.getDormNum());
             Assert.notNull(editForm.getBuildingLevelth());
             Assert.notNull(editForm.getDormBuildingId());
-            List<Dorm> dorms = dormMapper.selectList(new EntityWrapper<Dorm>()
-                    .eq("dorm_num", editForm.getDormNum())
+            Dorm dorm = dormMapper.selectOne(new LambdaQueryWrapper<Dorm>()
+                    .eq(Dorm::getDormNum, editForm.getDormNum())
             );
-            Assert.isNull(dorms,dorms.isEmpty(),"已存在相同名称的宿舍编号！");
+            Assert.isNull(dorm,"已存在相同名称的宿舍编号！");
         } else {//修改验证
-            Dorm dorm = dormMapper.selectById(editForm.getPkDormId());
-            Assert.notNull(dorm,"参数错误！");
+            Assert.notNull(dormMapper.selectById(editForm.getPkDormId()),"参数错误！");
             if (StringUtils.isNotEmpty(editForm.getDormNum())) {
-                List<Dorm> dorms = dormMapper.selectList(new EntityWrapper<Dorm>()
-                        .eq("dorm_num", editForm.getDormNum())
+                Dorm dorm = dormMapper.selectOne(new LambdaQueryWrapper<Dorm>()
+                        .eq(Dorm::getDormNum, editForm.getDormNum())
                 );
-                if (!dorms.isEmpty()) {
-                    if (!StringUtils.equals(dorms.get(Constant.ZERO).getPkDormId(), editForm.getPkDormId())) {
+                if (null != dorm) {
+                    if (!StringUtils.equals(dorm.getPkDormId(), editForm.getPkDormId())) {
                         throw new ServerException("已存在相同名称的宿舍编号！");
                     }
                 }

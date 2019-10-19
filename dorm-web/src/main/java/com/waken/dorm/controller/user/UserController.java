@@ -1,7 +1,8 @@
 package com.waken.dorm.controller.user;
 
-import com.github.pagehelper.PageInfo;
+import com.waken.dorm.common.annotation.Limit;
 import com.waken.dorm.common.annotation.Log;
+import com.waken.dorm.common.base.AjaxResponse;
 import com.waken.dorm.common.entity.user.User;
 import com.waken.dorm.common.enums.CodeEnum;
 import com.waken.dorm.common.form.base.DeleteForm;
@@ -10,7 +11,6 @@ import com.waken.dorm.common.form.user.AddUserResourcesForm;
 import com.waken.dorm.common.form.user.AddUserRoleRelForm;
 import com.waken.dorm.common.form.user.EditUserForm;
 import com.waken.dorm.common.form.user.UserForm;
-import com.waken.dorm.common.base.AjaxResponse;
 import com.waken.dorm.common.utils.StringUtils;
 import com.waken.dorm.common.view.base.ImgView;
 import com.waken.dorm.common.view.role.UserRoleView;
@@ -35,6 +35,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotBlank;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @ClassName UserController
@@ -58,7 +59,7 @@ public class UserController extends BaseController {
      */
     @Log("保存或修改用户")
     @PostMapping("user/save")
-    @ApiOperation(value = "保存或修改用户接口", notes = "保存或修改用户接口")
+    @ApiOperation(value = "保存或修改用户接口，默认密码\"000000\"", notes = "保存或修改用户接口")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
@@ -93,8 +94,8 @@ public class UserController extends BaseController {
     @RequiresPermissions("users::view")
     public AjaxResponse listUsers(@RequestBody UserForm userForm) {
         log.info("开始调用用户分页查询接口：" + userForm.toString());
-        PageInfo<UserView> pageInfo = userService.listUsers(userForm);
-        return AjaxResponse.success(pageInfo);
+
+        return AjaxResponse.success(this.userService.listUsers(userForm));
     }
 
     @Log("根据用户id查询用户已绑定与未绑定的角色信息")
@@ -191,6 +192,37 @@ public class UserController extends BaseController {
     public AjaxResponse export(HttpServletResponse response) {
         List<User> userList = userService.selectList();
         ExcelKit.$Export(User.class, response).downXlsx(userList, false);
+        return AjaxResponse.success();
+    }
+
+    @Limit(key = "updatePasswordByCur", period = 60, count = 20, name = "更新当前用户密码", prefix = "limit")
+    @PutMapping("user/current/password")
+    @ApiOperation(value = "更新当前用户密码", notes = "更新当前用户密码 " +
+            "<br/>请求参数JSON示例:{\"oldPassword\":\"000000\",\"newPassword\":\"000000\"}" +
+            "<br/>必填参数：oldPassword（原密码） " +
+            "<br/>必填参数：newPassword（新密码） " +
+            "")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "success", response = AjaxResponse.class)})
+    public AjaxResponse updatePasswordByCur(@RequestBody Map<String,String> map) {
+
+        userService.updatePassword(UserManager.getCurrentUserId(),map.get("oldPassword"),map.get("newPassword"));
+
+        return AjaxResponse.success();
+    }
+
+    @Limit(key = "updatePasswordById", period = 60, count = 20, name = "通过用户id更新用户密码", prefix = "limit")
+    @PutMapping("user/password")
+    @ApiOperation(value = "通过用户id更新用户密码", notes = "通过用户id更新用户密码 " +
+            "<br/>请求参数JSON示例:{\"userId\":\"1\",\"oldPassword\":\"000000\",\"newPassword\":\"000000\"}" +
+            "<br/>必填参数：userId（用户id） " +
+            "<br/>必填参数：oldPassword（原密码） " +
+            "<br/>必填参数：newPassword（新密码） " +
+            "")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "success", response = AjaxResponse.class)})
+    public AjaxResponse updatePasswordById(@RequestBody Map<String,String> map) {
+
+        userService.updatePassword(map.get("userId"),map.get("oldPassword"),map.get("newPassword"));
+
         return AjaxResponse.success();
     }
 }

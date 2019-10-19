@@ -1,6 +1,6 @@
 package com.waken.dorm.service.student;
 
-import com.github.pagehelper.PageInfo;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.waken.dorm.common.base.AjaxResponse;
 import com.waken.dorm.common.entity.student.Student;
 import com.waken.dorm.common.form.base.DeleteForm;
@@ -45,7 +45,7 @@ public interface StudentService {
      * @param studentForm
      * @return
      */
-    PageInfo<StudentView> listStudents(StudentForm studentForm);
+    IPage<StudentView> listStudents(StudentForm studentForm);
 
     /**
      * 学生登陆

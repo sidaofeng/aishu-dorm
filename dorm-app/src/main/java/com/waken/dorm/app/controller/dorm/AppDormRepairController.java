@@ -1,6 +1,5 @@
 package com.waken.dorm.app.controller.dorm;
 
-import com.github.pagehelper.PageInfo;
 import com.waken.dorm.app.controller.base.AppBaseController;
 import com.waken.dorm.common.base.AjaxResponse;
 import com.waken.dorm.common.entity.dorm.DormRepair;
@@ -69,7 +68,6 @@ public class AppDormRepairController extends AppBaseController {
         dormRepairForm.setPageNum(pageNum);
         dormRepairForm.setPageSize(pageSize);
         dormRepairForm.setTerminal(CodeEnum.APP.getCode());
-        PageInfo<DormRepairView> pageInfo = dormRepairService.listDormRepairs(dormRepairForm);
-        return AjaxResponse.success(pageInfo);
+        return AjaxResponse.success(dormRepairService.listDormRepairs(dormRepairForm));
     }
 }

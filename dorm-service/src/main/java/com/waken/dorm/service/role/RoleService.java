@@ -1,6 +1,6 @@
 package com.waken.dorm.service.role;
 
-import com.github.pagehelper.PageInfo;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.waken.dorm.common.entity.role.Role;
 import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.role.AddRoleResourceRelForm;
@@ -38,7 +38,7 @@ public interface RoleService {
      * @param queryRoleForm
      * @return
      */
-    PageInfo<Role> listRoles(QueryRoleForm queryRoleForm);
+    IPage<Role> listRoles(QueryRoleForm queryRoleForm);
 
     /**
      * 新增角色与资源的关联

@@ -53,34 +53,34 @@
         LEFT JOIN rm_user uu ON uu.user_id = dv.last_modify_user_id
         LEFT JOIN rm_dorm_building db ON db.pk_dorm_building_id = d.dorm_building_id
         WHERE 1=1
-        <if test="pkDormViolationId != null and pkDormViolationId != ''">
-            and dv.pk_dorm_violation_id=#{pkDormViolationId}
+        <if test="form.pkDormViolationId != null and form.pkDormViolationId != ''">
+            and dv.pk_dorm_violation_id=#{form.pkDormViolationId}
         </if>
-        <if test="dormRuleName != null and dormRuleName != ''">
+        <if test="form.dormRuleName != null and form.dormRuleName != ''">
             <!-- 这里修改了一下用户名的查询的方式-模糊查询   and u.user_name =#{userName} -->
-            and dr.rule_name like '%${dormRuleName}%'
+            and dr.rule_name like '%${form.dormRuleName}%'
         </if>
-        <if test="dormNum != null and dormNum != ''">
+        <if test="form.dormNum != null and form.dormNum != ''">
             <!-- 这里修改了一下用户名的查询的方式-模糊查询   and u.mobile=#{mobile} -->
-            and d.dorm_num like '%${dormNum}%'
+            and d.dorm_num like '%${form.dormNum}%'
         </if>
-        <if test="studentName != null and studentName != ''">
-            and s.student_name like '%${studentName}%'
+        <if test="form.studentName != null and form.studentName != ''">
+            and s.student_name like '%${form.studentName}%'
         </if>
-        <if test="status != null">
-            and dv.status=#{status}
+        <if test="form.status != null">
+            and dv.status=#{form.status}
         </if>
-        <if test="createUserName != null and createUserName != ''">
-            and u.user_name=#{createUserName}
+        <if test="form.createUserName != null and form.createUserName != ''">
+            and u.user_name=#{form.createUserName}
         </if>
-        <if test="lastModifyUserName != null and lastModifyUserName != ''">
-            and uu.user_name=#{lastModifyUserName}
+        <if test="form.lastModifyUserName != null and form.lastModifyUserName != ''">
+            and uu.user_name=#{form.lastModifyUserName}
         </if>
-        <if test="startTime != null">
-            AND dv.create_time &gt;= #{startTime,jdbcType=TIMESTAMP}
+        <if test="form.startTime != null">
+            AND dv.create_time &gt;= #{form.startTime,jdbcType=TIMESTAMP}
         </if>
-        <if test="endTime != null">
-            AND dv.create_time &lt;= #{endTime,jdbcType=TIMESTAMP}
+        <if test="form.endTime != null">
+            AND dv.create_time &lt;= #{form.endTime,jdbcType=TIMESTAMP}
         </if>
         ORDER BY
         dv.last_modify_time DESC
@@ -105,23 +105,23 @@
         LEFT JOIN rm_user uu ON uu.user_id = dv.last_modify_user_id
         LEFT JOIN rm_dorm_student_rel ds ON ds.dorm_id = d.pk_dorm_id
         WHERE 1=1
-        <if test="studentId != null and studentId != ''">
+        <if test="form.studentId != null and form.studentId != ''">
             and ds.student_id=#{studentId}
         </if>
-        <if test="pkDormViolationId != null and pkDormViolationId != ''">
-            and dv.pk_dorm_violation_id=#{pkDormViolationId}
+        <if test="form.pkDormViolationId != null and form.pkDormViolationId != ''">
+            and dv.pk_dorm_violation_id=#{form.pkDormViolationId}
         </if>
-        <if test="dormRuleName != null and dormRuleName != ''">
-            and dr.rule_name like '%${dormRuleName}%'
+        <if test="form.dormRuleName != null and form.dormRuleName != ''">
+            and dr.rule_name like '%${form.dormRuleName}%'
         </if>
-        <if test="dormNum != null and dormNum != ''">
-            and d.dorm_num like '%${dormNum}%'
+        <if test="form.dormNum != null and form.dormNum != ''">
+            and d.dorm_num like '%${form.dormNum}%'
         </if>
-        <if test="studentName != null and studentName != ''">
-            and s.student_name like '%${studentName}%'
+        <if test="form.studentName != null and form.studentName != ''">
+            and s.student_name like '%${form.studentName}%'
         </if>
-        <if test="status != null">
-            and dv.status=#{status}
+        <if test="form.status != null">
+            and dv.status=#{form.status}
         </if>
         ORDER BY
         dv.last_modify_time DESC

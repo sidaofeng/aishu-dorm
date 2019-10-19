@@ -56,41 +56,41 @@
         LEFT JOIN rm_user u ON u.user_id = d.create_user_id
         LEFT JOIN rm_user uu ON uu.user_id = d.last_modify_user_id
         WHERE 1=1
-        <if test="pkDictId != null and pkDictId != ''">
-            and d.pk_dict_id=#{pkDictId}
+        <if test="form.pkDictId != null and form.pkDictId != ''">
+            and d.pk_dict_id=#{form.pkDictId}
         </if>
-        <if test="dictKey != null and dictKey != ''">
-            and d.dict_key like '%${dictKey}%'
+        <if test="form.dictKey != null and form.dictKey != ''">
+            and d.dict_key like '%${form.dictKey}%'
         </if>
-        <if test="dictValue != null and dictValue != ''">
-            and d.dict_value like '%${dictValue}%'
+        <if test="form.dictValue != null and form.dictValue != ''">
+            and d.dict_value like '%${form.dictValue}%'
         </if>
-        <if test="columnName != null and columnName != ''">
-            and d.column_name like '%${columnName}%'
+        <if test="form.columnName != null and form.columnName != ''">
+            and d.column_name like '%${form.columnName}%'
         </if>
-        <if test="columnDesc != null and columnDesc != ''">
-            and d.column_desc like '%${columnDesc}%'
+        <if test="form.columnDesc != null and form.columnDesc != ''">
+            and d.column_desc like '%${form.columnDesc}%'
         </if>
-        <if test="tableName != null and tableName != ''">
-            and d.table_name like '%${tableName}%'
+        <if test="form.tableName != null and form.tableName != ''">
+            and d.table_name like '%${form.tableName}%'
         </if>
-        <if test="tableDesc != null and tableDesc != ''">
-            and d.table_desc like '%${tableDesc}%'
+        <if test="form.tableDesc != null and form.tableDesc != ''">
+            and d.table_desc like '%${form.tableDesc}%'
         </if>
-        <if test="status != null">
-            and d.status=#{status}
+        <if test="form.status != null">
+            and d.status=#{form.status}
         </if>
-        <if test="createUserName != null and createUserName != ''">
-            and u.user_name like '%${createUserName}%'
+        <if test="form.createUserName != null and form.createUserName != ''">
+            and u.user_name like '%${form.createUserName}%'
         </if>
-        <if test="lastModifyUserName != null and lastModifyUserName != ''">
-            and uu.user_name like '%${lastModifyUserName}%'
+        <if test="form.lastModifyUserName != null and form.lastModifyUserName != ''">
+            and uu.user_name like '%${form.lastModifyUserName}%'
         </if>
-        <if test="startTime != null">
-            AND d.create_time &gt;= #{startTime,jdbcType=TIMESTAMP}
+        <if test="form.startTime != null">
+            AND d.create_time &gt;= #{form.startTime,jdbcType=TIMESTAMP}
         </if>
-        <if test="endTime != null">
-            AND d.create_time &lt;= #{endTime,jdbcType=TIMESTAMP}
+        <if test="form.endTime != null">
+            AND d.create_time &lt;= #{form.endTime,jdbcType=TIMESTAMP}
         </if>
         ORDER BY
         d.last_modify_time DESC

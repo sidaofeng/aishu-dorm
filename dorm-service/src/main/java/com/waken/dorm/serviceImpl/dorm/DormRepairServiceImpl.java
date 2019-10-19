@@ -1,8 +1,8 @@
 package com.waken.dorm.serviceImpl.dorm;
 
-import com.baomidou.mybatisplus.mapper.EntityWrapper;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.waken.dorm.common.constant.Constant;
 import com.waken.dorm.common.entity.dorm.Dorm;
 import com.waken.dorm.common.entity.dorm.DormRepair;
@@ -132,7 +132,7 @@ public class DormRepairServiceImpl implements DormRepairService {
      * @return
      */
     @Override
-    public PageInfo<DormRepairView> listDormRepairs(DormRepairForm dormRepairForm) {
+    public IPage<DormRepairView> listDormRepairs(DormRepairForm dormRepairForm) {
         log.info("service: 分页查询宿舍维修信息开始");
         if (dormRepairForm.getStartTime() != null) {
             dormRepairForm.setStartTime(DateUtils.formatDate2DateTimeStart(dormRepairForm.getStartTime()));
@@ -140,9 +140,8 @@ public class DormRepairServiceImpl implements DormRepairService {
         if (dormRepairForm.getEndTime() != null) {
             dormRepairForm.setEndTime(DateUtils.formatDate2DateTimeEnd(dormRepairForm.getEndTime()));
         }
-        PageHelper.startPage(dormRepairForm.getPageNum(), dormRepairForm.getPageSize());
-        List<DormRepairView> dormRepairs = dormRepairMapper.listDormRepairs(dormRepairForm);
-        return new PageInfo<>(dormRepairs);
+        Page page  = new Page(dormRepairForm.getPageNum(),dormRepairForm.getPageSize());
+        return dormRepairMapper.listDormRepairs(page,dormRepairForm);
     }
 
     /**
@@ -193,23 +192,23 @@ public class DormRepairServiceImpl implements DormRepairService {
     }
 
     private String validateDorm(String dormNum) {
-        List<Dorm> dorms = dormMapper.selectList(new EntityWrapper<Dorm>()
-                .eq("dorm_num", dormNum)
+        Dorm dorm = dormMapper.selectOne(new LambdaQueryWrapper<Dorm>()
+                .eq(Dorm::getDormNum, dormNum)
         );
-        if (dorms.isEmpty()) {
+        if (null == dorm) {
             throw new ServerException("宿舍号不存在!");
         }
-        return dorms.get(Constant.ZERO).getPkDormId();
+        return dorm.getPkDormId();
     }
 
     private String validateStudent(Integer studentNum) {
-        List<Student> studentList = studentMapper.selectList(new EntityWrapper<Student>()
-                .eq("student_num", studentNum)
+        Student student = studentMapper.selectOne(new LambdaQueryWrapper<Student>()
+                .eq(Student::getStudentNum, studentNum)
         );
-        if (studentList.isEmpty()) {
+        if (null == student) {
             throw new ServerException("学号不存在!");
         }
-        return studentList.get(Constant.ZERO).getPkStudentId();
+        return student.getPkStudentId();
     }
 
 }

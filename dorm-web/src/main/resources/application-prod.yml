@@ -28,13 +28,6 @@ spring:
   aop:
     proxy-target-class: true
 
-  messages:
-    encoding: utf-8
-
-  jackson:
-    date-format: yyyy-MM-dd HH:mm:ss
-    time-zone: GMT+8
-
   redis:
     host: 127.0.0.1
     port: 6379
@@ -57,4 +50,4 @@ spring:
 
 logging:
   level:
-    com.waken.dorm.dao: info
+    com.waken.dorm.dao: debug

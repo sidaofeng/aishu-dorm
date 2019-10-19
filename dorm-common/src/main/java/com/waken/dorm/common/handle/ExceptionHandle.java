@@ -29,6 +29,7 @@ public class ExceptionHandle {
             return AjaxResponse.error(serverException.getCode(), serverException.getMessage());
         } else {
             log.error("未知错误：{}", e.getMessage());
+            e.printStackTrace();
             return AjaxResponse.error(ResultEnum.UNKNOWN_ERROR);
         }
     }

@@ -44,4 +44,6 @@ public class Constant {
     public static final String LOGIN = "用户登录";//跟节点
 
     public static final String LOGIN_METHOD = "login";//跟节点
+
+    public static final String DEFAULT_PASSWORD = "000000";//系统默认密码
 }

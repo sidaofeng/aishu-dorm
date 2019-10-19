@@ -1,7 +1,7 @@
 package com.waken.dorm.service.log;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.github.pagehelper.PageInfo;
 import com.waken.dorm.common.entity.log.SysLog;
 import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.log.SysLogForm;
@@ -45,7 +45,7 @@ public interface LogService {
      * @param sysLogForm
      * @return
      */
-    PageInfo<SysLogView> listSysLogViews(SysLogForm sysLogForm);
+    IPage<SysLogView> listSysLogViews(SysLogForm sysLogForm);
 
 
 }

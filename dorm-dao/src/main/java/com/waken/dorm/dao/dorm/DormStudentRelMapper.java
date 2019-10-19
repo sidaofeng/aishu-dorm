@@ -1,6 +1,6 @@
 package com.waken.dorm.dao.dorm;
 
-import com.baomidou.mybatisplus.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.waken.dorm.common.entity.dorm.DormStudentRel;
 import com.waken.dorm.common.view.dorm.DormStudentRelView;
 

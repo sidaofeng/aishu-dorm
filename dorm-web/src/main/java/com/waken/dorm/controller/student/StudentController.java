@@ -1,16 +1,15 @@
 package com.waken.dorm.controller.student;
 
-import com.github.pagehelper.PageInfo;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.waken.dorm.common.annotation.Log;
+import com.waken.dorm.common.base.AjaxResponse;
 import com.waken.dorm.common.entity.dorm.DormScore;
 import com.waken.dorm.common.entity.student.Student;
 import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.student.EditStudentForm;
 import com.waken.dorm.common.form.student.StudentForm;
 import com.waken.dorm.common.utils.FileUtils;
-import com.waken.dorm.common.base.AjaxResponse;
 import com.waken.dorm.common.view.student.StudentView;
 import com.waken.dorm.controller.base.BaseController;
 import com.waken.dorm.service.student.StudentService;
@@ -79,8 +78,7 @@ public class StudentController extends BaseController {
     })
     public AjaxResponse listStudents(@RequestBody StudentForm studentForm) {
         log.info("开始调用分页查询学生信息接口：" + studentForm.toString());
-        PageInfo<StudentView> pageInfo = studentService.listStudents(studentForm);
-        return AjaxResponse.success(pageInfo);
+        return AjaxResponse.success(studentService.listStudents(studentForm));
     }
 
     /**

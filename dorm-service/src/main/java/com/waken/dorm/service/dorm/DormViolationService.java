@@ -1,6 +1,6 @@
 package com.waken.dorm.service.dorm;
 
-import com.github.pagehelper.PageInfo;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.waken.dorm.common.entity.dorm.DormViolation;
 import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.dorm.AddDormViolationForm;
@@ -22,14 +22,14 @@ public interface DormViolationService {
      * @param addDormViolationForm
      * @return
      */
-    public DormViolation addDormViolation(AddDormViolationForm addDormViolationForm);
+    DormViolation addDormViolation(AddDormViolationForm addDormViolationForm);
 
     /**
      * 删除宿舍违规记录
      *
      * @param deleteForm
      */
-    public void deleteDormViolation(DeleteForm deleteForm);
+    void deleteDormViolation(DeleteForm deleteForm);
 
     /**
      * 分页查询宿舍违规记录
@@ -37,7 +37,7 @@ public interface DormViolationService {
      * @param dormViolationForm
      * @return
      */
-    public PageInfo<DormViolationView> listDormViolations(DormViolationForm dormViolationForm);
+    IPage<DormViolationView> listDormViolations(DormViolationForm dormViolationForm);
 
     /**
      * 修改宿舍违规记录
@@ -45,7 +45,7 @@ public interface DormViolationService {
      * @param updateDormViolationForm
      * @return
      */
-    public DormViolation updateDormViolation(UpdateDormViolationForm updateDormViolationForm);
+    DormViolation updateDormViolation(UpdateDormViolationForm updateDormViolationForm);
 
     /**
      * app端分页查询宿舍违规记录
@@ -53,5 +53,5 @@ public interface DormViolationService {
      * @param dormViolationForm
      * @return
      */
-    public PageInfo<AppDormViolationView> appListDormViolations(DormViolationForm dormViolationForm);
+    IPage<AppDormViolationView> appListDormViolations(DormViolationForm dormViolationForm);
 }

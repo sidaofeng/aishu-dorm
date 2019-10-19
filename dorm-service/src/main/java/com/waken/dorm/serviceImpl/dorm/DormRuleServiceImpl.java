@@ -1,8 +1,8 @@
 package com.waken.dorm.serviceImpl.dorm;
 
-import com.baomidou.mybatisplus.mapper.EntityWrapper;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.waken.dorm.common.constant.Constant;
 import com.waken.dorm.common.entity.dorm.DormRule;
 import com.waken.dorm.common.enums.CodeEnum;
@@ -113,7 +113,7 @@ public class DormRuleServiceImpl implements DormRuleService {
      * @return
      */
     @Override
-    public PageInfo<DormRuleView> listDormRules(DormRuleForm dormRuleForm) {
+    public IPage<DormRuleView> listDormRules(DormRuleForm dormRuleForm) {
         log.info("service: 分页查询宿舍规则信息开始");
         if (dormRuleForm.getStartTime() != null) {
             dormRuleForm.setStartTime(DateUtils.formatDate2DateTimeStart(dormRuleForm.getStartTime()));
@@ -121,9 +121,8 @@ public class DormRuleServiceImpl implements DormRuleService {
         if (dormRuleForm.getEndTime() != null) {
             dormRuleForm.setEndTime(DateUtils.formatDate2DateTimeEnd(dormRuleForm.getEndTime()));
         }
-        PageHelper.startPage(dormRuleForm.getPageNum(), dormRuleForm.getPageSize());
-        List<DormRuleView> dormRuleList = dormRuleMapper.listDormRules(dormRuleForm);
-        return new PageInfo<>(dormRuleList);
+        Page page  = new Page(dormRuleForm.getPageNum(),dormRuleForm.getPageSize());
+        return dormRuleMapper.listDormRules(page,dormRuleForm);
     }
 
     /**
@@ -135,19 +134,18 @@ public class DormRuleServiceImpl implements DormRuleService {
         if (StringUtils.isEmpty(editForm.getPkDormRuleId())) {//新增验证
             Assert.notNull(editForm.getRuleName());
             Assert.notNull(editForm.getRuleDesc());
-            List<DormRule> dormRules = dormRuleMapper.selectList(new EntityWrapper<DormRule>()
-                    .eq("rule_name", editForm.getRuleName())
+            DormRule dormRule = dormRuleMapper.selectOne(new LambdaQueryWrapper<DormRule>()
+                    .eq(DormRule::getRuleName, editForm.getRuleName())
             );
-            Assert.isNull(dormRules,dormRules.isEmpty(),"已存在相同名称的规则名！");
+            Assert.isNull(dormRule,"已存在相同名称的规则名！");
         } else {//修改验证
-            DormRule dormRule = dormRuleMapper.selectById(editForm.getPkDormRuleId());
-            Assert.notNull(dormRule,"参数错误！");
+            Assert.notNull(dormRuleMapper.selectById(editForm.getPkDormRuleId()),"参数错误！");
             if (StringUtils.isNotEmpty(editForm.getRuleName())) {
-                List<DormRule> dormRules = dormRuleMapper.selectList(new EntityWrapper<DormRule>()
-                        .eq("rule_name", editForm.getRuleName())
+                DormRule dormRule = dormRuleMapper.selectOne(new LambdaQueryWrapper<DormRule>()
+                        .eq(DormRule::getRuleName, editForm.getRuleName())
                 );
-                if (!dormRules.isEmpty()) {
-                    if (!StringUtils.equals(dormRules.get(Constant.ZERO).getPkDormRuleId(), editForm.getPkDormRuleId())) {
+                if (null != dormRule) {
+                    if (!StringUtils.equals(dormRule.getPkDormRuleId(), editForm.getPkDormRuleId())) {
                         throw new ServerException("已存在相同名称的规则名！");
                     }
                 }

@@ -1,9 +1,7 @@
 package com.waken.dorm.dao.role;
 
-import com.baomidou.mybatisplus.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.waken.dorm.common.entity.role.RoleResourceRel;
-import com.waken.dorm.common.form.role.ListAddedRoleForm;
-import com.waken.dorm.common.view.user.UserRoleRelView;
 import com.waken.dorm.common.view.user.UserRoleResource;
 import org.apache.ibatis.annotations.Param;
 

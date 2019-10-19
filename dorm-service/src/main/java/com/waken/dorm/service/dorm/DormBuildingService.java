@@ -1,6 +1,6 @@
 package com.waken.dorm.service.dorm;
 
-import com.github.pagehelper.PageInfo;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.waken.dorm.common.entity.dorm.DormBuilding;
 import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.dorm.DormBuildingForm;
@@ -17,14 +17,14 @@ public interface DormBuildingService {
      * @param editDormBuildingForm
      * @return
      */
-    public DormBuilding saveDormBuilding(EditDormBuildingForm editDormBuildingForm);
+    DormBuilding saveDormBuilding(EditDormBuildingForm editDormBuildingForm);
 
     /**
      * 删除宿舍楼
      *
      * @param deleteForm
      */
-    public void deleteDormBuilding(DeleteForm deleteForm);
+    void deleteDormBuilding(DeleteForm deleteForm);
 
     /**
      * 分页查询宿舍楼信息
@@ -32,5 +32,5 @@ public interface DormBuildingService {
      * @param dormBuildingForm
      * @return
      */
-    public PageInfo<DormBuildingView> listDormBuildings(DormBuildingForm dormBuildingForm);
+    IPage<DormBuildingView> listDormBuildings(DormBuildingForm dormBuildingForm);
 }

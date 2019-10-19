@@ -1,8 +1,8 @@
 package com.waken.dorm.serviceImpl.role;
 
-import com.baomidou.mybatisplus.mapper.EntityWrapper;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
 import com.waken.dorm.common.constant.Constant;
 import com.waken.dorm.common.entity.role.Role;
@@ -112,22 +112,23 @@ public class RoleServiceImpl implements RoleService {
      * @return
      */
     @Override
-    public PageInfo<Role> listRoles(QueryRoleForm queryRoleForm) {
+    public IPage<Role> listRoles(QueryRoleForm queryRoleForm) {
         log.info("service: 查询角色开始");
-        EntityWrapper wrapper = new EntityWrapper<Role>();
+        LambdaQueryWrapper<Role> roleLambdaQueryWrapper = new LambdaQueryWrapper<>();
         if (StringUtils.isNotEmpty(queryRoleForm.getPkRoleId())) {
-            wrapper.eq("pk_role_id", queryRoleForm.getPkRoleId());
+            roleLambdaQueryWrapper.eq(Role::getPkRoleId, queryRoleForm.getPkRoleId());
         }
         if (StringUtils.isNotEmpty(queryRoleForm.getRoleName())) {
-            wrapper.like("role_name", queryRoleForm.getRoleName());
+            roleLambdaQueryWrapper.like(Role::getRoleName, queryRoleForm.getRoleName());
         }
         if (queryRoleForm.getStatus() != null) {
-            wrapper.eq("status", queryRoleForm.getStatus());
+            roleLambdaQueryWrapper.eq(Role::getStatus, queryRoleForm.getStatus());
         }
-        wrapper.orderBy(true, "last_modify_time", false);
-        PageHelper.startPage(queryRoleForm.getPageNum(), queryRoleForm.getPageSize());
-        List<Role> roles = roleMapper.selectList(wrapper);
-        return new PageInfo<>(roles);
+        roleLambdaQueryWrapper.orderByDesc(Role::getLastModifyTime);
+
+        Page page  = new Page(queryRoleForm.getPageNum(),queryRoleForm.getPageSize());
+
+        return roleMapper.selectPage(page, roleLambdaQueryWrapper);
     }
 
     /**
@@ -143,8 +144,8 @@ public class RoleServiceImpl implements RoleService {
             }
         });
         //删除资源与用户的所有关联
-        List<UserPrivilege> privileges = userPrivilegeMapper.selectList(new EntityWrapper<UserPrivilege>()
-                .eq("subject_type", CodeEnum.ROLE.getCode())
+        List<UserPrivilege> privileges = userPrivilegeMapper.selectList(new LambdaQueryWrapper<UserPrivilege>()
+                .eq(UserPrivilege::getSubjectType, CodeEnum.ROLE.getCode())
         );
         List<String> toDelPrivilegeId = Lists.newArrayList();
         if (null != privileges && !privileges.isEmpty()) {
@@ -181,9 +182,9 @@ public class RoleServiceImpl implements RoleService {
     @Override
     public List<UserRoleView> listRolesByUser(String userId) {
         List<UserRoleView> userRoleViews = roleMapper.listUserRole();
-        List<UserPrivilege> privileges = userPrivilegeMapper.selectList(new EntityWrapper<UserPrivilege>()
-                .eq("user_id", userId)
-                .eq("subject_type", CodeEnum.ROLE.getCode())
+        List<UserPrivilege> privileges = userPrivilegeMapper.selectList(new LambdaQueryWrapper<UserPrivilege>()
+                .eq(UserPrivilege::getUserId, userId)
+                .eq(UserPrivilege::getSubjectType, CodeEnum.ROLE.getCode())
         );
         Map roleMap = privileges.stream().collect(Collectors.toMap(UserPrivilege::getSubjectId, UserPrivilege::getUserId));
         if (null != userRoleViews && !userRoleViews.isEmpty()) {
@@ -231,8 +232,8 @@ public class RoleServiceImpl implements RoleService {
     private List<RoleResourceRel> getToBeAddRoleResourceRel(AddRoleResourceRelForm addRoleResourceRelForm) {
         String roleId = addRoleResourceRelForm.getRoleId();
         List<String> resourceIds = addRoleResourceRelForm.getResourceIds();
-        List<RoleResourceRel> roleResourceRelList = roleResourceRelMapper.selectList(new EntityWrapper<RoleResourceRel>()
-                .eq("role_id", roleId)
+        List<RoleResourceRel> roleResourceRelList = roleResourceRelMapper.selectList(new LambdaQueryWrapper<RoleResourceRel>()
+                .eq(RoleResourceRel::getRoleId, roleId)
         );
         if (!roleResourceRelList.isEmpty()) {
             List<String> existIds = new ArrayList<>();// 接收已经存在关联的资源id
@@ -272,19 +273,18 @@ public class RoleServiceImpl implements RoleService {
     private void editRoleValidate(EditRoleForm editForm) {
         if (StringUtils.isEmpty(editForm.getPkRoleId())) {//新增验证
             Assert.notNull(editForm.getRoleName());
-            List<Role> roles = roleMapper.selectList(new EntityWrapper<Role>()
-                    .eq("role_name", editForm.getRoleName())
+            Role role = roleMapper.selectOne(new LambdaQueryWrapper<Role>()
+                    .eq(Role::getRoleName, editForm.getRoleName())
             );
-            Assert.isNull(roles,roles.isEmpty(),"角色名称已存在！");
+            Assert.isNull(role,"角色名称已存在！");
         } else {//修改验证
-            Role role = roleMapper.selectById(editForm.getPkRoleId());
-            Assert.notNull(role,"参数错误");
+            Assert.notNull(roleMapper.selectById(editForm.getPkRoleId()),"参数错误");
             if (StringUtils.isNotEmpty(editForm.getRoleName())) {
-                List<Role> roles = roleMapper.selectList(new EntityWrapper<Role>()
-                        .eq("role_name", editForm.getRoleName())
+                Role role = roleMapper.selectOne(new LambdaQueryWrapper<Role>()
+                        .eq(Role::getRoleName, editForm.getRoleName())
                 );
-                if (!roles.isEmpty()) {
-                    if (!StringUtils.equals(roles.get(Constant.ZERO).getPkRoleId(), editForm.getPkRoleId())) {
+                if (null != role) {
+                    if (!StringUtils.equals(role.getPkRoleId(), editForm.getPkRoleId())) {
                         throw new ServerException("角色名称已存在！");
                     }
                 }

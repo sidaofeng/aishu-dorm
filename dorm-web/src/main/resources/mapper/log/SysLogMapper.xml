@@ -30,26 +30,25 @@
         l.location
         FROM rm_log l
         LEFT JOIN rm_user u ON u.user_id = l.user_id
-        WHERE 1=1
         <where>
-            <if test="pkLogId != null and pkLogId != ''">
-                AND l.pk_log_id=#{pkLogId,jdbcType=VARCHAR}
+            <if test="form.pkLogId != null and form.pkLogId != ''">
+                AND l.pk_log_id=#{form.pkLogId,jdbcType=VARCHAR}
             </if>
-            <if test="keyWord != null">
-                <bind name="keyWord" value="'%' + keyWord + '%'"/>
-                AND (u.user_name LIKE #{keyWord,jdbcType=VARCHAR}
-                OR l.operation_content LIKE #{keyWord,jdbcType=VARCHAR}
-                OR l.method LIKE #{keyWord,jdbcType=VARCHAR}
-                OR l.params LIKE #{keyWord,jdbcType=VARCHAR}
-                OR l.ip LIKE #{keyWord,jdbcType=VARCHAR}
-                OR l.location LIKE #{keyWord,jdbcType=VARCHAR}
+            <if test="form.keyWord != null">
+                <bind name="form.keyWord" value="'%' + form.keyWord + '%'"/>
+                AND (u.user_name LIKE #{form.keyWord,jdbcType=VARCHAR}
+                OR l.operation_content LIKE #{form.keyWord,jdbcType=VARCHAR}
+                OR l.method LIKE #{form.keyWord,jdbcType=VARCHAR}
+                OR l.params LIKE #{form.keyWord,jdbcType=VARCHAR}
+                OR l.ip LIKE #{form.keyWord,jdbcType=VARCHAR}
+                OR l.location LIKE #{form.keyWord,jdbcType=VARCHAR}
                 )
             </if>
-            <if test="startTime != null">
-                AND l.create_time &gt;= #{startTime,jdbcType=TIMESTAMP}
+            <if test="form.startTime != null">
+                AND l.create_time &gt;= #{form.startTime,jdbcType=TIMESTAMP}
             </if>
-            <if test="endTime != null">
-                AND l.create_time &lt;= #{endTime,jdbcType=TIMESTAMP}
+            <if test="form.endTime != null">
+                AND l.create_time &lt;= #{form.endTime,jdbcType=TIMESTAMP}
             </if>
         </where>
         ORDER BY l.create_time DESC

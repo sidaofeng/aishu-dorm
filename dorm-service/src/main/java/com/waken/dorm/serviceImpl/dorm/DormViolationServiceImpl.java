@@ -1,8 +1,8 @@
 package com.waken.dorm.serviceImpl.dorm;
 
-import com.baomidou.mybatisplus.mapper.EntityWrapper;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.waken.dorm.common.constant.Constant;
 import com.waken.dorm.common.entity.dorm.Dorm;
 import com.waken.dorm.common.entity.dorm.DormViolation;
@@ -117,7 +117,7 @@ public class DormViolationServiceImpl implements DormViolationService {
      * @return
      */
     @Override
-    public PageInfo<DormViolationView> listDormViolations(DormViolationForm dormViolationForm) {
+    public IPage<DormViolationView> listDormViolations(DormViolationForm dormViolationForm) {
         log.info("service: 违规记录分页查询开始");
         if (dormViolationForm.getStartTime() != null) {
             dormViolationForm.setStartTime(DateUtils.formatDate2DateTimeStart(dormViolationForm.getStartTime()));
@@ -125,9 +125,8 @@ public class DormViolationServiceImpl implements DormViolationService {
         if (dormViolationForm.getEndTime() != null) {
             dormViolationForm.setEndTime(DateUtils.formatDate2DateTimeEnd(dormViolationForm.getEndTime()));
         }
-        PageHelper.startPage(dormViolationForm.getPageNum(), dormViolationForm.getPageSize());
-        List<DormViolationView> dormViolationViews = dormViolationMapper.listDormViolations(dormViolationForm);
-        return new PageInfo<>(dormViolationViews);
+        Page page  = new Page(dormViolationForm.getPageNum(),dormViolationForm.getPageSize());
+        return dormViolationMapper.listDormViolations(page,dormViolationForm);
     }
 
     /**
@@ -161,11 +160,10 @@ public class DormViolationServiceImpl implements DormViolationService {
      * @return
      */
     @Override
-    public PageInfo<AppDormViolationView> appListDormViolations(DormViolationForm dormViolationForm) {
+    public IPage<AppDormViolationView> appListDormViolations(DormViolationForm dormViolationForm) {
         log.info("service: 违规记录分页查询开始");
-        PageHelper.startPage(dormViolationForm.getPageNum(), dormViolationForm.getPageSize());
-        List<AppDormViolationView> appDormViolationViews = dormViolationMapper.appListDormViolations(dormViolationForm);
-        return new PageInfo<>(appDormViolationViews);
+        Page page  = new Page(dormViolationForm.getPageNum(),dormViolationForm.getPageSize());
+        return dormViolationMapper.appListDormViolations(page,dormViolationForm);
     }
 
     /**
@@ -182,23 +180,23 @@ public class DormViolationServiceImpl implements DormViolationService {
     }
 
     private String validateDorm(String dormNum) {
-        List<Dorm> dorms = dormMapper.selectList(new EntityWrapper<Dorm>()
-                .eq("dorm_num", dormNum)
+        Dorm dorm = dormMapper.selectOne(new LambdaQueryWrapper<Dorm>()
+                .eq(Dorm::getDormNum, dormNum)
         );
-        if (dorms.isEmpty()) {
+        if (null == dorm) {
             throw new ServerException("宿舍号不存在!");
         }
-        return dorms.get(Constant.ZERO).getPkDormId();
+        return dorm.getPkDormId();
     }
 
     private String validateStudent(Integer studentNum) {
-        List<Student> studentList = studentMapper.selectList(new EntityWrapper<Student>()
-                .eq("student_num", studentNum)
+        Student student = studentMapper.selectOne(new LambdaQueryWrapper<Student>()
+                .eq(Student::getStudentNum, studentNum)
         );
-        if (studentList.isEmpty()) {
+        if (null == student) {
             throw new ServerException("学号不存在!");
         }
-        return studentList.get(Constant.ZERO).getPkStudentId();
+        return student.getPkStudentId();
     }
 
 }

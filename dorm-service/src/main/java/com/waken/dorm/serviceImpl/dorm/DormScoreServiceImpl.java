@@ -1,7 +1,7 @@
 package com.waken.dorm.serviceImpl.dorm;
 
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.waken.dorm.common.constant.Constant;
 import com.waken.dorm.common.entity.dorm.DormScore;
 import com.waken.dorm.common.enums.CodeEnum;
@@ -81,7 +81,7 @@ public class DormScoreServiceImpl implements DormScoreService {
         Integer delStatus = deleteForm.getDelStatus();
         int count;
         if (CodeEnum.YES.getCode() == delStatus) { // 物理删除
-            List<DormScore> dormScoreList = dormScoreMapper.selectByIds(ids);
+            List<DormScore> dormScoreList = dormScoreMapper.selectBatchIds(ids);
             StringBuffer sb = new StringBuffer();
             for (DormScore dormScore : dormScoreList) {
                 if (CodeEnum.ENABLE.getCode() == dormScore.getStatus()) {
@@ -107,10 +107,9 @@ public class DormScoreServiceImpl implements DormScoreService {
      * @return
      */
     @Override
-    public PageInfo<AppDormScoreView> appListDormScoreViews(ListDormScoreForm listDormScoreForm) {
-        PageHelper.startPage(listDormScoreForm.getPageNum(), listDormScoreForm.getPageSize());
-        List<AppDormScoreView> dormScoreViews = dormScoreMapper.appListDormScoreView(listDormScoreForm);
-        return new PageInfo<>(dormScoreViews);
+    public IPage<AppDormScoreView> appListDormScoreViews(ListDormScoreForm listDormScoreForm) {
+        Page page  = new Page(listDormScoreForm.getPageNum(),listDormScoreForm.getPageSize());
+        return dormScoreMapper.appListDormScoreView(page,listDormScoreForm);
     }
 
     /**
@@ -120,7 +119,7 @@ public class DormScoreServiceImpl implements DormScoreService {
      * @return
      */
     @Override
-    public PageInfo<DormScoreView> listDormScores(ListDormScoreForm listDormScoreForm) {
+    public IPage<DormScoreView> listDormScores(ListDormScoreForm listDormScoreForm) {
         log.info("service: 分页查询宿舍评分信息开始");
         if (listDormScoreForm.getStartTime() != null) {
             listDormScoreForm.setStartTime(DateUtils.formatDate2DateTimeStart(listDormScoreForm.getStartTime()));
@@ -128,9 +127,8 @@ public class DormScoreServiceImpl implements DormScoreService {
         if (listDormScoreForm.getEndTime() != null) {
             listDormScoreForm.setEndTime(DateUtils.formatDate2DateTimeEnd(listDormScoreForm.getEndTime()));
         }
-        PageHelper.startPage(listDormScoreForm.getPageNum(), listDormScoreForm.getPageSize());
-        List<DormScoreView> dormScoreList = dormScoreMapper.listDormScores(listDormScoreForm);
-        return new PageInfo<>(dormScoreList);
+        Page page  = new Page(listDormScoreForm.getPageNum(),listDormScoreForm.getPageSize());
+        return dormScoreMapper.listDormScores(page,listDormScoreForm);
     }
 
     /**

@@ -1,6 +1,5 @@
 package com.waken.dorm.app.controller.dorm;
 
-import com.github.pagehelper.PageInfo;
 import com.waken.dorm.app.controller.base.AppBaseController;
 import com.waken.dorm.common.base.AjaxResponse;
 import com.waken.dorm.common.enums.CodeEnum;
@@ -30,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class AppDormRuleController extends AppBaseController {
 
-    private final DormRuleService RuleService;
+    private final DormRuleService ruleService;
     private final StudentManager studentManager;
 
     @GetMapping(value = "rule/page")
@@ -46,7 +45,6 @@ public class AppDormRuleController extends AppBaseController {
         ruleForm.setPageNum(pageNum);
         ruleForm.setPageSize(pageSize);
         ruleForm.setTerminal(CodeEnum.APP.getCode());
-        PageInfo<DormRuleView> pageInfo = RuleService.listDormRules(ruleForm);
-        return AjaxResponse.success(pageInfo);
+        return AjaxResponse.success(ruleService.listDormRules(ruleForm));
     }
 }

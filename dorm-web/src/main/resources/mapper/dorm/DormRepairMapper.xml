@@ -57,29 +57,29 @@
         LEFT JOIN rm_user uu ON uu.user_id = dr.last_modify_user_id
         LEFT JOIN rm_dorm_building db ON db.pk_dorm_building_id = d.dorm_building_id
         WHERE 1=1
-        <if test="dormId != null and dormId != ''">
+        <if test="form.dormId != null and form.dormId != ''">
             and dr.pk_dorm_id=#{pkDormId}
         </if>
-        <if test="studentId != null and studentId != ''">
-            and s.pk_student_id=#{studentId}
+        <if test="form.studentId != null and form.studentId != ''">
+            and s.pk_student_id=#{form.studentId}
         </if>
-        <if test="repairType != null">
-            and dr.repair_type=#{repairType}
+        <if test="form.repairType != null">
+            and dr.repair_type=#{form.repairType}
         </if>
-        <if test="status != null">
-            and dr.status=#{status}
+        <if test="form.status != null">
+            and dr.status=#{form.status}
         </if>
-        <if test="createUserName != null and createUserName != ''">
+        <if test="form.createUserName != null and form.createUserName != ''">
             and u.user_name=#{createUserName}
         </if>
-        <if test="createUserName != null and createUserName != ''">
-            and u.user_name like '%${createUserName}%'
+        <if test="form.createUserName != null and form.createUserName != ''">
+            and u.user_name like '%${form.createUserName}%'
         </if>
-        <if test="lastModifyUserName != null and lastModifyUserName != ''">
-            and uu.user_name like '%${lastModifyUserName}%'
+        <if test="form.lastModifyUserName != null and form.lastModifyUserName != ''">
+            and uu.user_name like '%${form.lastModifyUserName}%'
         </if>
-        <if test="endTime != null">
-            AND dr.create_time &lt;= #{endTime,jdbcType=TIMESTAMP}
+        <if test="form.endTime != null">
+            AND dr.create_time &lt;= #{form.endTime,jdbcType=TIMESTAMP}
         </if>
         ORDER BY
         dr.last_modify_time DESC

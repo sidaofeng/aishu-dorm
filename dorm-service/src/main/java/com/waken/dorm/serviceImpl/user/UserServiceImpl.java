@@ -1,8 +1,8 @@
 package com.waken.dorm.serviceImpl.user;
 
-import com.baomidou.mybatisplus.mapper.EntityWrapper;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.waken.dorm.common.constant.Constant;
 import com.waken.dorm.common.entity.user.User;
 import com.waken.dorm.common.enums.CodeEnum;
@@ -65,8 +65,8 @@ public class UserServiceImpl implements UserService {
         if (StringUtils.isEmpty(editUserForm.getUserId())) {
             log.info("service: 新增用户开始");
             String userId = UUIDSequence.next();
-            //shiro加密 密码
-            String encodePassword = PasswordEncode.shiroEncode(editUserForm.getUserName(), editUserForm.getPassword());
+            //shiro加密 密码 密码默认"000000"
+            String encodePassword = PasswordEncode.shiroEncode(editUserForm.getUserName(), Constant.DEFAULT_PASSWORD);
             user.setPassword(encodePassword);
             user.setUserId(userId);
             user.setStatus(CodeEnum.ENABLE.getCode());
@@ -80,11 +80,6 @@ public class UserServiceImpl implements UserService {
             return user;
         } else {//修改
             log.info("service: 更新用户信息开始");
-            if (StringUtils.isNotBlank(editUserForm.getPassword())){
-                //shiro加密 密码
-                String encodePassword = PasswordEncode.shiroEncode(editUserForm.getUserName(), editUserForm.getPassword());
-                user.setPassword(encodePassword);
-            }
             userMapper.updateById(user);
             user.setPassword(Constant.NULL_STRING);
             return user;
@@ -94,13 +89,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User queryUserInfo(String userName) {
-        List<User> userList = userMapper.selectList(new EntityWrapper<User>()
-                .eq("user_name", userName)
-        );
-        if (userList.isEmpty()) {
-            return null;
-        }
-        return userList.get(Constant.ZERO);
+
+        return userMapper.selectOne(new LambdaQueryWrapper<User>().eq(User::getUserName,userName));
     }
 
     @Override
@@ -167,17 +157,19 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public PageInfo<UserView> listUsers(UserForm userForm) {
+    public IPage<UserView> listUsers(UserForm userForm) {
         log.info("service: 用户信息分页查询开始");
+
         if (userForm.getStartTime() != null) {
             userForm.setStartTime(DateUtils.formatDate2DateTimeStart(userForm.getStartTime()));
         }
         if (userForm.getEndTime() != null) {
             userForm.setEndTime(DateUtils.formatDate2DateTimeEnd(userForm.getEndTime()));
         }
-        PageHelper.startPage(userForm.getPageNum(), userForm.getPageSize());
-        List<UserView> userViews = userMapper.listUsers(userForm);
-        return new PageInfo<>(userViews);
+
+        Page page = new Page(userForm.getPageNum(),userForm.getPageSize());
+
+        return this.userMapper.listUsers(page,userForm);
     }
 
     @Override
@@ -268,6 +260,43 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
+     * 根据原密码修改新密码
+     *
+     * @param userId
+     * @param oldPassword
+     * @param newPassword
+     */
+    @Override
+    public int updatePassword(String userId, String oldPassword, String newPassword) {
+        if (StringUtils.equals(oldPassword,newPassword)){
+            throw new ServerException("原密码与新密码相同!");
+        }
+        User user = this.userMapper.selectById(userId);
+        if (user == null){
+            throw new ServerException("用户ID不正确！");
+        }
+        String encodePassword = PasswordEncode.shiroEncode(user.getUserName(), oldPassword);
+        if (!StringUtils.equals(encodePassword,user.getPassword())){
+            throw new ServerException("原密码错误！");
+        }
+
+        user.setPassword(PasswordEncode.shiroEncode(user.getUserName(), newPassword));
+
+        int count = this.userMapper.updateById(user);
+        if (1 != count){
+            throw new ServerException("更新密码失败");
+        }
+        try {
+            this.cacheService.deleteUser(user.getUserName());
+            this.cacheService.deleteRoles(user.getUserName());
+            this.cacheService.deletePermissions(user.getUserName());
+        }catch (Exception e){
+            log.error("删除用户缓存失败！");
+        }
+        return count;
+    }
+
+    /**
      * 判断当前操作用户是否有超级管理员角色
      *
      * @return
@@ -288,22 +317,17 @@ public class UserServiceImpl implements UserService {
     private void editUserValidate(EditUserForm userForm) {
         if (StringUtils.isEmpty(userForm.getUserId())) {//新增验证
             Assert.notNull(userForm.getUserName(),"用户名为空！");
-            Assert.notNull(userForm.getPassword(),"密码为空！");
             Assert.notNull(userForm.getMobile(),"手机号码为空！");
             Assert.isTrue(CheckUtils.isPhoneLegality(userForm.getMobile()),"请输入正确的手机号码！");
             Assert.notNull(userForm.getEmail(),"邮箱为空！");
             Assert.isTrue(CheckUtils.isEmailLegality(userForm.getEmail()),"请输入正确的邮箱！");
-            List<User> userList = userMapper.selectList(new EntityWrapper<User>()
-                    .eq("user_name", userForm.getUserName())
-            );
-            Assert.isNull(userList,userList.isEmpty(),"用户名已存在！");
+            User user = userMapper.selectOne(new LambdaQueryWrapper<User>().eq(User::getUserName, userForm.getUserName()));
+            Assert.isNull(user,"用户名已存在！");
         } else {//修改验证
             if (StringUtils.isNotEmpty(userForm.getUserName())) {
-                List<User> userList = userMapper.selectList(new EntityWrapper<User>()
-                        .eq("user_name", userForm.getUserName())
-                );
-                if (!userList.isEmpty()) {
-                    if (!StringUtils.equals(userList.get(Constant.ZERO).getUserId(), userForm.getUserId())) {
+                User user = userMapper.selectOne(new LambdaQueryWrapper<User>().eq(User::getUserName, userForm.getUserName()));
+                if (null != user) {
+                    if (!StringUtils.equals(user.getUserId(), userForm.getUserId())) {
                         throw new ServerException("用户名已存在！");
                     }
                 }

@@ -59,35 +59,32 @@
         LEFT JOIN rm_user u ON u.user_id = d.create_user_id
         LEFT JOIN rm_user uu ON uu.user_id = d.last_modify_user_id
         WHERE 1=1
-        <if test="pkDormId != null and pkDormId != ''">
-            and dv.pk_dorm_id=#{pkDormId}
+        <if test="form.pkDormId != null and form.pkDormId != ''">
+            and dv.pk_dorm_id=#{form.pkDormId}
         </if>
-        <if test="dormBuildingNum != null and dormBuildingNum != ''">
-            and db.dorm_building_num like '%${dormBuildingNum}%'
+        <if test="form.dormNum != null and form.dormNum != ''">
+            and d.dorm_num like '%${form.dormNum}%'
         </if>
-        <if test="dormNum != null and dormNum != ''">
-            and d.dorm_num like '%${dormNum}%'
+        <if test="form.buildingLevelth != null">
+            and d.building_levelth=#{form.buildingLevelth}
         </if>
-        <if test="buildingLevelth != null">
-            and d.building_levelth=#{buildingLevelth}
+        <if test="form.dormType != null">
+            and d.dorm_type=#{form.dormType}
         </if>
-        <if test="dormType != null">
-            and d.dorm_type=#{dormType}
+        <if test="form.status != null">
+            and d.status=#{form.status}
         </if>
-        <if test="status != null">
-            and d.status=#{status}
+        <if test="form.createUserName != null and form.createUserName != ''">
+            and u.user_name like '%${form.createUserName}%'
         </if>
-        <if test="createUserName != null and createUserName != ''">
-            and u.user_name like '%${createUserName}%'
+        <if test="form.lastModifyUserName != null and form.lastModifyUserName != ''">
+            and uu.user_name like '%${form.lastModifyUserName}%'
         </if>
-        <if test="lastModifyUserName != null and lastModifyUserName != ''">
-            and uu.user_name like '%${lastModifyUserName}%'
+        <if test="form.startTime != null">
+            AND d.create_time &gt;= #{form.startTime,jdbcType=TIMESTAMP}
         </if>
-        <if test="startTime != null">
-            AND d.create_time &gt;= #{startTime,jdbcType=TIMESTAMP}
-        </if>
-        <if test="endTime != null">
-            AND d.create_time &lt;= #{endTime,jdbcType=TIMESTAMP}
+        <if test="form.endTime != null">
+            AND d.create_time &lt;= #{form.endTime,jdbcType=TIMESTAMP}
         </if>
         ORDER BY
         d.last_modify_time DESC

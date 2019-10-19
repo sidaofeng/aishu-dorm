@@ -1,13 +1,12 @@
 package com.waken.dorm.controller.dorm;
 
-import com.github.pagehelper.PageInfo;
 import com.waken.dorm.common.annotation.Log;
+import com.waken.dorm.common.base.AjaxResponse;
 import com.waken.dorm.common.entity.dorm.Dorm;
 import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.dorm.AddDormStudentRelForm;
 import com.waken.dorm.common.form.dorm.DormForm;
 import com.waken.dorm.common.form.dorm.EditDormForm;
-import com.waken.dorm.common.base.AjaxResponse;
 import com.waken.dorm.common.utils.StringUtils;
 import com.waken.dorm.common.view.dorm.DormStudentsView;
 import com.waken.dorm.common.view.dorm.DormView;
@@ -71,8 +70,7 @@ public class DormController extends BaseController {
     })
     public AjaxResponse listDorms(@RequestBody DormForm dormForm) {
         log.info("开始调用分页查询宿舍信息接口：" + dormForm.toString());
-        PageInfo<DormView> pageInfo = dormService.listDorms(dormForm);
-        return AjaxResponse.success(pageInfo);
+        return AjaxResponse.success(dormService.listDorms(dormForm));
     }
 
     @CrossOrigin

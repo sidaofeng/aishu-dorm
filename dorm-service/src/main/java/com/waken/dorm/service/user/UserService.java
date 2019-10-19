@@ -1,6 +1,6 @@
 package com.waken.dorm.service.user;
 
-import com.github.pagehelper.PageInfo;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.waken.dorm.common.entity.user.User;
 import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.user.EditUserForm;
@@ -38,7 +38,7 @@ public interface UserService {
      * @param userForm
      * @return
      */
-    PageInfo<UserView> listUsers(UserForm userForm);
+    IPage<UserView> listUsers(UserForm userForm);
 
     /**
      * 查询用户已经存在关联的角色 与 与用户没有的关联的角色
@@ -69,4 +69,12 @@ public interface UserService {
      * @return
      */
     List<User> selectList();
+
+    /**
+     * 根据原密码修改新密码
+     * @param userId
+     * @param oldPassword
+     * @param newPassword
+     */
+    int updatePassword(String userId,String oldPassword,String newPassword);
 }

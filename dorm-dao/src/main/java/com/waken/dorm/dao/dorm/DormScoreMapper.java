@@ -1,6 +1,8 @@
 package com.waken.dorm.dao.dorm;
 
-import com.baomidou.mybatisplus.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.waken.dorm.common.entity.dorm.DormScore;
 import com.waken.dorm.common.form.dorm.ListDormScoreForm;
 import com.waken.dorm.common.view.dorm.AppDormScoreView;
@@ -13,11 +15,9 @@ import java.util.Map;
 public interface DormScoreMapper extends BaseMapper<DormScore> {
     int batchUpdateStatus(Map<String, Object> param);
 
-    List<DormScoreView> listDormScores(ListDormScoreForm listDormScoreForm);
+    IPage<DormScoreView> listDormScores(Page page,@Param("form") ListDormScoreForm listDormScoreForm);
 
-    List<AppDormScoreView> appListDormScoreView(ListDormScoreForm listDormScoreForm);
-
-    List<DormScore> selectByIds(@Param("Ids") List<String> Ids);//通过批量Ids批量查询
+    IPage<AppDormScoreView> appListDormScoreView(Page page,ListDormScoreForm listDormScoreForm);
 
     int batchAddDormScore(List<DormScore> dormScoreList);
 }

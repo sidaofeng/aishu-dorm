@@ -20,24 +20,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.waken.dorm.common</groupId>
-            <artifactId>dorm-common</artifactId>
-            <version>${dorm.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.waken.dorm.dao</groupId>
-            <artifactId>dorm-dao</artifactId>
-            <version>${dorm.version}</version>
-        </dependency>
-        <dependency>
             <groupId>com.waken.dorm.service</groupId>
             <artifactId>dorm-service</artifactId>
             <version>${dorm.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.12</version>
         </dependency>
     </dependencies>
 </project>

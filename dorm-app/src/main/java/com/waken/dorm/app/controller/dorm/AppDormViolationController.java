@@ -1,6 +1,5 @@
 package com.waken.dorm.app.controller.dorm;
 
-import com.github.pagehelper.PageInfo;
 import com.waken.dorm.app.controller.base.AppBaseController;
 import com.waken.dorm.common.base.AjaxResponse;
 import com.waken.dorm.common.form.dorm.DormViolationForm;
@@ -44,7 +43,6 @@ public class AppDormViolationController extends AppBaseController {
         dormViolationForm.setPageNum(pageNum);
         dormViolationForm.setPageSize(pageSize);
         dormViolationForm.setStudentId(studentId);
-        PageInfo<AppDormViolationView> pageInfo = dormViolationService.appListDormViolations(dormViolationForm);
-        return AjaxResponse.success(pageInfo);
+        return AjaxResponse.success(dormViolationService.appListDormViolations(dormViolationForm));
     }
 }

@@ -1,14 +1,13 @@
 package com.waken.dorm.controller.dorm;
 
-import com.github.pagehelper.PageInfo;
 import com.waken.dorm.common.annotation.Log;
+import com.waken.dorm.common.base.AjaxResponse;
 import com.waken.dorm.common.entity.dorm.DormRepair;
 import com.waken.dorm.common.enums.CodeEnum;
 import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.dorm.AddDormRepairForm;
 import com.waken.dorm.common.form.dorm.DormRepairForm;
 import com.waken.dorm.common.form.dorm.UpdateRepairForm;
-import com.waken.dorm.common.base.AjaxResponse;
 import com.waken.dorm.common.view.dorm.DormRepairView;
 import com.waken.dorm.controller.base.BaseController;
 import com.waken.dorm.service.dorm.DormRepairService;
@@ -71,8 +70,7 @@ public class DormRepairController extends BaseController {
     public AjaxResponse listDormRepairs(@RequestBody DormRepairForm dormRepairForm) {
         log.info("开始调用分页查询宿舍维修信息接口：" + dormRepairForm.toString());
         dormRepairForm.setTerminal(CodeEnum.WEB.getCode());
-        PageInfo<DormRepairView> pageInfo = dormRepairService.listDormRepairs(dormRepairForm);
-        return AjaxResponse.success(pageInfo);
+        return AjaxResponse.success(dormRepairService.listDormRepairs(dormRepairForm));
     }
 
     @Log("修改宿舍维修")

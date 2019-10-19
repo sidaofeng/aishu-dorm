@@ -69,43 +69,43 @@
         LEFT JOIN rm_role r ON r.pk_role_id = up.subject_id
         WHERE
         1 = 1
-        <if test="userId != null and userId != ''">
-            and u.user_id=#{userId}
+        <if test="form.userId != null and form.userId != ''">
+            and u.user_id=#{userForm.userId}
         </if>
-        <if test="userName != null and userName != ''">
+        <if test="form.userName != null and form.userName != ''">
             <!-- 这里修改了一下用户名的查询的方式-模糊查询   and u.user_name =#{userName} -->
-            and u.user_name like '%${userName}%'
+            and u.user_name like '%${form.userName}%'
         </if>
-        <if test="mobile != null and mobile != ''">
+        <if test="form.mobile != null and form.mobile != ''">
             <!-- 这里修改了一下用户名的查询的方式-模糊查询   and u.mobile=#{mobile} -->
-            and u.mobile like '%${mobile}%'
+            and u.mobile like '%${form.mobile}%'
         </if>
-        <if test="name != null and name != ''">
-            and u.name like '%${name}%'
+        <if test="form.name != null and form.name != ''">
+            and u.name like '%${form.name}%'
         </if>
-        <if test="nickName != null and nickName != ''">
-            and u.nick_name like '%${nickName}%'
+        <if test="form.nickName != null and form.nickName != ''">
+            and u.nick_name like '%${form.nickName}%'
         </if>
-        <if test="status != null">
-            and u.status=#{status}
+        <if test="form.status != null">
+            and u.status=#{form.status}
         </if>
-        <if test="gender != null">
-            and u.gender=#{gender}
+        <if test="form.gender != null">
+            and u.gender=#{form.gender}
         </if>
-        <if test="createUserName != null and createUserName != ''">
-            and uu.user_name=#{createUserName}
+        <if test="form.createUserName != null and form.createUserName != ''">
+            and uu.user_name=#{form.createUserName}
         </if>
-        <if test="lastModifyUserName != null and lastModifyUserName != ''">
-            and uuu.user_name=#{lastModifyUserName}
+        <if test="form.lastModifyUserName != null and form.lastModifyUserName != ''">
+            and uuu.user_name=#{form.lastModifyUserName}
         </if>
-        <if test="userType != null">
-            and u.user_type=#{userType}
+        <if test="form.userType != null">
+            and u.user_type=#{form.userType}
         </if>
-        <if test="startTime != null">
-            AND u.create_time &gt;= #{startTime,jdbcType=TIMESTAMP}
+        <if test="form.startTime != null">
+            AND u.create_time &gt;= #{form.startTime,jdbcType=TIMESTAMP}
         </if>
-        <if test="endTime != null">
-            AND u.create_time &lt;= #{endTime,jdbcType=TIMESTAMP}
+        <if test="form.endTime != null">
+            AND u.create_time &lt;= #{form.endTime,jdbcType=TIMESTAMP}
         </if>
         ORDER BY
         u.last_modify_time DESC

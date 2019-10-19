@@ -1,6 +1,8 @@
 package com.waken.dorm.dao.student;
 
-import com.baomidou.mybatisplus.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.waken.dorm.common.entity.student.Student;
 import com.waken.dorm.common.entity.student.StudentInfo;
 import com.waken.dorm.common.form.student.StudentForm;
@@ -19,7 +21,7 @@ import java.util.Map;
 public interface StudentMapper extends BaseMapper<Student> {
     int batchUpdateStatus(Map<String, Object> param);
 
-    List<StudentView> listStudents(StudentForm studentForm);
+    IPage<StudentView> listStudents(Page page,@Param("form") StudentForm studentForm);
 
     List<Student> selectByIds(@Param("Ids") List<String> Ids);//通过批量Ids批量查询
 

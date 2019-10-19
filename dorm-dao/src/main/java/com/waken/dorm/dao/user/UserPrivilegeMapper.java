@@ -1,6 +1,6 @@
 package com.waken.dorm.dao.user;
 
-import com.baomidou.mybatisplus.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.waken.dorm.common.entity.user.UserPrivilege;
 import com.waken.dorm.common.view.resource.UserMenuView;
 import com.waken.dorm.common.view.user.UserRoleResource;

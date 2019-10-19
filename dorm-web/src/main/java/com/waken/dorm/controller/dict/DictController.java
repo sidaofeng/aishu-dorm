@@ -1,6 +1,5 @@
 package com.waken.dorm.controller.dict;
 
-import com.github.pagehelper.PageInfo;
 import com.waken.dorm.common.annotation.Log;
 import com.waken.dorm.common.base.AjaxResponse;
 import com.waken.dorm.common.entity.dict.Dict;
@@ -68,7 +67,6 @@ public class DictController extends BaseController {
     })
     public AjaxResponse listDicts(@RequestBody DictForm dictForm) {
         log.info("开始调用分页查询字典信息接口：" + dictForm.toString());
-        PageInfo<DictView> pageInfo = dictService.listDicts(dictForm);
-        return AjaxResponse.success(pageInfo);
+        return AjaxResponse.success(dictService.listDicts(dictForm));
     }
 }

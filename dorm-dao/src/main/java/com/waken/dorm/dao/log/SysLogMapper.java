@@ -1,12 +1,13 @@
 package com.waken.dorm.dao.log;
 
-import com.baomidou.mybatisplus.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.waken.dorm.common.entity.log.SysLog;
 import com.waken.dorm.common.form.log.SysLogForm;
 import com.waken.dorm.common.view.log.SysLogView;
-
-import java.util.List;
+import org.apache.ibatis.annotations.Param;
 
 public interface SysLogMapper extends BaseMapper<SysLog> {
-    List<SysLogView> listSysLogViews(SysLogForm sysLogForm);
+    IPage<SysLogView> listSysLogViews(Page page,@Param("form") SysLogForm sysLogForm);
 }

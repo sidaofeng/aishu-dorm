@@ -1,8 +1,8 @@
 package com.waken.dorm.serviceImpl.dorm;
 
-import com.baomidou.mybatisplus.mapper.EntityWrapper;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.waken.dorm.common.constant.Constant;
 import com.waken.dorm.common.entity.dorm.DormBuilding;
 import com.waken.dorm.common.enums.CodeEnum;
@@ -114,7 +114,7 @@ public class DormBuildingServiceImpl implements DormBuildingService {
      * @return
      */
     @Override
-    public PageInfo<DormBuildingView> listDormBuildings(DormBuildingForm buildingForm) {
+    public IPage<DormBuildingView> listDormBuildings(DormBuildingForm buildingForm) {
         log.info("service: 分页查询宿舍楼信息开始");
         if (buildingForm.getStartTime() != null) {
             buildingForm.setStartTime(DateUtils.formatDate2DateTimeStart(buildingForm.getStartTime()));
@@ -122,9 +122,8 @@ public class DormBuildingServiceImpl implements DormBuildingService {
         if (buildingForm.getEndTime() != null) {
             buildingForm.setEndTime(DateUtils.formatDate2DateTimeEnd(buildingForm.getEndTime()));
         }
-        PageHelper.startPage(buildingForm.getPageNum(), buildingForm.getPageSize());
-        List<DormBuildingView> dormBuildingList = buildingMapper.listDormBuildings(buildingForm);
-        return new PageInfo<>(dormBuildingList);
+        Page page  = new Page(buildingForm.getPageNum(),buildingForm.getPageSize());
+        return buildingMapper.listDormBuildings(page,buildingForm);
     }
 
     /**
@@ -137,19 +136,18 @@ public class DormBuildingServiceImpl implements DormBuildingService {
             Assert.notNull(editForm.getDormBuildingType());
             Assert.notNull(editForm.getDormBuildingNum());
             Assert.notNull(editForm.getDormBuildingLevels());
-            List<DormBuilding> dormBuildings = buildingMapper.selectList(new EntityWrapper<DormBuilding>()
-                    .eq("dorm_building_num", editForm.getDormBuildingNum())
+            DormBuilding dormBuilding = buildingMapper.selectOne(new LambdaQueryWrapper<DormBuilding>()
+                    .eq(DormBuilding::getDormBuildingNum, editForm.getDormBuildingNum())
             );
-            Assert.isNull(dormBuildings,dormBuildings.isEmpty(),"已存在相同名称的楼栋号");
+            Assert.isNull(dormBuilding,"已存在相同名称的楼栋号");
         } else {//修改验证
-            DormBuilding dormBuilding = buildingMapper.selectById(editForm.getPkDormBuildingId());
-            Assert.notNull(dormBuilding,"参数错误");
+            Assert.notNull(buildingMapper.selectById(editForm.getPkDormBuildingId()),"参数错误");
             if (StringUtils.isNotEmpty(editForm.getDormBuildingNum())) {
-                List<DormBuilding> dormBuildings = buildingMapper.selectList(new EntityWrapper<DormBuilding>()
-                        .eq("dorm_building_num", editForm.getDormBuildingNum())
+                DormBuilding dormBuilding = buildingMapper.selectOne(new LambdaQueryWrapper<DormBuilding>()
+                        .eq(DormBuilding::getDormBuildingNum, editForm.getDormBuildingNum())
                 );
-                if (!dormBuildings.isEmpty()) {
-                    if (!StringUtils.equals(dormBuildings.get(Constant.ZERO).getPkDormBuildingId(), editForm.getPkDormBuildingId())) {
+                if (null != dormBuilding) {
+                    if (!StringUtils.equals(dormBuilding.getPkDormBuildingId(), editForm.getPkDormBuildingId())) {
                         throw new ServerException("已存在相同名称的楼栋号");
                     }
                 }

@@ -1,6 +1,6 @@
 package com.waken.dorm.service.dict;
 
-import com.github.pagehelper.PageInfo;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.waken.dorm.common.entity.dict.Dict;
 import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.dict.DictForm;
@@ -35,6 +35,6 @@ public interface DictService {
      * @param dictForm
      * @return
      */
-    public PageInfo<DictView> listDicts(DictForm dictForm);
+    public IPage<DictView> listDicts(DictForm dictForm);
 
 }

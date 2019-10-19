@@ -1,6 +1,7 @@
 package com.waken.dorm.serviceImpl.resource;
 
-import com.baomidou.mybatisplus.mapper.EntityWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.Lists;
 import com.waken.dorm.common.constant.Constant;
 import com.waken.dorm.common.entity.resource.Resource;
@@ -145,11 +146,12 @@ public class ResourceServiceImpl implements ResourceService {
         }
         //删除与用户的关联
         List<String> toDelPkPrivilegeIds = Lists.newArrayList();
-        List<UserPrivilege> userPrivilegeList = userPrivilegeMapper.selectList(new EntityWrapper<UserPrivilege>()
-            .eq("subject_type",CodeEnum.MENU.getCode())
+        List<UserPrivilege> userPrivilegeList = userPrivilegeMapper.selectList(new LambdaQueryWrapper<UserPrivilege>()
+            .eq(UserPrivilege::getSubjectType,CodeEnum.MENU.getCode())
             .or()
-            .eq("subject_type",CodeEnum.BUTTON.getCode())
+            .eq(UserPrivilege::getSubjectType,CodeEnum.BUTTON.getCode())
         );
+
         if (null != userPrivilegeList && !userPrivilegeList.isEmpty()) {
             userPrivilegeList.stream().forEach(userPrivilege -> {
                 if (delResourceIds.contains(userPrivilege.getSubjectId())) {
@@ -169,8 +171,8 @@ public class ResourceServiceImpl implements ResourceService {
      * @return
      */
     private List<String> getAllToDelIds(List<String> resourcesIds) {
-        List<Resource> resourceList = resourceMapper.selectList(new EntityWrapper<Resource>()
-                .eq("status", CodeEnum.ENABLE.getCode())
+        List<Resource> resourceList = resourceMapper.selectList(new LambdaQueryWrapper<Resource>()
+                .eq(Resource::getStatus, CodeEnum.ENABLE.getCode())
         );
         Map<String, String> idAndPidMap = resourceList.stream().collect(Collectors.toMap(Resource::getPkResourceId, Resource::getParentId));
         return TreeUtil.getNodesByIds(idAndPidMap, resourcesIds);
@@ -319,7 +321,7 @@ public class ResourceServiceImpl implements ResourceService {
      * @param addOrUpdate
      */
     private void checkExist(String column, Object params, int addOrUpdate) {
-        List<Resource> resourceList = resourceMapper.selectList(new EntityWrapper<Resource>()
+        List<Resource> resourceList = resourceMapper.selectList(new QueryWrapper<Resource>()
                 .eq(column, params)
                 .eq("status", CodeEnum.ENABLE.getCode())
         );
@@ -337,21 +339,17 @@ public class ResourceServiceImpl implements ResourceService {
      * @param resourceId
      */
     private void addResourceRoleRel(String resourceId, int resourceType) {
-        List<Role> roleList = roleMapper.selectList(new EntityWrapper<Role>()
-                .eq("role_name", Constant.SuperAdmin)
+        Role role = roleMapper.selectOne(new LambdaQueryWrapper<Role>()
+                .eq(Role::getRoleName, Constant.SuperAdmin)
         );
-        if (null != roleList && !roleList.isEmpty()) {
-            String pkRoleResourceId = UUIDSequence.next();
-            String userId = UserManager.getCurrentUserId();
-            Date curDate = DateUtils.getCurrentDate();
-            String roleId = roleList.get(Constant.ZERO).getPkRoleId();
+        if (null != role) {
             RoleResourceRel roleResourceRel = new RoleResourceRel();
-            roleResourceRel.setPkRoleResourceId(pkRoleResourceId);
-            roleResourceRel.setRoleId(roleId);
+            roleResourceRel.setPkRoleResourceId(UUIDSequence.next());
+            roleResourceRel.setRoleId(role.getPkRoleId());
             roleResourceRel.setResourceId(resourceId);
             roleResourceRel.setResourceType(resourceType);
-            roleResourceRel.setCreateTime(curDate);
-            roleResourceRel.setCreateUserId(userId);
+            roleResourceRel.setCreateTime(DateUtils.getCurrentDate());
+            roleResourceRel.setCreateUserId(UserManager.getCurrentUserId());
             roleResourceRelMapper.insert(roleResourceRel);
         }
     }
@@ -363,7 +361,7 @@ public class ResourceServiceImpl implements ResourceService {
      * @return
      */
     private int getResourceNo(EditResourceForm editResourceForm) {
-        EntityWrapper wrapper = new EntityWrapper<Resource>();
+        LambdaQueryWrapper wrapper = new LambdaQueryWrapper<Resource>();
         if (StringUtils.isEmpty(editResourceForm.getParentId())) {
             wrapper.eq("parent_id", Constant.ROOT);
         } else {
@@ -380,13 +378,13 @@ public class ResourceServiceImpl implements ResourceService {
      * @param parentId
      */
     private void updateParent(String parentId) {
-        List<Resource> resourceList = resourceMapper.selectList(new EntityWrapper<Resource>()
-                .eq("pk_resource_id", parentId)
+        Resource resource = resourceMapper.selectOne(new LambdaQueryWrapper<Resource>()
+                .eq(Resource::getPkResourceId, parentId)
         );
-        if (!resourceList.isEmpty()) {
-            if (false == resourceList.get(Constant.ZERO).getParent()) {
-                resourceList.get(Constant.ZERO).setParent(Boolean.TRUE);
-                resourceMapper.updateById(resourceList.get(Constant.ZERO));
+        if (null != resource) {
+            if (false == resource.getParent()) {
+                resource.setParent(Boolean.TRUE);
+                resourceMapper.updateById(resource);
             }
         }
     }
