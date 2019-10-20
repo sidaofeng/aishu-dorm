@@ -9,6 +9,7 @@ import com.waken.dorm.common.form.role.QueryRoleForm;
 import com.waken.dorm.common.view.role.UserRoleView;
 
 import java.util.List;
+import java.util.Map;
 
 public interface RoleService {
     /**
@@ -38,7 +39,7 @@ public interface RoleService {
      * @param queryRoleForm
      * @return
      */
-    IPage<Role> listRoles(QueryRoleForm queryRoleForm);
+    IPage<Role> page(QueryRoleForm queryRoleForm);
 
     /**
      * 新增角色与资源的关联
@@ -47,4 +48,10 @@ public interface RoleService {
      * @return
      */
     void batchAddRoleResourceRel(AddRoleResourceRelForm addRoleResourceRelForm);
+
+    /**
+     * 获取所有的角色List
+     * @return
+     */
+    List<Map<String,String>> getRoleList();
 }

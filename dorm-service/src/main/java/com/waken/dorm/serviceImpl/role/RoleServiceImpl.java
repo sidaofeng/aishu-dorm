@@ -29,10 +29,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -112,7 +109,7 @@ public class RoleServiceImpl implements RoleService {
      * @return
      */
     @Override
-    public IPage<Role> listRoles(QueryRoleForm queryRoleForm) {
+    public IPage<Role> page(QueryRoleForm queryRoleForm) {
         log.info("service: 查询角色开始");
         LambdaQueryWrapper<Role> roleLambdaQueryWrapper = new LambdaQueryWrapper<>();
         if (StringUtils.isNotEmpty(queryRoleForm.getPkRoleId())) {
@@ -126,7 +123,7 @@ public class RoleServiceImpl implements RoleService {
         }
         roleLambdaQueryWrapper.orderByDesc(Role::getLastModifyTime);
 
-        Page page  = new Page(queryRoleForm.getPageNum(),queryRoleForm.getPageSize());
+        Page page = new Page(queryRoleForm.getPageNum(), queryRoleForm.getPageSize());
 
         return roleMapper.selectPage(page, roleLambdaQueryWrapper);
     }
@@ -139,7 +136,7 @@ public class RoleServiceImpl implements RoleService {
     private void delRoleRel(List<String> roleIds) {
         List<Role> roles = roleMapper.selectBatchIds(roleIds);
         roles.stream().forEach(role -> {
-            if (StringUtils.equals(role.getRoleName(),Constant.SuperAdmin)){
+            if (StringUtils.equals(role.getRoleName(), Constant.SuperAdmin)) {
                 throw new ServerException("不能操作超级管理员角色！");
             }
         });
@@ -161,9 +158,9 @@ public class RoleServiceImpl implements RoleService {
         //删除资源与角色的所有关联
         List<String> toDelRelId = Lists.newArrayList();
         List<RoleResourceRel> roleList = roleResourceRelMapper.selectList(null);
-        if (null != roleList && !roleList.isEmpty()){
-            roleList.stream().forEach(rel->{
-                if (roleIds.contains(rel.getRoleId())){
+        if (null != roleList && !roleList.isEmpty()) {
+            roleList.stream().forEach(rel -> {
+                if (roleIds.contains(rel.getRoleId())) {
                     toDelRelId.add(rel.getPkRoleResourceId());
                 }
             });
@@ -210,6 +207,30 @@ public class RoleServiceImpl implements RoleService {
             }
 
         }
+    }
+
+    /**
+     * 获取所有的角色List
+     *
+     * @return
+     */
+    @Override
+    public List<Map<String, String>> getRoleList() {
+        List<Map<String, String>> roles = new ArrayList<>();
+
+        List<Role> roleList = roleMapper.selectList(new LambdaQueryWrapper<Role>()
+                .eq(Role::getStatus, CodeEnum.ENABLE.getCode())
+        );
+        if (roleList == null && roleList.isEmpty()){
+            return null;
+        }
+        roleList.stream().forEach(role -> {
+            Map<String, String> map = new HashMap<>(4);
+            map.put("roleId", role.getPkRoleId());
+            map.put("roleName", role.getRoleName());
+            roles.add(map);
+        });
+        return roles;
     }
 
     private void batchAddRelValidate(AddRoleResourceRelForm addForm) {
@@ -276,9 +297,9 @@ public class RoleServiceImpl implements RoleService {
             Role role = roleMapper.selectOne(new LambdaQueryWrapper<Role>()
                     .eq(Role::getRoleName, editForm.getRoleName())
             );
-            Assert.isNull(role,"角色名称已存在！");
+            Assert.isNull(role, "角色名称已存在！");
         } else {//修改验证
-            Assert.notNull(roleMapper.selectById(editForm.getPkRoleId()),"参数错误");
+            Assert.notNull(roleMapper.selectById(editForm.getPkRoleId()), "参数错误");
             if (StringUtils.isNotEmpty(editForm.getRoleName())) {
                 Role role = roleMapper.selectOne(new LambdaQueryWrapper<Role>()
                         .eq(Role::getRoleName, editForm.getRoleName())

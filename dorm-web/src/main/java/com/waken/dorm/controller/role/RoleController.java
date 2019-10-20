@@ -70,7 +70,7 @@ public class RoleController extends BaseController {
     @RequiresPermissions("roles::view")
     public AjaxResponse listRoles(@RequestBody QueryRoleForm queryRoleForm) {
         log.info("开始调用分页查询角色信息接口：" + queryRoleForm.toString());
-        return AjaxResponse.success(roleService.listRoles(queryRoleForm));
+        return AjaxResponse.success(this.roleService.page(queryRoleForm));
     }
 
     @Log("批量新增角色资源关联")
@@ -85,5 +85,16 @@ public class RoleController extends BaseController {
         log.info("开始调用批量新增角色资源关联接口：" + addForm.toString());
         roleService.batchAddRoleResourceRel(addForm);
         return AjaxResponse.success();
+    }
+
+    @CrossOrigin
+    @GetMapping(value = "roles")
+    @ApiOperation(value = "获取所有的角色信息", notes = "获取所有的角色信息")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
+    })
+    public AjaxResponse getRoleList() {
+
+        return AjaxResponse.success(this.roleService.getRoleList());
     }
 }

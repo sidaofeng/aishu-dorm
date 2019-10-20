@@ -4,7 +4,9 @@ import com.waken.dorm.common.view.base.BaseView;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @ClassName UserView
@@ -40,4 +42,6 @@ public class UserView extends BaseView {
     private String lastModifyUserName;
 
     private String memo;
+
+    private List<String> roleIds = new ArrayList<>();
 }

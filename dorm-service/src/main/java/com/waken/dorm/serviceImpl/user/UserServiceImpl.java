@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.waken.dorm.common.constant.Constant;
 import com.waken.dorm.common.entity.user.User;
+import com.waken.dorm.common.entity.user.UserPrivilege;
 import com.waken.dorm.common.enums.CodeEnum;
 import com.waken.dorm.common.exception.ServerException;
 import com.waken.dorm.common.form.base.DeleteForm;
@@ -33,10 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -90,7 +88,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public User queryUserInfo(String userName) {
 
-        return userMapper.selectOne(new LambdaQueryWrapper<User>().eq(User::getUserName,userName));
+        return userMapper.selectOne(new LambdaQueryWrapper<User>()
+                .eq(User::getUserName,userName)
+        );
     }
 
     @Override
@@ -159,7 +159,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public IPage<UserView> listUsers(UserForm userForm) {
         log.info("service: 用户信息分页查询开始");
-
         if (userForm.getStartTime() != null) {
             userForm.setStartTime(DateUtils.formatDate2DateTimeStart(userForm.getStartTime()));
         }
@@ -169,7 +168,42 @@ public class UserServiceImpl implements UserService {
 
         Page page = new Page(userForm.getPageNum(),userForm.getPageSize());
 
-        return this.userMapper.listUsers(page,userForm);
+        IPage<UserView> userPage = this.userMapper.listUsers(page, userForm);
+
+        Map<String,List<String>> userRoleMap = this.getUsersRoles();
+
+        userPage.getRecords().stream().forEach(userView->{
+            if (userRoleMap.containsKey(userView.getUserId())){
+                userView.setRoleIds(userRoleMap.get(userView.getUserId()));
+            }
+        });
+
+
+        return userPage;
+    }
+
+    /**
+     * 获取所有用户对应的角色信息
+     * @return
+     */
+    public Map<String,List<String>> getUsersRoles(){
+        List<UserPrivilege> userPrivilegeList = userPrivilegeMapper.selectList(new LambdaQueryWrapper<UserPrivilege>()
+                .eq(UserPrivilege::getSubjectType, CodeEnum.ROLE.getCode())
+        );
+
+        if (userPrivilegeList == null && userPrivilegeList.isEmpty()){
+            return null;
+        }
+
+        Map<String,List<String>> userRoles = new HashMap<>(16);
+        userPrivilegeList.stream().forEach(userPrivilege -> {
+            if (!userRoles.containsKey(userPrivilege.getUserId())){
+                userRoles.put(userPrivilege.getUserId(),new ArrayList<>());
+            }
+            userRoles.get(userPrivilege.getUserId()).add(userPrivilege.getSubjectId());
+
+        });
+        return userRoles;
     }
 
     @Override
@@ -245,7 +279,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public void updateLoginTime(User user) {
-        user.setLastLoginTime(new Date());
+        user.setLastLoginTime(DateUtils.getCurrentDate());
         userMapper.updateById(user);
     }
 
