@@ -7,13 +7,13 @@ import com.waken.dorm.common.entity.resource.Resource;
 import com.waken.dorm.common.entity.user.User;
 import com.waken.dorm.common.entity.user.UserPrivilege;
 import com.waken.dorm.common.enums.CodeEnum;
-import com.waken.dorm.common.exception.ServerException;
 import com.waken.dorm.common.form.role.UserRoleRelForm;
 import com.waken.dorm.common.form.user.AddUserResourcesForm;
 import com.waken.dorm.common.form.user.AddUserRoleRelForm;
 import com.waken.dorm.common.sequence.UUIDSequence;
 import com.waken.dorm.common.utils.Assert;
 import com.waken.dorm.common.utils.DateUtils;
+import com.waken.dorm.common.utils.DormUtil;
 import com.waken.dorm.common.utils.TreeUtil;
 import com.waken.dorm.common.view.base.Tree;
 import com.waken.dorm.common.view.resource.UserMenuView;
@@ -141,11 +141,8 @@ public class UserPrivilegeServiceImpl implements UserPrivilegeService {
     public void batchAddUserRoleRel(AddUserRoleRelForm addForm) {
         log.info("service: 批量新增用户角色关联开始");
         Assert.notNull(addForm.getUserId());
-        if (addForm.getRoleIds().isEmpty()) {
-            throw new ServerException("参数为空！");
-        }
         List<UserPrivilege> toBeAddUserRoleRel = this.getToBeAddUserRoleRel(addForm);
-        if (!toBeAddUserRoleRel.isEmpty()) {
+        if (toBeAddUserRoleRel != null && !toBeAddUserRoleRel.isEmpty()) {
             int count = privilegeMapper.batchAddUserRoleRel(toBeAddUserRoleRel);
             Assert.isFalse(count == Constant.ZERO);
 
@@ -160,41 +157,48 @@ public class UserPrivilegeServiceImpl implements UserPrivilegeService {
                 .eq(UserPrivilege::getUserId, userId)
                 .eq(UserPrivilege::getSubjectType, CodeEnum.ROLE.getCode())
         );
-        if (!userRoleRelList.isEmpty()) {
+        if (userRoleRelList != null && !userRoleRelList.isEmpty()) {
             // 接收已经存在关联的角色id
             List<String> existIds = Lists.newArrayList();
             //接收需要删除的关联主键id
             List<String> toDelPkIds = Lists.newArrayList();
+
             for (UserPrivilege userRoleRel : userRoleRelList) {
+                if (roleIds == null || roleIds.isEmpty()){
+                    toDelPkIds.add(userRoleRel.getPkPrivilegeId());
+                }
                 if (roleIds.contains(userRoleRel.getSubjectId())) {
                     existIds.add(userRoleRel.getSubjectId());
                 } else {
                     toDelPkIds.add(userRoleRel.getPkPrivilegeId());
                 }
             }
-            roleIds.removeAll(existIds);
-            if (!toDelPkIds.isEmpty()) {
+
+            if (existIds != null && !existIds.isEmpty()){
+                roleIds.removeAll(existIds);
+            }
+
+            if (toDelPkIds !=null &&!toDelPkIds.isEmpty()) {
                 int count = privilegeMapper.deleteBatchIds(toDelPkIds);
                 Assert.isFalse(count == Constant.ZERO);
             }
 
         }
-        if (!roleIds.isEmpty()) {
-            List<UserPrivilege> toBeAddUserRoleRelList = new ArrayList<>();
-            for (String roleId : roleIds) {
-                UserPrivilege userRoleRel = new UserPrivilege();
-                userRoleRel.setPkPrivilegeId(UUIDSequence.next());
-                userRoleRel.setUserId(userId);
-                userRoleRel.setSubjectId(roleId);
-                userRoleRel.setSubjectType(CodeEnum.ROLE.getCode());
-                userRoleRel.setCreateTime(DateUtils.getCurrentDate());
-                userRoleRel.setCreateUserId(UserManager.getCurrentUserId());
-                toBeAddUserRoleRelList.add(userRoleRel);
-            }
-            return toBeAddUserRoleRelList;
-        } else {
-            return new ArrayList<>();
+        if (roleIds==null || roleIds.isEmpty()) {
+            return null;
         }
+        List<UserPrivilege> toBeAddUserRoleRelList = Lists.newArrayList();
+        for (String roleId : roleIds) {
+            UserPrivilege userRoleRel = new UserPrivilege();
+            userRoleRel.setPkPrivilegeId(UUIDSequence.next());
+            userRoleRel.setUserId(userId);
+            userRoleRel.setSubjectId(roleId);
+            userRoleRel.setSubjectType(CodeEnum.ROLE.getCode());
+            userRoleRel.setCreateTime(DateUtils.getCurrentDate());
+            userRoleRel.setCreateUserId(UserManager.getCurrentUserId());
+            toBeAddUserRoleRelList.add(userRoleRel);
+        }
+        return toBeAddUserRoleRelList;
     }
 
     /**
@@ -206,11 +210,8 @@ public class UserPrivilegeServiceImpl implements UserPrivilegeService {
     public void batchAddUserResourceRel(AddUserResourcesForm addForm) {
         log.info("service: 批量新增用户资源关联开始");
         Assert.notNull(addForm.getUserId());
-        if (null == addForm.getResourceIds() && addForm.getResourceIds().isEmpty()) {
-            throw new ServerException("参数为空！");
-        }
         List<UserPrivilege> toBeAddUserRoleRel = this.getToBeAddUserResources(addForm);
-        if (!toBeAddUserRoleRel.isEmpty()) {
+        if (toBeAddUserRoleRel != null && !toBeAddUserRoleRel.isEmpty()) {
             int count = this.privilegeMapper.batchAddUserResources(toBeAddUserRoleRel);
             Assert.isFalse(count == Constant.ZERO);
         }
@@ -220,31 +221,32 @@ public class UserPrivilegeServiceImpl implements UserPrivilegeService {
         String userId = addUserRoleRelForm.getUserId();
         this.checkSuperAdmin(userId);
         List<String> resourceIds = addUserRoleRelForm.getResourceIds();
-        List<UserPrivilege> userRoleRelList = privilegeMapper.selectList(new LambdaQueryWrapper<UserPrivilege>()
+        List<UserPrivilege> userPrivilegeList = privilegeMapper.selectList(new LambdaQueryWrapper<UserPrivilege>()
                 .eq(UserPrivilege::getUserId, userId)
                 .ne(UserPrivilege::getSubjectType,CodeEnum.ROLE.getCode())
         );
-        if (!userRoleRelList.isEmpty()) {
-            // 接收已经存在关联的资源id
-            List<String> existIds = new ArrayList<>();
+        if (userPrivilegeList != null && !userPrivilegeList.isEmpty()) {
+            List<Map<String,String>> mapList = new ArrayList<>();
+            Map<String,String> map = null;
+            userPrivilegeList.stream().forEach(userPrivilege -> {
+                map.put(DormUtil.pkId,userPrivilege.getPkPrivilegeId());
+                map.put(DormUtil.targetId,userPrivilege.getSubjectId());
+                mapList.add(map);
+            });
+
+            Map<String, List<String>> toDelAndTargetIds = DormUtil.getToDelAndTargetIds(resourceIds, mapList);
+
             // 接收需要删除的关联主键id
-            List<String> toDelPkIds = new ArrayList<>();
-            for (UserPrivilege userRoleRel : userRoleRelList) {
-                if (resourceIds.contains(userRoleRel.getSubjectId())) {
-                    existIds.add(userRoleRel.getSubjectId());
-                } else {
-                    toDelPkIds.add(userRoleRel.getPkPrivilegeId());
-                }
-            }
-            resourceIds.removeAll(existIds);
-            if (!toDelPkIds.isEmpty()) {
+            List<String> toDelPkIds = toDelAndTargetIds.get(DormUtil.toDelPkIds);
+
+            if (toDelPkIds != null && !toDelPkIds.isEmpty()) {
                 int count = privilegeMapper.deleteBatchIds(toDelPkIds);
                 Assert.isFalse(count == Constant.ZERO);
             }
 
         }
-        if (null == resourceIds && resourceIds.isEmpty()){
-            return new ArrayList<>();
+        if (null == resourceIds || resourceIds.isEmpty()){
+            return null;
         }
         List<Resource> resourceList = resourceMapper.selectBatchIds(resourceIds);
         Assert.notNull(resourceList,resourceList.isEmpty(),"参数错误！");

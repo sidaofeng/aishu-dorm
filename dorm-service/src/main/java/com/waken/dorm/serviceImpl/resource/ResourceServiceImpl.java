@@ -220,7 +220,7 @@ public class ResourceServiceImpl implements ResourceService {
         } else if (StringUtils.isNotBlank(userId)) {
             User user = userMapper.selectById(userId);
             Assert.notNull(user,"参数错误!");
-            var3 = userPrivilegeMapper.selectUserMenu(userId);
+            var3 = userPrivilegeMapper.selectUserResources(userId);
         }
         if (null == var3 || var3.isEmpty()) {
             return new HashMap<>();
@@ -248,6 +248,10 @@ public class ResourceServiceImpl implements ResourceService {
                 if (var2.containsKey(resourceView.getPkResourceId())) {
                     tree.setChecked(true);
                 }
+            }
+            //TODO
+            if (resourceView.isParent()){
+                tree.setChecked(false);
             }
             tree.setId(resourceView.getPkResourceId());
             tree.setParentId(resourceView.getParentId());

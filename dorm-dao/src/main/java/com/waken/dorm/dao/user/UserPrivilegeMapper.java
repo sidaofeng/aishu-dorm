@@ -51,6 +51,13 @@ public interface UserPrivilegeMapper extends BaseMapper<UserPrivilege> {
     List<UserMenuView> selectRoleResources(@Param("roleId") String roleId);
 
     /**
+     * 查询用户拥有的资源
+     * @param userId
+     * @return
+     */
+    List<UserMenuView> selectUserResources(@Param("userId") String userId);
+
+    /**
      * 通过用户id批量删除用户关联的资源，角色
      *
      * @param Ids

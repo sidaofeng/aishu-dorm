@@ -200,7 +200,7 @@ public class RoleServiceImpl implements RoleService {
         log.info("service: 批量新增角色资源关联开始");
         this.batchAddRelValidate(addRoleResourceRelForm);
         List<RoleResourceRel> toBeAddRoleResourceRel = this.getToBeAddRoleResourceRel(addRoleResourceRelForm);
-        if (!toBeAddRoleResourceRel.isEmpty()) {
+        if (toBeAddRoleResourceRel != null && !toBeAddRoleResourceRel.isEmpty()) {
             int count = roleResourceRelMapper.batchAddRoleResourceRel(toBeAddRoleResourceRel);
             if (count == Constant.ZERO) {
                 throw new ServerException("批量新增角色资源关联失败");
@@ -235,9 +235,6 @@ public class RoleServiceImpl implements RoleService {
 
     private void batchAddRelValidate(AddRoleResourceRelForm addForm) {
         Assert.notNull(addForm.getRoleId());
-        if (addForm.getResourceIds().isEmpty()) {
-            throw new ServerException("参数为空！");
-        }
         Role role = roleMapper.selectById(addForm.getRoleId());
         if (StringUtils.equals(Constant.SuperAdmin, role.getRoleName())) {
             throw new ServerException("不能操作超级管理员角色！");
@@ -257,38 +254,46 @@ public class RoleServiceImpl implements RoleService {
                 .eq(RoleResourceRel::getRoleId, roleId)
         );
         if (!roleResourceRelList.isEmpty()) {
-            List<String> existIds = new ArrayList<>();// 接收已经存在关联的资源id
-            List<String> toDelPkIds = new ArrayList<>();// 接收需要删除的关联主键id
+            List<String> existIds = Lists.newArrayList();// 接收已经存在关联的资源id
+            List<String> toDelPkIds = Lists.newArrayList();// 接收需要删除的关联主键id
             for (RoleResourceRel rel : roleResourceRelList) {
-                if (resourceIds.contains(rel.getResourceId())) {
-                    existIds.add(rel.getResourceId());
-                } else {
+                if (null == resourceIds || resourceIds.isEmpty()){
                     toDelPkIds.add(rel.getPkRoleResourceId());
+                }else {
+                    if (resourceIds.contains(rel.getResourceId())) {
+                        existIds.add(rel.getResourceId());
+                    } else {
+                        toDelPkIds.add(rel.getPkRoleResourceId());
+                    }
                 }
+
             }
-            resourceIds.removeAll(existIds);
-            if (!toDelPkIds.isEmpty()) {
+
+            if (existIds != null && !existIds.isEmpty()){
+                resourceIds.removeAll(existIds);
+            }
+            if (toDelPkIds != null && !toDelPkIds.isEmpty()) {
                 roleResourceRelMapper.deleteBatchIds(toDelPkIds);
             }
         }
-        if (resourceIds.isEmpty()) {
-            return new ArrayList<>();
-        } else {
-            List<RoleResourceRel> toBeAddRoleResourceRelList = new ArrayList<>();
-            for (String resourceId : resourceIds) {
-                String pkRoleResourceId = UUIDSequence.next();
-                String userId = UserManager.getCurrentUserId();
-                Date curDate = DateUtils.getCurrentDate();
-                RoleResourceRel roleResourceRel = new RoleResourceRel();
-                roleResourceRel.setPkRoleResourceId(pkRoleResourceId);
-                roleResourceRel.setRoleId(roleId);
-                roleResourceRel.setResourceId(resourceId);
-                roleResourceRel.setCreateTime(curDate);
-                roleResourceRel.setCreateUserId(userId);
-                toBeAddRoleResourceRelList.add(roleResourceRel);
-            }
-            return toBeAddRoleResourceRelList;
+        if (resourceIds == null || resourceIds.isEmpty()) {
+            return null;
         }
+        List<RoleResourceRel> toBeAddRoleResourceRelList = Lists.newArrayList();
+        for (String resourceId : resourceIds) {
+            String pkRoleResourceId = UUIDSequence.next();
+            String userId = UserManager.getCurrentUserId();
+            Date curDate = DateUtils.getCurrentDate();
+            RoleResourceRel roleResourceRel = new RoleResourceRel();
+            roleResourceRel.setPkRoleResourceId(pkRoleResourceId);
+            roleResourceRel.setRoleId(roleId);
+            roleResourceRel.setResourceId(resourceId);
+            roleResourceRel.setCreateTime(curDate);
+            roleResourceRel.setCreateUserId(userId);
+            toBeAddRoleResourceRelList.add(roleResourceRel);
+        }
+        return toBeAddRoleResourceRelList;
+
     }
 
     private void editRoleValidate(EditRoleForm editForm) {

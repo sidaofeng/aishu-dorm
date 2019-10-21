@@ -109,6 +109,65 @@
         </if>
     </select>
 
+    <!-- 查询用户拥有的资源-->
+    <select id="selectUserResources" parameterType="java.lang.String"
+            resultType="com.waken.dorm.common.view.resource.UserMenuView">
+        SELECT
+        DISTINCT
+        menu.pkResourceId,
+        menu.parentId,
+        menu.resourceName,
+        menu.routeName,
+        menu.component,
+        menu.resourceIcon,
+        menu.resourceType,
+        menu.resourceUrl,
+        menu.sort,
+        menu.isParent
+        FROM
+        (
+        SELECT
+        r.pk_resource_id AS pkResourceId,
+        r.parent_id AS parentId,
+        r.resource_name AS resourceName,
+        r.route_name AS routeName,
+        r.component,
+        r.resource_icon AS resourceIcon,
+        r.resource_type AS resourceType,
+        r.resource_url AS resourceUrl,
+        r.sort,
+        r.is_parent AS isParent
+        FROM rm_resource r
+        LEFT JOIN rm_role_resource_rel rr ON rr.resource_id = r.pk_resource_id
+        LEFT JOIN rm_user_privilege p ON p.subject_id = rr.role_id
+        WHERE
+        r.`status` = 1
+        <if test="userId != null and userId != ''">
+            AND p.user_id=#{userId,jdbcType=VARCHAR}
+        </if>
+        UNION ALL
+        SELECT
+        r.pk_resource_id AS pkResourceId,
+        r.parent_id AS parentId,
+        r.resource_name AS resourceName,
+        r.route_name AS routeName,
+        r.component,
+        r.resource_icon AS resourceIcon,
+        r.resource_type AS resourceType,
+        r.resource_url AS resourceUrl,
+        r.sort,
+        r.is_parent AS isParent
+        FROM rm_resource r
+        LEFT JOIN rm_user_privilege p ON p.subject_id = r.pk_resource_id
+        WHERE
+        r.`status` = 1
+        <if test="userId != null and userId != ''">
+            AND p.user_id=#{userId,jdbcType=VARCHAR}
+        </if>
+        ) AS menu
+        ORDER BY menu.sort ASC
+    </select>
+
     <!-- 查询角色拥有的资源 -->
     <select id="selectRoleResources" parameterType="java.lang.String"
             resultType="com.waken.dorm.common.view.resource.UserMenuView">
