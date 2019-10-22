@@ -20,6 +20,7 @@ import com.waken.dorm.common.view.role.UserRoleView;
 import com.waken.dorm.dao.role.RoleMapper;
 import com.waken.dorm.dao.role.RoleResourceRelMapper;
 import com.waken.dorm.dao.user.UserPrivilegeMapper;
+import com.waken.dorm.handle.DataHandle;
 import com.waken.dorm.manager.UserManager;
 import com.waken.dorm.service.role.RoleService;
 import lombok.RequiredArgsConstructor;
@@ -250,48 +251,32 @@ public class RoleServiceImpl implements RoleService {
     private List<RoleResourceRel> getToBeAddRoleResourceRel(AddRoleResourceRelForm addRoleResourceRelForm) {
         String roleId = addRoleResourceRelForm.getRoleId();
         List<String> resourceIds = addRoleResourceRelForm.getResourceIds();
-        List<RoleResourceRel> roleResourceRelList = roleResourceRelMapper.selectList(new LambdaQueryWrapper<RoleResourceRel>()
+        List<RoleResourceRel> roleResourceRelList = this.roleResourceRelMapper.selectList(new LambdaQueryWrapper<RoleResourceRel>()
                 .eq(RoleResourceRel::getRoleId, roleId)
         );
-        if (!roleResourceRelList.isEmpty()) {
-            List<String> existIds = Lists.newArrayList();// 接收已经存在关联的资源id
-            List<String> toDelPkIds = Lists.newArrayList();// 接收需要删除的关联主键id
-            for (RoleResourceRel rel : roleResourceRelList) {
-                if (null == resourceIds || resourceIds.isEmpty()){
-                    toDelPkIds.add(rel.getPkRoleResourceId());
-                }else {
-                    if (resourceIds.contains(rel.getResourceId())) {
-                        existIds.add(rel.getResourceId());
-                    } else {
-                        toDelPkIds.add(rel.getPkRoleResourceId());
-                    }
-                }
-
-            }
-
-            if (existIds != null && !existIds.isEmpty()){
-                resourceIds.removeAll(existIds);
-            }
+        if (roleResourceRelList != null && !roleResourceRelList.isEmpty()) {
+            Map<String, String> pkIdAndTargetIdMap = roleResourceRelList.stream()
+                    .collect(Collectors.toMap(RoleResourceRel::getPkRoleResourceId, RoleResourceRel::getResourceId));
+            // 接收需要删除的关联主键id
+            List<String> toDelPkIds = DataHandle.handleToDelAndTargetIds(resourceIds, pkIdAndTargetIdMap);
             if (toDelPkIds != null && !toDelPkIds.isEmpty()) {
-                roleResourceRelMapper.deleteBatchIds(toDelPkIds);
+                this.roleResourceRelMapper.deleteBatchIds(toDelPkIds);
             }
         }
         if (resourceIds == null || resourceIds.isEmpty()) {
             return null;
         }
+
         List<RoleResourceRel> toBeAddRoleResourceRelList = Lists.newArrayList();
-        for (String resourceId : resourceIds) {
-            String pkRoleResourceId = UUIDSequence.next();
-            String userId = UserManager.getCurrentUserId();
-            Date curDate = DateUtils.getCurrentDate();
+        resourceIds.forEach(resourceId -> {
             RoleResourceRel roleResourceRel = new RoleResourceRel();
-            roleResourceRel.setPkRoleResourceId(pkRoleResourceId);
+            roleResourceRel.setPkRoleResourceId(UUIDSequence.next());
             roleResourceRel.setRoleId(roleId);
             roleResourceRel.setResourceId(resourceId);
-            roleResourceRel.setCreateTime(curDate);
-            roleResourceRel.setCreateUserId(userId);
+            roleResourceRel.setCreateTime(DateUtils.getCurrentDate());
+            roleResourceRel.setCreateUserId(UserManager.getCurrentUserId());
             toBeAddRoleResourceRelList.add(roleResourceRel);
-        }
+        });
         return toBeAddRoleResourceRelList;
 
     }

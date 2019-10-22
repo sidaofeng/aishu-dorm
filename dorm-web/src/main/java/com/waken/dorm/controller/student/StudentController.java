@@ -104,7 +104,6 @@ public class StudentController extends BaseController {
                         public void onSuccess(int sheetIndex, int rowIndex, Student student) {
                             successList.add(student);
                         }
-
                         @Override
                         public void onError(int sheetIndex, int rowIndex, List<ExcelErrorField> list) {
                             errorList.add(ImmutableMap

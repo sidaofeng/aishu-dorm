@@ -231,6 +231,8 @@
 
     <!-- 通过批量用户id查询 -->
     <select id="selectByUsers" resultType="com.waken.dorm.common.view.user.UserRoleResource">
+        SELECT
+        DISTINCT
         u.user_name AS userName,
         r.role_name AS roleName
         FROM rm_user_privilege p

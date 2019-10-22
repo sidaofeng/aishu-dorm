@@ -48,11 +48,11 @@ import java.util.Map;
 @RestController
 public class UserController extends BaseController {
     @Autowired
-    UserService userService;
+    private UserService userService;
     @Autowired
-    RoleService roleService;
+    private RoleService roleService;
     @Autowired
-    UserPrivilegeService userPrivilegeService;
+    private UserPrivilegeService userPrivilegeService;
 
     /**
      * 用户注册
@@ -67,7 +67,7 @@ public class UserController extends BaseController {
     public AjaxResponse saveUser(@RequestBody EditUserForm userForm) {
         log.info("开始调用保存或修改用户接口");
         userForm.setUserType(CodeEnum.PLATFORM_USER.getCode());
-        return AjaxResponse.success(userService.saveUser(userForm));
+        return AjaxResponse.success(this.userService.saveUser(userForm));
     }
 
     @Log("删除用户信息")
@@ -106,7 +106,7 @@ public class UserController extends BaseController {
     })
     public AjaxResponse listUserRoles(@PathVariable String id) {
         log.info("开始调用查询用户角色关联信息接口：" + id);
-        UserRolesView userRolesView = userService.listUserRoles(id);
+        UserRolesView userRolesView = this.userService.listUserRoles(id);
         return AjaxResponse.success(userRolesView);
     }
 
@@ -133,7 +133,7 @@ public class UserController extends BaseController {
     @RequiresPermissions("users::roles")
     public AjaxResponse batchAddUserRoleRel(@RequestBody AddUserRoleRelForm addUserRoleRelForm) {
         log.info("开始调用批量添加用户角色关联接口：" + addUserRoleRelForm.toString());
-        userPrivilegeService.batchAddUserRoleRel(addUserRoleRelForm);
+        this.userPrivilegeService.batchAddUserRoleRel(addUserRoleRelForm);
         return AjaxResponse.success();
     }
 
@@ -145,8 +145,8 @@ public class UserController extends BaseController {
     })
     @RequiresPermissions("users::resources")
     public AjaxResponse batchAddUserRoleRel(@RequestBody AddUserResourcesForm addForm) {
-        log.info("开始调用批量添加用户角色关联接口：" + addForm.toString());
-        userPrivilegeService.batchAddUserResourceRel(addForm);
+        log.info("开始调用批量给用户绑定资源接口：" + addForm.toString());
+        this.userPrivilegeService.batchAddUserResourceRel(addForm);
         return AjaxResponse.success();
     }
 
@@ -164,7 +164,7 @@ public class UserController extends BaseController {
         if (StringUtils.isBlank(userRoleRelForm.getUserId())) {
             return AjaxResponse.error("用户id为空");
         }
-        userPrivilegeService.addUserRoleRel(userRoleRelForm);
+        this.userPrivilegeService.addUserRoleRel(userRoleRelForm);
         return AjaxResponse.success();
     }
 
@@ -175,7 +175,7 @@ public class UserController extends BaseController {
     public AjaxResponse uploadUserImg(@RequestParam(value = "file", required = false) MultipartFile file) {
         log.info("开始调用图片文件上传接口，上传图片文件为：" + file.getOriginalFilename());
         try {
-            ImgView imgView = userService.uploadUserImg(file);
+            ImgView imgView = this.userService.uploadUserImg(file);
             return AjaxResponse.success(imgView);
         } catch (Exception e) {
             e.printStackTrace();
@@ -190,7 +190,7 @@ public class UserController extends BaseController {
     @ApiResponses(value = {@ApiResponse(code = 200, message = "success", response = AjaxResponse.class)})
     @RequiresPermissions("users::export")
     public AjaxResponse export(HttpServletResponse response) {
-        List<User> userList = userService.selectList();
+        List<User> userList = this.userService.selectList();
         ExcelKit.$Export(User.class, response).downXlsx(userList, false);
         return AjaxResponse.success();
     }
@@ -205,7 +205,7 @@ public class UserController extends BaseController {
     @ApiResponses(value = {@ApiResponse(code = 200, message = "success", response = AjaxResponse.class)})
     public AjaxResponse updatePasswordByCur(@RequestBody Map<String,String> map) {
 
-        userService.updatePassword(UserManager.getCurrentUserId(),map.get("oldPassword"),map.get("newPassword"));
+        this.userService.updatePassword(UserManager.getCurrentUserId(), map.get("oldPassword"), map.get("newPassword"));
 
         return AjaxResponse.success();
     }
@@ -221,7 +221,7 @@ public class UserController extends BaseController {
     @ApiResponses(value = {@ApiResponse(code = 200, message = "success", response = AjaxResponse.class)})
     public AjaxResponse updatePasswordById(@RequestBody Map<String,String> map) {
 
-        userService.updatePassword(map.get("userId"),map.get("oldPassword"),map.get("newPassword"));
+        this.userService.updatePassword(map.get("userId"), map.get("oldPassword"), map.get("newPassword"));
 
         return AjaxResponse.success();
     }

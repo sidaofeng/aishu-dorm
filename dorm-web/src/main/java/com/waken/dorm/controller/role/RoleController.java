@@ -1,12 +1,12 @@
 package com.waken.dorm.controller.role;
 
 import com.waken.dorm.common.annotation.Log;
+import com.waken.dorm.common.base.AjaxResponse;
 import com.waken.dorm.common.entity.role.Role;
 import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.role.AddRoleResourceRelForm;
 import com.waken.dorm.common.form.role.EditRoleForm;
 import com.waken.dorm.common.form.role.QueryRoleForm;
-import com.waken.dorm.common.base.AjaxResponse;
 import com.waken.dorm.controller.base.BaseController;
 import com.waken.dorm.service.role.RoleService;
 import io.swagger.annotations.Api;
@@ -41,7 +41,7 @@ public class RoleController extends BaseController {
     @RequiresPermissions("roles::save")
     public AjaxResponse saveRole(@RequestBody EditRoleForm editRoleForm) {
         log.info("开始调用角色保存或修改接口：" + editRoleForm.toString());
-        return AjaxResponse.success(roleService.saveRole(editRoleForm));
+        return AjaxResponse.success(this.roleService.saveRole(editRoleForm));
     }
 
     @Log("删除角色")
@@ -57,7 +57,7 @@ public class RoleController extends BaseController {
         if (null == deleteFrom.getDelIds() || deleteFrom.getDelIds().isEmpty()) {
             return AjaxResponse.error("入参为空！");
         }
-        roleService.deleteRole(deleteFrom);
+        this.roleService.deleteRole(deleteFrom);
         return AjaxResponse.success();
     }
 
@@ -83,7 +83,7 @@ public class RoleController extends BaseController {
     @RequiresPermissions("roles::resources")
     public AjaxResponse batchAddRoleResourceRel(@RequestBody AddRoleResourceRelForm addForm) {
         log.info("开始调用批量新增角色资源关联接口：" + addForm.toString());
-        roleService.batchAddRoleResourceRel(addForm);
+        this.roleService.batchAddRoleResourceRel(addForm);
         return AjaxResponse.success();
     }
 
