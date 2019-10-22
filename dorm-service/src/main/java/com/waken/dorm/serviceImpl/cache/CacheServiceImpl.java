@@ -3,20 +3,19 @@ package com.waken.dorm.serviceImpl.cache;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.waken.dorm.common.constant.CacheConstant;
-import com.waken.dorm.common.constant.Constant;
 import com.waken.dorm.common.entity.user.User;
-import com.waken.dorm.common.enums.ResultEnum;
-import com.waken.dorm.common.exception.ServerException;
 import com.waken.dorm.service.cache.CacheService;
 import com.waken.dorm.service.cache.RedisService;
 import com.waken.dorm.service.user.UserPrivilegeService;
 import com.waken.dorm.service.user.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Set;
 
+@Slf4j
 @Service("cacheService")
 public class CacheServiceImpl implements CacheService {
 
@@ -41,7 +40,7 @@ public class CacheServiceImpl implements CacheService {
     public User getUser(String username) throws Exception {
         String userString = this.redisService.get(CacheConstant.USER_CACHE_PREFIX + username);
         if (StringUtils.isBlank(userString))
-            throw new ServerException(ResultEnum.UN_AUTH);
+            return null;
         else
             return this.mapper.readValue(userString, User.class);
     }
@@ -50,7 +49,7 @@ public class CacheServiceImpl implements CacheService {
     public Set<String> getRoles(String username) throws Exception {
         String roleListString = this.redisService.get(CacheConstant.USER_ROLE_CACHE_PREFIX + username);
         if (StringUtils.isBlank(roleListString)) {
-            throw new ServerException(ResultEnum.UN_AUTH);
+            return null;
         } else {
             JavaType type = mapper.getTypeFactory().constructParametricType(Set.class, String.class);
             return this.mapper.readValue(roleListString, type);
@@ -61,7 +60,7 @@ public class CacheServiceImpl implements CacheService {
     public Set<String> getPermissions(String username) throws Exception {
         String permissionListString = this.redisService.get(CacheConstant.USER_PERMISSION_CACHE_PREFIX + username);
         if (StringUtils.isBlank(permissionListString)) {
-            throw new ServerException(ResultEnum.UN_AUTH);
+            return null;
         } else {
             JavaType type = mapper.getTypeFactory().constructParametricType(Set.class, String.class);
             return this.mapper.readValue(permissionListString, type);

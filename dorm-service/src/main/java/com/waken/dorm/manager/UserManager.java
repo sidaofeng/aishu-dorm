@@ -3,8 +3,9 @@ package com.waken.dorm.manager;
 import com.waken.dorm.common.authentication.JWTToken;
 import com.waken.dorm.common.authentication.JWTUtil;
 import com.waken.dorm.common.constant.CacheConstant;
-import com.waken.dorm.common.constant.Constant;
 import com.waken.dorm.common.entity.user.User;
+import com.waken.dorm.common.enums.ResultEnum;
+import com.waken.dorm.common.exception.ServerException;
 import com.waken.dorm.common.utils.HttpContextUtils;
 import com.waken.dorm.common.utils.SpringUtils;
 import com.waken.dorm.common.utils.TokenUtils;
@@ -38,10 +39,11 @@ public class UserManager {
         try {
             user = cacheService.getUser(username);
         } catch (Exception e) {
-            e.printStackTrace();
-            log.info("获取用户缓存信息错误");
+            log.error("获取用户缓存信息错误" + e.getMessage());
         }
-
+        if (user == null) {
+            throw new ServerException(ResultEnum.TIME_OUT);
+        }
         return user;
     }
 
