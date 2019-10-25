@@ -16,6 +16,7 @@ import com.waken.dorm.common.form.role.EditRoleForm;
 import com.waken.dorm.common.form.role.QueryRoleForm;
 import com.waken.dorm.common.sequence.UUIDSequence;
 import com.waken.dorm.common.utils.*;
+import com.waken.dorm.common.view.role.RoleView;
 import com.waken.dorm.common.view.role.UserRoleView;
 import com.waken.dorm.dao.role.RoleMapper;
 import com.waken.dorm.dao.role.RoleResourceRelMapper;
@@ -110,23 +111,17 @@ public class RoleServiceImpl implements RoleService {
      * @return
      */
     @Override
-    public IPage<Role> page(QueryRoleForm queryRoleForm) {
+    public IPage<RoleView> page(QueryRoleForm queryRoleForm) {
         log.info("service: 查询角色开始");
-        LambdaQueryWrapper<Role> roleLambdaQueryWrapper = new LambdaQueryWrapper<>();
-        if (StringUtils.isNotEmpty(queryRoleForm.getPkRoleId())) {
-            roleLambdaQueryWrapper.eq(Role::getPkRoleId, queryRoleForm.getPkRoleId());
+        if (queryRoleForm.getStartTime() != null) {
+            queryRoleForm.setStartTime(DateUtils.formatDate2DateTimeStart(queryRoleForm.getStartTime()));
         }
-        if (StringUtils.isNotEmpty(queryRoleForm.getRoleName())) {
-            roleLambdaQueryWrapper.like(Role::getRoleName, queryRoleForm.getRoleName());
+        if (queryRoleForm.getEndTime() != null) {
+            queryRoleForm.setEndTime(DateUtils.formatDate2DateTimeEnd(queryRoleForm.getEndTime()));
         }
-        if (queryRoleForm.getStatus() != null) {
-            roleLambdaQueryWrapper.eq(Role::getStatus, queryRoleForm.getStatus());
-        }
-        roleLambdaQueryWrapper.orderByDesc(Role::getLastModifyTime);
+        Page<RoleView> page = new Page(queryRoleForm.getPageNum(), queryRoleForm.getPageSize());
 
-        Page page = new Page(queryRoleForm.getPageNum(), queryRoleForm.getPageSize());
-
-        return roleMapper.selectPage(page, roleLambdaQueryWrapper);
+        return roleMapper.rolePage(page, queryRoleForm);
     }
 
     /**
@@ -197,10 +192,10 @@ public class RoleServiceImpl implements RoleService {
 
     @Transactional// 事务控制
     @Override
-    public void batchAddRoleResourceRel(AddRoleResourceRelForm addRoleResourceRelForm) {
+    public void batchAddRoleResourceRel(AddRoleResourceRelForm addForm) {
         log.info("service: 批量新增角色资源关联开始");
-        this.batchAddRelValidate(addRoleResourceRelForm);
-        List<RoleResourceRel> toBeAddRoleResourceRel = this.getToBeAddRoleResourceRel(addRoleResourceRelForm);
+        Assert.notNull(addForm.getRoleId());
+        List<RoleResourceRel> toBeAddRoleResourceRel = this.getToBeAddRoleResourceRel(addForm);
         if (toBeAddRoleResourceRel != null && !toBeAddRoleResourceRel.isEmpty()) {
             int count = roleResourceRelMapper.batchAddRoleResourceRel(toBeAddRoleResourceRel);
             if (count == Constant.ZERO) {
@@ -234,13 +229,6 @@ public class RoleServiceImpl implements RoleService {
         return roles;
     }
 
-    private void batchAddRelValidate(AddRoleResourceRelForm addForm) {
-        Assert.notNull(addForm.getRoleId());
-        Role role = roleMapper.selectById(addForm.getRoleId());
-        if (StringUtils.equals(Constant.SuperAdmin, role.getRoleName())) {
-            throw new ServerException("不能操作超级管理员角色！");
-        }
-    }
 
     /**
      * 得到需要新增的角色资源关联集合

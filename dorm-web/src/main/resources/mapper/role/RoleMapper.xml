@@ -2,6 +2,50 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.waken.dorm.dao.role.RoleMapper">
 
+    <select id="rolePage" parameterType="com.waken.dorm.common.form.role.QueryRoleForm"
+            resultType="com.waken.dorm.common.view.role.RoleView">
+        SELECT
+        r.pk_role_id AS pkRoleId,
+        r.role_name AS roleName,
+        r.role_desc AS roleDesc,
+        r.`status` AS status,
+        r.create_time AS createTime,
+        u.user_name AS createUserName,
+        r.last_modify_time AS lastModifyTime,
+        uu.user_name AS lastModifyUserName
+        FROM rm_role r
+        LEFT JOIN rm_user u ON u.user_id = r.create_user_id
+        LEFT JOIN rm_user uu ON uu.user_id = r.last_modify_user_id
+        <where>
+            <if test="form.pkRoleId != null and form.pkRoleId != ''">
+                and r.pk_role_id=#{form.userId}
+            </if>
+            <if test="form.roleName != null and form.roleName != ''">
+                and r.role_name like '%${form.roleName}%'
+            </if>
+            <if test="form.roleDesc != null and form.roleDesc != ''">
+                and r.role_desc like '%${form.roleDesc}%'
+            </if>
+            <if test="form.status != null">
+                and r.status=#{form.status}
+            </if>
+            <if test="form.createUserName != null and form.createUserName != ''">
+                and u.user_name=#{form.createUserName}
+            </if>
+            <if test="form.lastModifyUserName != null and form.lastModifyUserName != ''">
+                and uu.user_name=#{form.lastModifyUserName}
+            </if>
+            <if test="form.startTime != null">
+                AND r.create_time &gt;= #{form.startTime,jdbcType=TIMESTAMP}
+            </if>
+            <if test="form.endTime != null">
+                AND r.create_time &lt;= #{form.endTime,jdbcType=TIMESTAMP}
+            </if>
+        </where>
+        ORDER BY
+        r.last_modify_time DESC
+    </select>
+
     <select id="listAddedRoles" parameterType="com.waken.dorm.common.form.role.ListAddedRoleForm"
             resultType="com.waken.dorm.common.view.user.UserRoleRelView">
         SELECT

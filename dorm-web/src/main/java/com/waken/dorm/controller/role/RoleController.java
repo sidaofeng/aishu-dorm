@@ -7,6 +7,7 @@ import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.role.AddRoleResourceRelForm;
 import com.waken.dorm.common.form.role.EditRoleForm;
 import com.waken.dorm.common.form.role.QueryRoleForm;
+import com.waken.dorm.common.view.role.RoleView;
 import com.waken.dorm.controller.base.BaseController;
 import com.waken.dorm.service.role.RoleService;
 import io.swagger.annotations.Api;
@@ -14,7 +15,9 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -65,7 +68,7 @@ public class RoleController extends BaseController {
     @PostMapping(value = "role/page")
     @ApiOperation(value = "分页查询角色信息", notes = "分页查询角色信息 ")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "success", response = Role.class)
+            @ApiResponse(code = 200, message = "success", response = RoleView.class)
     })
     @RequiresPermissions("roles::view")
     public AjaxResponse listRoles(@RequestBody QueryRoleForm queryRoleForm) {
@@ -80,6 +83,7 @@ public class RoleController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
+    @RequiresRoles(value = {"superAdmin", "admin"}, logical = Logical.OR)
     @RequiresPermissions("roles::resources")
     public AjaxResponse batchAddRoleResourceRel(@RequestBody AddRoleResourceRelForm addForm) {
         log.info("开始调用批量新增角色资源关联接口：" + addForm.toString());

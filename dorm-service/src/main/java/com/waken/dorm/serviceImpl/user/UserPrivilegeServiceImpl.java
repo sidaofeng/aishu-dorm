@@ -151,7 +151,6 @@ public class UserPrivilegeServiceImpl implements UserPrivilegeService {
 
     private List<UserPrivilege> getToBeAddUserRoleRel(AddUserRoleRelForm addUserRoleRelForm) {
         String userId = addUserRoleRelForm.getUserId();
-        this.checkSuperAdmin(userId);
         List<String> roleIds = addUserRoleRelForm.getRoleIds();
         List<UserPrivilege> userRoleRelList = privilegeMapper.selectList(new LambdaQueryWrapper<UserPrivilege>()
                 .eq(UserPrivilege::getUserId, userId)
@@ -220,7 +219,6 @@ public class UserPrivilegeServiceImpl implements UserPrivilegeService {
      */
     private List<UserPrivilege> getToBeAddUserResources(AddUserResourcesForm addUserRoleRelForm) {
         String userId = addUserRoleRelForm.getUserId();
-        this.checkSuperAdmin(userId);
         List<String> resourceIds = addUserRoleRelForm.getResourceIds();
         List<UserPrivilege> userPrivilegeList = privilegeMapper.selectList(new LambdaQueryWrapper<UserPrivilege>()
                 .eq(UserPrivilege::getUserId, userId)
@@ -250,24 +248,6 @@ public class UserPrivilegeServiceImpl implements UserPrivilegeService {
             toBeAddUserRoleRelList.add(userRoleRel);
         });
         return toBeAddUserRoleRelList;
-    }
-
-    private void checkSuperAdmin(String userId) {
-        User user = userMapper.selectById(userId);
-        Assert.notNull(user);
-        /**
-         * 当前用户的角色
-         */
-        List<String> curUserRoles = privilegeMapper.selectUserRoles(UserManager.getCurrentUserId());
-        if (curUserRoles != null && !curUserRoles.isEmpty()) {
-            /**
-             * 如果当前用户不是超级管理员，就不能操作超级管理
-             */
-            if (!curUserRoles.contains(Constant.SuperAdmin)) {
-                List<String> roles = privilegeMapper.selectUserRoles(user.getUserId());
-                Assert.isFalse(roles.contains(Constant.SuperAdmin), "不能操作超级管理员!");
-            }
-        }
     }
 
     /**

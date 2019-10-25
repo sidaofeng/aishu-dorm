@@ -67,7 +67,7 @@
         WHERE
         1 = 1
         <if test="form.userId != null and form.userId != ''">
-            and u.user_id=#{userForm.userId}
+            and u.user_id=#{form.userId}
         </if>
         <if test="form.userName != null and form.userName != ''">
             <!-- 这里修改了一下用户名的查询的方式-模糊查询   and u.user_name =#{userName} -->
@@ -116,4 +116,5 @@
             where user_id = #{ur.pkId}
         </foreach>
     </update>
+
 </mapper>

@@ -27,7 +27,9 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -76,6 +78,7 @@ public class UserController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
+    @RequiresRoles("superAdmin")
     @RequiresPermissions("users::delete")
     public AjaxResponse deleteUser(@RequestBody DeleteForm deleteFrom) {
         log.info("被删除的用户id" + deleteFrom.getDelIds().toString() + "删除操作人id：" + UserManager.getCurrentUserId());
@@ -130,6 +133,7 @@ public class UserController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
+    @RequiresRoles(value = {"superAdmin", "admin"}, logical = Logical.OR)
     @RequiresPermissions("users::roles")
     public AjaxResponse batchAddUserRoleRel(@RequestBody AddUserRoleRelForm addUserRoleRelForm) {
         log.info("开始调用批量添加用户角色关联接口：" + addUserRoleRelForm.toString());
@@ -143,6 +147,7 @@ public class UserController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
+    @RequiresRoles(value = {"superAdmin", "admin"}, logical = Logical.OR)
     @RequiresPermissions("users::resources")
     public AjaxResponse batchAddUserRoleRel(@RequestBody AddUserResourcesForm addForm) {
         log.info("开始调用批量给用户绑定资源接口：" + addForm.toString());
@@ -210,6 +215,7 @@ public class UserController extends BaseController {
         return AjaxResponse.success();
     }
 
+    @RequiresRoles("superAdmin")
     @Limit(key = "updatePasswordById", period = 60, count = 20, name = "通过用户id更新用户密码", prefix = "limit")
     @PutMapping("user/password")
     @ApiOperation(value = "通过用户id更新用户密码", notes = "通过用户id更新用户密码 " +
@@ -222,6 +228,36 @@ public class UserController extends BaseController {
     public AjaxResponse updatePasswordById(@RequestBody Map<String,String> map) {
 
         this.userService.updatePassword(map.get("userId"), map.get("oldPassword"), map.get("newPassword"));
+
+        return AjaxResponse.success();
+    }
+
+    @RequiresRoles("superAdmin")
+    @PutMapping("user/reset")
+    @ApiOperation(value = "通过用户id重置用户密码", notes = "通过用户id重置用户密码 " +
+            "<br/>请求参数JSON示例:{\"userId\":\"1\"}" +
+            "<br/>必填参数：userId（用户id） " +
+            "")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "success", response = AjaxResponse.class)})
+    public AjaxResponse resetPasswordById(@RequestBody Map<String, String> map) {
+        String userId = map.get("userId");
+
+        if (StringUtils.isBlank(userId)) {
+            return AjaxResponse.error("用户id不能为空！");
+        }
+
+        this.userService.resetPassword(userId);
+
+        return AjaxResponse.success();
+    }
+
+    @RequiresRoles("superAdmin")
+    @PutMapping("user/resets")
+    @ApiOperation(value = "重置所有用户的密码", notes = "重置所有用户的密码 ")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "success", response = AjaxResponse.class)})
+    public AjaxResponse resetAllPassword() {
+
+        this.userService.resetPassword(null);
 
         return AjaxResponse.success();
     }

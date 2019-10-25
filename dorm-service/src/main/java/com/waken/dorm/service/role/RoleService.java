@@ -6,6 +6,7 @@ import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.role.AddRoleResourceRelForm;
 import com.waken.dorm.common.form.role.EditRoleForm;
 import com.waken.dorm.common.form.role.QueryRoleForm;
+import com.waken.dorm.common.view.role.RoleView;
 import com.waken.dorm.common.view.role.UserRoleView;
 
 import java.util.List;
@@ -39,7 +40,7 @@ public interface RoleService {
      * @param queryRoleForm
      * @return
      */
-    IPage<Role> page(QueryRoleForm queryRoleForm);
+    IPage<RoleView> page(QueryRoleForm queryRoleForm);
 
     /**
      * 新增角色与资源的关联

@@ -3,6 +3,7 @@ package com.waken.dorm.serviceImpl.user;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.waken.dorm.common.constant.Constant;
 import com.waken.dorm.common.entity.user.User;
 import com.waken.dorm.common.entity.user.UserPrivilege;
@@ -40,7 +41,7 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @Transactional(propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Exception.class)
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
     private final UserMapper userMapper;
     private final RoleMapper roleMapper;
     private final UserPrivilegeMapper userPrivilegeMapper;
@@ -328,6 +329,39 @@ public class UserServiceImpl implements UserService {
             log.error("删除用户缓存失败！");
         }
         return count;
+    }
+
+
+    /**
+     * 重置密码
+     *
+     * @param userId
+     * @return
+     */
+    @Override
+    public void resetPassword(String userId) {
+        Date curDate = DateUtils.getCurrentDate();
+        String curUserId = UserManager.getCurrentUserId();
+
+        if (StringUtils.isBlank(userId)) {//重置所有密码
+            List<User> userList = this.userMapper.selectList(null);
+            userList.forEach(user -> {
+                user.setPassword(PasswordEncode.shiroEncode(user.getUserName(), Constant.DEFAULT_PASSWORD));
+                user.setLastModifyTime(curDate);
+                user.setLastModifyUserId(curUserId);
+            });
+            this.updateBatchById(userList, 500);
+
+        } else {
+            User user = this.userMapper.selectById(userId);
+            if (user == null) {
+                throw new ServerException("用户ID不正确！");
+            }
+            user.setPassword(PasswordEncode.shiroEncode(user.getUserName(), Constant.DEFAULT_PASSWORD));
+            user.setLastModifyTime(curDate);
+            user.setLastModifyUserId(curUserId);
+            this.userMapper.updateById(user);
+        }
     }
 
     /**

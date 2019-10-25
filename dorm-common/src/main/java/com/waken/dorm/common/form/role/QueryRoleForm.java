@@ -30,9 +30,9 @@ public class QueryRoleForm extends BaseForm {
 
     private Date createTime;
 
-    private String createUserId;
+    private String createUserName;
 
     private Date lastModifyTime;
 
-    private String lastModifyUserId;
+    private String lastModifyUserName;
 }

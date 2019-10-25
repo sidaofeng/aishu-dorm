@@ -1,6 +1,7 @@
 package com.waken.dorm.service.user;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.service.IService;
 import com.waken.dorm.common.entity.user.User;
 import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.user.EditUserForm;
@@ -12,7 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
-public interface UserService {
+public interface UserService extends IService<User> {
     /**
      * 保存或修改用户信息
      *
@@ -77,4 +78,12 @@ public interface UserService {
      * @param newPassword
      */
     int updatePassword(String userId,String oldPassword,String newPassword);
+
+    /**
+     * 重置密码
+     *
+     * @param userId
+     * @return
+     */
+    void resetPassword(String userId);
 }
