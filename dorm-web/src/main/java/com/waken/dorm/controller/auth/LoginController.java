@@ -75,8 +75,10 @@ public class LoginController extends BaseController {
             return AjaxResponse.error("用户名或密码为空！");
         }
         String username = queryUserForm.getUserName();
-        String password = PasswordEncode.shiroEncode(username, queryUserForm.getPassword());
+
         User user = this.userService.queryUserInfo(username);
+        String password = PasswordEncode.shiroEncode(user.getUserId(), queryUserForm.getPassword());
+
         if (user == null) {
             return AjaxResponse.error("用户名错误！");
         } else if (!StringUtils.equals(user.getPassword(), password)) {

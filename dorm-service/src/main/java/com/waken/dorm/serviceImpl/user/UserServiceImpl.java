@@ -64,8 +64,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (StringUtils.isEmpty(editUserForm.getUserId())) {
             log.info("service: 新增用户开始");
             String userId = UUIDSequence.next();
-            //shiro加密 密码 密码默认"000000"
-            String encodePassword = PasswordEncode.shiroEncode(editUserForm.getUserName(), Constant.DEFAULT_PASSWORD);
+            //shiro加密 密码 密码默认"000000" 使用用户id作为盐
+            String encodePassword = PasswordEncode.shiroEncode(userId, Constant.DEFAULT_PASSWORD);
             user.setPassword(encodePassword);
             user.setUserId(userId);
             user.setStatus(CodeEnum.ENABLE.getCode());
@@ -310,12 +310,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (user == null){
             throw new ServerException("用户ID不正确！");
         }
-        String encodePassword = PasswordEncode.shiroEncode(user.getUserName(), oldPassword);
+        String encodePassword = PasswordEncode.shiroEncode(user.getUserId(), oldPassword);
         if (!StringUtils.equals(encodePassword,user.getPassword())){
             throw new ServerException("原密码错误！");
         }
 
-        user.setPassword(PasswordEncode.shiroEncode(user.getUserName(), newPassword));
+        user.setPassword(PasswordEncode.shiroEncode(user.getUserId(), newPassword));
 
         int count = this.userMapper.updateById(user);
         if (1 != count){
@@ -346,7 +346,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (StringUtils.isBlank(userId)) {//重置所有密码
             List<User> userList = this.userMapper.selectList(null);
             userList.forEach(user -> {
-                user.setPassword(PasswordEncode.shiroEncode(user.getUserName(), Constant.DEFAULT_PASSWORD));
+                user.setPassword(PasswordEncode.shiroEncode(user.getUserId(), Constant.DEFAULT_PASSWORD));
                 user.setLastModifyTime(curDate);
                 user.setLastModifyUserId(curUserId);
             });
@@ -357,7 +357,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             if (user == null) {
                 throw new ServerException("用户ID不正确！");
             }
-            user.setPassword(PasswordEncode.shiroEncode(user.getUserName(), Constant.DEFAULT_PASSWORD));
+            user.setPassword(PasswordEncode.shiroEncode(user.getUserId(), Constant.DEFAULT_PASSWORD));
             user.setLastModifyTime(curDate);
             user.setLastModifyUserId(curUserId);
             this.userMapper.updateById(user);

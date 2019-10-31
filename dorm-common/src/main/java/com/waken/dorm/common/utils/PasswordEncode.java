@@ -16,9 +16,9 @@ public class PasswordEncode {
     private static String algorithmName = "md5";
     private static int hashIterations = 4;
 
-    public static String shiroEncode(String userName, String password) {
-        userName = userName.toLowerCase();
-        String newPassword = new SimpleHash(algorithmName, password, ByteSource.Util.bytes(userName), hashIterations).toHex();
+    public static String shiroEncode(String id, String password) {
+        id = id.toLowerCase();
+        String newPassword = new SimpleHash(algorithmName, password, ByteSource.Util.bytes(id), hashIterations).toHex();
         return newPassword;
     }
 
