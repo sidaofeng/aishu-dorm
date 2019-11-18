@@ -1,15 +1,13 @@
-package com.waken.dorm.manager;
+package com.waken.dorm.common.manager;
 
 import com.waken.dorm.common.authentication.JWTToken;
 import com.waken.dorm.common.authentication.JWTUtil;
+import com.waken.dorm.common.cache.CacheService;
 import com.waken.dorm.common.constant.CacheConstant;
 import com.waken.dorm.common.entity.user.User;
-import com.waken.dorm.common.enums.ResultEnum;
-import com.waken.dorm.common.exception.ServerException;
 import com.waken.dorm.common.utils.HttpContextUtils;
 import com.waken.dorm.common.utils.SpringUtils;
 import com.waken.dorm.common.utils.TokenUtils;
-import com.waken.dorm.service.cache.CacheService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -41,9 +39,9 @@ public class UserManager {
         } catch (Exception e) {
             log.error("获取用户缓存信息错误" + e.getMessage());
         }
-        if (user == null) {
-            throw new ServerException(ResultEnum.TIME_OUT);
-        }
+//        if (user == null) {
+//            throw new ServerException(ResultEnum.TIME_OUT);
+//        }
         return user;
     }
 
@@ -53,6 +51,6 @@ public class UserManager {
      * @return
      */
     public static String getCurrentUserId() {
-        return getCurrentUser().getUserId();
+        return getCurrentUser() != null ? getCurrentUser().getUserId() : null;
     }
 }

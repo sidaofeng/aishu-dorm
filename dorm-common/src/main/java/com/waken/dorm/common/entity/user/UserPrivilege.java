@@ -3,6 +3,7 @@ package com.waken.dorm.common.entity.user;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.waken.dorm.common.annotation.Id;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -26,6 +27,7 @@ public class UserPrivilege implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    @Id
     @TableId("pk_privilege_id")
     private String pkPrivilegeId;
 

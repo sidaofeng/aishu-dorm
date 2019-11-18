@@ -2,7 +2,6 @@ package com.waken.dorm.serviceImpl.role;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
 import com.waken.dorm.common.constant.Constant;
 import com.waken.dorm.common.entity.role.Role;
@@ -14,15 +13,17 @@ import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.role.AddRoleResourceRelForm;
 import com.waken.dorm.common.form.role.EditRoleForm;
 import com.waken.dorm.common.form.role.QueryRoleForm;
-import com.waken.dorm.common.sequence.UUIDSequence;
-import com.waken.dorm.common.utils.*;
+import com.waken.dorm.common.manager.UserManager;
+import com.waken.dorm.common.utils.Assert;
+import com.waken.dorm.common.utils.BeanMapper;
+import com.waken.dorm.common.utils.DormUtil;
+import com.waken.dorm.common.utils.StringUtils;
 import com.waken.dorm.common.view.role.RoleView;
 import com.waken.dorm.common.view.role.UserRoleView;
 import com.waken.dorm.dao.role.RoleMapper;
 import com.waken.dorm.dao.role.RoleResourceRelMapper;
 import com.waken.dorm.dao.user.UserPrivilegeMapper;
 import com.waken.dorm.handle.DataHandle;
-import com.waken.dorm.manager.UserManager;
 import com.waken.dorm.service.role.RoleService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +32,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -53,19 +57,11 @@ public class RoleServiceImpl implements RoleService {
     @Override
     public Role saveRole(EditRoleForm editRoleForm) {
         this.editRoleValidate(editRoleForm);
-        String userId = UserManager.getCurrentUserId();
-        Date curDate = DateUtils.getCurrentDate();
         Role role = new Role();
         BeanMapper.copy(editRoleForm, role);
-        role.setLastModifyTime(curDate);
-        role.setLastModifyUserId(userId);
         if (StringUtils.isEmpty(editRoleForm.getPkRoleId())) {//新增
             log.info("service: 新增角色开始");
-            String pkRoleId = UUIDSequence.next();
-            role.setPkRoleId(pkRoleId);
             role.setStatus(CodeEnum.ENABLE.getCode());
-            role.setCreateTime(curDate);
-            role.setCreateUserId(userId);
             int count = roleMapper.insert(role);
             if (count == Constant.ZERO) {
                 throw new ServerException("新增角色失败");
@@ -113,15 +109,8 @@ public class RoleServiceImpl implements RoleService {
     @Override
     public IPage<RoleView> page(QueryRoleForm queryRoleForm) {
         log.info("service: 查询角色开始");
-        if (queryRoleForm.getStartTime() != null) {
-            queryRoleForm.setStartTime(DateUtils.formatDate2DateTimeStart(queryRoleForm.getStartTime()));
-        }
-        if (queryRoleForm.getEndTime() != null) {
-            queryRoleForm.setEndTime(DateUtils.formatDate2DateTimeEnd(queryRoleForm.getEndTime()));
-        }
-        Page<RoleView> page = new Page(queryRoleForm.getPageNum(), queryRoleForm.getPageSize());
 
-        return roleMapper.rolePage(page, queryRoleForm);
+        return roleMapper.rolePage(DataHandle.getWrapperPage(queryRoleForm), queryRoleForm);
     }
 
     /**
@@ -258,11 +247,8 @@ public class RoleServiceImpl implements RoleService {
         List<RoleResourceRel> toBeAddRoleResourceRelList = Lists.newArrayList();
         resourceIds.forEach(resourceId -> {
             RoleResourceRel roleResourceRel = new RoleResourceRel();
-            roleResourceRel.setPkRoleResourceId(UUIDSequence.next());
             roleResourceRel.setRoleId(roleId);
             roleResourceRel.setResourceId(resourceId);
-            roleResourceRel.setCreateTime(DateUtils.getCurrentDate());
-            roleResourceRel.setCreateUserId(UserManager.getCurrentUserId());
             toBeAddRoleResourceRelList.add(roleResourceRel);
         });
         return toBeAddRoleResourceRelList;

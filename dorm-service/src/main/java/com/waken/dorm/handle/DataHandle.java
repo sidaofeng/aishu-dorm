@@ -1,5 +1,8 @@
 package com.waken.dorm.handle;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.waken.dorm.common.form.base.BaseForm;
+import com.waken.dorm.common.utils.DateUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,6 +58,26 @@ public class DataHandle {
             return toDelPkIds;
         }
         return null;
+    }
+
+    /**
+     * 获取包装后的Page对象
+     * @param form
+     * @return
+     */
+    public static Page getWrapperPage(Object form) {
+        if (form instanceof BaseForm) {
+            BaseForm baseForm = (BaseForm) form;
+            if (baseForm.getStartTime() != null) {
+                baseForm.setStartTime(DateUtils.formatDate2DateTimeStart(baseForm.getStartTime()));
+            }
+            if (baseForm.getEndTime() != null) {
+                baseForm.setEndTime(DateUtils.formatDate2DateTimeEnd(baseForm.getEndTime()));
+            }
+            return new Page(baseForm.getPageNum(), baseForm.getPageSize());
+        } else {
+            return new Page(1, 20);
+        }
     }
 
 }

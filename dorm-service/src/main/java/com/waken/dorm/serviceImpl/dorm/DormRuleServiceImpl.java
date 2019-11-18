@@ -2,7 +2,6 @@ package com.waken.dorm.serviceImpl.dorm;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.waken.dorm.common.constant.Constant;
 import com.waken.dorm.common.entity.dorm.DormRule;
 import com.waken.dorm.common.enums.CodeEnum;
@@ -10,11 +9,14 @@ import com.waken.dorm.common.exception.ServerException;
 import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.dorm.DormRuleForm;
 import com.waken.dorm.common.form.dorm.EditDormRuleForm;
-import com.waken.dorm.common.sequence.UUIDSequence;
-import com.waken.dorm.common.utils.*;
+import com.waken.dorm.common.manager.UserManager;
+import com.waken.dorm.common.utils.Assert;
+import com.waken.dorm.common.utils.BeanMapper;
+import com.waken.dorm.common.utils.DormUtil;
+import com.waken.dorm.common.utils.StringUtils;
 import com.waken.dorm.common.view.dorm.DormRuleView;
 import com.waken.dorm.dao.dorm.DormRuleMapper;
-import com.waken.dorm.manager.UserManager;
+import com.waken.dorm.handle.DataHandle;
 import com.waken.dorm.service.dorm.DormRuleService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +25,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -49,20 +50,12 @@ public class DormRuleServiceImpl implements DormRuleService {
     @Override
     public DormRule saveDormRule(EditDormRuleForm editRuleForm) {
         this.editRuleValidate(editRuleForm);
-        String userId = UserManager.getCurrentUserId();
-        Date curDate = DateUtils.getCurrentDate();
         int count;
         DormRule dormRule = new DormRule();
         BeanMapper.copy(editRuleForm, dormRule);
-        dormRule.setLastModifyTime(curDate);
-        dormRule.setLastModifyUserId(userId);
         if (StringUtils.isEmpty(editRuleForm.getPkDormRuleId())) {//新增
             log.info("service: 开始进入新增宿舍规则信息");
-            String pkDormRuleId = UUIDSequence.next();
-            dormRule.setPkDormRuleId(pkDormRuleId);
             dormRule.setStatus(CodeEnum.ENABLE.getCode());
-            dormRule.setCreateTime(curDate);
-            dormRule.setCreateUserId(userId);
             count = dormRuleMapper.insert(dormRule);
             Assert.isFalse(count == Constant.ZERO);
             return dormRule;
@@ -115,14 +108,7 @@ public class DormRuleServiceImpl implements DormRuleService {
     @Override
     public IPage<DormRuleView> listDormRules(DormRuleForm dormRuleForm) {
         log.info("service: 分页查询宿舍规则信息开始");
-        if (dormRuleForm.getStartTime() != null) {
-            dormRuleForm.setStartTime(DateUtils.formatDate2DateTimeStart(dormRuleForm.getStartTime()));
-        }
-        if (dormRuleForm.getEndTime() != null) {
-            dormRuleForm.setEndTime(DateUtils.formatDate2DateTimeEnd(dormRuleForm.getEndTime()));
-        }
-        Page page  = new Page(dormRuleForm.getPageNum(),dormRuleForm.getPageSize());
-        return dormRuleMapper.listDormRules(page,dormRuleForm);
+        return dormRuleMapper.listDormRules(DataHandle.getWrapperPage(dormRuleForm),dormRuleForm);
     }
 
     /**

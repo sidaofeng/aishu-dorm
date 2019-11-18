@@ -1,4 +1,4 @@
-package com.waken.dorm.service.cache;
+package com.waken.dorm.common.cache;
 
 import com.waken.dorm.common.entity.user.User;
 

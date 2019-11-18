@@ -1,9 +1,9 @@
 package com.waken.dorm.serviceImpl.cache;
 
 import com.waken.dorm.common.base.RedisInfo;
+import com.waken.dorm.common.cache.RedisService;
 import com.waken.dorm.common.exception.RedisConnectException;
 import com.waken.dorm.common.function.JedisExecutor;
-import com.waken.dorm.service.cache.RedisService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.Client;

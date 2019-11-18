@@ -2,9 +2,10 @@ package com.waken.dorm.serviceImpl.user;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.waken.dorm.common.cache.CacheService;
 import com.waken.dorm.common.constant.Constant;
+import com.waken.dorm.common.entity.log.SysLog;
 import com.waken.dorm.common.entity.user.User;
 import com.waken.dorm.common.entity.user.UserPrivilege;
 import com.waken.dorm.common.enums.CodeEnum;
@@ -13,6 +14,7 @@ import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.role.ListAddedRoleForm;
 import com.waken.dorm.common.form.user.EditUserForm;
 import com.waken.dorm.common.form.user.UserForm;
+import com.waken.dorm.common.manager.UserManager;
 import com.waken.dorm.common.sequence.UUIDSequence;
 import com.waken.dorm.common.utils.*;
 import com.waken.dorm.common.view.base.ImgView;
@@ -23,8 +25,8 @@ import com.waken.dorm.common.view.user.UserView;
 import com.waken.dorm.dao.role.RoleMapper;
 import com.waken.dorm.dao.user.UserMapper;
 import com.waken.dorm.dao.user.UserPrivilegeMapper;
-import com.waken.dorm.manager.UserManager;
-import com.waken.dorm.service.cache.CacheService;
+import com.waken.dorm.handle.DataHandle;
+import com.waken.dorm.service.log.LogService;
 import com.waken.dorm.service.user.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -47,20 +49,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private final UserPrivilegeMapper userPrivilegeMapper;
     private final AliyunOSSUtil aliyunOSSUtil;
     private final CacheService cacheService;
+    private final LogService logService;
 
     @Override
     @Transactional
     public User saveUser(EditUserForm editUserForm) {
         this.editUserValidate(editUserForm);
-        String curUserId = UserManager.getCurrentUserId();
-        Date curDate = DateUtils.getCurrentDate();
         int count;
         User user = new User();
-
         BeanMapper.copy(editUserForm, user);
-
-        user.setLastModifyTime(curDate);
-        user.setLastModifyUserId(curUserId);
         if (StringUtils.isEmpty(editUserForm.getUserId())) {
             log.info("service: 新增用户开始");
             String userId = UUIDSequence.next();
@@ -69,8 +66,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             user.setPassword(encodePassword);
             user.setUserId(userId);
             user.setStatus(CodeEnum.ENABLE.getCode());
-            user.setCreateTime(curDate);
-            user.setCreateUserId(curUserId);
             count = userMapper.insert(user);
             if (count == Constant.ZERO) {
                 throw new ServerException("新增用户失败");
@@ -88,7 +83,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public User queryUserInfo(String userName) {
-
         return userMapper.selectOne(new LambdaQueryWrapper<User>()
                 .eq(User::getUserName,userName)
         );
@@ -160,16 +154,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public IPage<UserView> listUsers(UserForm userForm) {
         log.info("service: 用户信息分页查询开始");
-        if (userForm.getStartTime() != null) {
-            userForm.setStartTime(DateUtils.formatDate2DateTimeStart(userForm.getStartTime()));
-        }
-        if (userForm.getEndTime() != null) {
-            userForm.setEndTime(DateUtils.formatDate2DateTimeEnd(userForm.getEndTime()));
-        }
 
-        Page page = new Page(userForm.getPageNum(),userForm.getPageSize());
-
-        IPage<UserView> userPage = this.userMapper.listUsers(page, userForm);
+        IPage<UserView> userPage = this.userMapper.listUsers(DataHandle.getWrapperPage(userForm), userForm);
 
         Map<String,List<String>> userRoleMap = this.getUsersRoles();
 
@@ -178,8 +164,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 userView.setRoleIds(userRoleMap.get(userView.getUserId()));
             }
         });
-
-
         return userPage;
     }
 
@@ -274,14 +258,22 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     /**
-     * 更新登录时间
+     * 更新登录时间,并保存登陆日志
      *
-     * @param user
+     * @param userId
+     * @param ip
      */
     @Override
-    public void updateLoginTime(User user) {
+    public void updateLoginTime(String userId,String ip) {
+        User user = new User();
+        user.setUserId(userId);
         user.setLastLoginTime(DateUtils.getCurrentDate());
         userMapper.updateById(user);
+        SysLog sysLog = new SysLog();
+        sysLog.setUserId(user.getUserId());
+        sysLog.setIp(ip);
+        sysLog.setLocation(AddressUtils.getCityInfo(ip));
+        logService.addLoginLog(sysLog);
     }
 
     /**

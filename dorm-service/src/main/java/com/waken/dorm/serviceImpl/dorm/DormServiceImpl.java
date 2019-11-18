@@ -2,7 +2,6 @@ package com.waken.dorm.serviceImpl.dorm;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.waken.dorm.common.constant.Constant;
 import com.waken.dorm.common.entity.dorm.Dorm;
 import com.waken.dorm.common.entity.dorm.DormStudentRel;
@@ -12,15 +11,18 @@ import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.dorm.AddDormStudentRelForm;
 import com.waken.dorm.common.form.dorm.DormForm;
 import com.waken.dorm.common.form.dorm.EditDormForm;
-import com.waken.dorm.common.sequence.UUIDSequence;
-import com.waken.dorm.common.utils.*;
+import com.waken.dorm.common.manager.UserManager;
+import com.waken.dorm.common.utils.Assert;
+import com.waken.dorm.common.utils.BeanMapper;
+import com.waken.dorm.common.utils.DormUtil;
+import com.waken.dorm.common.utils.StringUtils;
 import com.waken.dorm.common.view.dorm.AppDormView;
 import com.waken.dorm.common.view.dorm.DormStudentRelView;
 import com.waken.dorm.common.view.dorm.DormStudentsView;
 import com.waken.dorm.common.view.dorm.DormView;
 import com.waken.dorm.dao.dorm.DormMapper;
 import com.waken.dorm.dao.dorm.DormStudentRelMapper;
-import com.waken.dorm.manager.UserManager;
+import com.waken.dorm.handle.DataHandle;
 import com.waken.dorm.service.dorm.DormService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +32,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -57,19 +58,11 @@ public class DormServiceImpl implements DormService {
     @Override
     public Dorm saveDorm(EditDormForm editForm) {
         this.editValidate(editForm);
-        String userId = UserManager.getCurrentUserId();
-        Date curDate = DateUtils.getCurrentDate();
         Dorm dorm = new Dorm();
         BeanMapper.copy(editForm, dorm);
-        dorm.setLastModifyTime(curDate);
-        dorm.setLastModifyUserId(userId);
         if (StringUtils.isEmpty(editForm.getPkDormId())) {//新增
             log.info("service: 开始进入新增宿舍信息");
-            String pkDormId = UUIDSequence.next();
-            dorm.setPkDormId(pkDormId);
             dorm.setStatus(CodeEnum.ENABLE.getCode());
-            dorm.setCreateTime(curDate);
-            dorm.setCreateUserId(userId);
             int count = dormMapper.insert(dorm);
             Assert.isFalse(count == Constant.ZERO);
             return dorm;
@@ -124,14 +117,7 @@ public class DormServiceImpl implements DormService {
     @Override
     public IPage<DormView> listDorms(DormForm dormForm) {
         log.info("service: 分页查询宿舍信息开始");
-        if (dormForm.getStartTime() != null) {
-            dormForm.setStartTime(DateUtils.formatDate2DateTimeStart(dormForm.getStartTime()));
-        }
-        if (dormForm.getEndTime() != null) {
-            dormForm.setEndTime(DateUtils.formatDate2DateTimeEnd(dormForm.getEndTime()));
-        }
-        Page page  = new Page(dormForm.getPageNum(),dormForm.getPageSize());
-        return dormMapper.listDorms(page,dormForm);
+        return dormMapper.listDorms(DataHandle.getWrapperPage(dormForm),dormForm);
     }
 
     /**
@@ -233,18 +219,10 @@ public class DormServiceImpl implements DormService {
         }
         List<DormStudentRel> toBeAddDormStudentRelList = new ArrayList<>();
         for (String studentId : studentIds) {
-            String pkDormStudentId = UUIDSequence.next();
-            String curUserId = UserManager.getCurrentUserId();
-            Date curDate = DateUtils.getCurrentDate();
             DormStudentRel DormStudentRel = new DormStudentRel();
-            DormStudentRel.setPkDormStudentId(pkDormStudentId);
             DormStudentRel.setDormId(dormId);
             DormStudentRel.setStudentId(studentId);
             DormStudentRel.setStatus(CodeEnum.ENABLE.getCode());
-            DormStudentRel.setCreateTime(curDate);
-            DormStudentRel.setCreateUserId(curUserId);
-            DormStudentRel.setLastModifyTime(curDate);
-            DormStudentRel.setLastModifyUserId(curUserId);
             toBeAddDormStudentRelList.add(DormStudentRel);
         }
         return toBeAddDormStudentRelList;

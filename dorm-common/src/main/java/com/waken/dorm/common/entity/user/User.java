@@ -3,6 +3,7 @@ package com.waken.dorm.common.entity.user;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.waken.dorm.common.annotation.Id;
 import com.wuwenze.poi.annotation.Excel;
 import com.wuwenze.poi.annotation.ExcelField;
 import lombok.Getter;
@@ -32,6 +33,7 @@ public class User implements Serializable {
     /**
      * 用户ID
      */
+    @Id
     @TableId("user_id")
     private String userId;
 

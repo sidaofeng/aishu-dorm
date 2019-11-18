@@ -10,7 +10,7 @@ import com.waken.dorm.common.utils.StringUtils;
 import com.waken.dorm.common.view.base.TreeView;
 import com.waken.dorm.common.view.resource.UserMenuView;
 import com.waken.dorm.controller.base.BaseController;
-import com.waken.dorm.manager.UserManager;
+import com.waken.dorm.common.manager.UserManager;
 import com.waken.dorm.service.resource.ResourceService;
 import com.waken.dorm.service.user.UserPrivilegeService;
 import io.swagger.annotations.Api;

@@ -2,13 +2,13 @@ package com.waken.dorm.authentication;
 
 import com.waken.dorm.common.authentication.JWTToken;
 import com.waken.dorm.common.authentication.JWTUtil;
+import com.waken.dorm.common.cache.CacheService;
+import com.waken.dorm.common.cache.RedisService;
 import com.waken.dorm.common.constant.CacheConstant;
 import com.waken.dorm.common.entity.user.User;
 import com.waken.dorm.common.utils.HttpContextUtils;
 import com.waken.dorm.common.utils.IPUtils;
 import com.waken.dorm.common.utils.TokenUtils;
-import com.waken.dorm.service.cache.CacheService;
-import com.waken.dorm.service.cache.RedisService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authc.AuthenticationException;

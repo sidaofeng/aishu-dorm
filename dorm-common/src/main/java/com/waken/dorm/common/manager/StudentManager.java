@@ -1,4 +1,4 @@
-package com.waken.dorm.manager;
+package com.waken.dorm.common.manager;
 
 import com.waken.dorm.common.constant.CacheConstant;
 import com.waken.dorm.common.entity.student.StudentInfo;

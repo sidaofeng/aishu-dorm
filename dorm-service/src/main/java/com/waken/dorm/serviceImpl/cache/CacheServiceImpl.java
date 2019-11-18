@@ -2,12 +2,12 @@ package com.waken.dorm.serviceImpl.cache;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.waken.dorm.common.cache.CacheService;
+import com.waken.dorm.common.cache.RedisService;
 import com.waken.dorm.common.constant.CacheConstant;
 import com.waken.dorm.common.entity.user.User;
-import com.waken.dorm.service.cache.CacheService;
-import com.waken.dorm.service.cache.RedisService;
 import com.waken.dorm.service.user.UserPrivilegeService;
-import com.waken.dorm.service.user.UserService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,19 +17,12 @@ import java.util.Set;
 
 @Slf4j
 @Service("cacheService")
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class CacheServiceImpl implements CacheService {
 
-    @Autowired
-    private RedisService redisService;
-
-    @Autowired
-    private UserPrivilegeService userPrivilegeService;
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private ObjectMapper mapper;
+    private final RedisService redisService;
+    private final UserPrivilegeService userPrivilegeService;
+    private final ObjectMapper mapper;
 
     @Override
     public void testConnect() throws Exception {
@@ -76,7 +69,7 @@ public class CacheServiceImpl implements CacheService {
 
     @Override
     public void saveUser(String username) throws Exception {
-        User user = userService.queryUserInfo(username);
+        User user = userPrivilegeService.queryUserInfo(username);
         this.deleteUser(username);
         redisService.set(CacheConstant.USER_CACHE_PREFIX + username, mapper.writeValueAsString(user));
     }

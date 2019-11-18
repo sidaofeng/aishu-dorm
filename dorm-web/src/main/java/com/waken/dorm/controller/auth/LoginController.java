@@ -6,9 +6,10 @@ import com.waken.dorm.common.authentication.JWTToken;
 import com.waken.dorm.common.authentication.JWTUtil;
 import com.waken.dorm.common.base.ActiveUser;
 import com.waken.dorm.common.base.AjaxResponse;
+import com.waken.dorm.common.cache.CacheService;
+import com.waken.dorm.common.cache.RedisService;
 import com.waken.dorm.common.constant.CacheConstant;
 import com.waken.dorm.common.constant.Constant;
-import com.waken.dorm.common.entity.log.SysLog;
 import com.waken.dorm.common.entity.user.User;
 import com.waken.dorm.common.enums.CodeEnum;
 import com.waken.dorm.common.enums.ResultEnum;
@@ -16,8 +17,6 @@ import com.waken.dorm.common.form.user.QueryUserForm;
 import com.waken.dorm.common.properties.DormProperties;
 import com.waken.dorm.common.utils.*;
 import com.waken.dorm.controller.base.BaseController;
-import com.waken.dorm.service.cache.CacheService;
-import com.waken.dorm.service.cache.RedisService;
 import com.waken.dorm.service.log.LogService;
 import com.waken.dorm.service.user.UserService;
 import io.swagger.annotations.Api;
@@ -95,17 +94,18 @@ public class LoginController extends BaseController {
         LocalDateTime expireTime = LocalDateTime.now().plusSeconds(properties.getProperties().getJwtTimeOut());
 
         String expireTimeStr = DateUtils.formatFullTime(expireTime);
-
+        String ip = IPUtils.getIpAddr(request);
         JWTToken jwtToken = new JWTToken(token, expireTimeStr);
         try {
-            String activeUserId = this.saveTokenToRedis(user, jwtToken, request);
+            String activeUserId = this.saveTokenToRedis(user, jwtToken, ip);
             user.setActiveUserId(activeUserId);
         } catch (Exception e) {
             e.printStackTrace();
             return AjaxResponse.error(ResultEnum.SERVER_ERROR);
         }
-        this.userService.updateLoginTime(user);
-        return AjaxResponse.success(this.getUserMapAndCacheUser(jwtToken, user));
+        Map<String, Object> userMapAndCacheUser = this.getUserMapAndCacheUser(jwtToken, user);
+        this.userService.updateLoginTime(user.getUserId(),ip);
+        return AjaxResponse.success(userMapAndCacheUser);
     }
 
     @RequiresPermissions("user:online")
@@ -186,17 +186,10 @@ public class LoginController extends BaseController {
      *
      * @param user
      * @param token
-     * @param request
+     * @param ip
      * @throws Exception
      */
-    private String saveTokenToRedis(User user, JWTToken token, HttpServletRequest request) throws Exception {
-        String ip = IPUtils.getIpAddr(request);
-        //保存登录日志
-        SysLog sysLog = new SysLog();
-        sysLog.setUserId(user.getUserId());
-        sysLog.setIp(ip);
-        sysLog.setLocation(AddressUtils.getCityInfo(ip));
-        logService.addLoginLog(sysLog);
+    private String saveTokenToRedis(User user, JWTToken token, String ip) throws Exception {
         // 构建在线用户
         ActiveUser activeUser = new ActiveUser();
         activeUser.setUsername(user.getUserName());
@@ -208,6 +201,7 @@ public class LoginController extends BaseController {
         this.redisService.zadd(CacheConstant.ACTIVE_USERS_ZSET_PREFIX, Double.valueOf(token.getExipreAt()), mapper.writeValueAsString(activeUser));
         // redis 中存储这个加密 token，key = 前缀 + 加密 token + .ip
         this.redisService.set(CacheConstant.TOKEN_CACHE_PREFIX + token.getToken() + Constant.SPOT + ip, token.getToken(), properties.getProperties().getJwtTimeOut() * 1000);
+
         return activeUser.getId();
     }
 
@@ -244,4 +238,5 @@ public class LoginController extends BaseController {
         userInfo.put("user", user);
         return userInfo;
     }
+
 }

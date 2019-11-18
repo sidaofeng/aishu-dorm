@@ -7,7 +7,7 @@ import com.waken.dorm.common.base.AjaxResponse;
 import com.waken.dorm.common.enums.AccessStrategy;
 import com.waken.dorm.common.utils.StringUtils;
 import com.waken.dorm.common.view.base.ImgView;
-import com.waken.dorm.manager.StudentManager;
+import com.waken.dorm.common.manager.StudentManager;
 import com.waken.dorm.service.student.StudentService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

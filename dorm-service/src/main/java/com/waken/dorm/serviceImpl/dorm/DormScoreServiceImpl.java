@@ -9,16 +9,15 @@ import com.waken.dorm.common.exception.ServerException;
 import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.dorm.DormScoreForm;
 import com.waken.dorm.common.form.dorm.ListDormScoreForm;
-import com.waken.dorm.common.sequence.UUIDSequence;
+import com.waken.dorm.common.manager.UserManager;
 import com.waken.dorm.common.utils.Assert;
 import com.waken.dorm.common.utils.BeanMapper;
-import com.waken.dorm.common.utils.DateUtils;
 import com.waken.dorm.common.utils.DormUtil;
 import com.waken.dorm.common.view.dorm.AppDormScoreView;
 import com.waken.dorm.common.view.dorm.DormScoreView;
 import com.waken.dorm.dao.dorm.DormMapper;
 import com.waken.dorm.dao.dorm.DormScoreMapper;
-import com.waken.dorm.manager.UserManager;
+import com.waken.dorm.handle.DataHandle;
 import com.waken.dorm.service.dorm.DormScoreService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +26,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -53,16 +51,8 @@ public class DormScoreServiceImpl implements DormScoreService {
     @Override
     public void batchAddDormScore(List<DormScore> dormScoreList) {
         Assert.notNull(dormScoreList,dormScoreList.isEmpty(),"参数为空！");
-        Date curDate = DateUtils.getCurrentDate();
-        String userId = UserManager.getCurrentUserId();
         for (DormScore dormScore : dormScoreList) {
-            String pkDormScoreId = UUIDSequence.next();
-            dormScore.setPkDormScoreId(pkDormScoreId);
             dormScore.setStatus(CodeEnum.ENABLE.getCode());
-            dormScore.setCreateTime(curDate);
-            dormScore.setCreateUserId(userId);
-            dormScore.setLastModifyTime(curDate);
-            dormScore.setLastModifyUserId(userId);
         }
         int count = dormScoreMapper.batchAddDormScore(dormScoreList);
         Assert.isFalse(count == Constant.ZERO);
@@ -121,14 +111,7 @@ public class DormScoreServiceImpl implements DormScoreService {
     @Override
     public IPage<DormScoreView> listDormScores(ListDormScoreForm listDormScoreForm) {
         log.info("service: 分页查询宿舍评分信息开始");
-        if (listDormScoreForm.getStartTime() != null) {
-            listDormScoreForm.setStartTime(DateUtils.formatDate2DateTimeStart(listDormScoreForm.getStartTime()));
-        }
-        if (listDormScoreForm.getEndTime() != null) {
-            listDormScoreForm.setEndTime(DateUtils.formatDate2DateTimeEnd(listDormScoreForm.getEndTime()));
-        }
-        Page page  = new Page(listDormScoreForm.getPageNum(),listDormScoreForm.getPageSize());
-        return dormScoreMapper.listDormScores(page,listDormScoreForm);
+        return dormScoreMapper.listDormScores(DataHandle.getWrapperPage(listDormScoreForm),listDormScoreForm);
     }
 
     /**

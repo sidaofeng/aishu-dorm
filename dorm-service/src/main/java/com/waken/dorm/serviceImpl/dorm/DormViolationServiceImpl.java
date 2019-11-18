@@ -13,7 +13,7 @@ import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.dorm.AddDormViolationForm;
 import com.waken.dorm.common.form.dorm.DormViolationForm;
 import com.waken.dorm.common.form.dorm.UpdateDormViolationForm;
-import com.waken.dorm.common.sequence.UUIDSequence;
+import com.waken.dorm.common.manager.UserManager;
 import com.waken.dorm.common.utils.Assert;
 import com.waken.dorm.common.utils.BeanMapper;
 import com.waken.dorm.common.utils.DateUtils;
@@ -23,7 +23,7 @@ import com.waken.dorm.common.view.dorm.DormViolationView;
 import com.waken.dorm.dao.dorm.DormMapper;
 import com.waken.dorm.dao.dorm.DormViolationMapper;
 import com.waken.dorm.dao.student.StudentMapper;
-import com.waken.dorm.manager.UserManager;
+import com.waken.dorm.handle.DataHandle;
 import com.waken.dorm.service.dorm.DormViolationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -62,18 +62,10 @@ public class DormViolationServiceImpl implements DormViolationService {
         this.addViolationValidate(addDormViolationForm);//验证合法性
         String dormId = this.validateDorm(addDormViolationForm.getDormNum());//验证宿舍是否存在
         String studentId = this.validateStudent(addDormViolationForm.getStudentNum());//验证学生是否存在
-        String pkDormViolationId = UUIDSequence.next();
-        String userId = UserManager.getCurrentUserId();
-        Date curDate = DateUtils.getCurrentDate();
         DormViolation dormViolation = new DormViolation();
         BeanMapper.copy(addDormViolationForm, dormViolation);
-        dormViolation.setPkDormViolationId(pkDormViolationId);
         dormViolation.setDormId(dormId);
         dormViolation.setStudentId(studentId);
-        dormViolation.setCreateTime(curDate);
-        dormViolation.setCreateUserId(userId);
-        dormViolation.setLastModifyTime(curDate);
-        dormViolation.setLastModifyUserId(userId);
         dormViolationMapper.insert(dormViolation);
         return dormViolation;
     }
@@ -119,14 +111,7 @@ public class DormViolationServiceImpl implements DormViolationService {
     @Override
     public IPage<DormViolationView> listDormViolations(DormViolationForm dormViolationForm) {
         log.info("service: 违规记录分页查询开始");
-        if (dormViolationForm.getStartTime() != null) {
-            dormViolationForm.setStartTime(DateUtils.formatDate2DateTimeStart(dormViolationForm.getStartTime()));
-        }
-        if (dormViolationForm.getEndTime() != null) {
-            dormViolationForm.setEndTime(DateUtils.formatDate2DateTimeEnd(dormViolationForm.getEndTime()));
-        }
-        Page page  = new Page(dormViolationForm.getPageNum(),dormViolationForm.getPageSize());
-        return dormViolationMapper.listDormViolations(page,dormViolationForm);
+        return dormViolationMapper.listDormViolations(DataHandle.getWrapperPage(dormViolationForm),dormViolationForm);
     }
 
     /**

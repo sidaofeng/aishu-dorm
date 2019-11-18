@@ -2,7 +2,6 @@ package com.waken.dorm.serviceImpl.dorm;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.waken.dorm.common.constant.Constant;
 import com.waken.dorm.common.entity.dorm.Dorm;
 import com.waken.dorm.common.entity.dorm.DormRepair;
@@ -13,7 +12,7 @@ import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.dorm.AddDormRepairForm;
 import com.waken.dorm.common.form.dorm.DormRepairForm;
 import com.waken.dorm.common.form.dorm.UpdateRepairForm;
-import com.waken.dorm.common.sequence.UUIDSequence;
+import com.waken.dorm.common.manager.UserManager;
 import com.waken.dorm.common.utils.Assert;
 import com.waken.dorm.common.utils.DateUtils;
 import com.waken.dorm.common.utils.DormUtil;
@@ -22,7 +21,7 @@ import com.waken.dorm.common.view.dorm.DormRepairView;
 import com.waken.dorm.dao.dorm.DormMapper;
 import com.waken.dorm.dao.dorm.DormRepairMapper;
 import com.waken.dorm.dao.student.StudentMapper;
-import com.waken.dorm.manager.UserManager;
+import com.waken.dorm.handle.DataHandle;
 import com.waken.dorm.service.dorm.DormRepairService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -62,8 +61,6 @@ public class DormRepairServiceImpl implements DormRepairService {
         this.addRepairValidate(addDormRepairForm);//验证合法性
         String studentId;
         String dormId = this.validateDorm(addDormRepairForm.getDormNum());//验证宿舍是否存在
-        String pkDormRepairId = UUIDSequence.next();
-        Date curDate = DateUtils.getCurrentDate();
         DormRepair dormRepair = new DormRepair();
         if (addDormRepairForm.getTerminal() == CodeEnum.WEB.getCode()) {//web端请求
             String userId = UserManager.getCurrentUserId();
@@ -75,7 +72,6 @@ public class DormRepairServiceImpl implements DormRepairService {
             dormRepair.setCreateUserId(studentId);
             dormRepair.setLastModifyUserId(studentId);
         }
-        dormRepair.setPkDormRepairId(pkDormRepairId);
         dormRepair.setDormId(dormId);
         dormRepair.setRepairType(addDormRepairForm.getRepairType());
         dormRepair.setRepairDesc(addDormRepairForm.getRepairDesc());
@@ -83,8 +79,6 @@ public class DormRepairServiceImpl implements DormRepairService {
         dormRepair.setStudentId(studentId);
         dormRepair.setStudentMobile(addDormRepairForm.getStudentMobile());
         dormRepair.setStatus(CodeEnum.REPAIRING.getCode());
-        dormRepair.setCreateTime(curDate);
-        dormRepair.setLastModifyTime(curDate);
         if (StringUtils.isEmpty(addDormRepairForm.getMemo())) {
             dormRepair.setMemo(addDormRepairForm.getMemo());
         }
@@ -134,14 +128,7 @@ public class DormRepairServiceImpl implements DormRepairService {
     @Override
     public IPage<DormRepairView> listDormRepairs(DormRepairForm dormRepairForm) {
         log.info("service: 分页查询宿舍维修信息开始");
-        if (dormRepairForm.getStartTime() != null) {
-            dormRepairForm.setStartTime(DateUtils.formatDate2DateTimeStart(dormRepairForm.getStartTime()));
-        }
-        if (dormRepairForm.getEndTime() != null) {
-            dormRepairForm.setEndTime(DateUtils.formatDate2DateTimeEnd(dormRepairForm.getEndTime()));
-        }
-        Page page  = new Page(dormRepairForm.getPageNum(),dormRepairForm.getPageSize());
-        return dormRepairMapper.listDormRepairs(page,dormRepairForm);
+        return dormRepairMapper.listDormRepairs(DataHandle.getWrapperPage(dormRepairForm),dormRepairForm);
     }
 
     /**

@@ -1,5 +1,6 @@
 package com.waken.dorm.service.user;
 
+import com.waken.dorm.common.entity.user.User;
 import com.waken.dorm.common.form.role.UserRoleRelForm;
 import com.waken.dorm.common.form.user.AddUserResourcesForm;
 import com.waken.dorm.common.form.user.AddUserRoleRelForm;
@@ -57,4 +58,10 @@ public interface UserPrivilegeService {
      * @param addForm
      */
     void batchAddUserResourceRel(AddUserResourcesForm addForm);
+    /**
+     * 查询用户信息
+     *
+     * @param userName user name
+     */
+    User queryUserInfo(String userName);
 }

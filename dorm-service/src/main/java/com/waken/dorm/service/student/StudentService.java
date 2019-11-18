@@ -22,7 +22,7 @@ public interface StudentService {
     /**
      * 批量新增学生
      */
-    List<String> batchAddStudent(List<Student> studentList);
+    int batchAddStudent(List<Student> studentList);
 
     /**
      * （保存或修改）单个学生信息

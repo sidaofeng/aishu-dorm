@@ -1,6 +1,7 @@
 package com.waken.dorm.common.config;
 
 import com.baomidou.mybatisplus.extension.plugins.PaginationInterceptor;
+import com.waken.dorm.common.interceptor.MybatisInterceptor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -18,6 +19,25 @@ public class MybatisPlusConfig {
 //        sqlParserList.add(new BlockAttackSqlParser());
 //        paginationInterceptor.setSqlParserList(sqlParserList);
         return new PaginationInterceptor();
+    }
+//    /**
+//     * 自动填充功能
+//     * @return
+//     */
+//    @Bean
+//    public GlobalConfig globalConfig() {
+//        GlobalConfig globalConfig = new GlobalConfig();
+//        globalConfig.setMetaObjectHandler(new MybatisPlusMetaHandler());
+//        return globalConfig;
+//    }
+
+    /**
+     * 自定义mybatis新增修改时的拦截器
+     * @return
+     */
+    @Bean
+    public MybatisInterceptor mybatisPlusInterceptor(){
+        return new MybatisInterceptor();
     }
 
 }

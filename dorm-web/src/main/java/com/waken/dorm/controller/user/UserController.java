@@ -17,7 +17,7 @@ import com.waken.dorm.common.view.role.UserRoleView;
 import com.waken.dorm.common.view.user.UserRolesView;
 import com.waken.dorm.common.view.user.UserView;
 import com.waken.dorm.controller.base.BaseController;
-import com.waken.dorm.manager.UserManager;
+import com.waken.dorm.common.manager.UserManager;
 import com.waken.dorm.service.role.RoleService;
 import com.waken.dorm.service.user.UserPrivilegeService;
 import com.waken.dorm.service.user.UserService;

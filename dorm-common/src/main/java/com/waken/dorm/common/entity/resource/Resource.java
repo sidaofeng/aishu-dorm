@@ -3,6 +3,7 @@ package com.waken.dorm.common.entity.resource;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.waken.dorm.common.annotation.Id;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -29,6 +30,7 @@ public class Resource implements Serializable {
     /**
      * 资源ID
      */
+    @Id
     @TableId("pk_resource_id")
     private String pkResourceId;
 

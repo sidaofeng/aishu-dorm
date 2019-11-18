@@ -1,7 +1,6 @@
 package com.waken.dorm.serviceImpl.log;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.waken.dorm.common.annotation.Log;
@@ -11,12 +10,11 @@ import com.waken.dorm.common.enums.CodeEnum;
 import com.waken.dorm.common.exception.ServerException;
 import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.log.SysLogForm;
-import com.waken.dorm.common.sequence.UUIDSequence;
+import com.waken.dorm.common.manager.UserManager;
 import com.waken.dorm.common.utils.AddressUtils;
-import com.waken.dorm.common.utils.DateUtils;
 import com.waken.dorm.common.view.log.SysLogView;
 import com.waken.dorm.dao.log.SysLogMapper;
-import com.waken.dorm.manager.UserManager;
+import com.waken.dorm.handle.DataHandle;
 import com.waken.dorm.service.log.LogService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -76,12 +74,7 @@ public class LogServiceImpl implements LogService {
             sysLog.setParams(params.toString());
         }
         sysLog.setLocation(AddressUtils.getCityInfo(sysLog.getIp()));
-        String pkId = UUIDSequence.next();
-        String curUserId = UserManager.getCurrentUserId();
-        Date curDate = DateUtils.getCurrentDate();
-        sysLog.setPkLogId(pkId);
-        sysLog.setUserId(curUserId);
-        sysLog.setCreateTime(curDate);
+        sysLog.setUserId(UserManager.getCurrentUserId());
         // 保存系统日志
         logMapper.insert(sysLog);
     }
@@ -92,10 +85,8 @@ public class LogServiceImpl implements LogService {
      */
     @Override
     public void addLoginLog(SysLog sysLog) {
-        sysLog.setPkLogId(UUIDSequence.next());
         sysLog.setOperationContent(Constant.LOGIN);
         sysLog.setMethod(Constant.LOGIN_METHOD);
-        sysLog.setCreateTime(DateUtils.getCurrentDate());
         logMapper.insert(sysLog);
     }
 
@@ -125,15 +116,8 @@ public class LogServiceImpl implements LogService {
      */
     @Override
     public IPage<SysLogView> listSysLogViews(SysLogForm sysLogForm) {
-        log.info("service: 分页查询宿舍信息开始");
-        if (sysLogForm.getStartTime() != null) {
-            sysLogForm.setStartTime(DateUtils.formatDate2DateTimeStart(sysLogForm.getStartTime()));
-        }
-        if (sysLogForm.getEndTime() != null) {
-            sysLogForm.setEndTime(DateUtils.formatDate2DateTimeEnd(sysLogForm.getEndTime()));
-        }
-        Page page  = new Page(sysLogForm.getPageNum(),sysLogForm.getPageSize());
-        return logMapper.listSysLogViews(page,sysLogForm);
+
+        return logMapper.listSysLogViews(DataHandle.getWrapperPage(sysLogForm),sysLogForm);
     }
 
     private StringBuilder handleParams(StringBuilder params, Object[] args, List paramNames) throws JsonProcessingException {

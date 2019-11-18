@@ -23,7 +23,7 @@ import com.waken.dorm.dao.role.RoleMapper;
 import com.waken.dorm.dao.role.RoleResourceRelMapper;
 import com.waken.dorm.dao.user.UserMapper;
 import com.waken.dorm.dao.user.UserPrivilegeMapper;
-import com.waken.dorm.manager.UserManager;
+import com.waken.dorm.common.manager.UserManager;
 import com.waken.dorm.service.resource.ResourceService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -63,13 +63,9 @@ public class ResourceServiceImpl implements ResourceService {
     @Override
     public Resource saveResource(EditResourceForm editResourceForm) {
         this.editResourceValidate(editResourceForm);
-        String userId = UserManager.getCurrentUserId();
-        Date curDate = DateUtils.getCurrentDate();
         int count;
         Resource resource = new Resource();
         BeanMapper.copy(editResourceForm, resource);
-        resource.setLastModifyTime(curDate);
-        resource.setLastModifyUserId(userId);
         if (StringUtils.isBlank(editResourceForm.getPkResourceId())) {
             log.info("service: 新增资源开始");
             String pkResourceId = UUIDSequence.next();
@@ -86,8 +82,6 @@ public class ResourceServiceImpl implements ResourceService {
             resource.setSort(resourceNo);
             resource.setPkResourceId(pkResourceId);
             resource.setStatus(CodeEnum.ENABLE.getCode());
-            resource.setCreateTime(curDate);
-            resource.setCreateUserId(userId);
             count = resourceMapper.insert(resource);
             Assert.isFalse(Constant.ZERO == count);
             //新增的资源必须与超级管理员关联
@@ -348,12 +342,9 @@ public class ResourceServiceImpl implements ResourceService {
         );
         if (null != role) {
             RoleResourceRel roleResourceRel = new RoleResourceRel();
-            roleResourceRel.setPkRoleResourceId(UUIDSequence.next());
             roleResourceRel.setRoleId(role.getPkRoleId());
             roleResourceRel.setResourceId(resourceId);
             roleResourceRel.setResourceType(resourceType);
-            roleResourceRel.setCreateTime(DateUtils.getCurrentDate());
-            roleResourceRel.setCreateUserId(UserManager.getCurrentUserId());
             roleResourceRelMapper.insert(roleResourceRel);
         }
     }
@@ -365,7 +356,8 @@ public class ResourceServiceImpl implements ResourceService {
      * @return
      */
     private int getResourceNo(EditResourceForm editResourceForm) {
-        LambdaQueryWrapper wrapper = new LambdaQueryWrapper<Resource>();
+//        LambdaQueryWrapper wrapper = new LambdaQueryWrapper<Resource>();
+        QueryWrapper wrapper = new QueryWrapper();
         if (StringUtils.isEmpty(editResourceForm.getParentId())) {
             wrapper.eq("parent_id", Constant.ROOT);
         } else {

@@ -2,7 +2,6 @@ package com.waken.dorm.serviceImpl.student;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.waken.dorm.common.base.AjaxResponse;
 import com.waken.dorm.common.constant.CacheConstant;
 import com.waken.dorm.common.constant.Constant;
@@ -14,14 +13,15 @@ import com.waken.dorm.common.exception.ServerException;
 import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.student.EditStudentForm;
 import com.waken.dorm.common.form.student.StudentForm;
+import com.waken.dorm.common.manager.StudentManager;
+import com.waken.dorm.common.manager.UserManager;
 import com.waken.dorm.common.sequence.UUIDSequence;
 import com.waken.dorm.common.utils.*;
 import com.waken.dorm.common.utils.redis.RedisCacheManager;
 import com.waken.dorm.common.view.base.ImgView;
 import com.waken.dorm.common.view.student.StudentView;
 import com.waken.dorm.dao.student.StudentMapper;
-import com.waken.dorm.manager.StudentManager;
-import com.waken.dorm.manager.UserManager;
+import com.waken.dorm.handle.DataHandle;
 import com.waken.dorm.service.student.StudentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,8 +32,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -58,25 +56,11 @@ public class StudentServiceImpl implements StudentService {
      */
     @Transactional
     @Override
-    public List<String> batchAddStudent(List<Student> studentList) {
-        Date curDate = DateUtils.getCurrentDate();
-        String userId = UserManager.getCurrentUserId();
-        List<String> studentIds = new ArrayList<>();
-        for (Student student : studentList) {
-            String studentId = UUIDSequence.next();
-            studentIds.add(studentId);
-            student.setPkStudentId(studentId);
-            student.setStatus(CodeEnum.ENABLE.getCode());
-            student.setCreateTime(curDate);
-            student.setCreateUserId(userId);
-            student.setLastModifyTime(curDate);
-            student.setLastModifyUserId(userId);
-        }
-        int count = studentMapper.batchAddStudent(studentList);
-        if (count == Constant.ZERO) {
-            throw new ServerException("mysql 批量新增失败");
-        }
-        return studentIds;
+    public int batchAddStudent(List<Student> studentList) {
+
+        studentList.stream().forEach(student -> student.setStatus(CodeEnum.ENABLE.getCode()));
+
+        return studentMapper.batchAddStudent(studentList);
     }
 
     /**
@@ -89,12 +73,8 @@ public class StudentServiceImpl implements StudentService {
     @Transactional(rollbackFor = Exception.class)
     public Student saveStudent(EditStudentForm editStudentForm) {
         this.editStudentValidate(editStudentForm);
-        Date curDate = DateUtils.getCurrentDate();
-        String userId = UserManager.getCurrentUserId();
         Student student = new Student();
         BeanMapper.copy(editStudentForm, student);
-        student.setLastModifyTime(curDate);
-        student.setLastModifyUserId(userId);
         //新增
         if (StringUtils.isEmpty(editStudentForm.getPkStudentId())) {
             log.info("service: 开始进入单个添加学生");
@@ -107,8 +87,6 @@ public class StudentServiceImpl implements StudentService {
                 student.setGender(editStudentForm.getGender());
             }
             student.setStatus(CodeEnum.ENABLE.getCode());
-            student.setCreateTime(curDate);
-            student.setCreateUserId(userId);
             studentMapper.insert(student);
             return student;
         } else {//修改
@@ -161,15 +139,8 @@ public class StudentServiceImpl implements StudentService {
      */
     @Override
     public IPage<StudentView> listStudents(StudentForm studentForm) {
-        log.info("service: 分页查询宿舍评分信息开始");
-        if (studentForm.getStartTime() != null) {
-            studentForm.setStartTime(DateUtils.formatDate2DateTimeStart(studentForm.getStartTime()));
-        }
-        if (studentForm.getEndTime() != null) {
-            studentForm.setEndTime(DateUtils.formatDate2DateTimeEnd(studentForm.getEndTime()));
-        }
-        Page page  = new Page(studentForm.getPageNum(),studentForm.getPageSize());
-        return studentMapper.listStudents(page,studentForm);
+
+        return studentMapper.listStudents(DataHandle.getWrapperPage(studentForm),studentForm);
     }
 
     /**

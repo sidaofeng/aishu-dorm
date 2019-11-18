@@ -58,11 +58,12 @@ public interface UserService extends IService<User> {
     ImgView uploadUserImg(MultipartFile file);
 
     /**
-     * 更新登录时间
+     * 更新登录时间,并保存登陆日志
      *
-     * @param user
+     * @param userId
+     * @param ip
      */
-    void updateLoginTime(User user);
+    void updateLoginTime(String userId,String ip);
 
     /**
      * 查询出所有的用户信息

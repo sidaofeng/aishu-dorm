@@ -10,9 +10,7 @@ import com.waken.dorm.common.enums.CodeEnum;
 import com.waken.dorm.common.form.role.UserRoleRelForm;
 import com.waken.dorm.common.form.user.AddUserResourcesForm;
 import com.waken.dorm.common.form.user.AddUserRoleRelForm;
-import com.waken.dorm.common.sequence.UUIDSequence;
 import com.waken.dorm.common.utils.Assert;
-import com.waken.dorm.common.utils.DateUtils;
 import com.waken.dorm.common.utils.TreeUtil;
 import com.waken.dorm.common.view.base.Tree;
 import com.waken.dorm.common.view.resource.UserMenuView;
@@ -20,9 +18,7 @@ import com.waken.dorm.dao.resource.ResourceMapper;
 import com.waken.dorm.dao.user.UserMapper;
 import com.waken.dorm.dao.user.UserPrivilegeMapper;
 import com.waken.dorm.handle.DataHandle;
-import com.waken.dorm.manager.UserManager;
 import com.waken.dorm.service.user.UserPrivilegeService;
-import com.waken.dorm.service.user.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +38,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class UserPrivilegeServiceImpl implements UserPrivilegeService {
     private final UserPrivilegeMapper privilegeMapper;
-    private final UserService userService;
     private final UserMapper userMapper;
     private final ResourceMapper resourceMapper;
     private final TreeUtil treeUtil;
@@ -55,7 +50,7 @@ public class UserPrivilegeServiceImpl implements UserPrivilegeService {
      */
     @Override
     public Set<String> getUserRoles(String userName) {
-        User user = userService.queryUserInfo(userName);
+        User user = this.queryUserInfo(userName);
         List<String> roles = privilegeMapper.selectUserRoles(user.getUserId());
         if (null != roles && !roles.isEmpty()) {
             return new HashSet<>(roles);
@@ -72,7 +67,7 @@ public class UserPrivilegeServiceImpl implements UserPrivilegeService {
      */
     @Override
     public Set<String> getUserPrivileges(String userName) {
-        User user = userService.queryUserInfo(userName);
+        User user = this.queryUserInfo(userName);
         //获取用户所有的按钮资源
         List<String> perms = this.privilegeMapper.selectUserPerms(user.getUserId());
         if (null != perms && !perms.isEmpty()) {
@@ -119,14 +114,9 @@ public class UserPrivilegeServiceImpl implements UserPrivilegeService {
             privilegeMapper.deleteById(userPrivilege.getPkPrivilegeId());
         }
         UserPrivilege privilege = new UserPrivilege();
-        String pkId = UUIDSequence.next();
-        Date curTime = DateUtils.getCurrentDate();
-        privilege.setPkPrivilegeId(pkId);
         privilege.setUserId(userId);
         privilege.setSubjectId(roleId);
         privilege.setSubjectType(CodeEnum.ROLE.getCode());
-        privilege.setCreateTime(curTime);
-        privilege.setCreateUserId(UserManager.getCurrentUserId());
         int count = privilegeMapper.insert(privilege);
         Assert.isFalse(count == Constant.ZERO);
     }
@@ -145,8 +135,19 @@ public class UserPrivilegeServiceImpl implements UserPrivilegeService {
         if (toBeAddUserRoleRel != null && !toBeAddUserRoleRel.isEmpty()) {
             int count = privilegeMapper.batchAddUserRoleRel(toBeAddUserRoleRel);
             Assert.isFalse(count == Constant.ZERO);
-
         }
+    }
+
+    /**
+     * 查询用户信息
+     *
+     * @param userName user name
+     */
+    @Override
+    public User queryUserInfo(String userName) {
+        return userMapper.selectOne(new LambdaQueryWrapper<User>()
+                .eq(User::getUserName,userName)
+        );
     }
 
     private List<UserPrivilege> getToBeAddUserRoleRel(AddUserRoleRelForm addUserRoleRelForm) {
@@ -162,16 +163,13 @@ public class UserPrivilegeServiceImpl implements UserPrivilegeService {
             return null;
         }
         List<UserPrivilege> toBeAddUserRoleRelList = Lists.newArrayList();
-        for (String roleId : roleIds) {
+        roleIds.stream().forEach(roleId ->{
             UserPrivilege userRoleRel = new UserPrivilege();
-            userRoleRel.setPkPrivilegeId(UUIDSequence.next());
             userRoleRel.setUserId(userId);
             userRoleRel.setSubjectId(roleId);
             userRoleRel.setSubjectType(CodeEnum.ROLE.getCode());
-            userRoleRel.setCreateTime(DateUtils.getCurrentDate());
-            userRoleRel.setCreateUserId(UserManager.getCurrentUserId());
             toBeAddUserRoleRelList.add(userRoleRel);
-        }
+        });
         return toBeAddUserRoleRelList;
     }
 
@@ -236,15 +234,12 @@ public class UserPrivilegeServiceImpl implements UserPrivilegeService {
         Map<String, Integer> typeMap = resourceList.stream()
                 .collect(Collectors.toMap(Resource::getPkResourceId, Resource::getResourceType));
 
-        List<UserPrivilege> toBeAddUserRoleRelList = new ArrayList<>();
-        resourceIds.forEach(resourceId -> {
+        List<UserPrivilege> toBeAddUserRoleRelList = Lists.newArrayList();
+        resourceIds.stream().forEach(resourceId -> {
             UserPrivilege userRoleRel = new UserPrivilege();
-            userRoleRel.setPkPrivilegeId(UUIDSequence.next());
             userRoleRel.setUserId(userId);
             userRoleRel.setSubjectId(resourceId);
             userRoleRel.setSubjectType(typeMap.get(resourceId));
-            userRoleRel.setCreateTime(DateUtils.getCurrentDate());
-            userRoleRel.setCreateUserId(UserManager.getCurrentUserId());
             toBeAddUserRoleRelList.add(userRoleRel);
         });
         return toBeAddUserRoleRelList;

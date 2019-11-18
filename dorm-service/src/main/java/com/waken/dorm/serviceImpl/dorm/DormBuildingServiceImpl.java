@@ -2,7 +2,6 @@ package com.waken.dorm.serviceImpl.dorm;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.waken.dorm.common.constant.Constant;
 import com.waken.dorm.common.entity.dorm.DormBuilding;
 import com.waken.dorm.common.enums.CodeEnum;
@@ -10,11 +9,14 @@ import com.waken.dorm.common.exception.ServerException;
 import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.dorm.DormBuildingForm;
 import com.waken.dorm.common.form.dorm.EditDormBuildingForm;
-import com.waken.dorm.common.sequence.UUIDSequence;
-import com.waken.dorm.common.utils.*;
+import com.waken.dorm.common.manager.UserManager;
+import com.waken.dorm.common.utils.Assert;
+import com.waken.dorm.common.utils.BeanMapper;
+import com.waken.dorm.common.utils.DormUtil;
+import com.waken.dorm.common.utils.StringUtils;
 import com.waken.dorm.common.view.dorm.DormBuildingView;
 import com.waken.dorm.dao.dorm.DormBuildingMapper;
-import com.waken.dorm.manager.UserManager;
+import com.waken.dorm.handle.DataHandle;
 import com.waken.dorm.service.dorm.DormBuildingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +25,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -49,20 +50,12 @@ public class DormBuildingServiceImpl implements DormBuildingService {
     @Override
     public DormBuilding saveDormBuilding(EditDormBuildingForm editBuildingForm) {
         this.editBuildingValidate(editBuildingForm);
-        String userId = UserManager.getCurrentUserId();
-        Date curDate = DateUtils.getCurrentDate();
         int count;
         DormBuilding dormBuilding = new DormBuilding();
         BeanMapper.copy(editBuildingForm, dormBuilding);
-        dormBuilding.setLastModifyTime(curDate);
-        dormBuilding.setLastModifyUserId(userId);
         if (StringUtils.isEmpty(editBuildingForm.getPkDormBuildingId())) {//新增
             log.info("service: 开始进入新增宿舍楼信息");
-            String pkDormBuildingId = UUIDSequence.next();
-            dormBuilding.setPkDormBuildingId(pkDormBuildingId);
             dormBuilding.setStatus(CodeEnum.ENABLE.getCode());
-            dormBuilding.setCreateTime(curDate);
-            dormBuilding.setCreateUserId(userId);
             count = buildingMapper.insert(dormBuilding);
             if (count == Constant.ZERO) {
                 throw new ServerException("新增个数为 0 条");
@@ -116,14 +109,7 @@ public class DormBuildingServiceImpl implements DormBuildingService {
     @Override
     public IPage<DormBuildingView> listDormBuildings(DormBuildingForm buildingForm) {
         log.info("service: 分页查询宿舍楼信息开始");
-        if (buildingForm.getStartTime() != null) {
-            buildingForm.setStartTime(DateUtils.formatDate2DateTimeStart(buildingForm.getStartTime()));
-        }
-        if (buildingForm.getEndTime() != null) {
-            buildingForm.setEndTime(DateUtils.formatDate2DateTimeEnd(buildingForm.getEndTime()));
-        }
-        Page page  = new Page(buildingForm.getPageNum(),buildingForm.getPageSize());
-        return buildingMapper.listDormBuildings(page,buildingForm);
+        return buildingMapper.listDormBuildings(DataHandle.getWrapperPage(buildingForm),buildingForm);
     }
 
     /**

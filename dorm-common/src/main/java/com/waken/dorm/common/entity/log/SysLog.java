@@ -3,6 +3,7 @@ package com.waken.dorm.common.entity.log;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.waken.dorm.common.annotation.Id;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -29,6 +30,7 @@ public class SysLog implements Serializable {
     /**
      * 日志ID
      */
+    @Id
     @TableId("pk_log_id")
     private String pkLogId;
 

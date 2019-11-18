@@ -3,7 +3,7 @@ package com.waken.dorm.app.controller.dorm;
 import com.waken.dorm.app.controller.base.AppBaseController;
 import com.waken.dorm.common.base.AjaxResponse;
 import com.waken.dorm.common.view.dorm.AppDormView;
-import com.waken.dorm.manager.StudentManager;
+import com.waken.dorm.common.manager.StudentManager;
 import com.waken.dorm.service.dorm.DormService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

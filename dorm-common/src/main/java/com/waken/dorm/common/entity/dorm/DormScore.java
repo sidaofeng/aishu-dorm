@@ -3,6 +3,7 @@ package com.waken.dorm.common.entity.dorm;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.waken.dorm.common.annotation.Id;
 import com.wuwenze.poi.annotation.Excel;
 import com.wuwenze.poi.annotation.ExcelField;
 import lombok.Getter;
@@ -32,6 +33,7 @@ public class DormScore implements Serializable {
     /**
      * 主键
      */
+    @Id
     @TableId("pk_dorm_score_id")
     private String pkDormScoreId;
 

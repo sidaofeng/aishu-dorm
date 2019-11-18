@@ -2,7 +2,6 @@ package com.waken.dorm.serviceImpl.dict;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.waken.dorm.common.constant.Constant;
 import com.waken.dorm.common.entity.dict.Dict;
 import com.waken.dorm.common.enums.CodeEnum;
@@ -10,11 +9,14 @@ import com.waken.dorm.common.exception.ServerException;
 import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.dict.DictForm;
 import com.waken.dorm.common.form.dict.EditDictForm;
-import com.waken.dorm.common.sequence.UUIDSequence;
-import com.waken.dorm.common.utils.*;
+import com.waken.dorm.common.manager.UserManager;
+import com.waken.dorm.common.utils.Assert;
+import com.waken.dorm.common.utils.BeanMapper;
+import com.waken.dorm.common.utils.DormUtil;
+import com.waken.dorm.common.utils.StringUtils;
 import com.waken.dorm.common.view.dict.DictView;
 import com.waken.dorm.dao.dict.DictMapper;
-import com.waken.dorm.manager.UserManager;
+import com.waken.dorm.handle.DataHandle;
 import com.waken.dorm.service.dict.DictService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +25,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -48,19 +49,11 @@ public class DictServiceImpl implements DictService {
     @Override
     @Transactional
     public Dict saveDict(EditDictForm editDictForm) {
-        String userId = UserManager.getCurrentUserId();
         this.editDictValidate(editDictForm);
-        Date curDate = DateUtils.getCurrentDate();
         Dict dict = new Dict();
         BeanMapper.copy(editDictForm, dict);
-        dict.setLastModifyTime(curDate);
-        dict.setLastModifyUserId(userId);
         if (StringUtils.isEmpty(editDictForm.getPkDictId())) {//新增
-            String pkDictId = UUIDSequence.next();
-            dict.setPkDictId(pkDictId);
             dict.setStatus(CodeEnum.ENABLE.getCode());
-            dict.setCreateTime(curDate);
-            dict.setCreateUserId(userId);
             int count = dictMapper.insert(dict);
             Assert.isFalse(count == Constant.ZERO);
             return dict;
@@ -111,14 +104,7 @@ public class DictServiceImpl implements DictService {
     @Override
     public IPage<DictView> listDicts(DictForm dictForm) {
         log.info("service: 分页查询宿舍楼信息开始");
-        if (dictForm.getStartTime() != null) {
-            dictForm.setStartTime(DateUtils.formatDate2DateTimeStart(dictForm.getStartTime()));
-        }
-        if (dictForm.getEndTime() != null) {
-            dictForm.setEndTime(DateUtils.formatDate2DateTimeEnd(dictForm.getEndTime()));
-        }
-        Page page  = new Page(dictForm.getPageNum(),dictForm.getPageSize());
-        return dictMapper.listDicts(page,dictForm);
+        return dictMapper.listDicts(DataHandle.getWrapperPage(dictForm),dictForm);
     }
 
     /**

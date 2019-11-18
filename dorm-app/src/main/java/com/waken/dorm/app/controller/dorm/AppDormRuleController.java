@@ -5,7 +5,7 @@ import com.waken.dorm.common.base.AjaxResponse;
 import com.waken.dorm.common.enums.CodeEnum;
 import com.waken.dorm.common.form.dorm.DormRuleForm;
 import com.waken.dorm.common.view.dorm.DormRuleView;
-import com.waken.dorm.manager.StudentManager;
+import com.waken.dorm.common.manager.StudentManager;
 import com.waken.dorm.service.dorm.DormRuleService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

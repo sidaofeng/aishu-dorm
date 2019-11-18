@@ -7,7 +7,7 @@ import com.waken.dorm.common.enums.CodeEnum;
 import com.waken.dorm.common.form.dorm.AddDormRepairForm;
 import com.waken.dorm.common.form.dorm.DormRepairForm;
 import com.waken.dorm.common.view.dorm.DormRepairView;
-import com.waken.dorm.manager.StudentManager;
+import com.waken.dorm.common.manager.StudentManager;
 import com.waken.dorm.service.dorm.DormRepairService;
 import com.waken.dorm.service.dorm.DormService;
 import io.swagger.annotations.Api;
