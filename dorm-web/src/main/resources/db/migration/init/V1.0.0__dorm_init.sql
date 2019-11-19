@@ -1,24 +1,3 @@
-/*
-Navicat MySQL Data Transfer
-
-Source Server         : 127.0.0.1
-Source Server Version : 50723
-Source Host           : localhost:3306
-Source Database       : dorm
-
-Target Server Type    : MYSQL
-Target Server Version : 50723
-File Encoding         : 65001
-
-Date: 2019-08-21 23:06:50
-*/
-
-SET FOREIGN_KEY_CHECKS=0;
-
--- ----------------------------
--- Table structure for `rm_dict`
--- ----------------------------
-DROP TABLE IF EXISTS `rm_dict`;
 CREATE TABLE `rm_dict` (
   `pk_dict_id` varchar(32) NOT NULL COMMENT '主键',
   `dict_key` varchar(20) DEFAULT NULL COMMENT '键',
@@ -37,15 +16,8 @@ CREATE TABLE `rm_dict` (
   UNIQUE KEY `suoyim` (`dict_key`,`dict_value`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- ----------------------------
--- Records of rm_dict
--- ----------------------------
 INSERT INTO `rm_dict` VALUES ('81478ecdc4714c6c8803534d7fc3f4f9', '1', '生效', 'status', '状态', 'rm_dorm', '宿舍信息表', '1', '4ddecf810f15405e8b4665a85f273172', '2019-04-19 10:05:17', 'af7cae9f7b87426ab1572d431c56253d', '2019-04-19 10:06:24', 'af7cae9f7b87426ab1572d431c56253d');
 
--- ----------------------------
--- Table structure for `rm_dorm`
--- ----------------------------
-DROP TABLE IF EXISTS `rm_dorm`;
 CREATE TABLE `rm_dorm` (
   `pk_dorm_id` varchar(32) NOT NULL COMMENT '主键',
   `dorm_building_id` varchar(32) NOT NULL COMMENT '宿舍楼id',
@@ -62,15 +34,8 @@ CREATE TABLE `rm_dorm` (
   PRIMARY KEY (`pk_dorm_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- ----------------------------
--- Records of rm_dorm
--- ----------------------------
 INSERT INTO `rm_dorm` VALUES ('bb37bdb0a95640bc988224d13a934285', '02add4779e62441c9ba2e5299acd5df9', '8', '1', 'B-805', '校外B栋第8层', '1', '2019-04-10 02:58:06', 'af7cae9f7b87426ab1572d431c56253d', '2019-04-10 02:58:06', 'af7cae9f7b87426ab1572d431c56253d', '校外B栋第8层');
 
--- ----------------------------
--- Table structure for `rm_dorm_building`
--- ----------------------------
-DROP TABLE IF EXISTS `rm_dorm_building`;
 CREATE TABLE `rm_dorm_building` (
   `pk_dorm_building_id` varchar(32) NOT NULL COMMENT '主键',
   `dorm_building_type` int(1) DEFAULT NULL COMMENT '楼栋类型（0：校内 1：校外）',
@@ -86,29 +51,15 @@ CREATE TABLE `rm_dorm_building` (
   PRIMARY KEY (`pk_dorm_building_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- ----------------------------
--- Records of rm_dorm_building
--- ----------------------------
 INSERT INTO `rm_dorm_building` VALUES ('02add4779e62441c9ba2e5299acd5df9', '1', 'B栋', '20', '校外B栋', '-1', '2019-04-10 02:56:22', 'af7cae9f7b87426ab1572d431c56253d', '2019-04-15 05:19:59', 'af7cae9f7b87426ab1572d431c56253d', 'string');
 
--- ----------------------------
--- Table structure for `rm_dorm_item`
--- ----------------------------
-DROP TABLE IF EXISTS `rm_dorm_item`;
 CREATE TABLE `rm_dorm_item` (
   `pk_dorm_item_id` varchar(32) COLLATE utf8_bin NOT NULL,
   `dorm_id` varchar(32) COLLATE utf8_bin DEFAULT NULL COMMENT '宿舍id',
   PRIMARY KEY (`pk_dorm_item_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='宿舍详情';
 
--- ----------------------------
--- Records of rm_dorm_item
--- ----------------------------
 
--- ----------------------------
--- Table structure for `rm_dorm_repair`
--- ----------------------------
-DROP TABLE IF EXISTS `rm_dorm_repair`;
 CREATE TABLE `rm_dorm_repair` (
   `pk_dorm_repair_id` varchar(32) NOT NULL,
   `dorm_id` varchar(32) DEFAULT NULL COMMENT '宿舍id',
@@ -128,14 +79,6 @@ CREATE TABLE `rm_dorm_repair` (
   PRIMARY KEY (`pk_dorm_repair_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- ----------------------------
--- Records of rm_dorm_repair
--- ----------------------------
-
--- ----------------------------
--- Table structure for `rm_dorm_rule`
--- ----------------------------
-DROP TABLE IF EXISTS `rm_dorm_rule`;
 CREATE TABLE `rm_dorm_rule` (
   `pk_dorm_rule_id` varchar(32) NOT NULL,
   `rule_name` varchar(50) DEFAULT NULL,
@@ -149,14 +92,6 @@ CREATE TABLE `rm_dorm_rule` (
   PRIMARY KEY (`pk_dorm_rule_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- ----------------------------
--- Records of rm_dorm_rule
--- ----------------------------
-
--- ----------------------------
--- Table structure for `rm_dorm_score`
--- ----------------------------
-DROP TABLE IF EXISTS `rm_dorm_score`;
 CREATE TABLE `rm_dorm_score` (
   `pk_dorm_score_id` varchar(32) NOT NULL COMMENT '主键',
   `dorm_num` varchar(32) DEFAULT NULL COMMENT '宿舍号',
@@ -179,9 +114,6 @@ CREATE TABLE `rm_dorm_score` (
   PRIMARY KEY (`pk_dorm_score_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- ----------------------------
--- Records of rm_dorm_score
--- ----------------------------
 INSERT INTO `rm_dorm_score` VALUES ('0a89bdc2292243de812252fbb83e2158', 'B-805', '4', '8', '18', '18', '8', '8', '8', '8', '5', '85', '1', '2019-08-18 10:47:11', '6861df82ae5c40d39b37b51964bf40b0', '2019-08-18 10:47:11', '6861df82ae5c40d39b37b51964bf40b0', '优');
 INSERT INTO `rm_dorm_score` VALUES ('0cc82c2bf2c7402cbe9d2f24576a319a', 'B-805', '4', '10', '15', '15', '5', '7', '6', '7', '5', '74', '1', '2019-08-18 10:47:11', '6861df82ae5c40d39b37b51964bf40b0', '2019-08-18 10:47:11', '6861df82ae5c40d39b37b51964bf40b0', '垃圾未倒');
 INSERT INTO `rm_dorm_score` VALUES ('0e85c00a143e4488b4b0fab1060768bc', 'B-805', '4', '7', '16', '15', '7', '7', '8', '7', '4', '75', '1', '2019-08-18 10:47:11', '6861df82ae5c40d39b37b51964bf40b0', '2019-08-18 10:47:11', '6861df82ae5c40d39b37b51964bf40b0', '良');
@@ -224,10 +156,6 @@ INSERT INTO `rm_dorm_score` VALUES ('f5eb0069510843d89a39cf81deac2acb', 'B-805',
 INSERT INTO `rm_dorm_score` VALUES ('fcaa18216a14419ca5a0f2bca2f83cfd', 'B-805', '4', '10', '17', '16', '8', '8', '7', '8', '5', '83', '1', '2019-08-18 10:47:11', '6861df82ae5c40d39b37b51964bf40b0', '2019-08-18 10:47:11', '6861df82ae5c40d39b37b51964bf40b0', '好');
 INSERT INTO `rm_dorm_score` VALUES ('fffa8906c88f4fab85f4e9dea1bb3c4b', 'B-805', '4', '10', '15', '15', '5', '7', '6', '7', '5', '74', '1', '2019-08-18 10:47:11', '6861df82ae5c40d39b37b51964bf40b0', '2019-08-18 10:47:11', '6861df82ae5c40d39b37b51964bf40b0', '较差');
 
--- ----------------------------
--- Table structure for `rm_dorm_student_rel`
--- ----------------------------
-DROP TABLE IF EXISTS `rm_dorm_student_rel`;
 CREATE TABLE `rm_dorm_student_rel` (
   `pk_dorm_student_id` varchar(32) CHARACTER SET utf8mb4 NOT NULL COMMENT '主键',
   `dorm_id` varchar(32) CHARACTER SET utf8mb4 DEFAULT NULL COMMENT '宿舍id',
@@ -241,9 +169,6 @@ CREATE TABLE `rm_dorm_student_rel` (
   PRIMARY KEY (`pk_dorm_student_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- ----------------------------
--- Records of rm_dorm_student_rel
--- ----------------------------
 INSERT INTO `rm_dorm_student_rel` VALUES ('199fc42e173740538c10ff5cffb3e3da', 'bb37bdb0a95640bc988224d13a934285', '31701f91052949a38c00f0ea96a1d148', '1', '2019-04-18 05:59:05', 'af7cae9f7b87426ab1572d431c56253d', '2019-04-18 05:59:05', 'af7cae9f7b87426ab1572d431c56253d', null);
 INSERT INTO `rm_dorm_student_rel` VALUES ('1bd31c486ec44ffa90b6586f7c87de07', 'bb37bdb0a95640bc988224d13a934285', 'c939d5623e7146728c165b910ea78062', '1', '2019-04-18 05:59:05', 'af7cae9f7b87426ab1572d431c56253d', '2019-04-18 05:59:05', 'af7cae9f7b87426ab1572d431c56253d', null);
 INSERT INTO `rm_dorm_student_rel` VALUES ('4488cfa1834d4da0a447c77f0279ddca', 'bb37bdb0a95640bc988224d13a934285', '7a72e1ebe5be45fbadbe0e9e61b49aac', '1', '2019-04-18 05:59:05', 'af7cae9f7b87426ab1572d431c56253d', '2019-04-18 05:59:05', 'af7cae9f7b87426ab1572d431c56253d', null);
@@ -253,10 +178,6 @@ INSERT INTO `rm_dorm_student_rel` VALUES ('6d44ee0389194a58a1f21afe1518b542', 'b
 INSERT INTO `rm_dorm_student_rel` VALUES ('8c678118bb3445d098bf2d6274dedf95', 'bb37bdb0a95640bc988224d13a934285', 'd4cf7e719dfc427084adf539e44288c3', '1', '2019-04-18 05:59:05', 'af7cae9f7b87426ab1572d431c56253d', '2019-04-18 05:59:05', 'af7cae9f7b87426ab1572d431c56253d', null);
 INSERT INTO `rm_dorm_student_rel` VALUES ('ac8d5642604d4ac1b553ef6c4a910f2b', 'bb37bdb0a95640bc988224d13a934285', '8d473405f42244e3a1d47a647695108c', '1', '2019-04-18 05:59:05', 'af7cae9f7b87426ab1572d431c56253d', '2019-04-18 05:59:05', 'af7cae9f7b87426ab1572d431c56253d', null);
 
--- ----------------------------
--- Table structure for `rm_dorm_violation`
--- ----------------------------
-DROP TABLE IF EXISTS `rm_dorm_violation`;
 CREATE TABLE `rm_dorm_violation` (
   `pk_dorm_violation_id` varchar(32) NOT NULL COMMENT '主键',
   `dorm_rule_id` varchar(32) DEFAULT NULL COMMENT '规则id',
@@ -274,14 +195,6 @@ CREATE TABLE `rm_dorm_violation` (
   PRIMARY KEY (`pk_dorm_violation_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- ----------------------------
--- Records of rm_dorm_violation
--- ----------------------------
-
--- ----------------------------
--- Table structure for `rm_log`
--- ----------------------------
-DROP TABLE IF EXISTS `rm_log`;
 CREATE TABLE `rm_log` (
   `pk_log_id` varchar(32) NOT NULL COMMENT '日志ID',
   `user_id` varchar(32) DEFAULT NULL COMMENT '操作用户id',
@@ -295,9 +208,6 @@ CREATE TABLE `rm_log` (
   PRIMARY KEY (`pk_log_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- ----------------------------
--- Records of rm_log
--- ----------------------------
 INSERT INTO `rm_log` VALUES ('04ab8a02c6d64d4f9c0de47d85be878e', null, '保存或修改资源', '113', 'com.waken.dorm.controller.resource.ResourceController.saveResource()', '  editResourceForm: EditResourceForm(pkResourceId=null, resourceName=学校删除, resourceIcon=null, resourceType=2, resourceUrl=null, parentId=3808f9ac86884504af5827963986248f, perms=schoolsdelete)', '127.0.0.1', '2019-08-21 17:55:47', '内网IP|0|0|内网IP|内网IP');
 INSERT INTO `rm_log` VALUES ('05d8a68d40cf4902aa423cde9c1e99c4', null, '用户登录', '1064', 'com.waken.dorm.controller.auth.LoginController.login()', '  queryUserForm: QueryUserForm(userName=aishu, password=aishu)  request: org.apache.shiro.web.servlet.ShiroHttpServletRequest@6f18f59f', '127.0.0.1', '2019-08-21 14:03:57', '内网IP|0|0|内网IP|内网IP');
 INSERT INTO `rm_log` VALUES ('065b349bf69c4eb6978135faf9d18c5b', null, '保存或修改资源', '93', 'com.waken.dorm.controller.resource.ResourceController.saveResource()', '  editResourceForm: EditResourceForm(pkResourceId=null, resourceName=资源删除, resourceIcon=null, resourceType=2, resourceUrl=null, parentId=3939e23ff7a7481c9d36d3ebf1baf08c, perms=resources::delete)', '127.0.0.1', '2019-08-21 11:01:41', '内网IP|0|0|内网IP|内网IP');
@@ -496,10 +406,6 @@ INSERT INTO `rm_log` VALUES ('fcd17027f0254ff4bd095f9eec42cfb4', 'af7cae9f7b8742
 INSERT INTO `rm_log` VALUES ('fdc311f435aa4d10bc59fed84c309041', null, '导出用户信息', '1868', 'com.waken.dorm.controller.user.UserController.export()', '  response: com.alibaba.druid.support.http.WebStatFilter$StatHttpServletResponseWrapper@41a0a3a7', '127.0.0.1', '2019-08-17 23:08:36', '内网IP|0|0|内网IP|内网IP');
 INSERT INTO `rm_log` VALUES ('fe1507683756482896ea1f3315f8026c', 'af7cae9f7b87426ab1572d431c56253d', '(保存/修改)字典信息', '86', 'com.waken.dorm.controller.dict.DictController.saveDict()', 'editDictForm: EditDictForm{pkDictId=\'81478ecdc4714c6c8803534d7fc3f4f9\', schoolId=\'4ddecf810f15405e8b4665a85f273172\', dictKey=\'1\', dictValue=\'生效\', columnName=\'status\', columnDesc=\'状态\', tableName=\'rm_dorm\', tableDesc=\'宿舍表\'}', '127.0.0.1', '2019-04-19 10:06:13', '内网IP|0|0|内网IP|内网IP');
 
--- ----------------------------
--- Table structure for `rm_resource`
--- ----------------------------
-DROP TABLE IF EXISTS `rm_resource`;
 CREATE TABLE `rm_resource` (
   `pk_resource_id` varchar(32) NOT NULL COMMENT '资源ID',
   `parent_id` varchar(32) NOT NULL COMMENT '父级ID',
@@ -520,9 +426,6 @@ CREATE TABLE `rm_resource` (
   UNIQUE KEY `resource_url_index` (`resource_url`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='资源信息表';
 
--- ----------------------------
--- Records of rm_resource
--- ----------------------------
 INSERT INTO `rm_resource` VALUES ('1e0af706d4854f7b9d0b8b6013fc405b', 'ea71d0b7204c4bc7ab1a3455c77eb85e', '角色保存', null, '2', '/dorm/role/save.html', 'roles::save', '0', '1', '', '2019-08-21 10:43:43', '1', '2019-08-21 10:43:43', '1');
 INSERT INTO `rm_resource` VALUES ('347de92f327c40e290b1f33f8206266d', '93a2394ccf044c709ea660569b91d5ea', '用户保存', null, '2', null, 'users::save', '0', '1', '', '2019-08-21 10:57:11', '1', '2019-08-21 10:57:11', '1');
 INSERT INTO `rm_resource` VALUES ('3939e23ff7a7481c9d36d3ebf1baf08c', 'e719a109a7014484901f657f7f3a8c3b', '资源管理', null, '1', '/dorm/resource.html', 'menu', '2', '1', '', '2019-08-21 10:38:06', '1', '2019-08-21 10:38:06', '1');
@@ -542,10 +445,6 @@ INSERT INTO `rm_resource` VALUES ('e719a109a7014484901f657f7f3a8c3b', 'root', '�
 INSERT INTO `rm_resource` VALUES ('ea71d0b7204c4bc7ab1a3455c77eb85e', 'e719a109a7014484901f657f7f3a8c3b', '角色管理', null, '1', '/dorm/role.html', 'menu', '1', '1', '', '2019-08-21 10:38:47', '1', '2019-08-21 10:38:47', '1');
 INSERT INTO `rm_resource` VALUES ('ee00f923bcae44a48d73a343975788f3', '93a2394ccf044c709ea660569b91d5ea', '用户导出', null, '2', null, 'users::export', '2', '1', '', '2019-08-21 10:58:15', '1', '2019-08-21 10:58:15', '1');
 
--- ----------------------------
--- Table structure for `rm_role`
--- ----------------------------
-DROP TABLE IF EXISTS `rm_role`;
 CREATE TABLE `rm_role` (
   `pk_role_id` varchar(32) NOT NULL,
   `role_name` varchar(100) DEFAULT NULL COMMENT '角色名称',
@@ -558,16 +457,9 @@ CREATE TABLE `rm_role` (
   PRIMARY KEY (`pk_role_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- ----------------------------
--- Records of rm_role
--- ----------------------------
 INSERT INTO `rm_role` VALUES ('c8cb2e89be9a4dc9b12d2375e879e98c', 'admin', '管理员', '1', '2019-08-21 09:32:37', '1', '2019-08-21 09:32:37', '1');
 INSERT INTO `rm_role` VALUES ('ec155fd23f21484d9d33289ae705b1a1', 'superAdmin', '超级管理员', '1', '2019-08-21 09:32:22', '1', '2019-08-21 09:32:22', '1');
 
--- ----------------------------
--- Table structure for `rm_role_resource_rel`
--- ----------------------------
-DROP TABLE IF EXISTS `rm_role_resource_rel`;
 CREATE TABLE `rm_role_resource_rel` (
   `pk_role_resource_id` varchar(32) NOT NULL COMMENT '主键',
   `role_id` varchar(32) DEFAULT NULL COMMENT '角色ID',
@@ -581,9 +473,6 @@ CREATE TABLE `rm_role_resource_rel` (
   KEY `index_resource_type` (`resource_type`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- ----------------------------
--- Records of rm_role_resource_rel
--- ----------------------------
 INSERT INTO `rm_role_resource_rel` VALUES ('0003e6443fde4ac281d37060801ecb42', 'ec155fd23f21484d9d33289ae705b1a1', '1b3445eac1e6482090186aa105d7049a', '2', '2019-08-21 09:54:38', '1');
 INSERT INTO `rm_role_resource_rel` VALUES ('0f649f2e72c0450bb799ebefaa7136b6', 'ec155fd23f21484d9d33289ae705b1a1', '7b77b230570642e4b68182989e18460d', '2', '2019-08-21 10:57:34', '1');
 INSERT INTO `rm_role_resource_rel` VALUES ('1b6fc310a10b4eef97dae29d735e2cc3', 'ec155fd23f21484d9d33289ae705b1a1', 'ea71d0b7204c4bc7ab1a3455c77eb85e', '1', '2019-08-21 10:38:47', '1');
@@ -608,10 +497,6 @@ INSERT INTO `rm_role_resource_rel` VALUES ('c89084fc50ae460c96a071edef3c2ff5', '
 INSERT INTO `rm_role_resource_rel` VALUES ('cec0469828d24b9dace656946eb381b1', 'ec155fd23f21484d9d33289ae705b1a1', '347de92f327c40e290b1f33f8206266d', '2', '2019-08-21 10:57:11', '1');
 INSERT INTO `rm_role_resource_rel` VALUES ('d3d1688611d542d8b4eec336b6e7df97', 'ec155fd23f21484d9d33289ae705b1a1', '9ee1344e62104f39a857ffc96d445423', '2', '2019-08-21 11:01:41', '1');
 
--- ----------------------------
--- Table structure for `rm_student`
--- ----------------------------
-DROP TABLE IF EXISTS `rm_student`;
 CREATE TABLE `rm_student` (
   `pk_student_id` varchar(32) NOT NULL COMMENT '主键',
   `student_name` varchar(50) NOT NULL COMMENT '学校姓名',
@@ -630,9 +515,6 @@ CREATE TABLE `rm_student` (
   UNIQUE KEY `student_name_num` (`student_name`,`student_num`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- ----------------------------
--- Records of rm_student
--- ----------------------------
 INSERT INTO `rm_student` VALUES ('097116cf179d4085a6efb4a4c338f949', '刘海天', '20161572', null, '18382680902', null, null, null, '1', '2019-04-18 05:30:19', 'af7cae9f7b87426ab1572d431c56253d', '2019-04-18 05:30:19', 'af7cae9f7b87426ab1572d431c56253d');
 INSERT INTO `rm_student` VALUES ('1525768912444d11a2ce180909d97616', '胡锐', '20161224', null, '17796416935', null, null, null, '1', '2019-04-18 05:30:19', 'af7cae9f7b87426ab1572d431c56253d', '2019-04-18 05:30:19', 'af7cae9f7b87426ab1572d431c56253d');
 INSERT INTO `rm_student` VALUES ('230c29a1b05a40a2b42c5624fb847f85', '邓鑫', '20162403', null, '13028149773', null, null, null, '1', '2019-04-18 05:30:19', 'af7cae9f7b87426ab1572d431c56253d', '2019-04-18 05:30:19', 'af7cae9f7b87426ab1572d431c56253d');
@@ -668,10 +550,6 @@ INSERT INTO `rm_student` VALUES ('e02b4f04042c4157af08428b87be5d62', '曾鹏', '
 INSERT INTO `rm_student` VALUES ('f1fe624befb54c1da17e5a52dea8b449', '刘浩', '20162465', null, '18161274081', null, null, null, '1', '2019-04-18 05:30:19', 'af7cae9f7b87426ab1572d431c56253d', '2019-04-18 05:30:19', 'af7cae9f7b87426ab1572d431c56253d');
 INSERT INTO `rm_student` VALUES ('f2f5176a226c4a2486398d0a8d090d55', '贾腾焱', '20161744', null, '13183763545', null, null, null, '1', '2019-04-18 05:30:19', 'af7cae9f7b87426ab1572d431c56253d', '2019-04-18 05:30:19', 'af7cae9f7b87426ab1572d431c56253d');
 
--- ----------------------------
--- Table structure for `rm_user`
--- ----------------------------
-DROP TABLE IF EXISTS `rm_user`;
 CREATE TABLE `rm_user` (
   `user_id` varchar(32) NOT NULL COMMENT '用户ID',
   `user_name` varchar(50) DEFAULT NULL COMMENT '用户名',
@@ -713,16 +591,9 @@ CREATE TABLE `rm_user` (
   UNIQUE KEY `index_user_name` (`user_name`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户信息表';
 
--- ----------------------------
--- Records of rm_user
--- ----------------------------
 INSERT INTO `rm_user` VALUES ('1', 'aishu', 'aishu', '1e0e3a8eec85a1c21509f022a7d7e949', '15328417106', '1', null, '1', '511324199702101111', '格子衬衫', '1', '1', null, null, null, '2181250231@qq.com', '2019-08-21 23:00:27', '2019-08-21 09:23:39', '1', '2019-08-21 09:24:01', '1', null, null, null, null, null, null, null, null, null, null, null, null, null, '管理员用户');
 INSERT INTO `rm_user` VALUES ('a0f5e121974d4adaba055a1602ce42b4', 'xiaozhu', 'xiaozhu', 'd6c53ecc0e306110050b7c46b848eb49', '15328417109', '0', null, null, null, null, '1', '1', null, null, null, '2181250234@qq.com', '2019-08-21 19:07:25', '2019-08-21 11:24:21', 'guest', '2019-08-21 11:24:21', '1', null, null, null, null, null, null, null, null, null, null, null, null, null, null);
 
--- ----------------------------
--- Table structure for `rm_user_privilege`
--- ----------------------------
-DROP TABLE IF EXISTS `rm_user_privilege`;
 CREATE TABLE `rm_user_privilege` (
   `pk_privilege_id` varchar(32) NOT NULL,
   `user_id` varchar(32) DEFAULT NULL COMMENT '用户ID',
@@ -736,8 +607,5 @@ CREATE TABLE `rm_user_privilege` (
   KEY `index_subject_type` (`subject_type`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户与角色、资源关联信息';
 
--- ----------------------------
--- Records of rm_user_privilege
--- ----------------------------
 INSERT INTO `rm_user_privilege` VALUES ('bbec66146a0642f7840c2bc307d86341', '1', 'c8cb2e89be9a4dc9b12d2375e879e98c', '3', '2019-08-21 11:16:00', '1');
 INSERT INTO `rm_user_privilege` VALUES ('d2366fb620ae4dd4a6abe4f5801ab137', '1', 'ec155fd23f21484d9d33289ae705b1a1', '3', '2019-08-21 11:16:00', '1');
