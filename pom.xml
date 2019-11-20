@@ -194,11 +194,11 @@
             <artifactId>ehcache</artifactId>
             <version>2.10.6</version>
         </dependency>
-        <dependency>
-            <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-core</artifactId>
-            <version>5.2.1</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.flywaydb</groupId>-->
+<!--            <artifactId>flyway-core</artifactId>-->
+<!--            <version>5.2.1</version>-->
+<!--        </dependency>-->
 
     </dependencies>
 
@@ -216,14 +216,14 @@
                         <compilerVersion>1.8</compilerVersion>
                     </configuration>
                 </plugin>
-                <plugin>
-                    <groupId>org.flywaydb</groupId>
-                    <artifactId>flyway-maven-plugin</artifactId>
-                    <version>5.2.1</version>
-                    <configuration>
-                        <configFile>src/main/resources/flyway.yml</configFile>
-                    </configuration>
-                </plugin>
+<!--                <plugin>-->
+<!--                    <groupId>org.flywaydb</groupId>-->
+<!--                    <artifactId>flyway-maven-plugin</artifactId>-->
+<!--                    <version>5.2.1</version>-->
+<!--                    <configuration>-->
+<!--                        <configFile>src/main/resources/flyway.yml</configFile>-->
+<!--                    </configuration>-->
+<!--                </plugin>-->
 
             </plugins>
         </pluginManagement>

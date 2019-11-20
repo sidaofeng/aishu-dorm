@@ -15,7 +15,7 @@ public interface ResourceMapper extends BaseMapper<Resource> {
      *
      * @return
      */
-    List<ResourceView> selectResourceView();
+    List<ResourceView> selectResourceView(@Param("resourceType") Integer resourceType);
 
     /**
      * 通过资源id查询对应的按钮权限

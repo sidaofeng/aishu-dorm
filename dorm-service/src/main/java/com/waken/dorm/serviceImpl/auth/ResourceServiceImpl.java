@@ -183,7 +183,13 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
         Map<String, String> var4 = this.getSubjectResource(userId, roleId);
 
         //获取到所有的资源信息 null表示查询出所有的状态的资源用于资源树管理查询 1表示查询生效的资源是用于查询用户或者角色关联的资源
-        List<ResourceView> allResource = resourceMapper.selectResourceView();
+        List<ResourceView> allResource;
+        if (StringUtils.isEmpty(userId) && StringUtils.isEmpty(roleId)){
+            allResource = resourceMapper.selectResourceView(1);
+        }else {
+            allResource = resourceMapper.selectResourceView(null);
+        }
+
 
         //将资源集合转换成树形集合对象
         List<Tree<ResourceView>> allResourceTree = this.getResourceTreeView(allResource, var4);

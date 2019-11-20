@@ -21,7 +21,9 @@
         LEFT JOIN rm_resource rr ON rr.pk_resource_id = r.parent_id
         <where>
             r.status = 1
-            AND r.resource_type = 1
+            <if test="resourceType != null">
+                AND r.resource_type = 1
+            </if>
         </where>
         ORDER BY r.sort ASC
     </select>
