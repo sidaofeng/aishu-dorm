@@ -24,11 +24,7 @@ public class EditResourceForm {
 
     private String resourceIcon;
 
-    private Integer resourceType;
-
     private String resourceUrl;
 
     private String parentId;
-
-    private String perms;
 }

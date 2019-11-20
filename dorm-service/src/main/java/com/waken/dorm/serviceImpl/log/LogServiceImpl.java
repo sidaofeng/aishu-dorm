@@ -79,16 +79,6 @@ public class LogServiceImpl implements LogService {
         logMapper.insert(sysLog);
     }
 
-    /**
-     * 新增登录日志
-     * @param sysLog
-     */
-    @Override
-    public void addLoginLog(SysLog sysLog) {
-        sysLog.setOperationContent(Constant.LOGIN);
-        sysLog.setMethod(Constant.LOGIN_METHOD);
-        logMapper.insert(sysLog);
-    }
 
     /**
      * 删除日志

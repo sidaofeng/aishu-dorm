@@ -53,16 +53,16 @@ public interface CacheService {
     /**
      * 缓存用户角色信息
      *
-     * @param username 用户名
+     * @param user 用户
      */
-    Set<String> saveRoles(String username) throws Exception;
+    Set<String> saveRoles(User user) throws Exception;
 
     /**
      * 缓存用户权限信息
      *
-     * @param username 用户名
+     * @param user 用户名
      */
-    Set<String> savePermissions(String username) throws Exception;
+    Set<String> savePermissions(User user) throws Exception;
 
     /**
      * 删除用户信息

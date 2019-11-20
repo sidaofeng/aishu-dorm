@@ -27,12 +27,6 @@ public interface LogService {
     void saveLog(ProceedingJoinPoint point, SysLog log) throws JsonProcessingException;
 
     /**
-     * 保存登录日志
-     * @param sysLog
-     */
-    void addLoginLog(SysLog sysLog);
-
-    /**
      * 删除日志
      *
      * @param deleteForm

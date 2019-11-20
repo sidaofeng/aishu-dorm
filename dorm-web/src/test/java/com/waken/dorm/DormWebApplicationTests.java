@@ -1,6 +1,6 @@
 package com.waken.dorm;
 
-import com.waken.dorm.dao.user.UserMapper;
+import com.waken.dorm.dao.auth.UserMapper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;

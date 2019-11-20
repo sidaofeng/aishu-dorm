@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.waken.dorm.dao.auth.RoleResourceRelMapper">
+    <resultMap id="BaseResultMap" type="com.waken.dorm.common.entity.role.RoleResourceRel">
+        <id column="pk_role_resource_id" property="pkRoleResourceId" jdbcType="VARCHAR"/>
+        <result column="role_id" property="roleId" jdbcType="VARCHAR"/>
+        <result column="resource_id" property="resourceId" jdbcType="VARCHAR"/>
+        <result column="resource_type" property="resourceType" jdbcType="INTEGER"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="create_user_id" property="createUserId" jdbcType="VARCHAR"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        pk_role_resource_id, role_id, resource_id, resource_type, create_time, create_user_id
+    </sql>
+    <insert id="batchAddRoleResourceRel" parameterType="java.util.List">
+        INSERT INTO rm_role_resource_rel
+        (pk_role_resource_id,
+        role_id,
+        resource_id,
+        resource_type,
+        create_time,
+        create_user_id)
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.pkRoleResourceId},
+            #{item.roleId},
+            #{item.resourceId},
+            #{item.resourceType},
+            #{item.createTime},
+            #{item.createUserId})
+        </foreach>
+    </insert>
+    <select id="listAddedRoles" parameterType="com.waken.dorm.common.form.role.ListAddedRoleForm"
+            resultType="com.waken.dorm.common.view.user.UserRoleRelView">
+        SELECT
+        ur.pk_user_role_id AS pkUserRoleId,
+        r.pk_role_id AS roleId,
+        r.role_name AS roleName,
+        r.role_desc AS roleDesc
+        FROM
+        rm_role r
+        INNER JOIN rm_user_role_rel ur ON ur.role_id = r.pk_role_id
+        WHERE
+        r.`status` = 1
+        AND r.pk_role_id IN(SELECT urr.role_id FROM rm_user_role_rel urr WHERE urr.user_id=#{curUserId})
+        <if test="userId != null and userId != ''">
+            AND ur.user_id=#{userId,jdbcType=VARCHAR}
+        </if>
+        UNION
+        SELECT
+        '' AS pkUserRoleId,
+        r.pk_role_id AS roleId,
+        r.role_name AS roleName,
+        r.role_desc AS roleDesc
+        FROM
+        rm_role r
+        WHERE
+        r.`status` = 1
+        AND r.pk_role_id IN(SELECT urr.role_id FROM rm_user_role_rel urr WHERE urr.user_id=#{curUserId})
+        AND NOT EXISTS (
+        SELECT
+        *
+        FROM
+        rm_user_role_rel ur
+        WHERE
+        ur.role_id = r.pk_role_id
+        <if test="userId != null and userId != ''">
+            AND ur.user_id=#{userId,jdbcType=VARCHAR}
+        </if>
+        )
+    </select>
+
+    <select id="selectByResources" resultType="com.waken.dorm.common.view.user.UserRoleResource">
+        SELECT
+        DISTINCT
+        res.resource_name AS resourceName,
+        r.role_name AS roleName
+        from rm_role_resource_rel rr
+        LEFT JOIN rm_role r ON rr.role_id = r.pk_role_id
+        LEFT JOIN rm_resource res ON rr.resource_id = res.pk_resource_id
+        where resource_id in
+        <foreach collection="Ids" item="dramaId" open="(" close=")" separator=",">
+            #{dramaId}
+        </foreach>
+        AND r.`status` = 1
+    </select>
+    <select id="selectByRoles" resultType="com.waken.dorm.common.view.user.UserRoleResource">
+        SELECT
+        DISTINCT
+        r.resource_name AS resourceName
+        from rm_role_resource_rel rr
+        LEFT JOIN rm_resource r ON rr.resource_id = r.pk_resource_id
+        where resource_id in
+        <foreach collection="Ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+        AND r.`status` = 1
+    </select>
+    <select id="selectRoleResourceIds" resultType="com.waken.dorm.common.entity.role.RoleResourceRel">
+        SELECT
+        DISTINCT
+        rrr.pk_role_resource_id AS pkRoleResourceId,
+        rrr.role_id AS roleId,
+        rrr.resource_id AS resourceId,
+        rrr.resource_type AS resourceType,
+        rrr.create_time AS createTime,
+        rrr.create_user_id AS createUserId
+        FROM
+        rm_role_resource_rel rrr
+        LEFT JOIN rm_user_privilege up ON up.subject_id = rrr.role_id
+        <where>
+            up.user_id = #{userId}
+        </where>
+    </select>
+    <delete id="deleteByResources">
+        DELETE
+        FROM rm_role_resource_rel
+        where resource_id in
+        <foreach collection="Ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </delete>
+    <delete id="deleteByRoles">
+        DELETE
+        FROM rm_role_resource_rel
+        where role_id in
+        <foreach collection="Ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

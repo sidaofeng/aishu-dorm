@@ -18,7 +18,7 @@ import com.waken.dorm.common.properties.DormProperties;
 import com.waken.dorm.common.utils.*;
 import com.waken.dorm.controller.base.BaseController;
 import com.waken.dorm.service.log.LogService;
-import com.waken.dorm.service.user.UserService;
+import com.waken.dorm.service.auth.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -103,9 +103,8 @@ public class LoginController extends BaseController {
             e.printStackTrace();
             return AjaxResponse.error(ResultEnum.SERVER_ERROR);
         }
-        Map<String, Object> userMapAndCacheUser = this.getUserMapAndCacheUser(jwtToken, user);
-        this.userService.updateLoginTime(user.getUserId(),ip);
-        return AjaxResponse.success(userMapAndCacheUser);
+        this.userService.updateLoginTime(user,ip);
+        return AjaxResponse.success(this.getUserMapAndCacheUser(jwtToken, user));
     }
 
     @RequiresPermissions("user:online")
@@ -213,14 +212,13 @@ public class LoginController extends BaseController {
      * @return
      */
     private Map<String, Object> getUserMapAndCacheUser(JWTToken token, User user) {
-        String username = user.getUserName();
         Set<String> roles = new HashSet<>();
         Set<String> permissions = new HashSet<>();
         try {
             //登录时将用户信息添加到缓存，用户信息修改后需要重新登录才可获得最新信息
             this.cacheService.saveUser(user);
-            roles = this.cacheService.saveRoles(username);
-            permissions = this.cacheService.savePermissions(username);
+            roles = this.cacheService.saveRoles(user);
+            permissions = this.cacheService.savePermissions(user);
         } catch (Exception e) {
             e.printStackTrace();
             log.info("缓存用户信息错误！");
@@ -234,7 +232,7 @@ public class LoginController extends BaseController {
 
         userInfo.put("permissions", permissions);
 
-        user.setPassword("no password");
+        user.setPassword("password");
         userInfo.put("user", user);
         return userInfo;
     }
