@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.waken.dorm.common.cache.CacheService;
 import com.waken.dorm.common.cache.RedisService;
 import com.waken.dorm.common.constant.CacheConstant;
-import com.waken.dorm.common.entity.user.User;
+import com.waken.dorm.common.entity.auth.User;
 import com.waken.dorm.service.auth.UserPrivilegeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

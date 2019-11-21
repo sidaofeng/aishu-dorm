@@ -13,9 +13,12 @@ import lombok.Setter;
 @Getter
 @Setter
 public class AppDormView extends BaseView {
-    private String dormBuildingNum;
 
-    private Integer buildingLevelth;
+    private String id;
+
+    private String buildingNum;
+
+    private String buildingLevelth;
 
     private String dormNum;
 

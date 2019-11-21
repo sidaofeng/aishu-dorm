@@ -109,7 +109,8 @@ public class StudentServiceImpl implements StudentService {
         Integer delStatus = deleteForm.getDelStatus();
         // 物理删除
         if (CodeEnum.YES.getCode().equals(delStatus)) {
-            List<Student> studentList = studentMapper.selectByIds(studentIds);
+
+            List<Student> studentList = studentMapper.selectBatchIds(studentIds);
             StringBuffer sb = new StringBuffer();
             for (Student student : studentList) {
                 if (CodeEnum.ENABLE.getCode() == student.getStatus()) {

@@ -2,7 +2,7 @@ package com.waken.dorm.service.log;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.waken.dorm.common.entity.log.SysLog;
+import com.waken.dorm.common.entity.basic.SysLog;
 import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.log.SysLogForm;
 import com.waken.dorm.common.view.log.SysLogView;

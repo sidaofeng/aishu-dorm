@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.waken.dorm.dao.auth.UserRoleRelMapper">
+
+    <!-- 查询用户拥有的资源-->
+    <select id="selectUserResources" resultType="com.waken.dorm.common.view.resource.UserMenuView">
+        SELECT
+        r.pk_resource_id AS pkResourceId,
+        r.parent_id AS parentId,
+        r.resource_name AS resourceName,
+        r.route_name AS routeName,
+        r.component,
+        r.resource_icon AS resourceIcon,
+        r.resource_type AS resourceType,
+        r.resource_url AS resourceUrl,
+        r.sort,
+        r.is_parent AS isParent
+        FROM rm_resource r
+        LEFT JOIN rm_role_resource_rel rr ON rr.resource_id = r.pk_resource_id
+        LEFT JOIN rm_user_role_rel p ON p.role_id = rr.role_id
+        <where>
+            r.`status` = 1
+            <if test="userId != null and userId != ''">
+                AND p.user_id=#{userId,jdbcType=VARCHAR}
+            </if>
+            <if test="resourceType != null">
+                AND r.resource_type=#{resourceType}
+            </if>
+        </where>
+        ORDER BY r.sort ASC
+    </select>
+
+    <!-- 查询角色拥有的资源 -->
+    <select id="selectRoleResources" parameterType="java.lang.String"
+            resultType="com.waken.dorm.common.view.resource.UserMenuView">
+        SELECT
+        DISTINCT
+        r.pk_resource_id AS pkResourceId,
+        r.parent_id AS parentId,
+        r.resource_name AS resourceName,
+        r.route_name AS routeName,
+        r.component,
+        r.resource_icon AS resourceIcon,
+        r.resource_type AS resourceType,
+        r.resource_url AS resourceUrl,
+        r.sort,
+        r.is_parent AS isParent
+        FROM rm_resource r
+        LEFT JOIN rm_role_resource_rel rr ON rr.resource_id = r.pk_resource_id
+        WHERE
+        r.`status` = 1
+        <if test="roleId != null and roleId != ''">
+            AND rr.role_id=#{roleId,jdbcType=VARCHAR}
+        </if>
+    </select>
+
+    <!-- 查询用户的权限信息 -->
+    <select id="selectUserPerms" resultType="java.lang.String" parameterType="java.lang.String">
+        SELECT
+        r.perms
+        FROM rm_resource r
+        LEFT JOIN rm_role_resource_rel rr ON rr.resource_id = r.pk_resource_id
+        LEFT JOIN rm_user_role_rel p ON p.role_id = rr.role_id
+        WHERE
+        r.`status` = 1
+        AND r.resource_type = 2
+        <if test="userId != null and userId != ''">
+            AND p.user_id=#{userId,jdbcType=VARCHAR}
+        </if>
+    </select>
+
+    <!-- 查询用户拥有的角色 -->
+    <select id="selectUserRoles" resultType="java.lang.String" parameterType="java.lang.String">
+        SELECT
+        DISTINCT
+        r.role_name AS roleName
+        FROM rm_role r
+        LEFT JOIN rm_user_role_rel p ON p.role_id = r.pk_role_id
+        WHERE r.`status` = 1
+        <if test="userId != null and userId != ''">
+            AND p.user_id=#{userId,jdbcType=VARCHAR}
+        </if>
+    </select>
+
+    <!-- 通过批量角色id查询 -->
+    <select id="selectByRoles" resultType="com.waken.dorm.common.view.user.UserRoleResource">
+        SELECT
+        DISTINCT
+        r.role_name AS roleName,
+        u.user_name AS userName
+        FROM rm_user_role_rel p
+        LEFT JOIN rm_user u on p.user_id = u.user_id
+        LEFT JOIN rm_role r on p.role_id = r.pk_role_id
+        where p.role_id in
+        <foreach collection="Ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+        AND u.`status` = 1
+        AND r.`status` = 1
+    </select>
+
+    <!-- 通过批量用户id查询 -->
+    <select id="selectByUsers" resultType="com.waken.dorm.common.view.user.UserRoleResource">
+        SELECT
+        DISTINCT
+        u.user_name AS userName,
+        r.role_name AS roleName
+        FROM rm_user_role_rel p
+        LEFT JOIN rm_role r ON r.pk_role_id = p.role_id
+        LEFT JOIN rm_user u ON u.user_id = p.user_id
+        where p.user_id in
+        <foreach collection="Ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+        AND r.`status` = 1
+        AND u.`status` = 1
+    </select>
+
+    <!-- 通过批量用户id批量删除 -->
+    <delete id="deleteByUsers">
+        DELETE
+        FROM rm_user_role_rel
+        where user_id in
+        <foreach collection="Ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </delete>
+
+    <insert id="batchAddUserRoleRel" parameterType="java.util.List">
+        INSERT INTO rm_user_role_rel
+        (id,
+        user_id,
+        role_id,
+        create_time,
+        create_user_id)
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.id},
+            #{item.userId},
+            #{item.roleId},
+            #{item.createTime},
+            #{item.createUserId})
+        </foreach>
+    </insert>
+
+</mapper>

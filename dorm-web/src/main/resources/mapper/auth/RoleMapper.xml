@@ -49,20 +49,19 @@
     <select id="listAddedRoles" parameterType="com.waken.dorm.common.form.role.ListAddedRoleForm"
             resultType="com.waken.dorm.common.view.user.UserRoleRelView">
         SELECT
-        p.pk_privilege_id AS pkUserRoleId,
+        p.id AS pkUserRoleId,
         r.pk_role_id AS roleId,
         r.role_name AS roleName,
         r.role_desc AS roleDesc
         FROM
         rm_role r
-        INNER JOIN rm_user_privilege p ON p.subject_id = r.pk_role_id
+        INNER JOIN rm_user_role_rel p ON p.role_id = r.pk_role_id
         WHERE
         r.`status` = 1
         AND r.pk_role_id
         IN(
-        SELECT up.subject_id FROM rm_user_privilege up
+        SELECT up.role_id FROM rm_user_role_rel up
         WHERE up.user_id=#{curUserId}
-        AND up.subject_type = 3
         )
         <if test="userId != null and userId != ''">
             AND p.user_id=#{userId,jdbcType=VARCHAR}
@@ -79,17 +78,16 @@
         r.`status` = 1
         AND r.pk_role_id
         IN(
-        SELECT up.subject_id FROM rm_user_privilege up
+        SELECT up.role_id FROM rm_user_role_rel up
         WHERE up.user_id=#{curUserId}
-        AND up.subject_type = 3
         )
         AND NOT EXISTS (
         SELECT
         *
         FROM
-        rm_user_privilege p
+        rm_user_role_rel p
         WHERE
-        p.subject_id = r.pk_role_id
+        p.role_id = r.pk_role_id
         <if test="userId != null and userId != ''">
             AND p.user_id=#{userId,jdbcType=VARCHAR}
         </if>
@@ -98,15 +96,14 @@
     <select id="listSuperAdminRoles" parameterType="java.lang.String"
             resultType="com.waken.dorm.common.view.user.UserRoleRelView">
         SELECT
-        p.pk_privilege_id AS pkUserRoleId,
+        p.id AS pkUserRoleId,
         r.pk_role_id AS roleId,
         r.role_name AS roleName,
         r.role_desc AS roleDesc
         FROM
         rm_role r
-        INNER JOIN rm_user_privilege p ON p.subject_id = r.pk_role_id
+        INNER JOIN rm_user_role_rel p ON p.role_id = r.pk_role_id
         WHERE
-        p.subject_type = 3
         AND r.`status` = 1
         AND p.user_id=#{userId,jdbcType=VARCHAR}
         UNION
@@ -123,10 +120,9 @@
         SELECT
         *
         FROM
-        rm_user_privilege p
+        rm_user_role_rel p
         WHERE
-        p.subject_type = 3
-        AND p.subject_id = r.pk_role_id
+        AND p.role_id = r.pk_role_id
         AND p.user_id=#{userId,jdbcType=VARCHAR}
         )
     </select>

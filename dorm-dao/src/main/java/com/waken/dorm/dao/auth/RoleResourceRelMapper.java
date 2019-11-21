@@ -1,7 +1,7 @@
 package com.waken.dorm.dao.auth;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.waken.dorm.common.entity.role.RoleResourceRel;
+import com.waken.dorm.common.entity.auth.RoleResourceRel;
 import com.waken.dorm.common.view.user.UserRoleResource;
 import org.apache.ibatis.annotations.Param;
 

@@ -23,8 +23,6 @@ public interface StudentMapper extends BaseMapper<Student> {
 
     IPage<StudentView> listStudents(Page page,@Param("form") StudentForm studentForm);
 
-    List<Student> selectByIds(@Param("Ids") List<String> Ids);//通过批量Ids批量查询
-
     int batchAddStudent(List<Student> studentList);
 
     StudentInfo studentLogin(Student student);

@@ -14,17 +14,34 @@ import lombok.ToString;
 @Getter
 @Setter
 public class EditDictForm {
-    private String pkDictId;
+    /**
+     * 主键id
+     */
+    private String id;
 
-    private String dictKey;
+    /**
+     * 父节点id
+     */
+    private String parentId;
 
-    private String dictValue;
+    /**
+     * 字典数据名称
+     */
+    private String name;
 
-    private String columnName;
+    /**
+     * 字典数据编码
+     */
+    private String code;
 
-    private String columnDesc;
+    /**
+     * 是否默认 0：否 1：是
+     */
+    private Boolean isDefault;
 
-    private String tableName;
+    /**
+     * 字典描述
+     */
+    private String desc;
 
-    private String tableDesc;
 }

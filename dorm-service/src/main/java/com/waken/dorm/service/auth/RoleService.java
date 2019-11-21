@@ -1,7 +1,7 @@
 package com.waken.dorm.service.auth;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.waken.dorm.common.entity.role.Role;
+import com.waken.dorm.common.entity.auth.Role;
 import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.role.AddRoleResourceRelForm;
 import com.waken.dorm.common.form.role.EditRoleForm;

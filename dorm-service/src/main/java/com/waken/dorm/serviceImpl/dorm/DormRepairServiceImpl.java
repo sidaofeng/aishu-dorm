@@ -180,12 +180,12 @@ public class DormRepairServiceImpl implements DormRepairService {
 
     private String validateDorm(String dormNum) {
         Dorm dorm = dormMapper.selectOne(new LambdaQueryWrapper<Dorm>()
-                .eq(Dorm::getDormNum, dormNum)
+                .eq(Dorm::getCode, dormNum)
         );
         if (null == dorm) {
             throw new ServerException("宿舍号不存在!");
         }
-        return dorm.getPkDormId();
+        return dorm.getId();
     }
 
     private String validateStudent(Integer studentNum) {

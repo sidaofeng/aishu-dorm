@@ -1,6 +1,6 @@
 package com.waken.dorm.common.cache;
 
-import com.waken.dorm.common.entity.user.User;
+import com.waken.dorm.common.entity.auth.User;
 
 import java.util.Set;
 

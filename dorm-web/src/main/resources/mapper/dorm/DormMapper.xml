@@ -1,43 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.waken.dorm.dao.dorm.DormMapper">
-    <resultMap id="BaseResultMap" type="com.waken.dorm.common.entity.dorm.Dorm">
-        <id column="pk_dorm_id" property="pkDormId" jdbcType="VARCHAR"/>
-        <result column="dorm_building_id" property="dormBuildingId" jdbcType="VARCHAR"/>
-        <result column="building_levelth" property="buildingLevelth" jdbcType="INTEGER"/>
-        <result column="dorm_type" property="dormType" jdbcType="INTEGER"/>
-        <result column="dorm_num" property="dormNum" jdbcType="VARCHAR"/>
-        <result column="dorm_desc" property="dormDesc" jdbcType="VARCHAR"/>
-        <result column="status" property="status" jdbcType="INTEGER"/>
-        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
-        <result column="create_user_id" property="createUserId" jdbcType="VARCHAR"/>
-        <result column="last_modify_time" property="lastModifyTime" jdbcType="TIMESTAMP"/>
-        <result column="last_modify_user_id" property="lastModifyUserId" jdbcType="VARCHAR"/>
-        <result column="memo" property="memo" jdbcType="VARCHAR"/>
-    </resultMap>
-    <sql id="Base_Column_List">
-        pk_dorm_id, dorm_building_id, building_levelth, dorm_type, dorm_num, dorm_desc, status,
-        create_time, create_user_id, last_modify_time, last_modify_user_id, memo
-    </sql>
-    <select id="selectByIds" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List"/>
-        from rm_dorm
-        where pk_dorm_id in
-        <foreach collection="Ids" item="dramaId" open="(" close=")" separator=",">
-            #{dramaId}
-        </foreach>
-    </select>
-
-    <select id="selectByDormNums" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List"/>
-        from rm_dorm
-        where dorm_num in
-        <foreach collection="dormNums" item="dramaId" open="(" close=")" separator=",">
-            #{dramaId}
-        </foreach>
-    </select>
 
     <select id="listDorms" parameterType="com.waken.dorm.common.form.dorm.DormForm"
             resultType="com.waken.dorm.common.view.dorm.DormView">
@@ -92,24 +55,16 @@
     <select id="queryAppDormView" parameterType="java.lang.String"
             resultType="com.waken.dorm.common.view.dorm.AppDormView">
         SELECT
-        db.dorm_building_num AS dormBuildingNum,
-        d.building_levelth AS buildingLevelth,
-        d.dorm_num AS dormNum,
-        d.dorm_type AS dormType,
-        d.dorm_desc AS dormDesc
+        d.id,
+        b.code AS buildingNum,
+        bf.`code` AS buildingLevelth,
+        d.code AS dormNum,
+        d.type AS dormType,
+        d.memo AS dormDesc
         FROM rm_dorm d
-        LEFT JOIN rm_dorm_building db ON db.pk_dorm_building_id = d.dorm_building_id
-        LEFT JOIN rm_dorm_student_rel dsr ON dsr.dorm_id = d.pk_dorm_id
+        LEFT JOIN rm_building b ON b.id = d.building_id
+        LEFT JOIN rm_building_floor bf ON bf.id = d.floor_id
         WHERE 1=1
         AND dsr.student_id=#{studentId}
     </select>
-    <update id="batchUpdateStatus" parameterType="java.util.Map">
-        <foreach collection="list" separator=";" item="ur">
-            update rm_dorm set
-            status = #{ur.status},
-            last_modify_time = #{ur.lastModifyTime},
-            last_modify_user_id = #{ur.lastModifyUserId}
-            where pk_dorm_id = #{ur.pkId}
-        </foreach>
-    </update>
 </mapper>

@@ -1,25 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.waken.dorm.dao.student.StudentMapper">
-    <resultMap id="BaseResultMap" type="com.waken.dorm.common.entity.student.Student">
-        <id column="pk_student_id" property="pkStudentId" jdbcType="VARCHAR"/>
-        <result column="student_name" property="studentName" jdbcType="VARCHAR"/>
-        <result column="student_num" property="studentNum" jdbcType="INTEGER"/>
-        <result column="password" property="password" jdbcType="VARCHAR"/>
-        <result column="mobile" property="mobile" jdbcType="VARCHAR"/>
-        <result column="gender" property="gender" jdbcType="INTEGER"/>
-        <result column="email" property="email" jdbcType="VARCHAR"/>
-        <result column="img_url" property="imgUrl" jdbcType="VARCHAR"/>
-        <result column="status" property="status" jdbcType="INTEGER"/>
-        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
-        <result column="create_user_id" property="createUserId" jdbcType="VARCHAR"/>
-        <result column="last_modify_time" property="lastModifyTime" jdbcType="TIMESTAMP"/>
-        <result column="last_modify_user_id" property="lastModifyUserId" jdbcType="VARCHAR"/>
-    </resultMap>
-    <sql id="Base_Column_List">
-        pk_student_id, student_name, student_num, password, mobile, gender, email,
-        img_url, status, create_time, create_user_id, last_modify_time, last_modify_user_id
-    </sql>
     <select id="studentLogin" resultType="com.waken.dorm.common.entity.student.StudentInfo"
             parameterType="com.waken.dorm.common.entity.student.Student">
         SELECT
@@ -73,15 +54,6 @@
             #{item.lastModifyTime})
         </foreach>
     </insert>
-    <select id="selectByIds" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List"/>
-        from rm_student
-        where pk_student_id in
-        <foreach collection="Ids" item="dramaId" open="(" close=")" separator=",">
-            #{dramaId}
-        </foreach>
-    </select>
     <select id="listStudents" parameterType="com.waken.dorm.common.form.student.StudentForm"
             resultType="com.waken.dorm.common.view.student.StudentView">
         SELECT

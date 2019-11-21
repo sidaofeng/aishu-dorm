@@ -1,6 +1,6 @@
 package com.waken.dorm.aspect;
 
-import com.waken.dorm.common.entity.log.SysLog;
+import com.waken.dorm.common.entity.basic.SysLog;
 import com.waken.dorm.common.utils.HttpContextUtils;
 import com.waken.dorm.common.utils.IPUtils;
 import com.waken.dorm.service.log.LogService;

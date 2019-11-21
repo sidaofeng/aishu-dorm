@@ -1,7 +1,7 @@
 package com.waken.dorm.service.auth;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.waken.dorm.common.entity.resource.Resource;
+import com.waken.dorm.common.entity.auth.Resource;
 import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.resource.ButtonResources;
 import com.waken.dorm.common.form.resource.EditButtonsForm;

@@ -15,23 +15,24 @@ import lombok.ToString;
 @Getter
 @Setter
 public class DictForm extends BaseForm {
-    private String pkDictId;
+    /**
+     * 主键id
+     */
+    private Long id;
 
-    private String dictKey;
+    /**
+     * 父节点id
+     */
+    private String parentId;
 
-    private String dictValue;
 
-    private String columnName;
+    /**
+     * 是否默认 0：否 1：是
+     */
+    private Boolean isDefault;
 
-    private String columnDesc;
-
-    private String tableName;
-
-    private String tableDesc;
-
-    private Integer status;
-
-    private String createUserName;
-
-    private String lastModifyUserName;
+    /**
+     * 关键字
+     */
+    private String keywords;
 }

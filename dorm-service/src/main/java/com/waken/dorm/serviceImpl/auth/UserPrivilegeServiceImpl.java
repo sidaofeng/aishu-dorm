@@ -3,19 +3,16 @@ package com.waken.dorm.serviceImpl.auth;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.google.common.collect.Lists;
 import com.waken.dorm.common.constant.Constant;
-import com.waken.dorm.common.entity.user.User;
-import com.waken.dorm.common.entity.user.UserPrivilege;
-import com.waken.dorm.common.enums.CodeEnum;
+import com.waken.dorm.common.entity.auth.User;
+import com.waken.dorm.common.entity.auth.UserRoleRel;
 import com.waken.dorm.common.form.role.UserRoleRelForm;
 import com.waken.dorm.common.form.user.AddUserRoleRelForm;
 import com.waken.dorm.common.utils.Assert;
 import com.waken.dorm.common.utils.TreeUtil;
 import com.waken.dorm.common.view.base.Tree;
 import com.waken.dorm.common.view.resource.UserMenuView;
-import com.waken.dorm.dao.auth.ResourceMapper;
-import com.waken.dorm.dao.auth.RoleResourceRelMapper;
 import com.waken.dorm.dao.auth.UserMapper;
-import com.waken.dorm.dao.auth.UserPrivilegeMapper;
+import com.waken.dorm.dao.auth.UserRoleRelMapper;
 import com.waken.dorm.handle.DataHandle;
 import com.waken.dorm.service.auth.UserPrivilegeService;
 import lombok.RequiredArgsConstructor;
@@ -36,11 +33,9 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class UserPrivilegeServiceImpl implements UserPrivilegeService {
-    private final UserPrivilegeMapper privilegeMapper;
+    private final UserRoleRelMapper userRoleRelMapper;
     private final UserMapper userMapper;
-    private final ResourceMapper resourceMapper;
     private final TreeUtil treeUtil;
-    private final RoleResourceRelMapper roleResourceRelMapper;
 
     /**
      * 获取用户的角色信息
@@ -50,7 +45,7 @@ public class UserPrivilegeServiceImpl implements UserPrivilegeService {
      */
     @Override
     public Set<String> getUserRoles(String userId) {
-        List<String> roles = privilegeMapper.selectUserRoles(userId);
+        List<String> roles = userRoleRelMapper.selectUserRoles(userId);
         if (null != roles && !roles.isEmpty()) {
             return new HashSet<>(roles);
         } else {
@@ -67,7 +62,7 @@ public class UserPrivilegeServiceImpl implements UserPrivilegeService {
     @Override
     public Set<String> getUserPrivileges(String userId) {
         //获取用户所有的按钮资源
-        List<String> perms = this.privilegeMapper.selectUserPerms(userId);
+        List<String> perms = this.userRoleRelMapper.selectUserPerms(userId);
         if (null != perms && !perms.isEmpty()) {
             return new HashSet<>(perms);
         } else {
@@ -84,7 +79,7 @@ public class UserPrivilegeServiceImpl implements UserPrivilegeService {
     @Override
     public List<Tree<UserMenuView>> getUserMenu(String userId) {
         //获取用户所有的菜单资源
-        List<UserMenuView> var3 = privilegeMapper.selectUserResources(userId,1);
+        List<UserMenuView> var3 = userRoleRelMapper.selectUserResources(userId, 1);
 
         //将list对象转化为菜单树形视图对象
         List<Tree<UserMenuView>> var5 = this.toUserMenuTree(var3);
@@ -104,18 +99,16 @@ public class UserPrivilegeServiceImpl implements UserPrivilegeService {
         String roleId = userRoleRelForm.getRoleId();
         Assert.notNull(userId);
         Assert.notNull(roleId);
-        UserPrivilege userPrivilege = privilegeMapper.selectOne(new LambdaQueryWrapper<UserPrivilege>()
-                .eq(UserPrivilege::getUserId, userId)
-                .eq(UserPrivilege::getSubjectType, CodeEnum.ROLE.getCode())
+        UserRoleRel userRoleRel = userRoleRelMapper.selectOne(new LambdaQueryWrapper<UserRoleRel>()
+                .eq(UserRoleRel::getUserId, userId)
         );
-        if (null != userPrivilege) {
-            privilegeMapper.deleteById(userPrivilege.getPkPrivilegeId());
+        if (null != userRoleRel) {
+            userRoleRelMapper.deleteById(userRoleRel.getId());
         }
-        UserPrivilege privilege = new UserPrivilege();
+        UserRoleRel privilege = new UserRoleRel();
         privilege.setUserId(userId);
-        privilege.setSubjectId(roleId);
-        privilege.setSubjectType(CodeEnum.ROLE.getCode());
-        int count = privilegeMapper.insert(privilege);
+        privilege.setRoleId(roleId);
+        int count = userRoleRelMapper.insert(privilege);
         Assert.isFalse(count == Constant.ZERO);
         return count;
     }
@@ -130,10 +123,10 @@ public class UserPrivilegeServiceImpl implements UserPrivilegeService {
     public int batchAddUserRoleRel(AddUserRoleRelForm addForm) {
         log.info("service: 批量新增用户角色关联开始");
         Assert.notNull(addForm.getUserId());
-        List<UserPrivilege> toBeAddUserRoleRel = this.getToBeAddUserRoleRel(addForm);
+        List<UserRoleRel> toBeAddUserRoleRel = this.getToBeAddUserRoleRel(addForm);
         int count = 0;
         if (toBeAddUserRoleRel != null && !toBeAddUserRoleRel.isEmpty()) {
-            count = privilegeMapper.batchAddUserRoleRel(toBeAddUserRoleRel);
+            count = userRoleRelMapper.batchAddUserRoleRel(toBeAddUserRoleRel);
             Assert.isFalse(count == Constant.ZERO);
         }
         return count;
@@ -151,24 +144,22 @@ public class UserPrivilegeServiceImpl implements UserPrivilegeService {
         );
     }
 
-    private List<UserPrivilege> getToBeAddUserRoleRel(AddUserRoleRelForm addUserRoleRelForm) {
+    private List<UserRoleRel> getToBeAddUserRoleRel(AddUserRoleRelForm addUserRoleRelForm) {
         String userId = addUserRoleRelForm.getUserId();
         List<String> roleIds = addUserRoleRelForm.getRoleIds();
-        List<UserPrivilege> userRoleRelList = privilegeMapper.selectList(new LambdaQueryWrapper<UserPrivilege>()
-                .eq(UserPrivilege::getUserId, userId)
-                .eq(UserPrivilege::getSubjectType, CodeEnum.ROLE.getCode())
+        List<UserRoleRel> userRoleRelList = userRoleRelMapper.selectList(new LambdaQueryWrapper<UserRoleRel>()
+                .eq(UserRoleRel::getUserId, userId)
         );
         this.handleResult(roleIds, userRoleRelList);
 
         if (roleIds == null || roleIds.isEmpty()) {
             return null;
         }
-        List<UserPrivilege> toBeAddUserRoleRelList = Lists.newArrayList();
+        List<UserRoleRel> toBeAddUserRoleRelList = Lists.newArrayList();
         roleIds.stream().forEach(roleId ->{
-            UserPrivilege userRoleRel = new UserPrivilege();
+            UserRoleRel userRoleRel = new UserRoleRel();
             userRoleRel.setUserId(userId);
-            userRoleRel.setSubjectId(roleId);
-            userRoleRel.setSubjectType(CodeEnum.ROLE.getCode());
+            userRoleRel.setRoleId(roleId);
             toBeAddUserRoleRelList.add(userRoleRel);
         });
         return toBeAddUserRoleRelList;
@@ -178,17 +169,17 @@ public class UserPrivilegeServiceImpl implements UserPrivilegeService {
      * 将需要绑定的目标参数做处理
      *
      * @param targetIds
-     * @param userPrivilegeList
+     * @param userRoleRelList
      */
-    private void handleResult(List<String> targetIds, List<UserPrivilege> userPrivilegeList) {
-        if (userPrivilegeList != null && !userPrivilegeList.isEmpty()) {
-            Map<String, String> pkIdAndTargetIdMap = userPrivilegeList.stream()
-                    .collect(Collectors.toMap(UserPrivilege::getPkPrivilegeId, UserPrivilege::getSubjectId));
+    private void handleResult(List<String> targetIds, List<UserRoleRel> userRoleRelList) {
+        if (userRoleRelList != null && !userRoleRelList.isEmpty()) {
+            Map<String, String> pkIdAndTargetIdMap = userRoleRelList.stream()
+                    .collect(Collectors.toMap(UserRoleRel::getId, UserRoleRel::getRoleId));
             // 接收需要删除的关联主键id
             List<String> toDelPkIds = DataHandle.handleToDelAndTargetIds(targetIds, pkIdAndTargetIdMap);
 
             if (toDelPkIds != null && !toDelPkIds.isEmpty()) {
-                int count = privilegeMapper.deleteBatchIds(toDelPkIds);
+                int count = userRoleRelMapper.deleteBatchIds(toDelPkIds);
                 Assert.isFalse(count == Constant.ZERO);
             }
         }

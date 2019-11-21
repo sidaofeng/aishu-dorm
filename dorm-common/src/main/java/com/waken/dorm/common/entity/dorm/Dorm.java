@@ -1,90 +1,84 @@
 package com.waken.dorm.common.entity.dorm;
 
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.waken.dorm.common.annotation.Id;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import com.waken.dorm.common.base.BaseEntity;
+import lombok.Data;
 
-import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * <p>
- *
+ * 宿舍基本信息
  * </p>
  *
  * @author zhaoRong
- * @since 2019-08-05
+ * @since 2019-11-21
  */
-@Getter
-@Setter
-@ToString
+@Data
 @TableName("rm_dorm")
-public class Dorm implements Serializable {
+public class Dorm extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
 
-    /**
-     * 主键
-     */
-    @Id
-    @TableId("pk_dorm_id")
-    private String pkDormId;
+    private String id;
 
     /**
-     * 宿舍楼id
+     * 建筑物ID
      */
-    @TableField("dorm_building_id")
-    private String dormBuildingId;
+    private String buildingId;
 
     /**
-     * 楼栋层数(第几层)
+     * 楼层ID（b_building_floor）
      */
-    @TableField("building_levelth")
-    private Integer buildingLevelth;
+    private String floorId;
 
     /**
-     * 宿舍类型（1：男生寝室 2：女生寝室 3：教师宿舍 4：宿管宿舍 5：存放物品宿舍）
+     * 名称
      */
-    @TableField("dorm_type")
-    private Integer dormType;
+    private String name;
 
     /**
-     * 宿舍编号
+     * 编码
      */
-    @TableField("dorm_num")
-    private String dormNum;
+    private String code;
 
     /**
-     * 宿舍描述
+     * 宿舍性别（1：男生寝室 2：女生寝室）
      */
-    @TableField("dorm_desc")
-    private String dormDesc;
+    private String dormSex;
 
     /**
-     * 状态 (1-生效，0-无效)
+     * 宿舍状态（1使用，2闲置，3不可用）
      */
     private Integer status;
 
     /**
+     * 宿舍类型（1学生宿舍、2教师宿舍、3宿管宿舍、4其他宿舍
+     */
+    private Integer type;
+
+    /**
+     * 床位数量
+     */
+    private Integer bedNum;
+
+    /**
+     * 是否删除（0否，1是）
+     */
+    private Boolean isDeleted;
+
+    /**
      * 创建时间
      */
-    @TableField("create_time")
-    private Date createTime;
+    private LocalDateTime createTime;
 
-    @TableField("create_user_id")
     private String createUserId;
 
     /**
      * 最终修改时间
      */
-    @TableField("last_modify_time")
-    private Date lastModifyTime;
+    private LocalDateTime lastModifyTime;
 
-    @TableField("last_modify_user_id")
     private String lastModifyUserId;
 
     /**

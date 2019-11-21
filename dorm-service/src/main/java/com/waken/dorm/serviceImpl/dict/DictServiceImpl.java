@@ -1,22 +1,16 @@
 package com.waken.dorm.serviceImpl.dict;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.waken.dorm.common.constant.Constant;
-import com.waken.dorm.common.entity.dict.Dict;
+import com.waken.dorm.common.entity.basic.Dict;
 import com.waken.dorm.common.enums.CodeEnum;
 import com.waken.dorm.common.exception.ServerException;
 import com.waken.dorm.common.form.base.DeleteForm;
-import com.waken.dorm.common.form.dict.DictForm;
 import com.waken.dorm.common.form.dict.EditDictForm;
-import com.waken.dorm.common.manager.UserManager;
 import com.waken.dorm.common.utils.Assert;
 import com.waken.dorm.common.utils.BeanMapper;
-import com.waken.dorm.common.utils.DormUtil;
 import com.waken.dorm.common.utils.StringUtils;
-import com.waken.dorm.common.view.dict.DictView;
-import com.waken.dorm.dao.dict.DictMapper;
-import com.waken.dorm.handle.DataHandle;
+import com.waken.dorm.dao.basic.DictMapper;
 import com.waken.dorm.service.dict.DictService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -37,7 +32,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @Transactional(propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Exception.class)
-public class DictServiceImpl implements DictService {
+public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements DictService {
     private final DictMapper dictMapper;
 
     /**
@@ -52,8 +47,8 @@ public class DictServiceImpl implements DictService {
         this.editDictValidate(editDictForm);
         Dict dict = new Dict();
         BeanMapper.copy(editDictForm, dict);
-        if (StringUtils.isEmpty(editDictForm.getPkDictId())) {//新增
-            dict.setStatus(CodeEnum.ENABLE.getCode());
+        if (StringUtils.isEmpty(editDictForm.getId())) {//新增
+            dict.setIsDeleted(false);
             int count = dictMapper.insert(dict);
             Assert.isFalse(count == Constant.ZERO);
             return dict;
@@ -76,35 +71,22 @@ public class DictServiceImpl implements DictService {
         Integer delStatus = deleteForm.getDelStatus();
         int count;
         if (CodeEnum.YES.getCode() == delStatus) { // 物理删除
-            List<Dict> dictList = dictMapper.selectByIds(ids);
-            StringBuffer sb = new StringBuffer();
-            for (Dict dict : dictList) {
-                if (CodeEnum.ENABLE.getCode() == dict.getStatus()) {
-                    sb.append(dict.getDictValue());
-                }
-            }
-            Assert.isNull(sb.toString(),"以下字典生效中"+sb.toString());
+            List<Dict> dictList = dictMapper.selectBatchIds(ids);
             //删除字典
             count = dictMapper.deleteBatchIds(ids);
             Assert.isFalse(count == Constant.ZERO);
         } else if (CodeEnum.NO.getCode() == delStatus) {//状态删除
-            count = dictMapper.batchUpdateStatus(DormUtil.getToUpdateStatusMap(ids,UserManager.getCurrentUserId()));
-            Assert.isFalse(count == Constant.ZERO);
+            List<Dict> dormList = new ArrayList<>(ids.size());
+            ids.stream().forEach(id -> {
+                Dict dict = new Dict();
+                dict.setId(id);
+                dict.setIsDeleted(true);
+                dormList.add(dict);
+            });
+            this.updateBatchById(dormList);
         } else {
             throw new ServerException("删除状态码错误！");
         }
-    }
-
-    /**
-     * 分页查询字典
-     *
-     * @param dictForm
-     * @return
-     */
-    @Override
-    public IPage<DictView> listDicts(DictForm dictForm) {
-        log.info("service: 分页查询宿舍楼信息开始");
-        return dictMapper.listDicts(DataHandle.getWrapperPage(dictForm),dictForm);
     }
 
     /**
@@ -113,33 +95,12 @@ public class DictServiceImpl implements DictService {
      * @param editForm
      */
     private void editDictValidate(EditDictForm editForm) {
-        if (StringUtils.isEmpty(editForm.getPkDictId())) {//新增验证
-            Assert.notNull(editForm.getDictKey());
-            Assert.notNull(editForm.getDictValue());
-            Assert.notNull(editForm.getColumnName());
-            Assert.notNull(editForm.getTableName());
-            this.keyValidate(editForm);
-            this.valueValidate(editForm);
+        if (StringUtils.isEmpty(editForm.getId())) {//新增验证
+            Assert.notNull(editForm.getName());
+            Assert.notNull(editForm.getCode());
         } else {//修改验证
-            Assert.notNull(dictMapper.selectById(editForm.getPkDictId()),"参数错误");
+            //TODO
         }
     }
 
-    private void keyValidate(EditDictForm editForm) {
-        List<Dict> dictList = dictMapper.selectList(new LambdaQueryWrapper<Dict>()
-                .eq(Dict::getTableName, editForm.getTableName())
-                .eq(Dict::getColumnName, editForm.getColumnName())
-                .eq(Dict::getDictKey, editForm.getDictKey())
-        );
-        Assert.isNull(dictList,dictList.isEmpty(),"操作失败，原因是" + editForm.getColumnName() + "字段中存在相同key");
-    }
-
-    private void valueValidate(EditDictForm editForm) {
-        List<Dict> dictList = dictMapper.selectList(new LambdaQueryWrapper<Dict>()
-                .eq(Dict::getTableName, editForm.getTableName())
-                .eq(Dict::getColumnName, editForm.getColumnName())
-                .eq(Dict::getDictValue, editForm.getDictValue())
-        );
-        Assert.isNull(dictList,dictList.isEmpty(),"操作失败，原因是" + editForm.getColumnName() + "字段中存在相同value");
-    }
 }

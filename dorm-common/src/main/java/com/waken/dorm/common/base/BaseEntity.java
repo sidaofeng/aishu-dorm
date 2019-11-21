@@ -1,9 +1,6 @@
 package com.waken.dorm.common.base;
 
-import com.baomidou.mybatisplus.annotation.TableField;
-
 import java.io.Serializable;
-import java.util.Date;
 
 /**
  * @ClassName BaseEntity
@@ -13,15 +10,4 @@ import java.util.Date;
  **/
 public class BaseEntity implements Serializable {
     private static final long serialVersionUID = -8238093870975853177L;
-    @TableField("create_time")
-    private Date createTime;
-
-    @TableField("create_user_id")
-    private String createUserId;
-
-    @TableField("last_modify_time")
-    private Date lastModifyTime;
-
-    @TableField("last_modify_user_id")
-    private String lastModifyUserId;
 }

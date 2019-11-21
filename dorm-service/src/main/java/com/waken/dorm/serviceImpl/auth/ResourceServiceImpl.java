@@ -5,10 +5,9 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.collect.Lists;
 import com.waken.dorm.common.constant.Constant;
-import com.waken.dorm.common.entity.resource.Resource;
-import com.waken.dorm.common.entity.role.Role;
-import com.waken.dorm.common.entity.role.RoleResourceRel;
-import com.waken.dorm.common.entity.user.UserPrivilege;
+import com.waken.dorm.common.entity.auth.Resource;
+import com.waken.dorm.common.entity.auth.Role;
+import com.waken.dorm.common.entity.auth.RoleResourceRel;
 import com.waken.dorm.common.enums.CodeEnum;
 import com.waken.dorm.common.exception.ServerException;
 import com.waken.dorm.common.form.base.DeleteForm;
@@ -24,7 +23,7 @@ import com.waken.dorm.common.view.resource.UserMenuView;
 import com.waken.dorm.dao.auth.ResourceMapper;
 import com.waken.dorm.dao.auth.RoleMapper;
 import com.waken.dorm.dao.auth.RoleResourceRelMapper;
-import com.waken.dorm.dao.auth.UserPrivilegeMapper;
+import com.waken.dorm.dao.auth.UserRoleRelMapper;
 import com.waken.dorm.service.auth.ResourceService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -50,7 +49,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
     private final ResourceMapper resourceMapper;
     private final RoleResourceRelMapper roleResourceRelMapper;
     private final RoleMapper roleMapper;
-    private final UserPrivilegeMapper userPrivilegeMapper;
+    private final UserRoleRelMapper userRoleRelMapper;
     private final TreeUtil treeUtil;
 
     /**
@@ -143,24 +142,6 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
         if (null != toDelPkIds && !toDelPkIds.isEmpty()) {
             roleResourceRelMapper.deleteBatchIds(toDelPkIds);
         }
-        //删除与用户的关联
-        List<String> toDelPkPrivilegeIds = Lists.newArrayList();
-        List<UserPrivilege> userPrivilegeList = userPrivilegeMapper.selectList(new LambdaQueryWrapper<UserPrivilege>()
-            .eq(UserPrivilege::getSubjectType,CodeEnum.MENU.getCode())
-            .or()
-            .eq(UserPrivilege::getSubjectType,CodeEnum.BUTTON.getCode())
-        );
-
-        if (null != userPrivilegeList && !userPrivilegeList.isEmpty()) {
-            userPrivilegeList.stream().forEach(userPrivilege -> {
-                if (delResourceIds.contains(userPrivilege.getSubjectId())) {
-                    toDelPkPrivilegeIds.add(userPrivilege.getPkPrivilegeId());
-                }
-            });
-        }
-        if (null != toDelPkPrivilegeIds && !toDelPkPrivilegeIds.isEmpty()) {
-            userPrivilegeMapper.deleteBatchIds(toDelPkPrivilegeIds);
-        }
     }
 
     /**
@@ -215,9 +196,9 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
         //查询资源管理所需要的资源
         List<UserMenuView> var3 = null;
         if (StringUtils.isNotBlank(roleId)) {
-            var3 = userPrivilegeMapper.selectRoleResources(roleId);
+            var3 = userRoleRelMapper.selectRoleResources(roleId);
         } else if (StringUtils.isNotBlank(userId)) {
-            var3 = userPrivilegeMapper.selectUserResources(userId,null);
+            var3 = userRoleRelMapper.selectUserResources(userId, null);
         }
         if (null == var3 || var3.isEmpty()) {
             return new HashMap<>();

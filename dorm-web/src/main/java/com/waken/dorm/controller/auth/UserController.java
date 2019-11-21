@@ -3,7 +3,7 @@ package com.waken.dorm.controller.auth;
 import com.waken.dorm.common.annotation.Limit;
 import com.waken.dorm.common.annotation.Log;
 import com.waken.dorm.common.base.AjaxResponse;
-import com.waken.dorm.common.entity.user.User;
+import com.waken.dorm.common.entity.auth.User;
 import com.waken.dorm.common.enums.CodeEnum;
 import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.role.UserRoleRelForm;
@@ -94,10 +94,10 @@ public class UserController extends BaseController {
             @ApiResponse(code = 200, message = "success", response = UserView.class)
     })
     @RequiresPermissions("users::view")
-    public AjaxResponse listUsers(@RequestBody UserForm userForm) {
+    public AjaxResponse findPage(@RequestBody UserForm userForm) {
         log.info("开始调用用户分页查询接口：" + userForm.toString());
 
-        return AjaxResponse.success(this.userService.listUsers(userForm));
+        return AjaxResponse.success(this.userService.findPage(userForm));
     }
 
     @Log("根据用户id查询用户已绑定与未绑定的角色信息")

@@ -1,11 +1,9 @@
 package com.waken.dorm.service.dict;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.waken.dorm.common.entity.dict.Dict;
+import com.baomidou.mybatisplus.extension.service.IService;
+import com.waken.dorm.common.entity.basic.Dict;
 import com.waken.dorm.common.form.base.DeleteForm;
-import com.waken.dorm.common.form.dict.DictForm;
 import com.waken.dorm.common.form.dict.EditDictForm;
-import com.waken.dorm.common.view.dict.DictView;
 
 /**
  * @ClassName DictService
@@ -13,28 +11,20 @@ import com.waken.dorm.common.view.dict.DictView;
  * @Author zhaoRong
  * @Date 2019/4/19 12:50
  **/
-public interface DictService {
+public interface DictService extends IService<Dict> {
     /**
      * 保存或修改系统字典
      *
      * @param editDictForm
      * @return
      */
-    public Dict saveDict(EditDictForm editDictForm);
+    Dict saveDict(EditDictForm editDictForm);
 
     /**
      * 删除字典
      *
      * @param deleteForm
      */
-    public void deleteDict(DeleteForm deleteForm);
-
-    /**
-     * 分页查询字典
-     *
-     * @param dictForm
-     * @return
-     */
-    public IPage<DictView> listDicts(DictForm dictForm);
+    void deleteDict(DeleteForm deleteForm);
 
 }

@@ -5,9 +5,9 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.waken.dorm.common.cache.CacheService;
 import com.waken.dorm.common.constant.Constant;
-import com.waken.dorm.common.entity.log.SysLog;
-import com.waken.dorm.common.entity.user.User;
-import com.waken.dorm.common.entity.user.UserPrivilege;
+import com.waken.dorm.common.entity.auth.User;
+import com.waken.dorm.common.entity.auth.UserRoleRel;
+import com.waken.dorm.common.entity.basic.SysLog;
 import com.waken.dorm.common.enums.CodeEnum;
 import com.waken.dorm.common.exception.ServerException;
 import com.waken.dorm.common.form.base.DeleteForm;
@@ -22,10 +22,10 @@ import com.waken.dorm.common.view.user.UserRoleRelView;
 import com.waken.dorm.common.view.user.UserRoleResource;
 import com.waken.dorm.common.view.user.UserRolesView;
 import com.waken.dorm.common.view.user.UserView;
-import com.waken.dorm.dao.log.SysLogMapper;
 import com.waken.dorm.dao.auth.RoleMapper;
 import com.waken.dorm.dao.auth.UserMapper;
-import com.waken.dorm.dao.auth.UserPrivilegeMapper;
+import com.waken.dorm.dao.auth.UserRoleRelMapper;
+import com.waken.dorm.dao.basic.SysLogMapper;
 import com.waken.dorm.handle.DataHandle;
 import com.waken.dorm.service.auth.UserService;
 import lombok.RequiredArgsConstructor;
@@ -37,7 +37,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -46,7 +50,7 @@ import java.util.*;
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
     private final UserMapper userMapper;
     private final RoleMapper roleMapper;
-    private final UserPrivilegeMapper userPrivilegeMapper;
+    private final UserRoleRelMapper userRoleRelMapper;
     private final AliyunOSSUtil aliyunOSSUtil;
     private final CacheService cacheService;
     private final SysLogMapper logMapper;
@@ -98,11 +102,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (CodeEnum.YES.getCode().equals(delStatus)) {
             this.checkUser(userIds);
             //直接删除用户与资源或者角色的资源
-            this.userPrivilegeMapper.deleteByUsers(userIds);
+            this.userRoleRelMapper.deleteByUsers(userIds);
             userMapper.deleteBatchIds(userIds);
         } else if (CodeEnum.NO.getCode().equals(delStatus)) {
             this.checkUser(userIds);
-            this.userPrivilegeMapper.deleteByUsers(userIds);
+            this.userRoleRelMapper.deleteByUsers(userIds);
             Map toUpdateStatusMap = DormUtil.getToUpdateStatusMap(userIds, UserManager.getCurrentUserId());
             int count = userMapper.batchUpdateStatus(toUpdateStatusMap);
             Assert.isFalse(count == Constant.ZERO);
@@ -143,7 +147,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 //        if (!StringUtils.isEmpty(sb.toString())) {
 //            throw new ServerException("删除失败，原因以下用户处于启用中：" + sb.toString());
 //        }
-        List<UserRoleResource> userRoles = userPrivilegeMapper.selectByUsers(userIds);
+        List<UserRoleResource> userRoles = userRoleRelMapper.selectByUsers(userIds);
         userRoles.stream().forEach(userRole -> {
             if (StringUtils.equals(userRole.getRoleName(), Constant.SuperAdmin)) {
                 throw new ServerException("删除失败，用户" + userRole.getUserName() + "是超级管理员，不能删除！");
@@ -152,44 +156,24 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public IPage<UserView> listUsers(UserForm userForm) {
-        log.info("service: 用户信息分页查询开始");
+    public IPage<UserView> findPage(UserForm userForm) {
 
-        IPage<UserView> userPage = this.userMapper.listUsers(DataHandle.getWrapperPage(userForm), userForm);
+        IPage<UserView> userPage = this.userMapper.findPage(DataHandle.getWrapperPage(userForm), userForm);
+        List<UserRoleRel> userRoleRelList = userRoleRelMapper.selectList(null);
 
-        Map<String,List<String>> userRoleMap = this.getUsersRoles();
+        if (userRoleRelList != null && !userRoleRelList.isEmpty()) {
+            Map<String, List<String>> userRolesMap = userRoleRelList.stream().collect(Collectors
+                    .groupingBy(UserRoleRel::getUserId, Collectors.mapping(UserRoleRel::getRoleId, Collectors.toList())));
+            userPage.getRecords().stream().forEach(userView -> {
+                if (userRolesMap.containsKey(userView.getUserId())) {
+                    userView.setRoleIds(userRolesMap.get(userView.getUserId()));
+                }
+            });
+        }
 
-        userPage.getRecords().stream().forEach(userView->{
-            if (userRoleMap.containsKey(userView.getUserId())){
-                userView.setRoleIds(userRoleMap.get(userView.getUserId()));
-            }
-        });
         return userPage;
     }
 
-    /**
-     * 获取所有用户对应的角色信息
-     * @return
-     */
-    public Map<String,List<String>> getUsersRoles(){
-        List<UserPrivilege> userPrivilegeList = userPrivilegeMapper.selectList(new LambdaQueryWrapper<UserPrivilege>()
-                .eq(UserPrivilege::getSubjectType, CodeEnum.ROLE.getCode())
-        );
-
-        if (userPrivilegeList == null && userPrivilegeList.isEmpty()){
-            return null;
-        }
-
-        Map<String,List<String>> userRoles = new HashMap<>(16);
-        userPrivilegeList.stream().forEach(userPrivilege -> {
-            if (!userRoles.containsKey(userPrivilege.getUserId())){
-                userRoles.put(userPrivilege.getUserId(),new ArrayList<>());
-            }
-            userRoles.get(userPrivilege.getUserId()).add(userPrivilege.getSubjectId());
-
-        });
-        return userRoles;
-    }
 
     @Override
     public UserRolesView listUserRoles(String userId) {
@@ -362,7 +346,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * @return
      */
     private boolean isSuperAdmin(String curUserId) {
-        List<String> roles = userPrivilegeMapper.selectUserRoles(curUserId);
+        List<String> roles = userRoleRelMapper.selectUserRoles(curUserId);
         if (roles.contains(Constant.SuperAdmin)) {
             return true;
         }

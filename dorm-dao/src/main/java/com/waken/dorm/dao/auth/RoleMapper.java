@@ -3,7 +3,7 @@ package com.waken.dorm.dao.auth;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.waken.dorm.common.entity.role.Role;
+import com.waken.dorm.common.entity.auth.Role;
 import com.waken.dorm.common.form.role.ListAddedRoleForm;
 import com.waken.dorm.common.form.role.QueryRoleForm;
 import com.waken.dorm.common.view.role.RoleView;

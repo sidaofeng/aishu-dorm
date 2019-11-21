@@ -2,7 +2,7 @@ package com.waken.dorm.service.auth;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.waken.dorm.common.entity.user.User;
+import com.waken.dorm.common.entity.auth.User;
 import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.user.EditUserForm;
 import com.waken.dorm.common.form.user.UserForm;
@@ -39,7 +39,7 @@ public interface UserService extends IService<User> {
      * @param userForm
      * @return
      */
-    IPage<UserView> listUsers(UserForm userForm);
+    IPage<UserView> findPage(UserForm userForm);
 
     /**
      * 查询用户已经存在关联的角色 与 与用户没有的关联的角色

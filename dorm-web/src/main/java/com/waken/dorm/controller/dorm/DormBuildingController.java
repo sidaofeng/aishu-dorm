@@ -2,10 +2,10 @@ package com.waken.dorm.controller.dorm;
 
 import com.waken.dorm.common.annotation.Log;
 import com.waken.dorm.common.base.AjaxResponse;
-import com.waken.dorm.common.entity.dorm.DormBuilding;
+import com.waken.dorm.common.entity.dorm.Building;
 import com.waken.dorm.common.form.base.DeleteForm;
-import com.waken.dorm.common.form.dorm.DormBuildingForm;
-import com.waken.dorm.common.form.dorm.EditDormBuildingForm;
+import com.waken.dorm.common.form.dorm.BuildingForm;
+import com.waken.dorm.common.form.dorm.EditBuildingForm;
 import com.waken.dorm.common.view.dorm.DormBuildingView;
 import com.waken.dorm.controller.base.BaseController;
 import com.waken.dorm.service.dorm.DormBuildingService;
@@ -35,12 +35,12 @@ public class DormBuildingController extends BaseController {
     @PostMapping(value = "building/save")
     @ApiOperation(value = "(保存/修改)宿舍楼信息", notes = "(保存/修改)宿舍楼信息")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "success", response = DormBuilding.class)
+            @ApiResponse(code = 200, message = "success", response = Building.class)
     })
-    public AjaxResponse saveDormBuilding(@RequestBody EditDormBuildingForm editDormBuildingForm) {
-        log.info("开始调用(保存/修改)宿舍楼信息接口接口：" + editDormBuildingForm.toString());
-        DormBuilding dormBuilding = buildingService.saveDormBuilding(editDormBuildingForm);
-        return AjaxResponse.success(dormBuilding);
+    public AjaxResponse saveDormBuilding(@RequestBody EditBuildingForm editBuildingForm) {
+        log.info("开始调用(保存/修改)宿舍楼信息接口接口：" + editBuildingForm.toString());
+        Building building = buildingService.saveDormBuilding(editBuildingForm);
+        return AjaxResponse.success(building);
     }
 
     @Log("删除宿舍楼信息")
@@ -65,7 +65,7 @@ public class DormBuildingController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = DormBuildingView.class)
     })
-    public AjaxResponse listDormBuildings(@RequestBody DormBuildingForm buildingForm) {
+    public AjaxResponse listDormBuildings(@RequestBody BuildingForm buildingForm) {
         log.info("开始调用分页查询宿舍楼信息接口：" + buildingForm.toString());
         return AjaxResponse.success(buildingService.listDormBuildings(buildingForm));
     }

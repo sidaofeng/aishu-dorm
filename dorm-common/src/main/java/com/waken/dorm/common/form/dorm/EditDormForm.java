@@ -14,7 +14,7 @@ import lombok.ToString;
 @Getter
 @Setter
 public class EditDormForm {
-    private String pkDormId;
+    private String id;
 
     private String dormBuildingId;
 

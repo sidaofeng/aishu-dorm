@@ -1,6 +1,6 @@
 package com.waken.dorm.common.base;
 
-import com.waken.dorm.common.entity.role.Role;
+import com.waken.dorm.common.entity.auth.Role;
 import lombok.Data;
 
 import java.util.List;

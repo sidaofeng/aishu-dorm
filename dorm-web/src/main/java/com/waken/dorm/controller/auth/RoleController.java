@@ -2,7 +2,7 @@ package com.waken.dorm.controller.auth;
 
 import com.waken.dorm.common.annotation.Log;
 import com.waken.dorm.common.base.AjaxResponse;
-import com.waken.dorm.common.entity.role.Role;
+import com.waken.dorm.common.entity.auth.Role;
 import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.role.AddRoleResourceRelForm;
 import com.waken.dorm.common.form.role.EditRoleForm;

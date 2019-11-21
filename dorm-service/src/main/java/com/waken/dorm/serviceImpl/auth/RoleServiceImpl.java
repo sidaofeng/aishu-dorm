@@ -4,9 +4,9 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.google.common.collect.Lists;
 import com.waken.dorm.common.constant.Constant;
-import com.waken.dorm.common.entity.role.Role;
-import com.waken.dorm.common.entity.role.RoleResourceRel;
-import com.waken.dorm.common.entity.user.UserPrivilege;
+import com.waken.dorm.common.entity.auth.Role;
+import com.waken.dorm.common.entity.auth.RoleResourceRel;
+import com.waken.dorm.common.entity.auth.UserRoleRel;
 import com.waken.dorm.common.enums.CodeEnum;
 import com.waken.dorm.common.exception.ServerException;
 import com.waken.dorm.common.form.base.DeleteForm;
@@ -22,7 +22,7 @@ import com.waken.dorm.common.view.role.RoleView;
 import com.waken.dorm.common.view.role.UserRoleView;
 import com.waken.dorm.dao.auth.RoleMapper;
 import com.waken.dorm.dao.auth.RoleResourceRelMapper;
-import com.waken.dorm.dao.auth.UserPrivilegeMapper;
+import com.waken.dorm.dao.auth.UserRoleRelMapper;
 import com.waken.dorm.handle.DataHandle;
 import com.waken.dorm.service.auth.RoleService;
 import lombok.RequiredArgsConstructor;
@@ -51,7 +51,7 @@ import java.util.stream.Collectors;
 public class RoleServiceImpl implements RoleService {
     private final RoleMapper roleMapper;
     private final RoleResourceRelMapper roleResourceRelMapper;
-    private final UserPrivilegeMapper userPrivilegeMapper;
+    private final UserRoleRelMapper userRoleRelMapper;
 
     @Transactional
     @Override
@@ -126,19 +126,17 @@ public class RoleServiceImpl implements RoleService {
             }
         });
         //删除资源与用户的所有关联
-        List<UserPrivilege> privileges = userPrivilegeMapper.selectList(new LambdaQueryWrapper<UserPrivilege>()
-                .eq(UserPrivilege::getSubjectType, CodeEnum.ROLE.getCode())
-        );
+        List<UserRoleRel> privileges = userRoleRelMapper.selectList(null);
         List<String> toDelPrivilegeId = Lists.newArrayList();
         if (null != privileges && !privileges.isEmpty()) {
             privileges.stream().forEach(userPrivilege -> {
-                if (roleIds.contains(userPrivilege.getSubjectId())) {
-                    toDelPrivilegeId.add(userPrivilege.getPkPrivilegeId());
+                if (roleIds.contains(userPrivilege.getRoleId())) {
+                    toDelPrivilegeId.add(userPrivilege.getId());
                 }
             });
         }
         if (null != toDelPrivilegeId && !toDelPrivilegeId.isEmpty()) {
-            userPrivilegeMapper.deleteBatchIds(toDelPrivilegeId);
+            userRoleRelMapper.deleteBatchIds(toDelPrivilegeId);
         }
         //删除资源与角色的所有关联
         List<String> toDelRelId = Lists.newArrayList();
@@ -164,11 +162,10 @@ public class RoleServiceImpl implements RoleService {
     @Override
     public List<UserRoleView> listRolesByUser(String userId) {
         List<UserRoleView> userRoleViews = roleMapper.listUserRole();
-        List<UserPrivilege> privileges = userPrivilegeMapper.selectList(new LambdaQueryWrapper<UserPrivilege>()
-                .eq(UserPrivilege::getUserId, userId)
-                .eq(UserPrivilege::getSubjectType, CodeEnum.ROLE.getCode())
+        List<UserRoleRel> privileges = userRoleRelMapper.selectList(new LambdaQueryWrapper<UserRoleRel>()
+                .eq(UserRoleRel::getUserId, userId)
         );
-        Map roleMap = privileges.stream().collect(Collectors.toMap(UserPrivilege::getSubjectId, UserPrivilege::getUserId));
+        Map roleMap = privileges.stream().collect(Collectors.toMap(UserRoleRel::getRoleId, UserRoleRel::getUserId));
         if (null != userRoleViews && !userRoleViews.isEmpty()) {
             userRoleViews.stream().forEach(userRoleView -> {
                 if (roleMap.containsKey(userRoleView.getRoleId())) {

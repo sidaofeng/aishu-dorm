@@ -1,51 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.waken.dorm.dao.auth.UserMapper">
-    <resultMap id="BaseResultMap" type="com.waken.dorm.common.entity.user.User">
-        <id column="user_id" property="userId" jdbcType="VARCHAR"/>
-        <result column="mobile" property="mobile" jdbcType="VARCHAR"/>
-        <result column="password" property="password" jdbcType="VARCHAR"/>
-        <result column="user_name" property="userName" jdbcType="VARCHAR"/>
-        <result column="name" property="name" jdbcType="VARCHAR"/>
-        <result column="gender" property="gender" jdbcType="INTEGER"/>
-        <result column="tel_phone" property="telPhone" jdbcType="VARCHAR"/>
-        <result column="identify_type" property="identifyType" jdbcType="VARCHAR"/>
-        <result column="identify_no" property="identifyNo" jdbcType="VARCHAR"/>
-        <result column="nick_name" property="nickName" jdbcType="VARCHAR"/>
-        <result column="user_type" property="userType" jdbcType="INTEGER"/>
-        <result column="status" property="status" jdbcType="INTEGER"/>
-        <result column="img_url" property="imgUrl" jdbcType="VARCHAR"/>
-        <result column="identify_img_url" property="identifyImgUrl" jdbcType="VARCHAR"/>
-        <result column="work_img_url" property="workImgUrl" jdbcType="VARCHAR"/>
-        <result column="email" property="email" jdbcType="VARCHAR"/>
-        <result column="last_login_time" property="lastLoginTime" jdbcType="TIMESTAMP"/>
-        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
-        <result column="create_user_id" property="createUserId" jdbcType="VARCHAR"/>
-        <result column="last_modify_time" property="lastModifyTime" jdbcType="TIMESTAMP"/>
-        <result column="last_modify_user_id" property="lastModifyUserId" jdbcType="VARCHAR"/>
-        <result column="audit_time" property="auditTime" jdbcType="TIMESTAMP"/>
-        <result column="audit_user_id" property="auditUserId" jdbcType="VARCHAR"/>
-        <result column="third_part_qq" property="thirdPartQq" jdbcType="VARCHAR"/>
-        <result column="third_part_wechat" property="thirdPartWechat" jdbcType="VARCHAR"/>
-        <result column="client_id" property="clientId" jdbcType="VARCHAR"/>
-        <result column="platform_type" property="platformType" jdbcType="VARCHAR"/>
-        <result column="channel_id" property="channelId" jdbcType="VARCHAR"/>
-        <result column="easemob_uid" property="easemobUid" jdbcType="VARCHAR"/>
-        <result column="qr_code" property="qrCode" jdbcType="VARCHAR"/>
-        <result column="agent_level" property="agentLevel" jdbcType="INTEGER"/>
-        <result column="province_id" property="provinceId" jdbcType="INTEGER"/>
-        <result column="city_id" property="cityId" jdbcType="INTEGER"/>
-        <result column="area_id" property="areaId" jdbcType="INTEGER"/>
-        <result column="memo" property="memo" jdbcType="VARCHAR"/>
-    </resultMap>
-    <sql id="Base_Column_List">
-        user_id, mobile, password, user_name, name, gender, tel_phone, identify_type,
-        identify_no, nick_name, user_type, status, img_url, identify_img_url, work_img_url,
-        email, last_login_time, create_time, create_user_id, last_modify_time, last_modify_user_id,
-        audit_time, audit_user_id, third_part_qq, third_part_wechat, client_id, platform_type,
-        channel_id, easemob_uid, qr_code, agent_level, province_id, city_id, area_id, memo
-    </sql>
-    <select id="listUsers" parameterType="com.waken.dorm.common.form.user.UserForm"
+    <select id="findPage" parameterType="com.waken.dorm.common.form.user.UserForm"
             resultType="com.waken.dorm.common.view.user.UserView">
         SELECT
         u.user_id AS userId,

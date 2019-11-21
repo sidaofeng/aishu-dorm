@@ -1,6 +1,6 @@
 package com.waken.dorm.service.auth;
 
-import com.waken.dorm.common.entity.user.User;
+import com.waken.dorm.common.entity.auth.User;
 import com.waken.dorm.common.form.role.UserRoleRelForm;
 import com.waken.dorm.common.form.user.AddUserRoleRelForm;
 import com.waken.dorm.common.view.base.Tree;

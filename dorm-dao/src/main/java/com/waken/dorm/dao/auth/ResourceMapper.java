@@ -1,7 +1,7 @@
 package com.waken.dorm.dao.auth;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.waken.dorm.common.entity.resource.Resource;
+import com.waken.dorm.common.entity.auth.Resource;
 import com.waken.dorm.common.form.resource.ButtonResources;
 import com.waken.dorm.common.view.resource.ResourceView;
 import org.apache.ibatis.annotations.Param;
