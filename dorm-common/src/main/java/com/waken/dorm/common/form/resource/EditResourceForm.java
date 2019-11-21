@@ -4,6 +4,9 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @ClassName EditResourceForm
  * @Description EditResourceForm
@@ -27,4 +30,6 @@ public class EditResourceForm {
     private String resourceUrl;
 
     private String parentId;
+
+    private List<ButtonResources> buttonResourcesList = new ArrayList<>();
 }

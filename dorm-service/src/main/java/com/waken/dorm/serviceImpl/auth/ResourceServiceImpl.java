@@ -21,7 +21,10 @@ import com.waken.dorm.common.utils.*;
 import com.waken.dorm.common.view.base.Tree;
 import com.waken.dorm.common.view.resource.ResourceView;
 import com.waken.dorm.common.view.resource.UserMenuView;
-import com.waken.dorm.dao.auth.*;
+import com.waken.dorm.dao.auth.ResourceMapper;
+import com.waken.dorm.dao.auth.RoleMapper;
+import com.waken.dorm.dao.auth.RoleResourceRelMapper;
+import com.waken.dorm.dao.auth.UserPrivilegeMapper;
 import com.waken.dorm.service.auth.ResourceService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -88,6 +91,10 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
             log.info("service: 更新资源开始");
             resourceMapper.updateById(resource);
         }
+        EditButtonsForm editForm = new EditButtonsForm();
+        editForm.setParentId(resource.getPkResourceId());
+        editForm.setEditButtonsList(editResourceForm.getButtonResourcesList());
+        this.batchSaveButton(editForm);
         return resource;
     }
 
@@ -299,7 +306,9 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
             if (!this.saveBatch(this.getResourceList(addFormList,editForm.getParentId()))){
                 throw new ServerException("保存失败");
             }
-        }else {
+            editButtonsList.removeAll(addFormList);
+        }
+        if (editButtonsList != null && !editButtonsList.isEmpty()) {
             if (!this.updateBatchById(this.getResourceList(editButtonsList,editForm.getParentId()))){
                 throw new ServerException("保存失败");
             }
@@ -409,7 +418,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
      * @param oldPkId
      */
     private void checkDuplicate(String id,String oldPkId,String errorMsg){
-        if (StringUtils.isNotEmpty(id) && id != oldPkId){
+        if (StringUtils.isNotEmpty(id) && !StringUtils.equals(id, oldPkId)) {
             throw new ServerException(errorMsg);
         }
     }
