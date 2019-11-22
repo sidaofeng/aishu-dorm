@@ -57,4 +57,68 @@ public class DictController extends BaseController {
         return AjaxResponse.success();
     }
 
+    /**
+     * 查询字典根节点的集合
+     *
+     * @param name
+     * @return
+     */
+    @CrossOrigin
+    @GetMapping(value = "dict/roots/{name}")
+    @ApiOperation(value = "查询字典根节点的集合", notes = "查询字典根节点的集合")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
+    })
+    public AjaxResponse getDictRootList(@PathVariable(required = false) String name) {
+        return AjaxResponse.success(dictService.getDictRootList(name));
+    }
+
+    /**
+     * 通过父ID查询对应对应的字典树
+     *
+     * @return
+     * @author aishu
+     */
+    @CrossOrigin
+    @GetMapping(value = "dict/tree/{parentId}")
+    @ApiOperation(value = "通过父节点ID查询字典树", notes = "通过父节点ID查询字典树")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
+    })
+    public AjaxResponse getTreeByParentId(@PathVariable("parentId") String parentId) {
+        return AjaxResponse.success(dictService.getTreeByParentId(parentId));
+    }
+
+    /**
+     * 通过父节点编码查询字典树
+     *
+     * @return
+     * @author aishu
+     */
+    @CrossOrigin
+    @GetMapping(value = "dict/tree/{parentCode}")
+    @ApiOperation(value = "通过父节点编码查询字典树", notes = "通过父节点编码查询字典树")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
+    })
+    public AjaxResponse getTreeByParentCode(@PathVariable("parentCode") String parentCode) {
+        return AjaxResponse.success(dictService.getTreeByParentCode(parentCode));
+    }
+
+    /**
+     * 通过父节点编码查询字典下一级的字典集合（只查下一级）
+     *
+     * @return
+     * @author aishu
+     */
+    @CrossOrigin
+    @GetMapping(value = "dict/list/{parentCode}")
+    @ApiOperation(value = "通过父节点编码查询字典下一级的字典集合", notes = "通过父节点编码查询字典下一级的字典集合")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
+    })
+    public AjaxResponse getDictByParentCode(@PathVariable("parentCode") String parentCode) {
+        return AjaxResponse.success(dictService.getDictByParentCode(parentCode));
+    }
+
 }

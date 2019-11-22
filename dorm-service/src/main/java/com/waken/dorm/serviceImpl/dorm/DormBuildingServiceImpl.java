@@ -123,7 +123,8 @@ public class DormBuildingServiceImpl extends ServiceImpl<DormBuildingMapper, Bui
      * @param editForm
      */
     private void editBuildingValidate(EditBuildingForm editForm) {
-        if (StringUtils.isEmpty(editForm.getId())) {//新增验证
+        if (StringUtils.isEmpty(editForm.getId())) {
+            //新增验证
             Assert.notNull(editForm.getType());
             Assert.notNull(editForm.getCode());
             Assert.notNull(editForm.getFloorTotal());

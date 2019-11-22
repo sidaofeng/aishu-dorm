@@ -18,7 +18,7 @@ public class Assert {
         }
     }
     public static void notNull(String str) {
-        if (StringUtils.isBlank(str)) {
+        if (StringUtils.isEmpty(str)) {
             throw new ServerException(NULL_MSG);
         }
     }
@@ -38,7 +38,7 @@ public class Assert {
         }
     }
     public static void notNull(String str, String message) {
-        if (StringUtils.isBlank(str)) {
+        if (StringUtils.isEmpty(str)) {
             throw new ServerException(message);
         }
     }

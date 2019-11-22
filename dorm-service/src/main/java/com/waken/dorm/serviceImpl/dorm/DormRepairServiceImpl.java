@@ -58,13 +58,17 @@ public class DormRepairServiceImpl implements DormRepairService {
     @Override
     public DormRepair addDormRepair(AddDormRepairForm addDormRepairForm) {
         log.info("service : 开始进入新增维修记录");
-        this.addRepairValidate(addDormRepairForm);//验证合法性
+        //验证合法性
+        this.addRepairValidate(addDormRepairForm);
         String studentId;
-        String dormId = this.validateDorm(addDormRepairForm.getDormNum());//验证宿舍是否存在
+        String dormId = this.validateDorm(addDormRepairForm.getDormNum());
+        //验证宿舍是否存在
         DormRepair dormRepair = new DormRepair();
-        if (addDormRepairForm.getTerminal() == CodeEnum.WEB.getCode()) {//web端请求
+        if (CodeEnum.WEB.getCode().equals(addDormRepairForm.getTerminal())) {
+            //web端请求
             String userId = UserManager.getCurrentUserId();
-            studentId = this.validateStudent(addDormRepairForm.getStudentNum());//验证学生是否存在
+            //验证学生是否存在
+            studentId = this.validateStudent(addDormRepairForm.getStudentNum());
             dormRepair.setCreateUserId(userId);
             dormRepair.setLastModifyUserId(userId);
         } else {//app端请求
@@ -92,17 +96,17 @@ public class DormRepairServiceImpl implements DormRepairService {
      *
      * @param deleteForm
      */
-    @Transactional
     @Override
     public void deleteDormRepair(DeleteForm deleteForm) {
         log.info("service: 删除维修记录开始");
         List<String> ids = deleteForm.getDelIds();
         Integer delStatus = deleteForm.getDelStatus();
-        if (CodeEnum.YES.getCode() == delStatus) { // 物理删除
+        if (CodeEnum.YES.getCode().equals(delStatus)) {
+            // 物理删除
             List<DormRepair> dormRepairs = dormRepairMapper.selectByIds(ids);
             StringBuffer sb = new StringBuffer();
             for (DormRepair dormRepair : dormRepairs) {
-                if (CodeEnum.REPAIRING.getCode() == dormRepair.getStatus()) {
+                if (CodeEnum.REPAIRING.getCode().equals(dormRepair.getStatus())) {
                     sb.append(dormRepair.getPkDormRepairId());
                 }
             }
@@ -111,7 +115,7 @@ public class DormRepairServiceImpl implements DormRepairService {
             int count = dormRepairMapper.deleteBatchIds(ids);
             Assert.isFalse(count == Constant.ZERO);
 
-        } else if (CodeEnum.NO.getCode() == delStatus) {
+        } else if (CodeEnum.NO.getCode().equals(delStatus)) {
             int count = dormRepairMapper.batchUpdateStatus(DormUtil.getToUpdateStatusMap(ids,UserManager.getCurrentUserId()));
             Assert.isFalse(count == Constant.ZERO);
         } else {

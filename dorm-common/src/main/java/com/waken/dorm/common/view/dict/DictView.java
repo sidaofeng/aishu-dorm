@@ -5,8 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.util.Date;
-
 /**
  * @ClassName DictView
  * @Description DictView
@@ -17,27 +15,39 @@ import java.util.Date;
 @Getter
 @Setter
 public class DictView extends BaseView {
-    private String pkDictId;
+    /**
+     * 主键id
+     */
+    private String id;
 
-    private String dictKey;
+    /**
+     * 父节点id
+     */
+    private String parentId;
 
-    private String dictValue;
+    /**
+     * 字典数据名称
+     */
+    private String name;
 
-    private String columnName;
+    /**
+     * 字典数据编码
+     */
+    private String code;
 
-    private String columnDesc;
+    /**
+     * 是否默认 0：否 1：是
+     */
+    private Boolean isDefault;
 
-    private String tableName;
+    /**
+     * 排序sort
+     */
+    private Integer sort;
 
-    private String tableDesc;
+    /**
+     * 字典描述
+     */
+    private String desc;
 
-    private Integer status;
-
-    private Date createTime;
-
-    private String createUserName;
-
-    private Date lastModifyTime;
-
-    private String lastModifyUserName;
 }

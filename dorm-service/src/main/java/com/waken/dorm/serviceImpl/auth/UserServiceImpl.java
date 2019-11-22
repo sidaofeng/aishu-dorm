@@ -63,7 +63,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         User user = new User();
         BeanMapper.copy(editUserForm, user);
         if (StringUtils.isEmpty(editUserForm.getUserId())) {
-            log.info("service: 新增用户开始");
             String userId = UUIDSequence.next();
             //shiro加密 密码 密码默认"000000" 使用用户id作为盐
             String encodePassword = PasswordEncode.shiroEncode(userId, Constant.DEFAULT_PASSWORD);
@@ -76,8 +75,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             }
             user.setPassword(Constant.NULL_STRING);
             return user;
-        } else {//修改
-            log.info("service: 更新用户信息开始");
+        } else {
+            //修改
             userMapper.updateById(user);
             user.setPassword(Constant.NULL_STRING);
             return user;
@@ -182,17 +181,22 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         listAddedRoleForm.setUserId(userId);
         String curUserId = UserManager.getCurrentUserId();
         List<UserRoleRelView> userRoleRelViewList;
-        if (isSuperAdmin(curUserId)) {//超级管理员可以管理所有角色
+        if (isSuperAdmin(curUserId)) {
+            //超级管理员可以管理所有角色
             userRoleRelViewList = roleMapper.listSuperAdminRoles(curUserId);
-        } else {//其他管理员只能管理自己拥有的角色
+        } else {
+            //其他管理员只能管理自己拥有的角色
             listAddedRoleForm.setCurUserId(curUserId);
             userRoleRelViewList = roleMapper.listAddedRoles(listAddedRoleForm);
         }
         if (!userRoleRelViewList.isEmpty()) {
-            List<UserRoleRelView> addedList = new ArrayList<>();//用于接收已经存在关联的角色信息
-            List<UserRoleRelView> unAddedList = new ArrayList<>();//用于接收没有关联的角色信息
+            //用于接收已经存在关联的角色信息
+            List<UserRoleRelView> addedList = new ArrayList<>();
+            //用于接收没有关联的角色信息
+            List<UserRoleRelView> unAddedList = new ArrayList<>();
             for (UserRoleRelView userRoleRelView : userRoleRelViewList) {
-                if (StringUtils.isEmpty(userRoleRelView.getPkUserRoleId())) {//关联id为空，表示是未关联的角色
+                if (StringUtils.isEmpty(userRoleRelView.getPkUserRoleId())) {
+                    //关联id为空，表示是未关联的角色
                     unAddedList.add(userRoleRelView);
                 } else {
                     addedList.add(userRoleRelView);
@@ -222,7 +226,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         try {
             User user = userMapper.selectById(userId);
             if (!StringUtils.isEmpty(user.getImgUrl())) {
-                aliyunOSSUtil.deleteFile(user.getImgUrl());// 删除已经存在的头像
+                // 删除已经存在的头像
+                aliyunOSSUtil.deleteFile(user.getImgUrl());
             }
             File toFile = FileUtils.multipartFileToFile(file);
             // 上传到OSS
@@ -318,8 +323,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public void resetPassword(String userId) {
         Date curDate = DateUtils.getCurrentDate();
         String curUserId = UserManager.getCurrentUserId();
-
-        if (StringUtils.isBlank(userId)) {//重置所有密码
+        if (StringUtils.isBlank(userId)) {
+            //重置所有密码
             List<User> userList = this.userMapper.selectList(null);
             userList.forEach(user -> {
                 user.setPassword(PasswordEncode.shiroEncode(user.getUserId(), Constant.DEFAULT_PASSWORD));
@@ -327,7 +332,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 user.setLastModifyUserId(curUserId);
             });
             this.updateBatchById(userList, 500);
-
         } else {
             User user = this.userMapper.selectById(userId);
             if (user == null) {
@@ -359,7 +363,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * @param userForm
      */
     private void editUserValidate(EditUserForm userForm) {
-        if (StringUtils.isEmpty(userForm.getUserId())) {//新增验证
+        //新增验证
+        if (StringUtils.isEmpty(userForm.getUserId())) {
             Assert.notNull(userForm.getUserName(),"用户名为空！");
             Assert.notNull(userForm.getMobile(),"手机号码为空！");
             Assert.isTrue(CheckUtils.isPhoneLegality(userForm.getMobile()),"请输入正确的手机号码！");

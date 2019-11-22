@@ -39,9 +39,12 @@ public class Constant {
 
     public static final String STUDENT = "student";
 
-    public static final String ROOT = "root";//跟节点
+    /**
+     * 默认跟节点
+     */
+    public static final String ROOT = "root";
 
-    public static final String LOGIN = "用户登录";//跟节点
+    public static final String LOGIN = "用户登录";
 
     public static final String LOGIN_METHOD = "login";//跟节点
 

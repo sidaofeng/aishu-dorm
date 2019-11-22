@@ -55,7 +55,7 @@
     </select>
 
     <!-- 查询用户的权限信息 -->
-    <select id="selectUserPerms" resultType="java.lang.String" parameterType="java.lang.String">
+    <select id="selectUserPerms" resultType="java.lang.String">
         SELECT
         r.perms
         FROM rm_resource r
@@ -70,7 +70,7 @@
     </select>
 
     <!-- 查询用户拥有的角色 -->
-    <select id="selectUserRoles" resultType="java.lang.String" parameterType="java.lang.String">
+    <select id="selectUserRoles" resultType="java.lang.String">
         SELECT
         DISTINCT
         r.role_name AS roleName
