@@ -13,17 +13,22 @@ import java.util.Date;
 @Getter
 @Setter
 public class RoleView {
-    private String pkRoleId;
+    private String id;
 
     /**
      * 角色名称
      */
-    private String roleName;
+    private String name;
+
+    /**
+     * 角色编码
+     */
+    private String code;
 
     /**
      * 角色描述
      */
-    private String roleDesc;
+    private String description;
 
     /**
      * 角色状态(-1已删除，0失效，1-生效)

@@ -19,5 +19,5 @@ public class UserRoleRelView extends BaseView {
 
     private String roleName;
 
-    private String roleDesc;
+    private String description;
 }

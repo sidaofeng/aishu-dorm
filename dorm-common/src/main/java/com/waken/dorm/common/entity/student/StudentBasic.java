@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.waken.dorm.common.base.BaseEntity;
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 
 /**
  * <p>
@@ -93,17 +93,18 @@ public class StudentBasic extends BaseEntity {
     private String counselor;
 
     private String password;
-
     /**
      * 头像
      */
     private String imgUrl;
 
-    private LocalDateTime createTime;
+    private Boolean isDeleted;
+
+    private Date createTime;
 
     private String createUserId;
 
-    private LocalDateTime lastModifyTime;
+    private Date lastModifyTime;
 
     private String lastModifyUserId;
 }

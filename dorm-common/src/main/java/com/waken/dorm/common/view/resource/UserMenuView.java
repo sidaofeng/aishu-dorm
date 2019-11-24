@@ -16,7 +16,7 @@ public class UserMenuView {
     /**
      * 资源ID
      */
-    private String pkResourceId;
+    private String id;
 
     /**
      * 父节点ID
@@ -26,7 +26,7 @@ public class UserMenuView {
     /**
      * 资源名称
      */
-    private String resourceName;
+    private String name;
 
     /**
      * 路由名称

@@ -43,7 +43,6 @@ public class RoleController extends BaseController {
     })
     @RequiresPermissions("roles::save")
     public AjaxResponse saveRole(@RequestBody EditRoleForm editRoleForm) {
-        log.info("开始调用角色保存或修改接口：" + editRoleForm.toString());
         return AjaxResponse.success(this.roleService.saveRole(editRoleForm));
     }
 
@@ -56,7 +55,6 @@ public class RoleController extends BaseController {
     })
     @RequiresPermissions("roles::delete")
     public AjaxResponse deleteRole(@RequestBody DeleteForm deleteFrom) {
-        log.info("开始调用角色删除接口：" + deleteFrom.toString());
         if (null == deleteFrom.getDelIds() || deleteFrom.getDelIds().isEmpty()) {
             return AjaxResponse.error("入参为空！");
         }
@@ -70,9 +68,9 @@ public class RoleController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = RoleView.class)
     })
+    @RequiresRoles("admin")
     @RequiresPermissions("roles::view")
     public AjaxResponse listRoles(@RequestBody QueryRoleForm queryRoleForm) {
-        log.info("开始调用分页查询角色信息接口：" + queryRoleForm.toString());
         return AjaxResponse.success(this.roleService.page(queryRoleForm));
     }
 
@@ -86,7 +84,6 @@ public class RoleController extends BaseController {
     @RequiresRoles(value = {"superAdmin", "admin"}, logical = Logical.OR)
     @RequiresPermissions("roles::resources")
     public AjaxResponse batchAddRoleResourceRel(@RequestBody AddRoleResourceRelForm addForm) {
-        log.info("开始调用批量新增角色资源关联接口：" + addForm.toString());
         this.roleService.batchAddRoleResourceRel(addForm);
         return AjaxResponse.success();
     }

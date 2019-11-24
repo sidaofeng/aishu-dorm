@@ -3,6 +3,7 @@ package com.waken.dorm.serviceImpl.auth;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.google.common.collect.Lists;
+import com.waken.dorm.common.cache.CacheService;
 import com.waken.dorm.common.constant.Constant;
 import com.waken.dorm.common.entity.auth.Role;
 import com.waken.dorm.common.entity.auth.RoleResourceRel;
@@ -52,6 +53,7 @@ public class RoleServiceImpl implements RoleService {
     private final RoleMapper roleMapper;
     private final RoleResourceRelMapper roleResourceRelMapper;
     private final UserRoleRelMapper userRoleRelMapper;
+    private final CacheService cacheService;
 
     @Transactional
     @Override
@@ -59,20 +61,19 @@ public class RoleServiceImpl implements RoleService {
         this.editRoleValidate(editRoleForm);
         Role role = new Role();
         BeanMapper.copy(editRoleForm, role);
-        if (StringUtils.isEmpty(editRoleForm.getPkRoleId())) {//新增
-            log.info("service: 新增角色开始");
+        if (StringUtils.isEmpty(editRoleForm.getId())) {//新增
             role.setStatus(CodeEnum.ENABLE.getCode());
             int count = roleMapper.insert(role);
             if (count == Constant.ZERO) {
                 throw new ServerException("新增角色失败");
             }
-            return role;
         } else {//修改
-            log.info("service: 更新角色信息开始");
+            //编码不能修改
+            role.setCode(null);
             roleMapper.updateById(role);
-            return role;
         }
-
+        this.cacheService.savePermsAndRole();
+        return role;
     }
 
     @Transactional // 事务控制
@@ -88,6 +89,7 @@ public class RoleServiceImpl implements RoleService {
             if (count == Constant.ZERO) {
                 throw new ServerException("物理删除失败");
             }
+            this.cacheService.savePermsAndRole();
         } else if (CodeEnum.NO.getCode() == delStatus) {
             this.delRoleRel(roleIds);
             Map updateStatusMap = DormUtil.getToUpdateStatusMap(roleIds, UserManager.getCurrentUserId());
@@ -121,7 +123,7 @@ public class RoleServiceImpl implements RoleService {
     private void delRoleRel(List<String> roleIds) {
         List<Role> roles = roleMapper.selectBatchIds(roleIds);
         roles.stream().forEach(role -> {
-            if (StringUtils.equals(role.getRoleName(), Constant.SuperAdmin)) {
+            if (StringUtils.equals(role.getCode(), Constant.SuperAdmin)) {
                 throw new ServerException("不能操作超级管理员角色！");
             }
         });
@@ -144,7 +146,7 @@ public class RoleServiceImpl implements RoleService {
         if (null != roleList && !roleList.isEmpty()) {
             roleList.stream().forEach(rel -> {
                 if (roleIds.contains(rel.getRoleId())) {
-                    toDelRelId.add(rel.getPkRoleResourceId());
+                    toDelRelId.add(rel.getId());
                 }
             });
         }
@@ -168,7 +170,7 @@ public class RoleServiceImpl implements RoleService {
         Map roleMap = privileges.stream().collect(Collectors.toMap(UserRoleRel::getRoleId, UserRoleRel::getUserId));
         if (null != userRoleViews && !userRoleViews.isEmpty()) {
             userRoleViews.stream().forEach(userRoleView -> {
-                if (roleMap.containsKey(userRoleView.getRoleId())) {
+                if (roleMap.containsKey(userRoleView.getId())) {
                     userRoleView.setSelect(true);
                 }
             });
@@ -208,8 +210,9 @@ public class RoleServiceImpl implements RoleService {
         }
         roleList.stream().forEach(role -> {
             Map<String, String> map = new HashMap<>(4);
-            map.put("roleId", role.getPkRoleId());
-            map.put("roleName", role.getRoleName());
+            map.put("roleId", role.getId());
+            map.put("roleName", role.getName());
+            map.put("roleCode", role.getCode());
             roles.add(map);
         });
         return roles;
@@ -230,7 +233,7 @@ public class RoleServiceImpl implements RoleService {
         );
         if (roleResourceRelList != null && !roleResourceRelList.isEmpty()) {
             Map<String, String> pkIdAndTargetIdMap = roleResourceRelList.stream()
-                    .collect(Collectors.toMap(RoleResourceRel::getPkRoleResourceId, RoleResourceRel::getResourceId));
+                    .collect(Collectors.toMap(RoleResourceRel::getId, RoleResourceRel::getResourceId));
             // 接收需要删除的关联主键id
             List<String> toDelPkIds = DataHandle.handleToDelAndTargetIds(resourceIds, pkIdAndTargetIdMap);
             if (toDelPkIds != null && !toDelPkIds.isEmpty()) {
@@ -253,22 +256,35 @@ public class RoleServiceImpl implements RoleService {
     }
 
     private void editRoleValidate(EditRoleForm editForm) {
-        if (StringUtils.isEmpty(editForm.getPkRoleId())) {//新增验证
-            Assert.notNull(editForm.getRoleName());
-            Role role = roleMapper.selectOne(new LambdaQueryWrapper<Role>()
-                    .eq(Role::getRoleName, editForm.getRoleName())
-            );
-            Assert.isNull(role, "角色名称已存在！");
+        List<Role> roleList = roleMapper.selectList(new LambdaQueryWrapper<Role>()
+                .eq(Role::getStatus, CodeEnum.ENABLE.getCode())
+        );
+        if (roleList == null && roleList.isEmpty()) {
+            return;
+        }
+        Map<String, String> nameAndIdMap = roleList.stream().collect(Collectors.toMap(Role::getName, Role::getId));
+        Map<String, String> codeAndIdMap = roleList.stream().collect(Collectors.toMap(Role::getCode, Role::getId));
+        String name = editForm.getName();
+        String code = editForm.getCode();
+        String id = editForm.getId();
+        if (StringUtils.isEmpty(id)) {//新增验证
+            Assert.notNull(name);
+            Assert.notNull(code);
+            if (nameAndIdMap.containsKey(name)) {
+                throw new ServerException("角色名称已存在！");
+            }
+            if (codeAndIdMap.containsKey(code)) {
+                throw new ServerException("角色编码已存在！");
+            }
         } else {//修改验证
-            Assert.notNull(roleMapper.selectById(editForm.getPkRoleId()), "参数错误");
-            if (StringUtils.isNotEmpty(editForm.getRoleName())) {
-                Role role = roleMapper.selectOne(new LambdaQueryWrapper<Role>()
-                        .eq(Role::getRoleName, editForm.getRoleName())
-                );
-                if (null != role) {
-                    if (!StringUtils.equals(role.getPkRoleId(), editForm.getPkRoleId())) {
-                        throw new ServerException("角色名称已存在！");
-                    }
+            if (StringUtils.isNotEmpty(name)) {
+                if (nameAndIdMap.get(name) != null && nameAndIdMap.get(name) != id) {
+                    throw new ServerException("角色名称已存在！");
+                }
+            }
+            if (StringUtils.isNotEmpty(code)) {
+                if (codeAndIdMap.get(code) != null && codeAndIdMap.get(code) != id) {
+                    throw new ServerException("角色名称已存在！");
                 }
             }
         }

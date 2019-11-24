@@ -11,6 +11,7 @@ import com.waken.dorm.common.form.dict.EditDictForm;
 import com.waken.dorm.common.utils.Assert;
 import com.waken.dorm.common.utils.BeanMapper;
 import com.waken.dorm.common.utils.StringUtils;
+import com.waken.dorm.common.utils.TreeUtil;
 import com.waken.dorm.common.view.base.Tree;
 import com.waken.dorm.common.view.dict.DictView;
 import com.waken.dorm.dao.basic.DictMapper;
@@ -22,9 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -38,8 +37,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @Transactional(propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Exception.class)
 public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements DictService {
-    private final DictMapper dictMapper;
-
+    private final TreeUtil treeUtil;
     /**
      * 保存或修改系统字典
      *
@@ -47,22 +45,26 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
      * @return
      */
     @Override
-    @Transactional
     public Dict saveDict(EditDictForm editDictForm) {
+        if (StringUtils.isEmpty(editDictForm.getParentId())) {
+            editDictForm.setParentId(Constant.ROOT);
+        }
         this.validate(editDictForm);
         Dict dict = new Dict();
         BeanMapper.copy(editDictForm, dict);
         if (StringUtils.isEmpty(editDictForm.getId())) {
             //新增
+            dict.setSort(this.getDictNo(editDictForm.getParentId()));
             dict.setIsDeleted(false);
-            int count = dictMapper.insert(dict);
+            int count = baseMapper.insert(dict);
             Assert.isFalse(count == Constant.ZERO);
             return dict;
         } else {
-            dictMapper.updateById(dict);
+            baseMapper.updateById(dict);
             return dict;
         }
     }
+
 
     /**
      * 删除字典
@@ -77,7 +79,7 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
         int count;
         if (CodeEnum.YES.getCode().equals(delStatus)) {
             // 物理删除
-            count = dictMapper.deleteBatchIds(ids);
+            count = baseMapper.deleteBatchIds(ids);
             Assert.isFalse(count == Constant.ZERO);
         } else if (CodeEnum.NO.getCode().equals(delStatus)) {
             //状态删除
@@ -97,45 +99,90 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
     /**
      * 查询字典根节点的集合
      *
-     * @param name 模糊搜索（name\code）
+     * @param keywords 模糊搜索（name\code）
      * @return
      */
     @Override
-    public List<DictView> getDictRootList(String name) {
-        return null;
+    public List<DictView> getDictRootList(String keywords) {
+
+        return this.baseMapper.getDictList(Constant.ROOT, keywords);
     }
 
     /**
-     * 通过父ID查询对应对应的字典树
+     * 可查全部字典树
+     * 可通过父节点编码查询字典树
      *
-     * @param parentId 父ID
+     * @param rootCode
      * @return
      */
     @Override
-    public Tree<DictView> getTreeByParentId(String parentId) {
-        return null;
+    public List<Tree<DictView>> getTreeByRoot(String rootCode) {
+
+        List<DictView> dictViewList = this.baseMapper.getDictList(null, null);
+
+        List<Tree<DictView>> dictViewTree = this.getDictViewTree(dictViewList);
+
+        List<Tree<DictView>> rootTreeList = this.treeUtil.toTree(dictViewTree, Constant.ROOT);
+
+        Map<String, List<Tree<DictView>>> codeAndChildrenMap = rootTreeList.stream().collect(Collectors.toMap(Tree::getKey, Tree::getChildren));
+
+        if (StringUtils.isEmpty(rootCode)) {
+            //返回整个字典树
+            return rootTreeList;
+        } else {
+            //只返回父级code下面的树
+            return codeAndChildrenMap.get(rootCode);
+        }
     }
 
     /**
-     * 通过父节点编码查询字典树
+     * 通过父节点ID查询字典下一级的字典集合（只查下一级）
      *
-     * @param parentCode
+     * @param parentId
      * @return
      */
     @Override
-    public Tree<DictView> getTreeByParentCode(String parentCode) {
-        return null;
+    public List<DictView> getDictItemsByParent(String parentId) {
+
+        return this.baseMapper.getDictList(parentId, null);
     }
 
     /**
-     * 通过父节点编码查询字典下一级的字典集合（只查下一级）
+     * 通过根节点查询字典下一级的字典集合（只查下一级）
      *
-     * @param parentCode
+     * @param rootCode
      * @return
      */
     @Override
-    public List<DictView> getDictByParentCode(String parentCode) {
-        return null;
+    public List<DictView> getDictItemsByRoot(String rootCode) {
+
+        return this.baseMapper.getDictItemsByRoot(rootCode);
+    }
+
+    /**
+     * 将字典集合转换成树形集合对象
+     *
+     * @param dictViewList 字典集合
+     * @return
+     */
+    private List<Tree<DictView>> getDictViewTree(List<DictView> dictViewList) {
+        List<Tree<DictView>> treeList = new ArrayList<>();
+        Tree<DictView> tree;
+        DictView dictView;
+        Iterator<DictView> var6 = dictViewList.iterator();
+        while (var6.hasNext()) {
+            tree = new Tree<>();
+            dictView = var6.next();
+            tree.setId(dictView.getId());
+            tree.setParentId(dictView.getParentId());
+            tree.setKey(dictView.getCode());
+            tree.setTitle(dictView.getName());
+            tree.setSort(dictView.getSort());
+            tree.setAttribute(dictView);
+            tree.setOpen(true);
+            treeList.add(tree);
+        }
+        return treeList;
     }
 
     /**
@@ -144,11 +191,7 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
      * @param editForm
      */
     private void validate(EditDictForm editForm) {
-        String parentId = editForm.getParentId();
-        if (StringUtils.isEmpty(parentId)) {
-            parentId = Constant.ROOT;
-        }
-        List<Dict> dictList = this.baseMapper.selectList(new LambdaQueryWrapper<Dict>().eq(Dict::getParentId, parentId));
+        List<Dict> dictList = this.baseMapper.selectList(new LambdaQueryWrapper<Dict>().eq(Dict::getParentId, editForm.getParentId()));
         if (dictList == null || dictList.isEmpty()) {
             return;
         }
@@ -177,6 +220,29 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
                 }
             }
         }
+    }
+
+    /**
+     * 获取字典序号
+     *
+     * @param parentId
+     * @return
+     */
+    private int getDictNo(String parentId) {
+        List<Dict> dictList = this.baseMapper.selectList(new LambdaQueryWrapper<Dict>()
+                .eq(Dict::getParentId, parentId)
+                .eq(Dict::getIsDeleted, false)
+        );
+        int sort = 0;
+        if (dictList != null && !dictList.isEmpty()) {
+            sort = dictList.stream()
+                    .distinct()
+                    .filter(dict -> dict.getSort() != null)
+                    .map(dict -> dict.getSort())
+                    .max(Comparator.naturalOrder())
+                    .orElse(0) + 1;
+        }
+        return sort;
     }
 
 }

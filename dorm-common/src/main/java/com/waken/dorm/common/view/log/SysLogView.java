@@ -15,7 +15,7 @@ import java.util.Date;
 @Getter
 @Setter
 public class SysLogView extends BaseView {
-    private String pkLogId;
+    private String id;
 
     private String userName;
 

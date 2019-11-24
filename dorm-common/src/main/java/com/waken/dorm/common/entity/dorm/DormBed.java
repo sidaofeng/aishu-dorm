@@ -2,8 +2,11 @@ package com.waken.dorm.common.entity.dorm;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.waken.dorm.common.base.BaseEntity;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 
 /**
  * <p>
@@ -13,6 +16,9 @@ import java.time.LocalDateTime;
  * @author zhaoRong
  * @since 2019-11-21
  */
+@Getter
+@Setter
+@ToString
 @TableName("rm_dorm_bed")
 public class DormBed extends BaseEntity {
 
@@ -46,14 +52,14 @@ public class DormBed extends BaseEntity {
     /**
      * 创建时间
      */
-    private LocalDateTime createTime;
+    private Date createTime;
 
     private String createUserId;
 
     /**
      * 最终修改时间
      */
-    private LocalDateTime lastModifyTime;
+    private Date lastModifyTime;
 
     private String lastModifyUserId;
 
@@ -62,99 +68,4 @@ public class DormBed extends BaseEntity {
      */
     private String memo;
 
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getDormId() {
-        return dormId;
-    }
-
-    public void setDormId(String dormId) {
-        this.dormId = dormId;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-
-    public String getSubjectId() {
-        return subjectId;
-    }
-
-    public void setSubjectId(String subjectId) {
-        this.subjectId = subjectId;
-    }
-
-    public LocalDateTime getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(LocalDateTime createTime) {
-        this.createTime = createTime;
-    }
-
-    public String getCreateUserId() {
-        return createUserId;
-    }
-
-    public void setCreateUserId(String createUserId) {
-        this.createUserId = createUserId;
-    }
-
-    public LocalDateTime getLastModifyTime() {
-        return lastModifyTime;
-    }
-
-    public void setLastModifyTime(LocalDateTime lastModifyTime) {
-        this.lastModifyTime = lastModifyTime;
-    }
-
-    public String getLastModifyUserId() {
-        return lastModifyUserId;
-    }
-
-    public void setLastModifyUserId(String lastModifyUserId) {
-        this.lastModifyUserId = lastModifyUserId;
-    }
-
-    public String getMemo() {
-        return memo;
-    }
-
-    public void setMemo(String memo) {
-        this.memo = memo;
-    }
-
-    @Override
-    public String toString() {
-        return "DormBed{" +
-                "id=" + id +
-                ", dormId=" + dormId +
-                ", name=" + name +
-                ", code=" + code +
-                ", subjectId=" + subjectId +
-                ", createTime=" + createTime +
-                ", createUserId=" + createUserId +
-                ", lastModifyTime=" + lastModifyTime +
-                ", lastModifyUserId=" + lastModifyUserId +
-                ", memo=" + memo +
-                "}";
-    }
 }

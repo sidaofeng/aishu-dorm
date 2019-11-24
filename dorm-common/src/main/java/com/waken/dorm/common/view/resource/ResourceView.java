@@ -19,7 +19,7 @@ public class ResourceView implements Serializable {
     /**
      * 资源ID
      */
-    private String pkResourceId;
+    private String id;
 
     /**
      * 父节点ID
@@ -34,7 +34,7 @@ public class ResourceView implements Serializable {
     /**
      * 资源名称
      */
-    private String resourceName;
+    private String name;
 
     /**
      * 路由名称
@@ -60,11 +60,6 @@ public class ResourceView implements Serializable {
      * 资源URL
      */
     private String resourceUrl;
-
-    /**
-     * 操作权限
-     */
-    private String perms;
 
     /**
      * 排序序号

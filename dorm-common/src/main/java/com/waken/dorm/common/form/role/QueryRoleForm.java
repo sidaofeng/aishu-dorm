@@ -6,8 +6,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.util.Date;
-
 /**
  * @ClassName QueryRoleForm
  * @Description 查询角色信息的form 表单
@@ -20,19 +18,8 @@ import java.util.Date;
 @Setter
 public class QueryRoleForm extends BaseForm {
     private static final long serialVersionUID = -3442287827988689012L;
-    private String pkRoleId;
 
-    private String roleName;
+    private String id;
 
-    private String roleDesc;
-
-    private Integer status;
-
-    private Date createTime;
-
-    private String createUserName;
-
-    private Date lastModifyTime;
-
-    private String lastModifyUserName;
+    private String keywords;
 }

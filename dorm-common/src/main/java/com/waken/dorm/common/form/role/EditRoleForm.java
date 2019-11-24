@@ -14,9 +14,11 @@ import lombok.ToString;
 @Getter
 @Setter
 public class EditRoleForm {
-    private String pkRoleId;
+    private String id;
 
-    private String roleName;
+    private String name;
 
-    private String roleDesc;
+    private String code;
+
+    private String description;
 }

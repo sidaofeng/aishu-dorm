@@ -100,7 +100,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         // 物理删除
         if (CodeEnum.YES.getCode().equals(delStatus)) {
             this.checkUser(userIds);
-            //直接删除用户与资源或者角色的资源
+            //直接删除用户与角色的管理
             this.userRoleRelMapper.deleteByUsers(userIds);
             userMapper.deleteBatchIds(userIds);
         } else if (CodeEnum.NO.getCode().equals(delStatus)) {
@@ -112,6 +112,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         } else {
             throw new ServerException("删除状态码错误！");
         }
+
         this.deleteUserCache(userIds);
     }
 
@@ -255,14 +256,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public void updateLoginTime(User user,String ip) {
         user.setLastLoginTime(DateUtils.getCurrentDate());
-        userMapper.updateById(user);
+        this.userMapper.updateById(user);
         SysLog sysLog = new SysLog();
         sysLog.setUserId(user.getUserId());
         sysLog.setIp(ip);
         sysLog.setLocation(AddressUtils.getCityInfo(ip));
         sysLog.setOperationContent(Constant.LOGIN);
         sysLog.setMethod(Constant.LOGIN_METHOD);
-        logMapper.insert(sysLog);
+        this.logMapper.insert(sysLog);
     }
 
     /**
@@ -350,8 +351,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * @return
      */
     private boolean isSuperAdmin(String curUserId) {
-        List<String> roles = userRoleRelMapper.selectUserRoles(curUserId);
-        if (roles.contains(Constant.SuperAdmin)) {
+        List<String> roleCodeList = userRoleRelMapper.selectUserRoles(curUserId);
+        if (roleCodeList.contains(Constant.SuperAdmin)) {
             return true;
         }
         return false;

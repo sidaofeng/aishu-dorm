@@ -42,6 +42,6 @@ public class EditDictForm {
     /**
      * 字典描述
      */
-    private String desc;
+    private String description;
 
 }

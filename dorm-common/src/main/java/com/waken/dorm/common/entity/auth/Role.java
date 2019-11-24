@@ -1,7 +1,6 @@
 package com.waken.dorm.common.entity.auth;
 
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.waken.dorm.common.annotation.Id;
 import lombok.Getter;
@@ -28,20 +27,22 @@ public class Role implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @TableId("pk_role_id")
-    private String pkRoleId;
+    private String id;
 
     /**
      * 角色名称
      */
-    @TableField("role_name")
-    private String roleName;
+    private String name;
+
+    /**
+     * 角色编码
+     */
+    private String code;
 
     /**
      * 角色描述
      */
-    @TableField("role_desc")
-    private String roleDesc;
+    private String description;
 
     /**
      * 角色状态(-1已删除，0失效，1-生效)

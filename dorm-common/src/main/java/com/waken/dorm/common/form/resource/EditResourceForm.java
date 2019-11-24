@@ -17,9 +17,9 @@ import java.util.List;
 @Getter
 @Setter
 public class EditResourceForm {
-    private String pkResourceId;
+    private String id;
 
-    private String resourceName;
+    private String name;
 
     private String routeName;
 

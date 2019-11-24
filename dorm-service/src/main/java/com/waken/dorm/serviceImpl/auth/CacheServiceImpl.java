@@ -13,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
 import java.util.Set;
 
 @Slf4j
@@ -60,6 +61,29 @@ public class CacheServiceImpl implements CacheService {
         }
     }
 
+    /**
+     * 获取权限或者角色的Map对象
+     *
+     * @param name
+     * @return
+     * @throws Exception
+     */
+    @Override
+    public Map<String, String> getPermsOrRoleMap(String name) throws Exception {
+        String permsOrRoleMapString = this.redisService.get(name);
+        if (StringUtils.isNotEmpty(permsOrRoleMapString)) {
+            JavaType type = mapper.getTypeFactory().constructParametricType(Map.class, String.class, String.class);
+            return this.mapper.readValue(permsOrRoleMapString, type);
+        } else {
+            if (StringUtils.equals("permsMap", name)) {
+                return this.userPrivilegeService.getPermsMap();
+            } else if (StringUtils.equals("rolesMap", name)) {
+                return this.userPrivilegeService.getRoleMap();
+            }
+        }
+        return null;
+    }
+
     @Override
     public void saveUser(User user) throws Exception {
         String username = user.getUserName();
@@ -88,6 +112,23 @@ public class CacheServiceImpl implements CacheService {
         this.deletePermissions(user.getUserName());
         redisService.set(CacheConstant.USER_PERMISSION_CACHE_PREFIX + user.getUserName(), mapper.writeValueAsString(perms));
         return perms;
+    }
+
+    @Override
+    public void savePermsAndRole() {
+        Map<String, String> permsMap = this.userPrivilegeService.getPermsMap();
+        Map<String, String> rolesMap = this.userPrivilegeService.getRoleMap();
+        try {
+            if (permsMap != null && !permsMap.isEmpty()) {
+                this.redisService.set("permsMap", mapper.writeValueAsString(permsMap));
+            }
+            if (rolesMap != null && !rolesMap.isEmpty()) {
+                this.redisService.set("rolesMap", mapper.writeValueAsString(rolesMap));
+            }
+        } catch (Exception e) {
+            log.error("缓存异常：", e);
+        }
+
     }
 
     @Override

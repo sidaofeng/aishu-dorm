@@ -1,7 +1,6 @@
 package com.waken.dorm.common.entity.auth;
 
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.waken.dorm.common.annotation.Id;
 import lombok.Getter;
@@ -31,8 +30,7 @@ public class RoleResourceRel implements Serializable {
      * 主键
      */
     @Id
-    @TableId("pk_role_resource_id")
-    private String pkRoleResourceId;
+    private String id;
 
     /**
      * 角色ID

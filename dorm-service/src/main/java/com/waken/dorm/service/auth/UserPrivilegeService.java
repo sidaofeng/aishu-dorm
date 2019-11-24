@@ -7,6 +7,7 @@ import com.waken.dorm.common.view.base.Tree;
 import com.waken.dorm.common.view.resource.UserMenuView;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -57,4 +58,19 @@ public interface UserPrivilegeService {
      * @param userName user name
      */
     User queryUserInfo(String userName);
+
+    /**
+     * 获取权限信息
+     *
+     * @return
+     */
+    Map<String, String> getPermsMap();
+
+    /**
+     * 获取角色信息
+     *
+     * @return
+     */
+    Map<String, String> getRoleMap();
+
 }

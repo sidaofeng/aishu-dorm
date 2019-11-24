@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.waken.dorm.common.base.BaseEntity;
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 
 /**
  * <p>
@@ -70,14 +70,14 @@ public class Building extends BaseEntity {
     /**
      * 创建时间
      */
-    private LocalDateTime createTime;
+    private Date createTime;
 
     private String createUserId;
 
     /**
      * 最终修改时间
      */
-    private LocalDateTime lastModifyTime;
+    private Date lastModifyTime;
 
     private String lastModifyUserId;
 

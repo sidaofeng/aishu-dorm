@@ -4,21 +4,20 @@
     <select id="selectResourceView" parameterType="java.lang.Integer"
             resultType="com.waken.dorm.common.view.resource.ResourceView">
         SELECT
-        r.pk_resource_id AS pkResourceId,
+        r.id,
         r.parent_id AS parentId,
-        rr.resource_name AS parentName,
-        r.resource_name AS resourceName,
+        rr.name AS parentName,
+        r.name,
         r.route_name AS routeName,
         r.component,
         r.resource_icon AS resourceIcon,
         r.resource_type AS resourceType,
         r.resource_url AS resourceUrl,
-        r.perms,
         r.sort,
         r.`status`,
         r.is_parent AS isParent
         FROM rm_resource r
-        LEFT JOIN rm_resource rr ON rr.pk_resource_id = r.parent_id
+        LEFT JOIN rm_resource rr ON rr.id = r.parent_id
         <where>
             r.status = 1
             <if test="resourceType != null">
@@ -30,11 +29,11 @@
 
     <select id="selectButtonByResourceId" resultType="com.waken.dorm.common.form.resource.ButtonResources">
         SELECT
-        r.pk_resource_id AS pkResourceId,
-        r.resource_name AS resourceName,
+        r.id,
+        r.name,
         r.perms
         FROM rm_resource r
-        LEFT JOIN rm_resource rr ON rr.pk_resource_id = r.parent_id
+        LEFT JOIN rm_resource rr ON rr.id = r.parent_id
         <where>
             <if test="resourceId != null and resourceId != ''">
                 r.parent_id = #{resourceId}
@@ -51,7 +50,7 @@
             status = #{ur.status},
             last_modify_time = #{ur.lastModifyTime},
             last_modify_user_id = #{ur.lastModifyUserId}
-            where pk_resource_id = #{ur.pkId}
+            where id = #{ur.pkId}
         </foreach>
     </update>
 </mapper>

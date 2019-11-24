@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.collect.Lists;
+import com.waken.dorm.common.cache.CacheService;
 import com.waken.dorm.common.constant.Constant;
 import com.waken.dorm.common.entity.auth.Resource;
 import com.waken.dorm.common.entity.auth.Role;
@@ -51,6 +52,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
     private final RoleMapper roleMapper;
     private final UserRoleRelMapper userRoleRelMapper;
     private final TreeUtil treeUtil;
+    private final CacheService cacheService;
 
     /**
      * 新增或修改资源
@@ -65,7 +67,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
         int count;
         Resource resource = new Resource();
         BeanMapper.copy(editResourceForm, resource);
-        if (StringUtils.isBlank(editResourceForm.getPkResourceId())) {
+        if (StringUtils.isBlank(editResourceForm.getId())) {
             log.info("service: 新增资源开始");
             String pkResourceId = UUIDSequence.next();
             if (StringUtils.isBlank(editResourceForm.getParentId())) {
@@ -74,13 +76,13 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
                 resource.setParentId(Constant.ROOT);
             } else {
                 resource.setParent(Boolean.FALSE);
-                resource.setParentId(editResourceForm.getParentId());
                 this.updateParent(editResourceForm.getParentId());
             }
-            int resourceNo = this.getResourceNo(editResourceForm);
+            int resourceNo = this.getResourceNo(resource.getParentId());
             resource.setPerms(CodeEnum.MENU.getMsg());
+            resource.setResourceType(CodeEnum.MENU.getCode());
             resource.setSort(resourceNo);
-            resource.setPkResourceId(pkResourceId);
+            resource.setId(pkResourceId);
             resource.setStatus(CodeEnum.ENABLE.getCode());
             count = resourceMapper.insert(resource);
             Assert.isFalse(Constant.ZERO == count);
@@ -91,9 +93,10 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
             resourceMapper.updateById(resource);
         }
         EditButtonsForm editForm = new EditButtonsForm();
-        editForm.setParentId(resource.getPkResourceId());
+        editForm.setParentId(resource.getId());
         editForm.setEditButtonsList(editResourceForm.getButtonResourcesList());
         this.batchSaveButton(editForm);
+        this.cacheService.savePermsAndRole();
         return resource;
     }
 
@@ -114,6 +117,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
             this.deleteResourceRel(delResourceIds);
             // 删除资源本身
             resourceMapper.deleteBatchIds(delResourceIds);
+            this.cacheService.savePermsAndRole();
         } else if (CodeEnum.NO.getCode().equals(delStatus)) {
             this.deleteResourceRel(delResourceIds);
             Map toUpdateStatusMap = DormUtil.getToUpdateStatusMap(delResourceIds, UserManager.getCurrentUserId());
@@ -135,7 +139,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
         if (null != roleResourceRelList && !roleResourceRelList.isEmpty()) {
             roleResourceRelList.stream().forEach(rel -> {
                 if (delResourceIds.contains(rel.getResourceId())) {
-                    toDelPkIds.add(rel.getPkRoleResourceId());
+                    toDelPkIds.add(rel.getId());
                 }
             });
         }
@@ -154,7 +158,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
         List<Resource> resourceList = resourceMapper.selectList(new LambdaQueryWrapper<Resource>()
                 .eq(Resource::getStatus, CodeEnum.ENABLE.getCode())
         );
-        Map<String, String> idAndPidMap = resourceList.stream().collect(Collectors.toMap(Resource::getPkResourceId, Resource::getParentId));
+        Map<String, String> idAndPidMap = resourceList.stream().collect(Collectors.toMap(Resource::getId, Resource::getParentId));
         return TreeUtil.getNodesByIds(idAndPidMap, resourcesIds);
     }
 
@@ -203,7 +207,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
         if (null == var3 || var3.isEmpty()) {
             return new HashMap<>();
         }
-        return var3.stream().collect(Collectors.toMap(UserMenuView::getPkResourceId, UserMenuView::getResourceName));
+        return var3.stream().collect(Collectors.toMap(UserMenuView::getId, UserMenuView::getName));
     }
 
     /**
@@ -223,7 +227,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
             tree = new Tree<>();
             resourceView = var6.next();
             if (null != var2 && !var2.isEmpty()) {
-                if (var2.containsKey(resourceView.getPkResourceId())) {
+                if (var2.containsKey(resourceView.getId())) {
                     tree.setChecked(true);
                 }
             }
@@ -231,10 +235,10 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
             if (resourceView.isParent()){
                 tree.setChecked(false);
             }
-            tree.setId(resourceView.getPkResourceId());
+            tree.setId(resourceView.getId());
             tree.setParentId(resourceView.getParentId());
-            tree.setKey(resourceView.getPkResourceId());
-            tree.setTitle(resourceView.getResourceName());
+            tree.setKey(resourceView.getId());
+            tree.setTitle(resourceView.getName());
             tree.setIcon(resourceView.getResourceIcon());
             tree.setSort(resourceView.getSort());
             tree.setLeaf(!resourceView.isParent());
@@ -282,35 +286,65 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
         }
         List<ButtonResources> editButtonsList = editForm.getEditButtonsList();
         this.validate(editForm);
-        List<ButtonResources> addFormList = editButtonsList.stream().filter(buttonResource -> StringUtils.isEmpty(buttonResource.getPkResourceId())).collect(Collectors.toList());
+        List<ButtonResources> addFormList = editButtonsList.stream().filter(buttonResource -> StringUtils.isEmpty(buttonResource.getId())).collect(Collectors.toList());
         if (addFormList != null && !addFormList.isEmpty()){
-            if (!this.saveBatch(this.getResourceList(addFormList,editForm.getParentId()))){
+            if (!this.saveBatch(this.getToAddButtonResourceList(addFormList, editForm.getParentId()))) {
                 throw new ServerException("保存失败");
             }
             editButtonsList.removeAll(addFormList);
         }
         if (editButtonsList != null && !editButtonsList.isEmpty()) {
-            if (!this.updateBatchById(this.getResourceList(editButtonsList,editForm.getParentId()))){
-                throw new ServerException("保存失败");
+            List<Resource> toUpdateButtonResourceList = this.getToUpdateButtonResourceList(editButtonsList, editForm.getParentId());
+            if (toUpdateButtonResourceList != null && !toUpdateButtonResourceList.isEmpty()) {
+                if (!this.updateBatchById(toUpdateButtonResourceList)) {
+                    throw new ServerException("保存失败");
+                }
             }
+
         }
         return count;
     }
 
-    private List<Resource> getResourceList(List<ButtonResources> editButtonsList,String parentId){
-        List<Resource> resourceList = new ArrayList<>(editButtonsList.size());
-        editButtonsList.stream().forEach(buttonResource -> {
-            Resource resource = new Resource();
+    private List<Resource> getToAddButtonResourceList(List<ButtonResources> editButtonsList, String parentId) {
+        List<Resource> resourceList = new ArrayList<>();
+        int count = this.getResourceNo(parentId);
+        Resource resource;
+        for (ButtonResources buttonResource : editButtonsList) {
+            resource = new Resource();
             BeanMapper.copy(buttonResource,resource);
             resource.setParentId(parentId);
+            resource.setSort(count++);
             resource.setParent(false);
             resource.setResourceType(CodeEnum.BUTTON.getCode());
             resource.setStatus(CodeEnum.ENABLE.getCode());
             resourceList.add(resource);
-        });
+        }
         return resourceList;
     }
 
+    private List<Resource> getToUpdateButtonResourceList(List<ButtonResources> editButtonsList, String parentId) {
+        List<Resource> resourceList = new ArrayList<>();
+        List<Resource> buttonResourceList = resourceMapper.selectList(new LambdaQueryWrapper<Resource>()
+                .eq(Resource::getResourceType, CodeEnum.BUTTON.getCode())
+                .eq(Resource::getParentId, parentId)
+                .eq(Resource::getStatus, CodeEnum.ENABLE.getCode())
+        );
+        Map<String, String> nameAndIdMap = buttonResourceList.stream()
+                .collect(Collectors.toMap(Resource::getName, Resource::getId));
+        Resource resource;
+        for (ButtonResources buttonResource : editButtonsList) {
+            if (StringUtils.isEmpty(buttonResource.getId())) {
+                continue;
+            }
+            if (StringUtils.equals(nameAndIdMap.get(buttonResource.getName()), buttonResource.getId())) {
+                continue;
+            }
+            resource = new Resource();
+            BeanMapper.copy(buttonResource, resource);
+            resourceList.add(resource);
+        }
+        return resourceList;
+    }
     private void validate(EditButtonsForm editButtonsForm){
         List<ButtonResources> editList = editButtonsForm.getEditButtonsList();
         if (StringUtils.isEmpty(editButtonsForm.getParentId())){
@@ -324,16 +358,16 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
                 .eq(Resource::getStatus, CodeEnum.ENABLE.getCode())
         );
         Map<String, String> nameAndIdMap = resourceList.stream()
-                .collect(Collectors.toMap(Resource::getResourceName, Resource::getPkResourceId));
+                .collect(Collectors.toMap(Resource::getName, Resource::getId));
 
         Map<String, String> permsAndIdMap = resourceList.stream()
                 .filter(resource -> !StringUtils.equals(CodeEnum.MENU.getMsg(),resource.getPerms()))
-                .collect(Collectors.toMap(Resource::getPerms, Resource::getPkResourceId));
+                .collect(Collectors.toMap(Resource::getPerms, Resource::getId));
         editList.stream().forEach(editForm -> {
-            String resourceId = editForm.getPkResourceId();
-            String resourceName = editForm.getResourceName();
+            String resourceId = editForm.getId();
+            String resourceName = editForm.getName();
             String perms = editForm.getPerms();
-            if (StringUtils.isEmpty(editForm.getPkResourceId())) {
+            if (StringUtils.isEmpty(resourceId)) {
                 //新增验证
                 Assert.notNull(resourceName);
                 if (nameAndIdMap.containsKey(resourceName)){
@@ -364,14 +398,14 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
                 .eq(Resource::getStatus, CodeEnum.ENABLE.getCode())
         );
         Map<String, String> urlAndIdMap = resourceList.stream()
-                .collect(Collectors.toMap(Resource::getResourceUrl, Resource::getPkResourceId));
+                .collect(Collectors.toMap(Resource::getResourceUrl, Resource::getId));
         Map<String, String> nameAndIdMap = resourceList.stream()
-                .collect(Collectors.toMap(Resource::getResourceName, Resource::getPkResourceId));
+                .collect(Collectors.toMap(Resource::getName, Resource::getId));
 
-        String resourceId = editForm.getPkResourceId();
-        String resourceName = editForm.getResourceName();
+        String resourceId = editForm.getId();
+        String resourceName = editForm.getName();
         String resourceUrl = editForm.getResourceUrl();
-        if (StringUtils.isEmpty(editForm.getPkResourceId())) {
+        if (StringUtils.isEmpty(resourceId)) {
             //新增验证
             Assert.notNull(resourceName);
             if (StringUtils.isNotBlank(resourceUrl)) {
@@ -431,11 +465,11 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
      */
     private void addResourceRoleRel(String resourceId, int resourceType) {
         Role role = roleMapper.selectOne(new LambdaQueryWrapper<Role>()
-                .eq(Role::getRoleName, Constant.SuperAdmin)
+                .eq(Role::getCode, Constant.SuperAdmin)
         );
         if (null != role) {
             RoleResourceRel roleResourceRel = new RoleResourceRel();
-            roleResourceRel.setRoleId(role.getPkRoleId());
+            roleResourceRel.setRoleId(role.getId());
             roleResourceRel.setResourceId(resourceId);
             roleResourceRel.setResourceType(resourceType);
             roleResourceRelMapper.insert(roleResourceRel);
@@ -445,20 +479,24 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
     /**
      * 获取资源序号
      *
-     * @param editResourceForm
+     * @param parentId
      * @return
      */
-    private int getResourceNo(EditResourceForm editResourceForm) {
-//        LambdaQueryWrapper wrapper = new LambdaQueryWrapper<Resource>();
-        QueryWrapper wrapper = new QueryWrapper();
-        if (StringUtils.isEmpty(editResourceForm.getParentId())) {
-            wrapper.eq("parent_id", Constant.ROOT);
-        } else {
-            wrapper.eq("parent_id", editResourceForm.getParentId());
+    private int getResourceNo(String parentId) {
+        List<Resource> resourceList = this.baseMapper.selectList(new LambdaQueryWrapper<Resource>()
+                .eq(Resource::getParentId, parentId)
+                .eq(Resource::getStatus, CodeEnum.ENABLE.getCode())
+        );
+        int sort = 0;
+        if (resourceList != null && !resourceList.isEmpty()) {
+            sort = resourceList.stream()
+                    .distinct()
+                    .filter(resource -> resource.getSort() != null)
+                    .map(resource -> resource.getSort())
+                    .max(Comparator.naturalOrder())
+                    .orElse(0) + 1;
         }
-        wrapper.eq("status", CodeEnum.ENABLE.getCode());
-        int count = resourceMapper.selectCount(wrapper);
-        return count;
+        return sort;
     }
 
     /**
@@ -468,7 +506,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
      */
     private void updateParent(String parentId) {
         Resource resource = resourceMapper.selectOne(new LambdaQueryWrapper<Resource>()
-                .eq(Resource::getPkResourceId, parentId)
+                .eq(Resource::getId, parentId)
         );
         if (null != resource) {
             if (false == resource.getParent()) {

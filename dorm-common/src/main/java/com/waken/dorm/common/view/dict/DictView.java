@@ -26,14 +26,14 @@ public class DictView extends BaseView {
     private String parentId;
 
     /**
-     * 字典数据名称
-     */
-    private String name;
-
-    /**
      * 字典数据编码
      */
     private String code;
+
+    /**
+     * 字典数据名称
+     */
+    private String name;
 
     /**
      * 是否默认 0：否 1：是
@@ -48,6 +48,6 @@ public class DictView extends BaseView {
     /**
      * 字典描述
      */
-    private String desc;
+    private String description;
 
 }

@@ -13,9 +13,9 @@ import lombok.Setter;
 @Getter
 @Setter
 public class UserRoleView extends BaseView {
-    private String roleId;
+    private String id;
 
-    private String roleName;
+    private String name;
 
     private boolean isSelect = false;//角色与用户存在关联表示选中
 }

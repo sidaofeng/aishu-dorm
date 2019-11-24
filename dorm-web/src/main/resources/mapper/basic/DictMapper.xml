@@ -2,4 +2,50 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.waken.dorm.dao.basic.DictMapper">
 
+    <select id="getDictList" resultType="com.waken.dorm.common.view.dict.DictView">
+        SELECT
+        d.id,
+        d.`code`,
+        d.`name`,
+        d.is_default,
+        d.sort,
+        d.parent_id AS parentId,
+        d.description
+        FROM rm_dict d
+        <where>
+            <if test="parentId != null and parentId != ''">
+                d.parent_id = #{parentId}
+            </if>
+            <if test="keywords != null and keywords != ''">
+                <bind name="keywords" value="'%' + keywords + '%'"/>
+                AND (d.`code` LIKE #{keywords}
+                OR d.name LIKE #{keywords}
+                OR d.description LIKE #{keywords}
+                )
+            </if>
+            AND d.is_deleted = 0
+        </where>
+        ORDER BY d.sort ASC
+    </select>
+
+    <select id="getDictItemsByRoot" resultType="com.waken.dorm.common.view.dict.DictView">
+        SELECT
+        d.id,
+        d.`code`,
+        d.`name`,
+        d.is_default,
+        d.sort,
+        d.parent_id AS parentId,
+        d.description
+        FROM rm_dict d
+        LEFT JOIN rm_dict dd ON dd.id = d.parent_id
+        <where>
+            <if test="rootCode != null and rootCode != ''">
+                AND dd.`code` = #{rootCode}
+            </if>
+            AND d.is_deleted = 0
+            AND dd.parent_id = 'root'
+        </where>
+        ORDER BY d.sort ASC
+    </select>
 </mapper>

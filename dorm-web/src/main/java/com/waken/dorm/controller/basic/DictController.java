@@ -5,6 +5,7 @@ import com.waken.dorm.common.base.AjaxResponse;
 import com.waken.dorm.common.entity.basic.Dict;
 import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.dict.EditDictForm;
+import com.waken.dorm.common.utils.StringUtils;
 import com.waken.dorm.controller.base.BaseController;
 import com.waken.dorm.service.dict.DictService;
 import io.swagger.annotations.Api;
@@ -60,65 +61,71 @@ public class DictController extends BaseController {
     /**
      * 查询字典根节点的集合
      *
-     * @param name
+     * @param keywords
      * @return
      */
     @CrossOrigin
-    @GetMapping(value = "dict/roots/{name}")
+    @GetMapping(value = "dict/roots")
     @ApiOperation(value = "查询字典根节点的集合", notes = "查询字典根节点的集合")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
-    public AjaxResponse getDictRootList(@PathVariable(required = false) String name) {
-        return AjaxResponse.success(dictService.getDictRootList(name));
+    public AjaxResponse getDictRootList(String keywords) {
+        return AjaxResponse.success(dictService.getDictRootList(keywords));
     }
 
     /**
-     * 通过父ID查询对应对应的字典树
+     * 通过根节点编码查询字典树
      *
      * @return
      * @author aishu
      */
     @CrossOrigin
-    @GetMapping(value = "dict/tree/{parentId}")
-    @ApiOperation(value = "通过父节点ID查询字典树", notes = "通过父节点ID查询字典树")
+    @GetMapping(value = "dict/tree/root/{code}")
+    @ApiOperation(value = "通过字典跟节点编码查询字典树", notes = "通过字典跟节点编码查询字典树")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
-    public AjaxResponse getTreeByParentId(@PathVariable("parentId") String parentId) {
-        return AjaxResponse.success(dictService.getTreeByParentId(parentId));
+    public AjaxResponse getTreeByRoot(@PathVariable("code") String rootCode) {
+        return AjaxResponse.success(dictService.getTreeByRoot(rootCode));
     }
 
     /**
-     * 通过父节点编码查询字典树
+     * 通过根节点编码查询字典下一级的字典集合（只查下一级）
      *
      * @return
      * @author aishu
      */
     @CrossOrigin
-    @GetMapping(value = "dict/tree/{parentCode}")
-    @ApiOperation(value = "通过父节点编码查询字典树", notes = "通过父节点编码查询字典树")
+    @GetMapping(value = "dict/items/root/{code}")
+    @ApiOperation(value = "通过根节点编码查询字典下一级的字典集合", notes = "通过根节点编码查询字典下一级的字典集合")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
-    public AjaxResponse getTreeByParentCode(@PathVariable("parentCode") String parentCode) {
-        return AjaxResponse.success(dictService.getTreeByParentCode(parentCode));
+    public AjaxResponse getDictItemsByRoot(@PathVariable("code") String rootCode) {
+        if (StringUtils.isEmpty(rootCode)) {
+            return AjaxResponse.error("根节点字典编码不能为空！");
+        }
+        return AjaxResponse.success(dictService.getDictItemsByRoot(rootCode));
     }
 
     /**
-     * 通过父节点编码查询字典下一级的字典集合（只查下一级）
+     * 通过父级ID编码查询字典下一级的字典集合（只查下一级）
      *
      * @return
      * @author aishu
      */
     @CrossOrigin
-    @GetMapping(value = "dict/list/{parentCode}")
-    @ApiOperation(value = "通过父节点编码查询字典下一级的字典集合", notes = "通过父节点编码查询字典下一级的字典集合")
+    @GetMapping(value = "dict/items/parent/{id}")
+    @ApiOperation(value = "通过父级ID查询字典下一级的字典集合", notes = "通过父级ID查询字典下一级的字典集合")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
-    public AjaxResponse getDictByParentCode(@PathVariable("parentCode") String parentCode) {
-        return AjaxResponse.success(dictService.getDictByParentCode(parentCode));
+    public AjaxResponse getDictItemsByParent(@PathVariable("id") String parentId) {
+        if (StringUtils.isEmpty(parentId)) {
+            return AjaxResponse.error("父级ID不能为空！");
+        }
+        return AjaxResponse.success(dictService.getDictItemsByParent(parentId));
     }
 
 }

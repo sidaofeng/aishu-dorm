@@ -1,7 +1,6 @@
 package com.waken.dorm.common.entity.auth;
 
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.waken.dorm.common.annotation.Id;
 import lombok.Getter;
@@ -31,8 +30,7 @@ public class Resource implements Serializable {
      * 资源ID
      */
     @Id
-    @TableId("pk_resource_id")
-    private String pkResourceId;
+    private String id;
 
     /**
      * 父级ID
@@ -43,8 +41,7 @@ public class Resource implements Serializable {
     /**
      * 资源名称
      */
-    @TableField("resource_name")
-    private String resourceName;
+    private String name;
 
     /**
      * 路由名称

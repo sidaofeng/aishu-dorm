@@ -10,11 +10,11 @@ import lombok.Data;
  **/
 @Data
 public class ButtonResources {
-    private String pkResourceId;
+    private String id;
     /**
      * 资源名称
      */
-    private String resourceName;
+    private String name;
     /**
      * 权限
      */

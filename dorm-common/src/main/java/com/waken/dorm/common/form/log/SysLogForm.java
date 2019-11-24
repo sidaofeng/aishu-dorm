@@ -15,7 +15,7 @@ import lombok.ToString;
 @Getter
 @Setter
 public class SysLogForm extends BaseForm {
-    private String pkLogId;
+    private String id;
 
     private String keyWord;
 }
