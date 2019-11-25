@@ -3,7 +3,7 @@
 <mapper namespace="com.waken.dorm.dao.dorm.DormScoreMapper">
     <insert id="batchAddDormScore" parameterType="java.util.List">
         insert into rm_dorm_score
-        (pk_dorm_score_id,
+        (id,
         dorm_num,
         culture_score,
         discipline_score,
@@ -23,7 +23,7 @@
         memo)
         values
         <foreach collection="list" item="item" index="index" separator=",">
-            (#{item.pkDormScoreId},
+            (#{item.id},
             #{item.dormNum},
             #{item.cultureScore},
             #{item.disciplineScore},
@@ -46,7 +46,7 @@
     <select id="appListDormScoreView" parameterType="com.waken.dorm.common.form.dorm.ListDormScoreForm"
             resultType="com.waken.dorm.common.view.dorm.AppDormScoreView">
         SELECT
-        ds.pk_dorm_score_id AS pkDormScoreId,
+        ds.id,
         ds.dorm_num AS dormNum,
         ds.culture_score AS cultureScore,
         ds.discipline_score AS disciplineScore,
@@ -61,17 +61,13 @@
         ds.memo AS memo
         FROM rm_dorm_score ds
         LEFT JOIN rm_dorm d ON d.dorm_num = ds.dorm_num
-        LEFT JOIN rm_dorm_student_rel dsr ON dsr.dorm_id = d.pk_dorm_id
         WHERE
         ds.`status` = 1
-        <if test="studentId != null and studentId != ''">
-            AND dsr.student_id = #{studentId,jdbcType=VARCHAR}
-        </if>
     </select>
     <select id="listDormScores" parameterType="com.waken.dorm.common.form.dorm.ListDormScoreForm"
             resultType="com.waken.dorm.common.view.dorm.DormScoreView">
         SELECT
-        ds.pk_dorm_score_id AS pkDormScoreId,
+        ds.id,
         ds.dorm_num AS dormNum,
         ds.culture_score AS cultureScore,
         ds.discipline_score AS disciplineScore,
@@ -91,13 +87,12 @@
         ds.memo
         FROM rm_dorm_score ds
         LEFT JOIN rm_dorm d ON d.dorm_num = ds.dorm_num
-        LEFT JOIN rm_dorm_student_rel dsr ON dsr.dorm_id = d.pk_dorm_id
         LEFT JOIN rm_user u ON u.user_id = ds.create_user_id
         LEFT JOIN rm_user uu ON uu.user_id = ds.last_modify_user_id
-        LEFT JOIN rm_dorm_building db ON db.pk_dorm_building_id = d.dorm_building_id
+        LEFT JOIN rm_dorm_building db ON db.id = d.dorm_building_id
         WHERE 1=1
-        <if test="form.pkDormScoreId != null and form.pkDormScoreId != ''">
-            and ds.pk_dorm_score_id=#{form.pkDormScoreId}
+        <if test="form.id != null and form.id != ''">
+            and ds.id=#{form.id}
         </if>
         <if test="form.dormNum != null and form.dormNum != ''">
             and d.dorm_num like '%${form.dormNum}%'
@@ -126,7 +121,7 @@
             status = #{ur.status},
             last_modify_time = #{ur.lastModifyTime},
             last_modify_user_id = #{ur.lastModifyUserId}
-            where pk_dorm_score_id = #{ur.pkId}
+            where id = #{ur.pkId}
         </foreach>
     </update>
 </mapper>

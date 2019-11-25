@@ -1,35 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.waken.dorm.dao.dorm.DormRuleMapper">
-    <resultMap id="BaseResultMap" type="com.waken.dorm.common.entity.dorm.DormRule">
-        <id column="pk_dorm_rule_id" property="pkDormRuleId" jdbcType="VARCHAR"/>
-        <result column="rule_name" property="ruleName" jdbcType="VARCHAR"/>
-        <result column="rule_desc" property="ruleDesc" jdbcType="VARCHAR"/>
-        <result column="status" property="status" jdbcType="INTEGER"/>
-        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
-        <result column="create_user_id" property="createUserId" jdbcType="VARCHAR"/>
-        <result column="last_modify_time" property="lastModifyTime" jdbcType="TIMESTAMP"/>
-        <result column="last_modify_user_id" property="lastModifyUserId" jdbcType="VARCHAR"/>
-        <result column="memo" property="memo" jdbcType="VARCHAR"/>
-    </resultMap>
-    <sql id="Base_Column_List">
-        pk_dorm_rule_id, rule_name, rule_desc, status, create_time, create_user_id,
-        last_modify_time, last_modify_user_id, memo
-    </sql>
-    <select id="selectByIds" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List"/>
-        from rm_dorm_rule
-        where pk_dorm_rule_id in
-        <foreach collection="Ids" item="dramaId" open="(" close=")" separator=",">
-            #{dramaId}
-        </foreach>
-    </select>
     <select id="listDormRules" parameterType="com.waken.dorm.common.form.dorm.DormRuleForm"
             resultType="com.waken.dorm.common.view.dorm.DormRuleView">
         SELECT
-        dr.pk_dorm_rule_id AS pkDormRuleId,
-        dr.rule_name AS ruleName,
+        dr.id,
+        dr.name,
         dr.rule_desc AS ruleDesc,
         dr.`status`,
         dr.create_time AS createTime,
@@ -41,11 +17,11 @@
         LEFT JOIN rm_user u ON u.user_id = dr.create_user_id
         LEFT JOIN rm_user uu ON uu.user_id = dr.last_modify_user_id
         WHERE 1=1
-        <if test="form.pkDormRuleId != null and form.pkDormRuleId != ''">
-            and dr.pk_dorm_rule_id=#{form.pkDormRuleId}
+        <if test="form.id != null and form.id != ''">
+            and dr.id=#{form.id}
         </if>
         <if test="form.ruleName != null and form.ruleName != ''">
-            and dr.rule_name like '%${form.ruleName}%'
+            and dr.name like '%${form.ruleName}%'
         </if>
         <if test="form.status != null">
             and dr.status=#{form.status}
@@ -71,7 +47,7 @@
             status = #{ur.status},
             last_modify_time = #{ur.lastModifyTime},
             last_modify_user_id = #{ur.lastModifyUserId}
-            where pk_dorm_rule_id = #{ur.pkId}
+            where id = #{ur.pkId}
         </foreach>
     </update>
 </mapper>

@@ -6,8 +6,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.util.Date;
-
 /**
  * <p>
  * 校区基本数据表
@@ -23,11 +21,6 @@ import java.util.Date;
 public class SchoolCampus extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
-
-    /**
-     * 校区基本数据id
-     */
-    private String id;
 
     /**
      * 校区号
@@ -68,13 +61,4 @@ public class SchoolCampus extends BaseEntity {
      * 是否删除（0否，1是）
      */
     private Boolean isDeleted;
-
-    private Date createTime;
-
-    private String createUserId;
-
-    private Date lastModifyTime;
-
-    private String lastModifyUserId;
-
 }

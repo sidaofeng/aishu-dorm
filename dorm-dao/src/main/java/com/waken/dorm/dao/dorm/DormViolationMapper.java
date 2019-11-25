@@ -9,7 +9,6 @@ import com.waken.dorm.common.view.dorm.AppDormViolationView;
 import com.waken.dorm.common.view.dorm.DormViolationView;
 import org.apache.ibatis.annotations.Param;
 
-import java.util.List;
 import java.util.Map;
 
 public interface DormViolationMapper extends BaseMapper<DormViolation> {
@@ -19,5 +18,4 @@ public interface DormViolationMapper extends BaseMapper<DormViolation> {
 
     IPage<DormViolationView> listDormViolations(Page page,@Param("form") DormViolationForm dormViolationForm);
 
-    List<DormViolation> selectByIds(@Param("Ids") List<String> Ids);//通过批量Ids批量查询
 }

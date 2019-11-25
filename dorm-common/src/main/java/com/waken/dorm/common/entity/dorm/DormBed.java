@@ -6,8 +6,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.util.Date;
-
 /**
  * <p>
  * 宿舍床位
@@ -23,11 +21,6 @@ import java.util.Date;
 public class DormBed extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
-
-    /**
-     * 主键id
-     */
-    private String id;
 
     /**
      * 宿舍id
@@ -48,20 +41,6 @@ public class DormBed extends BaseEntity {
      * 入住人id（学生/教师/宿管/其他）
      */
     private String subjectId;
-
-    /**
-     * 创建时间
-     */
-    private Date createTime;
-
-    private String createUserId;
-
-    /**
-     * 最终修改时间
-     */
-    private Date lastModifyTime;
-
-    private String lastModifyUserId;
 
     /**
      * 备注

@@ -1,17 +1,13 @@
 package com.waken.dorm.common.entity.dorm;
 
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.waken.dorm.common.annotation.Id;
+import com.waken.dorm.common.base.BaseEntity;
 import com.wuwenze.poi.annotation.Excel;
 import com.wuwenze.poi.annotation.ExcelField;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-
-import java.io.Serializable;
-import java.util.Date;
 
 /**
  * <p>
@@ -26,16 +22,9 @@ import java.util.Date;
 @ToString
 @Excel("宿舍评分信息统计表")
 @TableName("rm_dorm_score")
-public class DormScore implements Serializable {
+public class DormScore extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
-
-    /**
-     * 主键
-     */
-    @Id
-    @TableId("pk_dorm_score_id")
-    private String pkDormScoreId;
 
     /**
      * 宿舍号
@@ -119,18 +108,6 @@ public class DormScore implements Serializable {
      * 状态（1生效 0 失效）
      */
     private Integer status;
-
-    @TableField("create_time")
-    private Date createTime;
-
-    @TableField("create_user_id")
-    private String createUserId;
-
-    @TableField("last_modify_time")
-    private Date lastModifyTime;
-
-    @TableField("last_modify_user_id")
-    private String lastModifyUserId;
 
     /**
      * 备注

@@ -17,7 +17,7 @@ import java.math.BigDecimal;
 @Setter
 public class UpdateRepairForm {
 
-    private String pkDormRepairId;
+    private String id;
 
     private Integer status;
 

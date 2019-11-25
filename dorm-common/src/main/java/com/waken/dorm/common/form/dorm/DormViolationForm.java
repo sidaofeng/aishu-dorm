@@ -16,7 +16,7 @@ import lombok.ToString;
 @Setter
 public class DormViolationForm extends BaseForm {
     private static final long serialVersionUID = 1451135143242343587L;
-    private String pkDormViolationId;
+    private String id;
 
     private String dormRuleName;
 

@@ -16,7 +16,7 @@ import lombok.ToString;
 @Setter
 public class ListDormScoreForm extends BaseForm {
     private static final long serialVersionUID = -223148826994314229L;
-    private String pkDormScoreId;
+    private String id;
 
     private String dormNum;
 

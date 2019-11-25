@@ -14,11 +14,11 @@ import lombok.ToString;
 @Getter
 @Setter
 public class EditDormRuleForm {
-    private String pkDormRuleId;
+    private String id;
 
-    private String ruleName;
+    private String name;
 
-    private String ruleDesc;
+    private String description;
 
     private Integer status;
 

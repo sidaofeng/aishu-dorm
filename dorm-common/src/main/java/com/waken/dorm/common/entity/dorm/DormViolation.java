@@ -1,15 +1,11 @@
 package com.waken.dorm.common.entity.dorm;
 
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.waken.dorm.common.annotation.Id;
+import com.waken.dorm.common.base.BaseEntity;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-
-import java.io.Serializable;
-import java.util.Date;
 
 /**
  * <p>
@@ -23,16 +19,9 @@ import java.util.Date;
 @Setter
 @ToString
 @TableName("rm_dorm_violation")
-public class DormViolation implements Serializable {
+public class DormViolation extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
-
-    /**
-     * 主键
-     */
-    @Id
-    @TableId("pk_dorm_violation_id")
-    private String pkDormViolationId;
 
     /**
      * 规则id
@@ -74,24 +63,6 @@ public class DormViolation implements Serializable {
      * 状态（1：已处理 0：未处理）
      */
     private Integer status;
-
-    /**
-     * 处理时间
-     */
-    @TableField("create_time")
-    private Date createTime;
-
-    /**
-     * 处理人
-     */
-    @TableField("create_user_id")
-    private String createUserId;
-
-    @TableField("last_modify_time")
-    private Date lastModifyTime;
-
-    @TableField("last_modify_user_id")
-    private String lastModifyUserId;
 
     /**
      * 备注

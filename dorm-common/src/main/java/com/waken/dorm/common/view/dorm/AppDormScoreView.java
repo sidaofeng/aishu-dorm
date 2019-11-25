@@ -15,7 +15,7 @@ import lombok.ToString;
 @Getter
 @Setter
 public class AppDormScoreView extends BaseView {
-    private String pkDormScoreId;
+    private String id;
 
     private String dormNum;
 

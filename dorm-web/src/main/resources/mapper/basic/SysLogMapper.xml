@@ -16,17 +16,17 @@
         FROM rm_log L
         LEFT JOIN rm_user u ON u.user_id = L.user_id
         <where>
-            <if test="form.pkLogId != null and form.pkLogId != ''">
-                AND L.pk_log_id=#{form.pkLogId,jdbcType=VARCHAR}
+            <if test="form.id != null and form.id != ''">
+                AND L.id=#{form.id,jdbcType=VARCHAR}
             </if>
-            <if test="form.keyWord != null">
-                <bind name="form.keyWord" value="'%' + form.keyWord + '%'"/>
-                AND (u.user_name LIKE #{form.keyWord,jdbcType=VARCHAR}
-                OR L.operation_content LIKE #{form.keyWord,jdbcType=VARCHAR}
-                OR L.method LIKE #{form.keyWord,jdbcType=VARCHAR}
-                OR L.params LIKE #{form.keyWord,jdbcType=VARCHAR}
-                OR L.ip LIKE #{form.keyWord,jdbcType=VARCHAR}
-                OR L.location LIKE #{form.keyWord,jdbcType=VARCHAR}
+            <if test="form.keywords != null">
+                <bind name="form.keywords" value="'%' + form.keywords + '%'"/>
+                AND (u.user_name LIKE #{form.keywords,jdbcType=VARCHAR}
+                OR L.operation_content LIKE #{form.keywords,jdbcType=VARCHAR}
+                OR L.method LIKE #{form.keywords,jdbcType=VARCHAR}
+                OR L.params LIKE #{form.keywords,jdbcType=VARCHAR}
+                OR L.ip LIKE #{form.keywords,jdbcType=VARCHAR}
+                OR L.location LIKE #{form.keywords,jdbcType=VARCHAR}
                 )
             </if>
             <if test="form.startTime != null">

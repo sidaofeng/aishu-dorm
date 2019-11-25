@@ -4,8 +4,6 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.waken.dorm.common.base.BaseEntity;
 import lombok.Data;
 
-import java.util.Date;
-
 /**
  * <p>
  *
@@ -19,8 +17,6 @@ import java.util.Date;
 public class Building extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
-
-    private String id;
 
     /**
      * 校区
@@ -66,20 +62,6 @@ public class Building extends BaseEntity {
      * 是否删除（0否，1是）
      */
     private Boolean isDeleted;
-
-    /**
-     * 创建时间
-     */
-    private Date createTime;
-
-    private String createUserId;
-
-    /**
-     * 最终修改时间
-     */
-    private Date lastModifyTime;
-
-    private String lastModifyUserId;
 
     /**
      * 备注

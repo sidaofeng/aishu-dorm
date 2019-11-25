@@ -14,7 +14,7 @@ import lombok.ToString;
 @Getter
 @Setter
 public class UpdateDormViolationForm {
-    private String pkDormViolationId;
+    private String id;
 
     private Integer status;
 

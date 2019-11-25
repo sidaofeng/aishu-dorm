@@ -83,11 +83,11 @@ public class DormViolationServiceImpl implements DormViolationService {
         Integer delStatus = deleteForm.getDelStatus();
         int count;
         if (CodeEnum.YES.getCode() == delStatus) { // 物理删除
-            List<DormViolation> dormViolations = dormViolationMapper.selectByIds(ids);
+            List<DormViolation> dormViolations = dormViolationMapper.selectBatchIds(ids);
             StringBuffer sb = new StringBuffer();
             for (DormViolation dormViolation : dormViolations) {
                 if (CodeEnum.UNCOMPLETE.getCode() == dormViolation.getStatus()) {
-                    sb.append(dormViolation.getPkDormViolationId());
+                    sb.append(dormViolation.getId());
                 }
             }
             Assert.isNull(sb.toString(),"以下违规记录处于未处理状态中：" + sb.toString());
@@ -123,9 +123,9 @@ public class DormViolationServiceImpl implements DormViolationService {
     @Transactional
     @Override
     public DormViolation updateDormViolation(UpdateDormViolationForm updateForm) {
-        Assert.notNull(updateForm.getPkDormViolationId());
+        Assert.notNull(updateForm.getId());
         Assert.notNull(updateForm.getStatus());
-        DormViolation dormViolation = dormViolationMapper.selectById(updateForm.getPkDormViolationId());
+        DormViolation dormViolation = dormViolationMapper.selectById(updateForm.getId());
         BeanMapper.copy(updateForm, dormViolation);
         String userId = UserManager.getCurrentUserId();
         Date curDate = DateUtils.getCurrentDate();

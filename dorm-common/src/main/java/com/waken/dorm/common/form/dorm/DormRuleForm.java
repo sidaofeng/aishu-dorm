@@ -18,11 +18,11 @@ import java.util.Date;
 @Setter
 public class DormRuleForm extends BaseForm {
     private static final long serialVersionUID = 3080831935512618337L;
-    private String pkDormRuleId;
+    private String id;
 
-    private String ruleName;
+    private String name;
 
-    private String ruleDesc;
+    private String description;
 
     private Integer status;
 

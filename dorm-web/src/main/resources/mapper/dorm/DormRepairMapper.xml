@@ -1,41 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.waken.dorm.dao.dorm.DormRepairMapper">
-    <resultMap id="BaseResultMap" type="com.waken.dorm.common.entity.dorm.DormRepair">
-        <id column="pk_dorm_repair_id" property="pkDormRepairId" jdbcType="VARCHAR"/>
-        <result column="dorm_id" property="dormId" jdbcType="VARCHAR"/>
-        <result column="repair_type" property="repairType" jdbcType="INTEGER"/>
-        <result column="repair_desc" property="repairDesc" jdbcType="VARCHAR"/>
-        <result column="repair_img_url" property="repairImgUrl" jdbcType="VARCHAR"/>
-        <result column="student_id" property="studentId" jdbcType="VARCHAR"/>
-        <result column="student_mobile" property="studentMobile" jdbcType="VARCHAR"/>
-        <result column="status" property="status" jdbcType="INTEGER"/>
-        <result column="repair_cost" property="repairCost" jdbcType="DECIMAL"/>
-        <result column="repair_bill_url" property="repairBillUrl" jdbcType="VARCHAR"/>
-        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
-        <result column="create_user_id" property="createUserId" jdbcType="VARCHAR"/>
-        <result column="last_modify_time" property="lastModifyTime" jdbcType="TIMESTAMP"/>
-        <result column="last_modify_user_id" property="lastModifyUserId" jdbcType="VARCHAR"/>
-        <result column="memo" property="memo" jdbcType="VARCHAR"/>
-    </resultMap>
-    <sql id="Base_Column_List">
-        pk_dorm_repair_id, dorm_id, repair_type, repair_desc, repair_img_url, student_id,
-        student_mobile, status, repair_cost, repair_bill_url, create_time, create_user_id,
-        last_modify_time, last_modify_user_id, memo
-    </sql>
-    <select id="selectByIds" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List"/>
-        from rm_dorm_repair
-        where pk_dorm_repair_id in
-        <foreach collection="Ids" item="dramaId" open="(" close=")" separator=",">
-            #{dramaId}
-        </foreach>
-    </select>
     <select id="listDormRepairs" parameterType="com.waken.dorm.common.form.dorm.DormRepairForm"
             resultType="com.waken.dorm.common.view.dorm.DormRepairView">
         SELECT
-        dr.pk_dorm_repair_id AS pkDormRepairId,
+        dr.id,
         d.dorm_num AS dormNum,
         dr.repair_type AS repairType,
         dr.repair_desc AS repairDesc,
@@ -90,7 +59,7 @@
             status = #{ur.status},
             last_modify_time = #{ur.lastModifyTime},
             last_modify_user_id = #{ur.lastModifyUserId}
-            where pk_dorm_repair_id = #{ur.pkId}
+            where id = #{ur.pkId}
         </foreach>
     </update>
 </mapper>

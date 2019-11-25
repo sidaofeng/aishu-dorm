@@ -15,13 +15,13 @@ import java.util.Date;
 @Getter
 @Setter
 public class DormRuleView extends BaseView {
-    private String pkDormRuleId;
+    private String id;
 
     private String schoolName;
 
-    private String ruleName;
+    private String name;
 
-    private String ruleDesc;
+    private String description;
 
     private Integer status;
 

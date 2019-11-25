@@ -123,7 +123,7 @@ public class DormScoreServiceImpl implements DormScoreService {
     @Transactional
     @Override
     public DormScore updateDormScore(DormScoreForm form) {
-        Assert.notNull(form.getPkDormScoreId());
+        Assert.notNull(form.getId());
         DormScore dormScore = new DormScore();
         BeanMapper.copy(form, dormScore);
         dormScoreMapper.updateById(dormScore);

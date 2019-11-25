@@ -103,11 +103,11 @@ public class DormRepairServiceImpl implements DormRepairService {
         Integer delStatus = deleteForm.getDelStatus();
         if (CodeEnum.YES.getCode().equals(delStatus)) {
             // 物理删除
-            List<DormRepair> dormRepairs = dormRepairMapper.selectByIds(ids);
+            List<DormRepair> dormRepairs = dormRepairMapper.selectBatchIds(ids);
             StringBuffer sb = new StringBuffer();
             for (DormRepair dormRepair : dormRepairs) {
                 if (CodeEnum.REPAIRING.getCode().equals(dormRepair.getStatus())) {
-                    sb.append(dormRepair.getPkDormRepairId());
+                    sb.append(dormRepair.getId());
                 }
             }
             Assert.isNull(sb.toString(),"以下维修记录处于正在维修状态中：" + sb.toString());
@@ -144,9 +144,9 @@ public class DormRepairServiceImpl implements DormRepairService {
     @Transactional
     @Override
     public DormRepair updateDormRepair(UpdateRepairForm updateForm) {
-        Assert.notNull(updateForm.getPkDormRepairId());
+        Assert.notNull(updateForm.getId());
         Assert.notNull(updateForm.getStatus());
-        DormRepair dormRepair = dormRepairMapper.selectById(updateForm.getPkDormRepairId());
+        DormRepair dormRepair = dormRepairMapper.selectById(updateForm.getId());
         dormRepair.setStatus(updateForm.getStatus());
         if (updateForm.getRepairCost() != null) {
             dormRepair.setRepairCost(updateForm.getRepairCost());

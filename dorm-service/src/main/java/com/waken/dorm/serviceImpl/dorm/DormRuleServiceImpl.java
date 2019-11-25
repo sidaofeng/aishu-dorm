@@ -53,7 +53,7 @@ public class DormRuleServiceImpl implements DormRuleService {
         int count;
         DormRule dormRule = new DormRule();
         BeanMapper.copy(editRuleForm, dormRule);
-        if (StringUtils.isEmpty(editRuleForm.getPkDormRuleId())) {//新增
+        if (StringUtils.isEmpty(editRuleForm.getId())) {//新增
             log.info("service: 开始进入新增宿舍规则信息");
             dormRule.setStatus(CodeEnum.ENABLE.getCode());
             count = dormRuleMapper.insert(dormRule);
@@ -62,7 +62,7 @@ public class DormRuleServiceImpl implements DormRuleService {
         } else {//更新宿舍规则信息
             log.info("service: 开始进入更新宿舍规则信息");
             dormRuleMapper.updateById(dormRule);
-            return dormRuleMapper.selectById(editRuleForm.getPkDormRuleId());
+            return dormRuleMapper.selectById(editRuleForm.getId());
         }
     }
 
@@ -79,11 +79,11 @@ public class DormRuleServiceImpl implements DormRuleService {
         Integer delStatus = deleteForm.getDelStatus();
         int count;
         if (CodeEnum.YES.getCode() == delStatus) { // 物理删除
-            List<DormRule> dormRuleList = dormRuleMapper.selectByIds(ids);
+            List<DormRule> dormRuleList = dormRuleMapper.selectBatchIds(ids);
             StringBuffer sb = new StringBuffer();
             for (DormRule dormRule : dormRuleList) {
                 if (CodeEnum.ENABLE.getCode() == dormRule.getStatus()) {
-                    sb.append(dormRule.getRuleName());
+                    sb.append(dormRule.getName());
                 }
             }
             Assert.isNull(sb.toString(),"以下宿舍规则处于生效中：" + sb.toString());
@@ -117,21 +117,21 @@ public class DormRuleServiceImpl implements DormRuleService {
      * @param editForm
      */
     private void editRuleValidate(EditDormRuleForm editForm) {
-        if (StringUtils.isEmpty(editForm.getPkDormRuleId())) {//新增验证
-            Assert.notNull(editForm.getRuleName());
-            Assert.notNull(editForm.getRuleDesc());
+        if (StringUtils.isEmpty(editForm.getId())) {//新增验证
+            Assert.notNull(editForm.getName());
+            Assert.notNull(editForm.getDescription());
             DormRule dormRule = dormRuleMapper.selectOne(new LambdaQueryWrapper<DormRule>()
-                    .eq(DormRule::getRuleName, editForm.getRuleName())
+                    .eq(DormRule::getName, editForm.getName())
             );
             Assert.isNull(dormRule,"已存在相同名称的规则名！");
         } else {//修改验证
-            Assert.notNull(dormRuleMapper.selectById(editForm.getPkDormRuleId()),"参数错误！");
-            if (StringUtils.isNotEmpty(editForm.getRuleName())) {
+            Assert.notNull(dormRuleMapper.selectById(editForm.getId()), "参数错误！");
+            if (StringUtils.isNotEmpty(editForm.getName())) {
                 DormRule dormRule = dormRuleMapper.selectOne(new LambdaQueryWrapper<DormRule>()
-                        .eq(DormRule::getRuleName, editForm.getRuleName())
+                        .eq(DormRule::getName, editForm.getName())
                 );
                 if (null != dormRule) {
-                    if (!StringUtils.equals(dormRule.getPkDormRuleId(), editForm.getPkDormRuleId())) {
+                    if (!StringUtils.equals(dormRule.getId(), editForm.getId())) {
                         throw new ServerException("已存在相同名称的规则名！");
                     }
                 }

@@ -17,5 +17,5 @@ import lombok.ToString;
 public class SysLogForm extends BaseForm {
     private String id;
 
-    private String keyWord;
+    private String keywords;
 }

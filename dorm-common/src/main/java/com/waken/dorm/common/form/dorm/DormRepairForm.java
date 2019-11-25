@@ -19,7 +19,7 @@ import java.util.Date;
 @Setter
 public class DormRepairForm extends BaseForm {
     private static final long serialVersionUID = -3982339641414695388L;
-    private String pkDormRepairId;
+    private String id;
 
     private String dormId;
 

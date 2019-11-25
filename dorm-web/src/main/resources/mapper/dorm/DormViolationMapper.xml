@@ -1,40 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.waken.dorm.dao.dorm.DormViolationMapper">
-    <resultMap id="BaseResultMap" type="com.waken.dorm.common.entity.dorm.DormViolation">
-        <id column="pk_dorm_violation_id" property="pkDormViolationId" jdbcType="VARCHAR"/>
-        <result column="dorm_rule_id" property="dormRuleId" jdbcType="VARCHAR"/>
-        <result column="dorm_id" property="dormId" jdbcType="VARCHAR"/>
-        <result column="student_id" property="studentId" jdbcType="VARCHAR"/>
-        <result column="violation_img_url" property="violationImgUrl" jdbcType="VARCHAR"/>
-        <result column="violation_reason" property="violationReason" jdbcType="VARCHAR"/>
-        <result column="solve_result" property="solveResult" jdbcType="VARCHAR"/>
-        <result column="status" property="status" jdbcType="INTEGER"/>
-        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
-        <result column="create_user_id" property="createUserId" jdbcType="VARCHAR"/>
-        <result column="last_modify_time" property="lastModifyTime" jdbcType="TIMESTAMP"/>
-        <result column="last_modify_user_id" property="lastModifyUserId" jdbcType="VARCHAR"/>
-        <result column="memo" property="memo" jdbcType="VARCHAR"/>
-    </resultMap>
-    <sql id="Base_Column_List">
-        pk_dorm_violation_id, dorm_rule_id, dorm_id, student_id, violation_img_url, violation_reason,
-        solve_result, status, create_time, create_user_id, last_modify_time, last_modify_user_id,
-        memo
-    </sql>
-    <select id="selectByIds" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List"/>
-        from rm_dorm_violation
-        where pk_dorm_violation_id in
-        <foreach collection="Ids" item="dramaId" open="(" close=")" separator=",">
-            #{dramaId}
-        </foreach>
-    </select>
     <select id="listDormViolations" parameterType="com.waken.dorm.common.form.dorm.DormViolationForm"
             resultType="com.waken.dorm.common.view.dorm.DormViolationView">
         SELECT
-        dv.pk_dorm_violation_id AS pkDormViolationId,
-        dr.rule_name AS dormRuleName,
+        dv.id,
+        dr.name AS dormRuleName,
         d.dorm_num AS dormNum,
         s.student_name AS studentName,
         dv.violation_img_url AS violationImgUrl,
@@ -46,19 +17,19 @@
         uu.user_name AS lastModifyUserName,
         dv.memo
         FROM rm_dorm_violation dv
-        LEFT JOIN rm_dorm_rule dr ON dr.pk_dorm_rule_id = dv.dorm_rule_id
-        LEFT JOIN rm_dorm d ON d.pk_dorm_id = dv.dorm_id
+        LEFT JOIN rm_dorm_rule dr ON dr.id = dv.dorm_rule_id
+        LEFT JOIN rm_dorm d ON d.id = dv.dorm_id
         LEFT JOIN rm_student s ON s.pk_student_id = dv.student_id
         LEFT JOIN rm_user u ON u.user_id = dv.create_user_id
         LEFT JOIN rm_user uu ON uu.user_id = dv.last_modify_user_id
-        LEFT JOIN rm_dorm_building db ON db.pk_dorm_building_id = d.dorm_building_id
+        LEFT JOIN rm_dorm_building db ON db.id = d.dorm_building_id
         WHERE 1=1
-        <if test="form.pkDormViolationId != null and form.pkDormViolationId != ''">
-            and dv.pk_dorm_violation_id=#{form.pkDormViolationId}
+        <if test="form.id != null and form.id != ''">
+            and dv.id=#{form.id}
         </if>
         <if test="form.dormRuleName != null and form.dormRuleName != ''">
             <!-- 这里修改了一下用户名的查询的方式-模糊查询   and u.user_name =#{userName} -->
-            and dr.rule_name like '%${form.dormRuleName}%'
+            and dr.name like '%${form.dormRuleName}%'
         </if>
         <if test="form.dormNum != null and form.dormNum != ''">
             <!-- 这里修改了一下用户名的查询的方式-模糊查询   and u.mobile=#{mobile} -->
@@ -88,8 +59,8 @@
     <select id="appListDormViolations" parameterType="com.waken.dorm.common.form.dorm.DormViolationForm"
             resultType="com.waken.dorm.common.view.dorm.AppDormViolationView">
         SELECT
-        dv.pk_dorm_violation_id AS pkDormViolationId,
-        dr.rule_name AS dormRuleName,
+        dv.id,
+        dr.name AS dormRuleName,
         d.dorm_num AS dormNum,
         s.student_name AS studentName,
         dv.violation_img_url AS violationImgUrl,
@@ -98,21 +69,21 @@
         dv.create_time AS createTime,
         dv.memo
         FROM rm_dorm_violation dv
-        LEFT JOIN rm_dorm_rule dr ON dr.pk_dorm_rule_id = dv.dorm_rule_id
-        LEFT JOIN rm_dorm d ON d.pk_dorm_id = dv.dorm_id
+        LEFT JOIN rm_dorm_rule dr ON dr.id = dv.dorm_rule_id
+        LEFT JOIN rm_dorm d ON d.id = dv.dorm_id
         LEFT JOIN rm_student s ON s.pk_student_id = dv.student_id
         LEFT JOIN rm_user u ON u.user_id = dv.create_user_id
         LEFT JOIN rm_user uu ON uu.user_id = dv.last_modify_user_id
-        LEFT JOIN rm_dorm_student_rel ds ON ds.dorm_id = d.pk_dorm_id
+        LEFT JOIN rm_dorm_student_rel ds ON ds.dorm_id = d.id
         WHERE 1=1
         <if test="form.studentId != null and form.studentId != ''">
             and ds.student_id=#{studentId}
         </if>
-        <if test="form.pkDormViolationId != null and form.pkDormViolationId != ''">
-            and dv.pk_dorm_violation_id=#{form.pkDormViolationId}
+        <if test="form.id != null and form.id != ''">
+            and dv.id=#{form.id}
         </if>
         <if test="form.dormRuleName != null and form.dormRuleName != ''">
-            and dr.rule_name like '%${form.dormRuleName}%'
+            and dr.name like '%${form.dormRuleName}%'
         </if>
         <if test="form.dormNum != null and form.dormNum != ''">
             and d.dorm_num like '%${form.dormNum}%'
@@ -132,7 +103,7 @@
             status = #{ur.status},
             last_modify_time = #{ur.lastModifyTime},
             last_modify_user_id = #{ur.lastModifyUserId}
-            where pk_dorm_violation_id = #{ur.pkId}
+            where id = #{ur.pkId}
         </foreach>
     </update>
 </mapper>

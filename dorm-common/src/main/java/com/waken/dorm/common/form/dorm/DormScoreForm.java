@@ -16,7 +16,7 @@ import java.util.Date;
 @Getter
 @Setter
 public class DormScoreForm {
-    private String pkDormScoreId;
+    private String id;
 
     private String dormNum;
 

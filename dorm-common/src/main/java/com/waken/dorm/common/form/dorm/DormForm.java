@@ -18,9 +18,9 @@ import java.util.Date;
 @Setter
 public class DormForm extends BaseForm {
     private static final long serialVersionUID = 5300270031224198511L;
-    private String pkDormId;
+    private String id;
 
-    private String dormBuildingId;
+    private String buildingId;
 
     private Integer buildingLevelth;
 

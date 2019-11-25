@@ -8,7 +8,6 @@ import com.waken.dorm.common.form.dorm.DormRepairForm;
 import com.waken.dorm.common.view.dorm.DormRepairView;
 import org.apache.ibatis.annotations.Param;
 
-import java.util.List;
 import java.util.Map;
 
 public interface DormRepairMapper extends BaseMapper<DormRepair> {
@@ -16,5 +15,4 @@ public interface DormRepairMapper extends BaseMapper<DormRepair> {
 
     IPage<DormRepairView> listDormRepairs(Page page,@Param("form") DormRepairForm dormRepairForm);
 
-    List<DormRepair> selectByIds(@Param("Ids") List<String> Ids);//通过批量Ids批量查询
 }

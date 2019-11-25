@@ -4,8 +4,6 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.waken.dorm.common.base.BaseEntity;
 import lombok.Data;
 
-import java.util.Date;
-
 /**
  * <p>
  * 学生基本数据表
@@ -19,11 +17,6 @@ import java.util.Date;
 public class StudentBasic extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
-
-    /**
-     * 学生基本数据表id
-     */
-    private Long id;
 
     /**
      * 姓名
@@ -99,12 +92,4 @@ public class StudentBasic extends BaseEntity {
     private String imgUrl;
 
     private Boolean isDeleted;
-
-    private Date createTime;
-
-    private String createUserId;
-
-    private Date lastModifyTime;
-
-    private String lastModifyUserId;
 }
