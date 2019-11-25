@@ -6,7 +6,6 @@
         (id,
         role_id,
         resource_id,
-        resource_type,
         create_time,
         create_user_id)
         VALUES
@@ -14,7 +13,6 @@
             (#{item.id},
             #{item.roleId},
             #{item.resourceId},
-            #{item.resourceType},
             #{item.createTime},
             #{item.createUserId})
         </foreach>

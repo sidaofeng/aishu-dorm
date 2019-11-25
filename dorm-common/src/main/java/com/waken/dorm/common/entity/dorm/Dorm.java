@@ -2,7 +2,9 @@ package com.waken.dorm.common.entity.dorm;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.waken.dorm.common.base.BaseEntity;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 /**
  * <p>
@@ -12,7 +14,9 @@ import lombok.Data;
  * @author zhaoRong
  * @since 2019-11-21
  */
-@Data
+@Getter
+@Setter
+@ToString
 @TableName("rm_dorm")
 public class Dorm extends BaseEntity {
 

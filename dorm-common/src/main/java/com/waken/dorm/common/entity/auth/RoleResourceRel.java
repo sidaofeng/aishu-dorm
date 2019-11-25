@@ -44,12 +44,6 @@ public class RoleResourceRel implements Serializable {
     @TableField("resource_id")
     private String resourceId;
 
-    /**
-     * 1菜单，2按钮
-     */
-    @TableField("resource_type")
-    private Integer resourceType;
-
     @TableField("create_time")
     private Date createTime;
 

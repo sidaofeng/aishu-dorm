@@ -471,7 +471,6 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
             RoleResourceRel roleResourceRel = new RoleResourceRel();
             roleResourceRel.setRoleId(role.getId());
             roleResourceRel.setResourceId(resourceId);
-            roleResourceRel.setResourceType(resourceType);
             roleResourceRelMapper.insert(roleResourceRel);
         }
     }

@@ -9,7 +9,8 @@ spring:
     encoding: utf-8
 
   jackson:
-    date-format: yyyy-MM-dd HH:mm:ss
+    date-format: yyyy-MM-dd
+    #    date-format: yyyy-MM-dd HH:mm:ss
     time-zone: GMT+8
 
 #mybatis plus 设置

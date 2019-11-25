@@ -4,11 +4,11 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.waken.dorm.common.annotation.Id;
-import com.waken.dorm.common.base.BaseEntity;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -23,7 +23,7 @@ import java.util.Date;
 @Setter
 @ToString
 @TableName("rm_user_role_rel")
-public class UserRoleRel extends BaseEntity {
+public class UserRoleRel implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
