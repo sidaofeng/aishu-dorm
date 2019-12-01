@@ -11,8 +11,20 @@ import org.apache.ibatis.annotations.Param;
 
 public interface DormMapper extends BaseMapper<Dorm> {
 
+    /**
+     * 分页
+     *
+     * @param page
+     * @param dormForm
+     * @return
+     */
+    IPage<DormView> findPage(Page page, @Param("form") DormForm dormForm);
 
+    /**
+     * TODO
+     *
+     * @param studentId
+     * @return
+     */
     AppDormView queryAppDormView(String studentId);
-
-    IPage<DormView> listDorms(Page page,@Param("form") DormForm dormForm);
 }

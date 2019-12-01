@@ -23,11 +23,6 @@ public class Dorm extends BaseEntity {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 建筑物ID
-     */
-    private String buildingId;
-
-    /**
      * 楼层ID（b_building_floor）
      */
     private String floorId;
@@ -45,7 +40,7 @@ public class Dorm extends BaseEntity {
     /**
      * 宿舍性别（1：男生寝室 2：女生寝室）
      */
-    private String dormSex;
+    private Integer dormSex;
 
     /**
      * 宿舍状态（1使用，2闲置，3不可用）

@@ -7,15 +7,20 @@ import lombok.Setter;
 import java.util.Date;
 
 /**
- * @ClassName DormView
+ * @ClassName BuildingView
  * @Description TODO
  * @Author zhaoRong
- * @Date 2019/4/3 12:19
+ * @Date 2019/4/3 14:54
  **/
 @Getter
 @Setter
-public class DormView extends BaseView {
+public class BuildingView extends BaseView {
     private String id;
+
+    /**
+     * 校区
+     */
+    private String campusName;
 
     /**
      * 名称
@@ -26,45 +31,31 @@ public class DormView extends BaseView {
      * 编码
      */
     private String code;
-    /**
-     * 校区
-     */
-    private String campusName;
 
     /**
-     * 建筑物
+     * 起始楼层
      */
-    private String buildingName;
+    private Integer floorStart;
 
     /**
-     * 楼层名称
+     * 楼层数量
      */
-    private String floorName;
+    private Integer floorTotal;
 
     /**
-     * 宿舍性别（1：男生寝室 2：女生寝室）
-     */
-    private Integer dormSex;
-
-    /**
-     * 宿舍状态（1使用，2闲置，3不可用）
+     * 使用状态(1使用，2闲置)
      */
     private Integer status;
 
     /**
-     * 宿舍类型（1学生宿舍、2教师宿舍、3宿管宿舍、4其他宿舍
+     * 建筑类型 1校内，2校外
      */
     private Integer type;
 
     /**
-     * 床位数量
+     * 产权证号
      */
-    private Integer bedNum;
-
-    /**
-     * 备注
-     */
-    private String memo;
+    private String certificateCode;
 
     private Date createTime;
 
@@ -73,4 +64,6 @@ public class DormView extends BaseView {
     private Date lastModifyTime;
 
     private String lastModifyUserName;
+
+    private String memo;
 }

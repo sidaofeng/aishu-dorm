@@ -22,7 +22,7 @@ import com.waken.dorm.dao.dorm.DormMapper;
 import com.waken.dorm.dao.dorm.DormRepairMapper;
 import com.waken.dorm.dao.student.StudentMapper;
 import com.waken.dorm.handle.DataHandle;
-import com.waken.dorm.service.dorm.DormRepairService;
+import com.waken.dorm.service.dorm.RepairService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +34,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * @ClassName DormRepairServiceImpl
+ * @ClassName RepairServiceImpl
  * @Description 宿舍维修业务层
  * @Author zhaoRong
  * @Date 2019/4/1 21:14
@@ -43,7 +43,7 @@ import java.util.List;
 @Service
 @Transactional(propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Exception.class)
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class DormRepairServiceImpl implements DormRepairService {
+public class RepairServiceImpl implements RepairService {
     private final DormRepairMapper dormRepairMapper;
     private final DormMapper dormMapper;
     private final StudentMapper studentMapper;

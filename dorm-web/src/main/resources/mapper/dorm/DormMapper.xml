@@ -2,53 +2,67 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.waken.dorm.dao.dorm.DormMapper">
 
-    <select id="listDorms" parameterType="com.waken.dorm.common.form.dorm.DormForm"
+    <select id="findPage" parameterType="com.waken.dorm.common.form.dorm.DormForm"
             resultType="com.waken.dorm.common.view.dorm.DormView">
         SELECT
-        d.pk_dorm_id AS pkDormId,
-        db.dorm_building_num AS dormBuildingNum,
-        d.building_levelth AS buildingLevelth,
-        d.dorm_type AS dormType,
-        d.dorm_num AS dormNum,
-        d.dorm_desc AS dormDesc,
+        d.id,
+        d.`name`,
+        d.`code`,
+        sc.`name` AS campusName,
+        b.`name` AS buildingName,
+        bf.`name` AS floorName,
+        d.dorm_sex AS dormSex,
         d.`status`,
+        d.type,
+        d.bed_num AS bedNum,
         d.create_time AS createTime,
         u.user_name AS createUserName,
         d.last_modify_time AS lastModifyTime,
         uu.user_name AS lastModifyUserName,
         d.memo
         FROM rm_dorm d
-        LEFT JOIN rm_dorm_building db ON db.pk_dorm_building_id = d.dorm_building_id
+        LEFT JOIN rm_building_floor bf ON bf.id = d.floor_id
+        LEFT JOIN rm_building b ON b.id = bf.building_id
+        LEFT JOIN rm_school_campus sc ON sc.id = b.campus_id
         LEFT JOIN rm_user u ON u.user_id = d.create_user_id
         LEFT JOIN rm_user uu ON uu.user_id = d.last_modify_user_id
-        WHERE 1=1
-        <if test="form.pkDormId != null and form.pkDormId != ''">
-            and dv.pk_dorm_id=#{form.pkDormId}
-        </if>
-        <if test="form.dormNum != null and form.dormNum != ''">
-            and d.dorm_num like '%${form.dormNum}%'
-        </if>
-        <if test="form.buildingLevelth != null">
-            and d.building_levelth=#{form.buildingLevelth}
-        </if>
-        <if test="form.dormType != null">
-            and d.dorm_type=#{form.dormType}
-        </if>
-        <if test="form.status != null">
-            and d.status=#{form.status}
-        </if>
-        <if test="form.createUserName != null and form.createUserName != ''">
-            and u.user_name like '%${form.createUserName}%'
-        </if>
-        <if test="form.lastModifyUserName != null and form.lastModifyUserName != ''">
-            and uu.user_name like '%${form.lastModifyUserName}%'
-        </if>
-        <if test="form.startTime != null">
-            AND d.create_time &gt;= #{form.startTime,jdbcType=TIMESTAMP}
-        </if>
-        <if test="form.endTime != null">
-            AND d.create_time &lt;= #{form.endTime,jdbcType=TIMESTAMP}
-        </if>
+        <where>
+            <if test="form.id != null and form.id != ''">
+                and d.id=#{form.id}
+            </if>
+            <if test="form.campusId != null and form.campusId != ''">
+                and b.campus_id=#{form.campusId}
+            </if>
+            <if test="form.buildingId != null and form.buildingId != ''">
+                and bf.building_id=#{form.campusId}
+            </if>
+            <if test="form.floorId != null and form.floorId != ''">
+                and d.floor_id=#{form.floorId}
+            </if>
+            <if test="form.keywords != null and form.keywords != ''">
+                <bind name="form.keywords" value="'%' + form.keywords + '%'"/>
+                AND (d.`name` LIKE #{form.keywords}
+                OR b.`name` LIKE #{form.keywords}
+                OR d.`code` LIKE #{form.keywords}
+                OR bf.`name` LIKE #{form.keywords}
+                )
+            </if>
+            <if test="form.dormSex != null">
+                and d.dorm_sex=#{form.dormSex}
+            </if>
+            <if test="form.status != null">
+                and d.`status`=#{form.status}
+            </if>
+            <if test="form.type != null">
+                and d.type=#{form.type}
+            </if>
+            <if test="form.startTime != null">
+                AND d.create_time &gt;= #{form.startTime,jdbcType=TIMESTAMP}
+            </if>
+            <if test="form.endTime != null">
+                AND d.create_time &lt;= #{form.endTime,jdbcType=TIMESTAMP}
+            </if>
+        </where>
         ORDER BY
         d.last_modify_time DESC
     </select>
@@ -56,11 +70,11 @@
             resultType="com.waken.dorm.common.view.dorm.AppDormView">
         SELECT
         d.id,
-        b.code AS buildingNum,
-        bf.`code` AS buildingLevelth,
-        d.code AS dormNum,
-        d.type AS dormType,
-        d.memo AS dormDesc
+        b.code AS buildingCode,
+        bf.`name` AS floorName,
+        d.code,
+        d.type,
+        d.memo
         FROM rm_dorm d
         LEFT JOIN rm_building b ON b.id = d.building_id
         LEFT JOIN rm_building_floor bf ON bf.id = d.floor_id

@@ -16,13 +16,13 @@ public class AppDormView extends BaseView {
 
     private String id;
 
-    private String buildingNum;
+    private String buildingCode;
 
-    private String buildingLevelth;
+    private String floorName;
 
-    private String dormNum;
+    private String code;
 
-    private Integer dormType;
+    private Integer type;
 
-    private String dormDesc;
+    private String memo;
 }

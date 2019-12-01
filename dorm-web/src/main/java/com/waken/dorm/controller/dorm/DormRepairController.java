@@ -10,7 +10,7 @@ import com.waken.dorm.common.form.dorm.DormRepairForm;
 import com.waken.dorm.common.form.dorm.UpdateRepairForm;
 import com.waken.dorm.common.view.dorm.DormRepairView;
 import com.waken.dorm.controller.base.BaseController;
-import com.waken.dorm.service.dorm.DormRepairService;
+import com.waken.dorm.service.dorm.RepairService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 public class DormRepairController extends BaseController {
     @Autowired
-    DormRepairService dormRepairService;
+    RepairService repairService;
 
     @Log("新增宿舍维修记录")
     @CrossOrigin
@@ -42,7 +42,7 @@ public class DormRepairController extends BaseController {
     public AjaxResponse addDormRepair(@RequestBody AddDormRepairForm addDormRepairForm) {
         log.info("开始调用新增宿舍维修记录接口：" + addDormRepairForm.toString());
         addDormRepairForm.setTerminal(CodeEnum.WEB.getCode());
-        return AjaxResponse.success(dormRepairService.addDormRepair(addDormRepairForm));
+        return AjaxResponse.success(repairService.addDormRepair(addDormRepairForm));
     }
 
     @Log("删除宿舍维修信息")
@@ -57,7 +57,7 @@ public class DormRepairController extends BaseController {
         if (null == deleteFrom.getDelIds() || deleteFrom.getDelIds().isEmpty()) {
             return AjaxResponse.error("入参为空！");
         }
-        dormRepairService.deleteDormRepair(deleteFrom);
+        repairService.deleteDormRepair(deleteFrom);
         return AjaxResponse.success();
     }
 
@@ -70,7 +70,7 @@ public class DormRepairController extends BaseController {
     public AjaxResponse listDormRepairs(@RequestBody DormRepairForm dormRepairForm) {
         log.info("开始调用分页查询宿舍维修信息接口：" + dormRepairForm.toString());
         dormRepairForm.setTerminal(CodeEnum.WEB.getCode());
-        return AjaxResponse.success(dormRepairService.listDormRepairs(dormRepairForm));
+        return AjaxResponse.success(repairService.listDormRepairs(dormRepairForm));
     }
 
     @Log("修改宿舍维修")
@@ -80,7 +80,7 @@ public class DormRepairController extends BaseController {
     @ApiResponses(value = {@ApiResponse(code = 200, message = "success", response = DormRepair.class)})
     public AjaxResponse updateDormRepair(@RequestBody UpdateRepairForm updateRepairForm) {
         log.info("开始调用修改宿舍维修接口：" + updateRepairForm.toString());
-        DormRepair dormRepair = dormRepairService.updateDormRepair(updateRepairForm);
+        DormRepair dormRepair = repairService.updateDormRepair(updateRepairForm);
         return AjaxResponse.success(dormRepair);
     }
 }

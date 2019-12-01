@@ -1,24 +1,24 @@
 package com.waken.dorm.serviceImpl.dorm;
 
+import com.aliyun.oss.ServiceException;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.waken.dorm.common.constant.Constant;
 import com.waken.dorm.common.entity.dorm.Dorm;
+import com.waken.dorm.common.entity.dorm.DormBed;
 import com.waken.dorm.common.enums.CodeEnum;
 import com.waken.dorm.common.exception.ServerException;
 import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.dorm.AddDormStudentRelForm;
 import com.waken.dorm.common.form.dorm.DormForm;
-import com.waken.dorm.common.form.dorm.EditDormForm;
 import com.waken.dorm.common.utils.Assert;
-import com.waken.dorm.common.utils.BeanMapper;
 import com.waken.dorm.common.utils.StringUtils;
 import com.waken.dorm.common.view.dorm.AppDormView;
 import com.waken.dorm.common.view.dorm.DormStudentsView;
 import com.waken.dorm.common.view.dorm.DormView;
 import com.waken.dorm.dao.dorm.DormMapper;
 import com.waken.dorm.handle.DataHandle;
+import com.waken.dorm.service.dorm.BedService;
 import com.waken.dorm.service.dorm.DormService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,67 +41,72 @@ import java.util.List;
 @Transactional(propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Exception.class)
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class DormServiceImpl extends ServiceImpl<DormMapper, Dorm> implements DormService {
-    private final DormMapper dormMapper;
+    private final BedService bedService;
 
-    /**
-     * 保存/修改宿舍信息
-     *
-     * @param editForm
-     * @return
-     */
-    @Transactional
     @Override
-    public Dorm saveDorm(EditDormForm editForm) {
-        this.editValidate(editForm);
-        Dorm dorm = new Dorm();
-        BeanMapper.copy(editForm, dorm);
-        if (StringUtils.isEmpty(editForm.getId())) {//新增
-            log.info("service: 开始进入新增宿舍信息");
-            dorm.setStatus(CodeEnum.ENABLE.getCode());
-            int count = dormMapper.insert(dorm);
-            Assert.isFalse(count == Constant.ZERO);
-            return dorm;
-        } else {//更新宿舍信息
-            log.info("service: 开始进入更新宿舍信息");
-            dormMapper.updateById(dorm);
-            return dormMapper.selectById(editForm.getId());
-        }
-    }
-
-    /**
-     * 删除宿舍
-     *
-     * @param deleteForm
-     */
-    @Transactional
-    @Override
-    public void deleteDorm(DeleteForm deleteForm) {
-        log.info("service: 删除宿舍开始");
-        List<String> idList = deleteForm.getDelIds();
-        if (idList == null || idList.isEmpty()) {
-            return;
-        }
-        Integer delStatus = deleteForm.getDelStatus();
-        int count ;
-        if (CodeEnum.YES.getCode() == delStatus) { // 物理删除
-            //删除宿舍
-            count = dormMapper.deleteBatchIds(idList);
-            Assert.isFalse(count == Constant.ZERO);
-
-        } else if (CodeEnum.NO.getCode() == delStatus) {
-            List<Dorm> dormList = new ArrayList<>(idList.size());
-            idList.stream().forEach(id -> {
-                Dorm dorm = new Dorm();
-                dorm.setId(id);
-                dorm.setIsDeleted(true);
-                dormList.add(dorm);
-            });
-            this.updateBatchById(dormList);
+    public int insert(Dorm dorm) {
+        int result = 0;
+        if (dorm == null) {
+            throw new ServiceException("入参数据为空");
         } else {
-            throw new ServerException("删除状态码错误！");
+            Assert.notNull(dorm.getName(), "宿舍名称必填");
+            Assert.notNull(dorm.getCode(), "宿舍编号必填");
+            Assert.notNull(dorm.getFloorId(), "宿舍楼层必填");
+            Assert.notNull(dorm.getType(), "宿舍类型必填");
+        }
+        if (this.verification(dorm) == 0) {
+            result = this.baseMapper.insert(dorm);
+            if (result == 1) {
+                this.initBed(dorm);
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public void delete(DeleteForm deleteForm) {
+        if (deleteForm == null || deleteForm.getDelIds() == null) {
+            throw new ServiceException("入参数据为空");
+        }
+        if (!deleteForm.getDelIds().isEmpty()) {
+            //物理删除
+            if (deleteForm.getDelStatus() == CodeEnum.YES.getCode()) {
+                this.baseMapper.deleteBatchIds(deleteForm.getDelIds());
+            } else if (deleteForm.getDelStatus() == CodeEnum.NO.getCode()) {
+                List<Dorm> dormList = new ArrayList<>();
+                for (String id : deleteForm.getDelIds()) {
+                    Dorm dorm = new Dorm();
+                    dorm.setId(id);
+                    dorm.setIsDeleted(true);
+                    dormList.add(dorm);
+                }
+                this.updateBatchById(dormList);
+            } else {
+                throw new ServerException("删除状态码错误");
+            }
+
         }
     }
 
+    @Override
+    public int update(Dorm dorm) {
+        int result = 0;
+        if (dorm == null) {
+            throw new ServiceException("入参数据为空");
+        }
+        if (this.verification(dorm) == 0) {
+            result = this.baseMapper.updateById(dorm);
+        }
+        return result;
+    }
+
+    @Override
+    public Dorm get(String id) {
+        if (StringUtils.isEmpty(id)) {
+            throw new ServiceException("入参数据为空");
+        }
+        return this.baseMapper.selectById(id);
+    }
     /**
      * 分页查询宿舍楼信息
      *
@@ -109,9 +114,9 @@ public class DormServiceImpl extends ServiceImpl<DormMapper, Dorm> implements Do
      * @return
      */
     @Override
-    public IPage<DormView> listDorms(DormForm dormForm) {
+    public IPage<DormView> page(DormForm dormForm) {
         log.info("service: 分页查询宿舍信息开始");
-        return dormMapper.listDorms(DataHandle.getWrapperPage(dormForm),dormForm);
+        return this.baseMapper.findPage(DataHandle.getWrapperPage(dormForm), dormForm);
     }
 
     /**
@@ -205,36 +210,6 @@ public class DormServiceImpl extends ServiceImpl<DormMapper, Dorm> implements Do
 //        return toBeAddDormStudentRelList;
 //    }
 
-    /**
-     * 新增宿舍时 验证
-     *
-     * @param editForm
-     */
-    private void editValidate(EditDormForm editForm) {
-        if (StringUtils.isEmpty(editForm.getId())) {//新增验证
-            Assert.notNull(editForm.getDormBuildingId());
-            Assert.notNull(editForm.getDormType());
-            Assert.notNull(editForm.getDormNum());
-            Assert.notNull(editForm.getBuildingLevelth());
-            Assert.notNull(editForm.getDormBuildingId());
-            Dorm dorm = dormMapper.selectOne(new LambdaQueryWrapper<Dorm>()
-                    .eq(Dorm::getCode, editForm.getDormNum())
-            );
-            Assert.isNull(dorm,"已存在相同名称的宿舍编号！");
-        } else {//修改验证
-            Assert.notNull(dormMapper.selectById(editForm.getId()), "参数错误！");
-            if (StringUtils.isNotEmpty(editForm.getDormNum())) {
-                Dorm dorm = dormMapper.selectOne(new LambdaQueryWrapper<Dorm>()
-                        .eq(Dorm::getCode, editForm.getDormNum())
-                );
-                if (null != dorm) {
-                    if (!StringUtils.equals(dorm.getId(), editForm.getId())) {
-                        throw new ServerException("已存在相同名称的宿舍编号！");
-                    }
-                }
-            }
-        }
-    }
 
     /**
      * app端查询宿舍视图
@@ -244,10 +219,75 @@ public class DormServiceImpl extends ServiceImpl<DormMapper, Dorm> implements Do
      */
     @Override
     public AppDormView queryAppDormView(String studentId) {
-        AppDormView appDormView = dormMapper.queryAppDormView(studentId);
+        AppDormView appDormView = this.baseMapper.queryAppDormView(studentId);
         if (appDormView == null) {
             return new AppDormView();
         }
         return appDormView;
+    }
+
+    /**
+     * 新增宿舍时初始化床位
+     *
+     * @param dorm
+     */
+    private void initBed(Dorm dorm) {
+        String dormId = dorm.getId();
+        if (dorm.getBedNum() < 0 || dorm.getBedNum() > 20) {
+            throw new ServerException("宿舍床位数量必须再0~20之间");
+        } else {
+            List<DormBed> bedList = new ArrayList<>();
+            for (int i = 1; i <= dorm.getBedNum(); i++) {
+                DormBed bed = new DormBed();
+                bed.setDormId(dormId);
+                bed.setCode(i);
+                bed.setName(i + "号床");
+                bed.setMemo(dorm.getCode() + "-" + i + "号床");
+                bedList.add(bed);
+            }
+            this.bedService.saveBatch(bedList);
+        }
+    }
+
+    private int verification(Dorm dorm) {
+        if (dorm.getName() != null) {
+            //验证宿舍名称
+            List<Dorm> dormList = this.baseMapper.selectList(new LambdaQueryWrapper<Dorm>()
+                    .eq(Dorm::getName, dorm.getName())
+                    .eq(Dorm::getFloorId, dorm.getFloorId())
+                    .eq(Dorm::getIsDeleted, 0));
+            if (dormList.size() != 0) {
+                if (dorm.getId() == null) {
+                    throw new ServiceException("该名称已经存在");
+                } else {
+                    for (Dorm dorms : dormList) {
+                        if (!dorms.getId().equals(dorm.getId())) {
+                            //Id不一致说明数据不止一条 ，数据重复
+                            throw new ServiceException("该名称已经存在");
+                        }
+                    }
+                }
+            }
+        }
+        if (dorm.getCode() != null) {
+            //验证宿舍号
+            List<Dorm> dormList = this.baseMapper.selectList(new LambdaQueryWrapper<Dorm>()
+                    .eq(Dorm::getCode, dorm.getCode())
+                    .eq(Dorm::getFloorId, dorm.getFloorId())
+                    .eq(Dorm::getIsDeleted, 0));
+            if (dormList.size() != 0) {
+                if (dorm.getId() == null) {
+                    throw new ServiceException("宿舍号不能重复");
+                } else {
+                    for (Dorm dorms : dormList) {
+                        if (!dorms.getId().equals(dorm.getId())) {
+                            //Id不一致说明数据不止一条 ，数据重复
+                            throw new ServiceException("宿舍号不能重复");
+                        }
+                    }
+                }
+            }
+        }
+        return 0;
     }
 }

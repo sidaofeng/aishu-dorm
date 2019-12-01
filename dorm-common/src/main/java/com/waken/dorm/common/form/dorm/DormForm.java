@@ -5,8 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.util.Date;
-
 /**
  * @ClassName DormForm
  * @Description DormForm
@@ -19,26 +17,36 @@ import java.util.Date;
 public class DormForm extends BaseForm {
     private static final long serialVersionUID = 5300270031224198511L;
     private String id;
-
+    /**
+     * 校区
+     */
+    private String campusId;
+    /**
+     * 建筑物ID
+     */
     private String buildingId;
 
-    private Integer buildingLevelth;
+    /**
+     * 楼层ID（b_building_floor）
+     */
+    private String floorId;
 
-    private Integer dormType;
+    /**
+     * 宿舍性别（1：男生寝室 2：女生寝室）
+     */
+    private Integer dormSex;
 
-    private String dormNum;
-
-    private String dormDesc;
-
+    /**
+     * 宿舍状态（1使用，2闲置，3不可用）
+     */
     private Integer status;
 
-    private Date createTime;
-
-    private String createUserName;
-
-    private Date lastModifyTime;
-
-    private String lastModifyUserName;
-
-    private String memo;
+    /**
+     * 宿舍类型（1学生宿舍、2教师宿舍、3宿管宿舍、4其他宿舍
+     */
+    private Integer type;
+    /**
+     * 关键字
+     */
+    private String keywords;
 }

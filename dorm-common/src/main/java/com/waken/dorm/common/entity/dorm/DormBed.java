@@ -35,7 +35,7 @@ public class DormBed extends BaseEntity {
     /**
      * 床位号
      */
-    private String code;
+    private Integer code;
 
     /**
      * 入住人id（学生/教师/宿管/其他）

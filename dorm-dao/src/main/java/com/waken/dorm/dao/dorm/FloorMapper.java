@@ -11,6 +11,6 @@ import com.waken.dorm.common.entity.dorm.BuildingFloor;
  * @author zhaoRong
  * @since 2019-11-21
  */
-public interface BuildingFloorMapper extends BaseMapper<BuildingFloor> {
+public interface FloorMapper extends BaseMapper<BuildingFloor> {
 
 }

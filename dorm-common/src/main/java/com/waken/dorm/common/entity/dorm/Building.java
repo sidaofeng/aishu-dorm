@@ -50,12 +50,12 @@ public class Building extends BaseEntity {
     /**
      * 使用状态(1使用，2闲置)
      */
-    private String status;
+    private Integer status;
 
     /**
      * 建筑类型 1校内，2校外
      */
-    private String type;
+    private Integer type;
 
     /**
      * 产权证号

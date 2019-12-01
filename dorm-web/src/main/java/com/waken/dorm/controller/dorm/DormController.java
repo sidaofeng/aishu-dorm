@@ -6,7 +6,6 @@ import com.waken.dorm.common.entity.dorm.Dorm;
 import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.dorm.AddDormStudentRelForm;
 import com.waken.dorm.common.form.dorm.DormForm;
-import com.waken.dorm.common.form.dorm.EditDormForm;
 import com.waken.dorm.common.utils.StringUtils;
 import com.waken.dorm.common.view.dorm.DormStudentsView;
 import com.waken.dorm.common.view.dorm.DormView;
@@ -33,44 +32,88 @@ public class DormController extends BaseController {
     @Autowired
     private DormService dormService;
 
-    @Log("(保存/修改)宿舍信息")
+    /**
+     * 新增
+     *
+     * @param dorm
+     * @return
+     */
     @CrossOrigin
     @PostMapping(value = "add")
-    @ApiOperation(value = "(保存/修改)宿舍信息", notes = "(保存/修改)宿舍信息")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "success", response = Dorm.class)
-    })
-    public AjaxResponse saveDorm(@RequestBody EditDormForm editDormForm) {
-        log.info("开始调用(保存/修改)宿舍信息接口接口：" + editDormForm.toString());
-        Dorm dorm = dormService.saveDorm(editDormForm);
-        return AjaxResponse.success(dorm);
-    }
-
-    @Log("删除宿舍信息")
-    @CrossOrigin
-    @DeleteMapping(value = "delete")
-    @ApiOperation(value = "删除宿舍信息", notes = "删除宿舍信息")
+    @ApiOperation(value = "新增", notes = "新增 ")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
-    public AjaxResponse deleteDorm(@RequestBody DeleteForm deleteFrom) {
-        log.info("开始调用删除宿舍接口：" + deleteFrom.toString());
-        if (null == deleteFrom.getDelIds() || deleteFrom.getDelIds().isEmpty()) {
-            return AjaxResponse.error("入参为空！");
+    public AjaxResponse insert(@RequestBody Dorm dorm) {
+        if (this.dormService.insert(dorm) == 1) {
+            return AjaxResponse.success();
+        } else {
+            return AjaxResponse.error();
         }
-        dormService.deleteDorm(deleteFrom);
+    }
+
+    /**
+     * 删除
+     * @param deleteForm
+     */
+    @CrossOrigin
+    @DeleteMapping(value = "delete")
+    @ApiOperation(value = "删除", notes = "删除 ")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
+    })
+    public AjaxResponse delete(@RequestBody DeleteForm deleteForm) {
+        this.dormService.delete(deleteForm);
         return AjaxResponse.success();
     }
 
+    /**
+     * 更新
+     *
+     * @param dorm
+     * @return
+     */
+    @CrossOrigin
+    @PutMapping(value = "update")
+    @ApiOperation(value = "更新", notes = "更新 ")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
+    })
+    public AjaxResponse update(@RequestBody Dorm dorm) {
+        if (this.dormService.update(dorm) == 1) {
+            return AjaxResponse.success();
+        } else {
+            return AjaxResponse.error();
+        }
+
+    }
+
+    /**
+     * 通过id获取楼层信息
+     *
+     * @param id
+     * @return
+     */
+    @CrossOrigin
+    @GetMapping(value = "{id}")
+    @ApiOperation(value = "通过id查询", notes = "通过id查询 ")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "success", response = Dorm.class)
+    })
+    public AjaxResponse get(@PathVariable("id") String id) {
+        return AjaxResponse.success(this.dormService.get(id));
+    }
+
+
     @CrossOrigin
     @PostMapping(value = "page")
-    @ApiOperation(value = "分页查询宿舍信息", notes = "分页查询宿舍信息")
+    @ApiOperation(value = "分页", notes = "分页")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = DormView.class)
     })
-    public AjaxResponse listDorms(@RequestBody DormForm dormForm) {
+    public AjaxResponse page(@RequestBody DormForm dormForm) {
         log.info("开始调用分页查询宿舍信息接口：" + dormForm.toString());
-        return AjaxResponse.success(dormService.listDorms(dormForm));
+        return AjaxResponse.success(dormService.page(dormForm));
     }
 
     @CrossOrigin

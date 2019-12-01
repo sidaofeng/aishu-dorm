@@ -11,6 +11,6 @@ import com.waken.dorm.common.entity.dorm.DormBed;
  * @author zhaoRong
  * @since 2019-11-21
  */
-public interface DormBedMapper extends BaseMapper<DormBed> {
+public interface BedMapper extends BaseMapper<DormBed> {
 
 }

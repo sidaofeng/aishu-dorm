@@ -8,7 +8,7 @@ import com.waken.dorm.common.form.dorm.DormRepairForm;
 import com.waken.dorm.common.form.dorm.UpdateRepairForm;
 import com.waken.dorm.common.view.dorm.DormRepairView;
 
-public interface DormRepairService {
+public interface RepairService {
     /**
      * 新增维修记录
      *

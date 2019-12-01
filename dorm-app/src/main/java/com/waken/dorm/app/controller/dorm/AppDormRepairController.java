@@ -6,10 +6,10 @@ import com.waken.dorm.common.entity.dorm.DormRepair;
 import com.waken.dorm.common.enums.CodeEnum;
 import com.waken.dorm.common.form.dorm.AddDormRepairForm;
 import com.waken.dorm.common.form.dorm.DormRepairForm;
-import com.waken.dorm.common.view.dorm.DormRepairView;
 import com.waken.dorm.common.manager.StudentManager;
-import com.waken.dorm.service.dorm.DormRepairService;
+import com.waken.dorm.common.view.dorm.DormRepairView;
 import com.waken.dorm.service.dorm.DormService;
+import com.waken.dorm.service.dorm.RepairService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -33,7 +33,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class AppDormRepairController extends AppBaseController {
-    private final DormRepairService dormRepairService;
+    private final RepairService repairService;
     private final StudentManager studentManager;
     private final DormService dormService;
 
@@ -46,7 +46,7 @@ public class AppDormRepairController extends AppBaseController {
         addDormRepairForm.setStudentId(studentManager.getCurrentStudentId());
         log.info("开始调用新增宿舍维修记录接口：" + addDormRepairForm.toString());
         try {
-            DormRepair dormRepair = dormRepairService.addDormRepair(addDormRepairForm);
+            DormRepair dormRepair = repairService.addDormRepair(addDormRepairForm);
             log.info("新增宿舍维修记录成功");
             return AjaxResponse.success(dormRepair);
         } catch (Exception e) {
@@ -68,6 +68,6 @@ public class AppDormRepairController extends AppBaseController {
         dormRepairForm.setPageNum(pageNum);
         dormRepairForm.setPageSize(pageSize);
         dormRepairForm.setTerminal(CodeEnum.APP.getCode());
-        return AjaxResponse.success(dormRepairService.listDormRepairs(dormRepairForm));
+        return AjaxResponse.success(repairService.listDormRepairs(dormRepairForm));
     }
 }

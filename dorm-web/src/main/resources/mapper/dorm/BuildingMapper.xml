@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.waken.dorm.dao.dorm.BuildingMapper">
+    <select id="findBuildingPage" parameterType="com.waken.dorm.common.form.dorm.BuildingForm"
+            resultType="com.waken.dorm.common.view.dorm.BuildingView">
+        SELECT
+        b.id,
+        sc.`name` AS campusName,
+        b.`name`,
+        b.`code`,
+        b.floor_start AS floorStart,
+        b.floor_total AS floorTotal,
+        b.`status`,
+        b.type,
+        b.certificate_code AS certificateCode,
+        b.create_time AS createTime,
+        u.user_name AS createUserName,
+        b.last_modify_time AS lastModifyTime,
+        uu.user_name AS lastModifyUserName,
+        b.memo
+        FROM rm_building b
+        LEFT JOIN rm_user u ON u.user_id = b.create_user_id
+        LEFT JOIN rm_user uu ON uu.user_id = b.last_modify_user_id
+        LEFT JOIN rm_school_campus sc ON sc.id = b.campus_id
+        <where>
+            <if test="form.id != null and form.id != ''">
+                and b.id=#{form.id}
+            </if>
+            <if test="form.campusId != null and form.campusId != ''">
+                and b.campus_id=#{form.campusId}
+            </if>
+            <if test="form.keywords != null and form.keywords != ''">
+                <bind name="form.keywords" value="'%' + form.keywords + '%'"/>
+                AND (b.`name` LIKE #{form.keywords}
+                OR sc.`name` LIKE #{form.keywords}
+                OR b.`code` LIKE #{form.keywords}
+                OR u.user_name LIKE #{form.keywords}
+                )
+            </if>
+            <if test="form.status != null">
+                and b.status=#{form.status}
+            </if>
+            <if test="form.type != null">
+                and b.type=#{form.type}
+            </if>
+            <if test="form.startTime != null">
+                AND b.create_time &gt;= #{form.startTime,jdbcType=TIMESTAMP}
+            </if>
+            <if test="form.endTime != null">
+                AND b.create_time &lt;= #{form.endTime,jdbcType=TIMESTAMP}
+            </if>
+        </where>
+        ORDER BY
+        b.last_modify_time DESC
+    </select>
+</mapper>

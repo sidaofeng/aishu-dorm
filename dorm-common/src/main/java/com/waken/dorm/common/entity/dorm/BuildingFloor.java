@@ -35,7 +35,7 @@ public class BuildingFloor extends BaseEntity {
     /**
      * 楼层
      */
-    private String code;
+    private Integer code;
 
     /**
      * 是否删除（0否，1是）

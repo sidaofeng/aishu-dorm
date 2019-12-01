@@ -1,34 +1,15 @@
-CREATE TABLE `rm_building` (
-  `id` varchar(32) COLLATE utf8_bin NOT NULL,
-  `campus_id` varchar(32) COLLATE utf8_bin DEFAULT NULL COMMENT '校区',
-  `name` varchar(45) COLLATE utf8_bin DEFAULT NULL COMMENT '名称',
-  `code` varchar(45) COLLATE utf8_bin DEFAULT NULL COMMENT '编码',
-  `floor_start` int(3) DEFAULT NULL COMMENT '起始楼层',
-  `floor_total` int(3) DEFAULT NULL COMMENT '楼层数量',
-  `status` varchar(45) COLLATE utf8_bin DEFAULT NULL COMMENT '使用状态(1使用，2闲置)',
-  `type` varchar(45) COLLATE utf8_bin DEFAULT NULL COMMENT '建筑类型 1校内，2校外',
-  `certificate_code` varchar(45) COLLATE utf8_bin DEFAULT NULL COMMENT '产权证号',
-  `is_deleted` bit(1) DEFAULT b'0' COMMENT '是否删除（0否，1是）',
+CREATE TABLE `rm_log` (
+  `id` varchar(32) NOT NULL COMMENT '日志ID',
+  `user_id` varchar(32) DEFAULT NULL COMMENT '操作用户id',
+  `operation_content` varchar(100) DEFAULT NULL COMMENT '操作内容',
+  `duration` int(11) DEFAULT NULL COMMENT '耗时',
+  `method` varchar(255) DEFAULT NULL COMMENT '操作方法',
+  `params` varchar(5000) DEFAULT NULL COMMENT '方法参数',
+  `ip` varchar(64) DEFAULT NULL COMMENT '操作者IP',
   `create_time` datetime DEFAULT NULL COMMENT '创建时间',
-  `create_user_id` varchar(32) CHARACTER SET utf8mb4 DEFAULT NULL,
-  `last_modify_time` datetime DEFAULT NULL COMMENT '最终修改时间',
-  `last_modify_user_id` varchar(32) CHARACTER SET utf8mb4 DEFAULT NULL,
-  `memo` varchar(500) CHARACTER SET utf8 DEFAULT NULL COMMENT '备注',
+  `location` varchar(100) DEFAULT NULL COMMENT '操作地点',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-
-CREATE TABLE `rm_building_floor` (
-  `id` varchar(32) COLLATE utf8_bin NOT NULL,
-  `building_id` varchar(32) COLLATE utf8_bin DEFAULT NULL COMMENT '建筑物ID',
-  `name` varchar(20) COLLATE utf8_bin DEFAULT NULL COMMENT '名称',
-  `code` varchar(20) COLLATE utf8_bin DEFAULT NULL COMMENT '楼层',
-  `is_deleted` bit(1) DEFAULT b'0' COMMENT '是否删除（0否，1是）',
-  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
-  `create_user_id` varchar(32) CHARACTER SET utf8mb4 DEFAULT NULL,
-  `last_modify_time` datetime DEFAULT NULL COMMENT '最终修改时间',
-  `last_modify_user_id` varchar(32) CHARACTER SET utf8mb4 DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='建筑物楼层';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `rm_dict` (
   `id` varchar(32) NOT NULL COMMENT '主键id',
@@ -57,138 +38,6 @@ INSERT INTO `rm_dict` VALUES ('92a4a7e39b524f0dac2dc57290590492', 'root', '资�
 INSERT INTO `rm_dict` VALUES ('a47da99cd9c94988bf39bb10670ca136', 'root', '默认密码', 'DEFPWD', '', '0', '系统默认密码', '', '2019-11-24 00:16:11', '1', '2019-11-24 00:16:11', '1');
 INSERT INTO `rm_dict` VALUES ('ed5d2d420f8d4416a4857ca5ecd2cea3', 'root', '性别', 'SEX', '', '1', '性别', '', '2019-11-24 00:06:41', '1', '2019-11-24 00:06:41', '1');
 
-CREATE TABLE `rm_dorm` (
-  `id` varchar(32) COLLATE utf8_bin NOT NULL,
-  `building_id` varchar(32) COLLATE utf8_bin DEFAULT NULL COMMENT '建筑物ID',
-  `floor_id` varchar(32) COLLATE utf8_bin DEFAULT NULL COMMENT '楼层ID（b_building_floor）',
-  `name` varchar(20) COLLATE utf8_bin DEFAULT NULL COMMENT '名称',
-  `code` varchar(20) COLLATE utf8_bin DEFAULT NULL COMMENT '编码',
-  `dorm_sex` varchar(48) COLLATE utf8_bin DEFAULT NULL COMMENT '宿舍性别（1：男生寝室 2：女生寝室）',
-  `status` int(2) DEFAULT NULL COMMENT '宿舍状态（1使用，2闲置，3不可用）',
-  `type` int(2) DEFAULT NULL COMMENT '宿舍类型（1学生宿舍、2教师宿舍、3宿管宿舍、4其他宿舍',
-  `bed_num` int(2) DEFAULT NULL COMMENT '床位数量',
-  `is_deleted` bit(1) DEFAULT b'0' COMMENT '是否删除（0否，1是）',
-  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
-  `create_user_id` varchar(32) CHARACTER SET utf8mb4 DEFAULT NULL,
-  `last_modify_time` datetime DEFAULT NULL COMMENT '最终修改时间',
-  `last_modify_user_id` varchar(32) CHARACTER SET utf8mb4 DEFAULT NULL,
-  `memo` varchar(500) CHARACTER SET utf8 DEFAULT NULL COMMENT '备注',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='宿舍基本信息';
-
-CREATE TABLE `rm_dorm_bed` (
-  `id` varchar(32) COLLATE utf8_bin NOT NULL COMMENT '主键id',
-  `dorm_id` varchar(32) COLLATE utf8_bin NOT NULL COMMENT '宿舍id',
-  `name` varchar(20) COLLATE utf8_bin DEFAULT NULL COMMENT '床位名称',
-  `code` varchar(20) COLLATE utf8_bin DEFAULT NULL COMMENT '床位号',
-  `subject_id` varchar(32) COLLATE utf8_bin DEFAULT NULL COMMENT '入住人id（学生/教师/宿管/其他）',
-  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
-  `create_user_id` varchar(32) CHARACTER SET utf8mb4 DEFAULT NULL,
-  `last_modify_time` datetime DEFAULT NULL COMMENT '最终修改时间',
-  `last_modify_user_id` varchar(32) CHARACTER SET utf8mb4 DEFAULT NULL,
-  `memo` varchar(500) CHARACTER SET utf8 DEFAULT NULL COMMENT '备注',
-  PRIMARY KEY (`id`),
-  KEY `base_id_index` (`subject_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='宿舍床位';
-
-CREATE TABLE `rm_dorm_building` (
-  `pk_dorm_building_id` varchar(32) NOT NULL COMMENT '主键',
-  `dorm_building_type` int(1) DEFAULT NULL COMMENT '楼栋类型（0：校内 1：校外）',
-  `dorm_building_num` varchar(20) DEFAULT NULL COMMENT '楼栋编号（1，2，A，B）',
-  `dorm_building_levels` int(2) DEFAULT NULL COMMENT '楼栋总层数',
-  `dorm_building_desc` varchar(500) DEFAULT NULL COMMENT '楼栋描述',
-  `status` int(1) DEFAULT NULL COMMENT '状态 (1-生效，0-无效)',
-  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
-  `create_user_id` varchar(32) CHARACTER SET utf8mb4 DEFAULT NULL,
-  `last_modify_time` datetime DEFAULT NULL COMMENT '最终修改时间',
-  `last_modify_user_id` varchar(32) CHARACTER SET utf8mb4 DEFAULT NULL,
-  `memo` varchar(500) DEFAULT NULL COMMENT '备注',
-  PRIMARY KEY (`pk_dorm_building_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE `rm_dorm_repair` (
-  `id` varchar(32) NOT NULL,
-  `dorm_id` varchar(32) DEFAULT NULL COMMENT '宿舍id',
-  `repair_type` int(2) DEFAULT NULL COMMENT '维修类型(门窗、床、水电)',
-  `repair_desc` varchar(255) DEFAULT NULL COMMENT '维修描述',
-  `repair_img_url` varchar(255) DEFAULT NULL COMMENT '维修图片',
-  `student_id` varchar(32) DEFAULT NULL COMMENT '报修人',
-  `student_mobile` varchar(20) DEFAULT NULL COMMENT '报修人联系方式',
-  `status` int(2) DEFAULT NULL COMMENT '状态（0：未维修1：已维修2：已报废）',
-  `repair_cost` decimal(16,4) DEFAULT NULL COMMENT '维修费用',
-  `repair_bill_url` varchar(255) DEFAULT NULL COMMENT '维修费用发票',
-  `create_time` datetime DEFAULT NULL,
-  `create_user_id` varchar(32) CHARACTER SET utf8mb4 DEFAULT NULL,
-  `last_modify_time` datetime DEFAULT NULL,
-  `last_modify_user_id` varchar(32) CHARACTER SET utf8mb4 DEFAULT NULL,
-  `memo` varchar(255) DEFAULT NULL COMMENT '备注',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE `rm_dorm_rule` (
-  `id` varchar(32) NOT NULL,
-  `name` varchar(50) DEFAULT NULL,
-  `description` varchar(500) DEFAULT NULL,
-  `status` int(2) DEFAULT NULL COMMENT '状态（1：生效 0：失效）',
-  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
-  `create_user_id` varchar(32) CHARACTER SET utf8mb4 DEFAULT NULL COMMENT '创建人',
-  `last_modify_time` datetime DEFAULT NULL,
-  `last_modify_user_id` varchar(32) CHARACTER SET utf8mb4 DEFAULT NULL,
-  `memo` varchar(255) DEFAULT NULL COMMENT '备注',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE `rm_dorm_score` (
-  `id` varchar(32) NOT NULL COMMENT '主键',
-  `dorm_num` varchar(32) DEFAULT NULL COMMENT '宿舍号',
-  `culture_score` int(2) DEFAULT NULL COMMENT '宿舍文化得分',
-  `discipline_score` int(2) DEFAULT NULL COMMENT '纪律得分',
-  `bed_score` int(2) DEFAULT NULL COMMENT '宿舍床铺得分',
-  `desk_score` int(2) DEFAULT NULL COMMENT '书桌得分',
-  `balcony_score` int(2) DEFAULT NULL COMMENT '阳台得分',
-  `toilet_score` int(2) DEFAULT NULL COMMENT '厕所得分',
-  `ground_score` int(2) DEFAULT NULL COMMENT '地面得分',
-  `door_window_score` int(2) DEFAULT NULL COMMENT '门窗得分',
-  `metope_score` int(2) DEFAULT NULL COMMENT '墙面得分',
-  `total_score` int(2) DEFAULT NULL COMMENT '总计得分',
-  `status` int(1) DEFAULT NULL COMMENT '状态（1生效 0 失效）',
-  `create_time` datetime DEFAULT NULL,
-  `create_user_id` varchar(32) CHARACTER SET utf8mb4 DEFAULT NULL,
-  `last_modify_time` datetime DEFAULT NULL,
-  `last_modify_user_id` varchar(32) CHARACTER SET utf8mb4 DEFAULT NULL,
-  `memo` varchar(500) DEFAULT NULL COMMENT '备注',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE `rm_dorm_violation` (
-  `id` varchar(32) NOT NULL COMMENT '主键',
-  `dorm_rule_id` varchar(32) DEFAULT NULL COMMENT '规则id',
-  `dorm_id` varchar(32) DEFAULT NULL COMMENT '宿舍id',
-  `student_id` varchar(32) DEFAULT NULL COMMENT '学生id',
-  `violation_img_url` varchar(500) DEFAULT NULL COMMENT '违规图片url',
-  `violation_reason` varchar(255) DEFAULT NULL COMMENT '违规原因',
-  `solve_result` varchar(255) DEFAULT NULL COMMENT '解决结果',
-  `status` int(2) DEFAULT NULL COMMENT '状态（1：已处理 0：未处理）',
-  `create_time` datetime DEFAULT NULL COMMENT '处理时间',
-  `create_user_id` varchar(32) CHARACTER SET utf8mb4 DEFAULT NULL COMMENT '处理人',
-  `last_modify_time` datetime DEFAULT NULL,
-  `last_modify_user_id` varchar(32) CHARACTER SET utf8mb4 DEFAULT NULL,
-  `memo` varchar(255) DEFAULT NULL COMMENT '备注',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE `rm_log` (
-  `id` varchar(32) NOT NULL COMMENT '日志ID',
-  `user_id` varchar(32) DEFAULT NULL COMMENT '操作用户id',
-  `operation_content` varchar(100) DEFAULT NULL COMMENT '操作内容',
-  `duration` int(11) DEFAULT NULL COMMENT '耗时',
-  `method` varchar(255) DEFAULT NULL COMMENT '操作方法',
-  `params` varchar(5000) DEFAULT NULL COMMENT '方法参数',
-  `ip` varchar(64) DEFAULT NULL COMMENT '操作者IP',
-  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
-  `location` varchar(100) DEFAULT NULL COMMENT '操作地点',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `rm_resource` (
   `id` varchar(32) NOT NULL COMMENT '资源ID',
@@ -302,68 +151,6 @@ INSERT INTO `rm_role_resource_rel` VALUES ('d3d1688611d542d8b4eec336b6e7df97', '
 INSERT INTO `rm_role_resource_rel` VALUES ('eddda0f784184b09aff9950b3705f9f9', '2e657e45f21a48f6a3f0111b590fbe1e', 'ea71d0b7204c4bc7ab1a3455c77eb85e', '2019-08-25 21:16:56', '1');
 INSERT INTO `rm_role_resource_rel` VALUES ('fb9cf7e1f73c47e18eb324093f3c46ef', 'ec155fd23f21484d9d33289ae705b1a1', 'bfa105ae82644d4a91b58ad79d518e83', '2019-11-25 00:24:17', '1');
 INSERT INTO `rm_role_resource_rel` VALUES ('ff2ccbc762a64a448a23fe802b7d3b0e', 'ec155fd23f21484d9d33289ae705b1a1', 'f654d58edecf4852a8417f75f6d49e8f', '2019-11-25 00:27:19', '1');
-
-CREATE TABLE `rm_school_campus` (
-  `id` varchar(32) COLLATE utf8_bin NOT NULL COMMENT '校区基本数据id',
-  `code` varchar(45) COLLATE utf8_bin NOT NULL COMMENT '校区号',
-  `name` varchar(45) COLLATE utf8_bin NOT NULL COMMENT '校区名称',
-  `address` varchar(200) COLLATE utf8_bin DEFAULT NULL COMMENT '校区地址',
-  `postal` varchar(45) COLLATE utf8_bin NOT NULL COMMENT '校区邮政编码',
-  `tel` varchar(45) COLLATE utf8_bin NOT NULL COMMENT '校区联系电话',
-  `fax` varchar(45) COLLATE utf8_bin DEFAULT NULL COMMENT '校区传真电话',
-  `leader` varchar(32) COLLATE utf8_bin DEFAULT NULL COMMENT '负责人id',
-  `is_deleted` bit(1) DEFAULT b'0' COMMENT '是否删除（0否，1是）',
-  `create_time` datetime DEFAULT NULL,
-  `create_user_id` varchar(32) CHARACTER SET utf8mb4 DEFAULT NULL,
-  `last_modify_time` datetime DEFAULT NULL,
-  `last_modify_user_id` varchar(32) CHARACTER SET utf8mb4 DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `idx_id` (`id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='校区基本数据表';
-
-CREATE TABLE `rm_student` (
-  `pk_student_id` varchar(32) NOT NULL COMMENT '主键',
-  `student_name` varchar(50) NOT NULL COMMENT '学校姓名',
-  `student_num` int(10) NOT NULL COMMENT '学号',
-  `password` varchar(50) DEFAULT NULL COMMENT '密码',
-  `mobile` varchar(20) DEFAULT NULL COMMENT '手机号',
-  `gender` int(1) DEFAULT NULL COMMENT '性别',
-  `email` varchar(50) DEFAULT NULL COMMENT '邮箱',
-  `img_url` varchar(500) DEFAULT NULL COMMENT '头像',
-  `status` int(1) DEFAULT NULL COMMENT '状态 (1-生效，0-无效)',
-  `create_time` datetime DEFAULT NULL,
-  `create_user_id` varchar(32) CHARACTER SET utf8mb4 DEFAULT NULL,
-  `last_modify_time` datetime DEFAULT NULL,
-  `last_modify_user_id` varchar(32) CHARACTER SET utf8mb4 DEFAULT NULL,
-  PRIMARY KEY (`pk_student_id`),
-  UNIQUE KEY `student_name_num` (`student_name`,`student_num`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE `rm_student_basic` (
-  `id` bigint(20) NOT NULL COMMENT '学生基本数据表id',
-  `name` varchar(50) DEFAULT NULL COMMENT '姓名',
-  `code` varchar(20) DEFAULT NULL COMMENT '学号',
-  `id_card` varchar(50) DEFAULT NULL COMMENT '身份证件号',
-  `sex` int(2) DEFAULT NULL COMMENT '性别',
-  `tel` varchar(50) DEFAULT NULL COMMENT '学生联系电话',
-  `email` varchar(50) DEFAULT NULL COMMENT '电子信箱',
-  `level` varchar(10) DEFAULT NULL COMMENT '层次（本科、专科）',
-  `class_name` varchar(100) DEFAULT NULL COMMENT '班级名称',
-  `race` varchar(10) DEFAULT '名族',
-  `native_place` varchar(100) DEFAULT '' COMMENT '籍贯',
-  `qq` int(20) DEFAULT NULL COMMENT 'qq号',
-  `family_address` varchar(100) DEFAULT NULL COMMENT '家庭地址',
-  `family_tel` varchar(50) DEFAULT NULL COMMENT '家人电话',
-  `counselor` varchar(50) DEFAULT '' COMMENT '辅导员',
-  `password` varchar(50) DEFAULT NULL,
-  `img_url` varchar(255) DEFAULT NULL COMMENT '头像',
-  `create_time` datetime DEFAULT NULL,
-  `create_user_id` varchar(32) CHARACTER SET utf8mb4 DEFAULT NULL,
-  `last_modify_time` datetime DEFAULT NULL,
-  `last_modify_user_id` varchar(32) CHARACTER SET utf8mb4 DEFAULT NULL,
-  `is_deleted` bit(1) DEFAULT b'0' COMMENT '是否删除（0否，1是）',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='学生基本数据表';
 
 CREATE TABLE `rm_user` (
   `user_id` varchar(32) NOT NULL COMMENT '用户ID',

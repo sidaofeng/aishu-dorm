@@ -1,28 +1,27 @@
 package com.waken.dorm.service.dorm;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.waken.dorm.common.entity.dorm.SchoolCampus;
+import com.waken.dorm.common.entity.dorm.BuildingFloor;
 import com.waken.dorm.common.form.base.DeleteForm;
 
 import java.util.List;
 
 /**
  * <p>
- * 校区基本数据表 服务类
+ * 建筑物楼层 服务类
  * </p>
  *
  * @author zhaoRong
  * @since 2019-11-21
  */
-public interface SchoolCampusService extends IService<SchoolCampus> {
-
+public interface FloorService extends IService<BuildingFloor> {
     /**
      * 新增
      *
-     * @param schoolCampus
+     * @param floor
      * @return
      */
-    int insert(SchoolCampus schoolCampus);
+    int insert(BuildingFloor floor);
 
     /**
      * 删除
@@ -34,23 +33,24 @@ public interface SchoolCampusService extends IService<SchoolCampus> {
     /**
      * 更新
      *
-     * @param schoolCampus
+     * @param floor
      * @return
      */
-    int update(SchoolCampus schoolCampus);
+    int update(BuildingFloor floor);
 
     /**
-     * 通过id获取校区信息
+     * 通过id获取楼层信息
      *
      * @param id
      * @return
      */
-    SchoolCampus get(String id);
+    BuildingFloor get(String id);
 
     /**
-     * 查询校区集合
+     * 查询楼层集合
      *
+     * @param buildId
      * @return
      */
-    List<SchoolCampus> list();
+    List<BuildingFloor> list(String buildId);
 }
