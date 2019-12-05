@@ -8,11 +8,8 @@ import com.waken.dorm.common.form.dorm.DormRepairForm;
 import com.waken.dorm.common.view.dorm.DormRepairView;
 import org.apache.ibatis.annotations.Param;
 
-import java.util.Map;
-
 public interface DormRepairMapper extends BaseMapper<DormRepair> {
-    int batchUpdateStatus(Map<String, Object> param);
 
-    IPage<DormRepairView> listDormRepairs(Page page,@Param("form") DormRepairForm dormRepairForm);
+    IPage<DormRepairView> findPage(Page page, @Param("form") DormRepairForm dormRepairForm);
 
 }

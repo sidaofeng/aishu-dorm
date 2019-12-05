@@ -3,6 +3,7 @@ package com.waken.dorm.common.view.dorm;
 import com.waken.dorm.common.view.base.BaseView;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.util.Date;
 
@@ -14,20 +15,19 @@ import java.util.Date;
  **/
 @Getter
 @Setter
+@ToString
 public class DormViolationView extends BaseView {
-    private String pkDormViolationId;
+    private String id;
 
-    private String dormRuleName;
-
-    private String dormNum;
+    private String dormCode;
 
     private String studentName;
 
-    private String violationImgUrl;
+    private String imgUrl;
 
-    private String violationReason;
+    private String reason;
 
-    private String solveResult;
+    private String result;
 
     private Integer status;
 

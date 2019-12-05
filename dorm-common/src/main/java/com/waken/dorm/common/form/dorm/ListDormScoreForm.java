@@ -16,17 +16,11 @@ import lombok.ToString;
 @Setter
 public class ListDormScoreForm extends BaseForm {
     private static final long serialVersionUID = -223148826994314229L;
-    private String id;
-
-    private String dormNum;
-
-    private Integer status;
-
-    private String createUserName;
-
-    private String lastModifyUserName;
-
-    private String memo;
 
     private String studentId;
+
+    private String dormId;
+
+    private String dormCode;
+
 }

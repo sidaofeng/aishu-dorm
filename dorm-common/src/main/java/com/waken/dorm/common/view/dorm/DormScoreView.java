@@ -15,9 +15,9 @@ import java.util.Date;
 @Getter
 @Setter
 public class DormScoreView extends BaseView {
-    private String pkDormScoreId;
+    private String id;
 
-    private String dormNum;
+    private String dormCode;
 
     private Integer cultureScore;
 

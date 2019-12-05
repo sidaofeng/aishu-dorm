@@ -1,109 +1,50 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.waken.dorm.dao.dorm.DormViolationMapper">
-    <select id="listDormViolations" parameterType="com.waken.dorm.common.form.dorm.DormViolationForm"
+    <select id="findPage" parameterType="com.waken.dorm.common.form.dorm.DormViolationForm"
             resultType="com.waken.dorm.common.view.dorm.DormViolationView">
         SELECT
         dv.id,
-        dr.name AS dormRuleName,
-        d.dorm_num AS dormNum,
-        s.student_name AS studentName,
-        dv.violation_img_url AS violationImgUrl,
-        dv.violation_reason AS violationReason,
-        dv.solve_result AS solveResult,
+        dv.dorm_code AS dormCode,
+        sb.`name` AS studentName,
+        dv.img_url AS imgUrl,
+        dv.reason,
+        dv.result,
+        dv.`status`,
         dv.create_time AS createTime,
         u.user_name AS createUserName,
         dv.last_modify_time AS lastModifyTime,
         uu.user_name AS lastModifyUserName,
         dv.memo
         FROM rm_dorm_violation dv
-        LEFT JOIN rm_dorm_rule dr ON dr.id = dv.dorm_rule_id
-        LEFT JOIN rm_dorm d ON d.id = dv.dorm_id
-        LEFT JOIN rm_student s ON s.pk_student_id = dv.student_id
+        LEFT JOIN rm_student_basic sb ON sb.`code` = dv.student_code
         LEFT JOIN rm_user u ON u.user_id = dv.create_user_id
         LEFT JOIN rm_user uu ON uu.user_id = dv.last_modify_user_id
-        LEFT JOIN rm_dorm_building db ON db.id = d.dorm_building_id
-        WHERE 1=1
-        <if test="form.id != null and form.id != ''">
-            and dv.id=#{form.id}
-        </if>
-        <if test="form.dormRuleName != null and form.dormRuleName != ''">
-            <!-- 这里修改了一下用户名的查询的方式-模糊查询   and u.user_name =#{userName} -->
-            and dr.name like '%${form.dormRuleName}%'
-        </if>
-        <if test="form.dormNum != null and form.dormNum != ''">
-            <!-- 这里修改了一下用户名的查询的方式-模糊查询   and u.mobile=#{mobile} -->
-            and d.dorm_num like '%${form.dormNum}%'
-        </if>
-        <if test="form.studentName != null and form.studentName != ''">
-            and s.student_name like '%${form.studentName}%'
-        </if>
-        <if test="form.status != null">
-            and dv.status=#{form.status}
-        </if>
-        <if test="form.createUserName != null and form.createUserName != ''">
-            and u.user_name=#{form.createUserName}
-        </if>
-        <if test="form.lastModifyUserName != null and form.lastModifyUserName != ''">
-            and uu.user_name=#{form.lastModifyUserName}
-        </if>
-        <if test="form.startTime != null">
-            AND dv.create_time &gt;= #{form.startTime,jdbcType=TIMESTAMP}
-        </if>
-        <if test="form.endTime != null">
-            AND dv.create_time &lt;= #{form.endTime,jdbcType=TIMESTAMP}
-        </if>
+        <where>
+            AND dv.is_deleted = 0
+            <if test="form.id != null and form.id != ''">
+                and dv.id=#{form.id}
+            </if>
+            <if test="form.studentId != null and form.studentId != ''">
+                and sb.id=#{form.studentId}
+            </if>
+            <if test="form.keywords != null and form.keywords != ''">
+                <bind name="form.keywords" value="'%' + form.keywords + '%'"/>
+                AND (dv.dorm_code LIKE #{form.keywords}
+                OR sb.`name` LIKE #{form.keywords}
+                OR dv.reason LIKE #{form.keywords}
+                OR dv.result LIKE #{form.keywords}
+                OR dv.student_code LIKE #{form.keywords}
+                )
+            </if>
+            <if test="form.startTime != null">
+                AND dv.create_time &gt;= #{form.startTime,jdbcType=TIMESTAMP}
+            </if>
+            <if test="form.endTime != null">
+                AND dv.create_time &lt;= #{form.endTime,jdbcType=TIMESTAMP}
+            </if>
+        </where>
         ORDER BY
         dv.last_modify_time DESC
     </select>
-    <select id="appListDormViolations" parameterType="com.waken.dorm.common.form.dorm.DormViolationForm"
-            resultType="com.waken.dorm.common.view.dorm.AppDormViolationView">
-        SELECT
-        dv.id,
-        dr.name AS dormRuleName,
-        d.dorm_num AS dormNum,
-        s.student_name AS studentName,
-        dv.violation_img_url AS violationImgUrl,
-        dv.violation_reason AS violationReason,
-        dv.solve_result AS solveResult,
-        dv.create_time AS createTime,
-        dv.memo
-        FROM rm_dorm_violation dv
-        LEFT JOIN rm_dorm_rule dr ON dr.id = dv.dorm_rule_id
-        LEFT JOIN rm_dorm d ON d.id = dv.dorm_id
-        LEFT JOIN rm_student s ON s.pk_student_id = dv.student_id
-        LEFT JOIN rm_user u ON u.user_id = dv.create_user_id
-        LEFT JOIN rm_user uu ON uu.user_id = dv.last_modify_user_id
-        LEFT JOIN rm_dorm_student_rel ds ON ds.dorm_id = d.id
-        WHERE 1=1
-        <if test="form.studentId != null and form.studentId != ''">
-            and ds.student_id=#{studentId}
-        </if>
-        <if test="form.id != null and form.id != ''">
-            and dv.id=#{form.id}
-        </if>
-        <if test="form.dormRuleName != null and form.dormRuleName != ''">
-            and dr.name like '%${form.dormRuleName}%'
-        </if>
-        <if test="form.dormNum != null and form.dormNum != ''">
-            and d.dorm_num like '%${form.dormNum}%'
-        </if>
-        <if test="form.studentName != null and form.studentName != ''">
-            and s.student_name like '%${form.studentName}%'
-        </if>
-        <if test="form.status != null">
-            and dv.status=#{form.status}
-        </if>
-        ORDER BY
-        dv.last_modify_time DESC
-    </select>
-    <update id="batchUpdateStatus" parameterType="java.util.Map">
-        <foreach collection="list" separator=";" item="ur">
-            update rm_dorm_violation set
-            status = #{ur.status},
-            last_modify_time = #{ur.lastModifyTime},
-            last_modify_user_id = #{ur.lastModifyUserId}
-            where id = #{ur.pkId}
-        </foreach>
-    </update>
 </mapper>

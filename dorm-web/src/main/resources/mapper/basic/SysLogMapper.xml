@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.waken.dorm.dao.basic.SysLogMapper">
-    <select id="listSysLogViews" resultType="com.waken.dorm.common.view.log.SysLogView"
-            parameterType="com.waken.dorm.common.form.log.SysLogForm">
+    <select id="findPage" resultType="com.waken.dorm.common.view.log.SysLogView"
+            parameterType="com.waken.dorm.common.form.base.BaseForm">
         SELECT
         L.id,
         u.user_name AS userName,

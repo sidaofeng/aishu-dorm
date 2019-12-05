@@ -17,7 +17,7 @@ import lombok.ToString;
 public class AppDormScoreView extends BaseView {
     private String id;
 
-    private String dormNum;
+    private String dormCode;
 
     private Integer cultureScore;
 

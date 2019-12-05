@@ -1,13 +1,9 @@
 package com.waken.dorm.controller.dorm;
 
-import com.waken.dorm.common.annotation.Log;
 import com.waken.dorm.common.base.AjaxResponse;
 import com.waken.dorm.common.entity.dorm.DormRepair;
-import com.waken.dorm.common.enums.CodeEnum;
 import com.waken.dorm.common.form.base.DeleteForm;
-import com.waken.dorm.common.form.dorm.AddDormRepairForm;
 import com.waken.dorm.common.form.dorm.DormRepairForm;
-import com.waken.dorm.common.form.dorm.UpdateRepairForm;
 import com.waken.dorm.common.view.dorm.DormRepairView;
 import com.waken.dorm.controller.base.BaseController;
 import com.waken.dorm.service.dorm.RepairService;
@@ -21,66 +17,99 @@ import org.springframework.web.bind.annotation.*;
 
 /**
  * @ClassName DormRepairController
- * @Description 后台管理宿舍维修相关接口
+ * @Description 后台管理宿舍维修
  * @Author zhaoRong
  * @Date 2019/4/2 9:57
  **/
 @Slf4j
-@Api(value = "后台管理宿舍维修相关接口", description = "后台管理宿舍维修相关接口(AiShu)")
+@Api(value = "宿舍维修管理", description = "宿舍管理-宿舍维修管理")
 @RestController
 public class DormRepairController extends BaseController {
     @Autowired
-    RepairService repairService;
+    private RepairService repairService;
 
-    @Log("新增宿舍维修记录")
+    /**
+     * 新增
+     *
+     * @param repair
+     * @return
+     */
     @CrossOrigin
     @PostMapping(value = "repair/add")
-    @ApiOperation(value = "新增宿舍维修记录", notes = "新增宿舍维修记录")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "success", response = DormRepair.class)
-    })
-    public AjaxResponse addDormRepair(@RequestBody AddDormRepairForm addDormRepairForm) {
-        log.info("开始调用新增宿舍维修记录接口：" + addDormRepairForm.toString());
-        addDormRepairForm.setTerminal(CodeEnum.WEB.getCode());
-        return AjaxResponse.success(repairService.addDormRepair(addDormRepairForm));
-    }
-
-    @Log("删除宿舍维修信息")
-    @CrossOrigin
-    @DeleteMapping(value = "repair/delete")
-    @ApiOperation(value = "删除宿舍维修信息", notes = "删除宿舍维修信息")
+    @ApiOperation(value = "新增", notes = "新增 ")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
-    public AjaxResponse deleteDormRepair(@RequestBody DeleteForm deleteFrom) {
-        log.info("开始调用删除宿舍维修信息接口：" + deleteFrom.toString());
-        if (null == deleteFrom.getDelIds() || deleteFrom.getDelIds().isEmpty()) {
-            return AjaxResponse.error("入参为空！");
+    public AjaxResponse insert(@RequestBody DormRepair repair) {
+        if (this.repairService.insert(repair) == 1) {
+            return AjaxResponse.success();
+        } else {
+            return AjaxResponse.error();
         }
-        repairService.deleteDormRepair(deleteFrom);
+    }
+
+    /**
+     * 删除
+     *
+     * @param deleteForm
+     */
+    @CrossOrigin
+    @DeleteMapping(value = "repair/delete")
+    @ApiOperation(value = "删除", notes = "删除 ")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
+    })
+    public AjaxResponse delete(@RequestBody DeleteForm deleteForm) {
+        this.repairService.delete(deleteForm);
         return AjaxResponse.success();
     }
 
+    /**
+     * 更新
+     *
+     * @param repair
+     * @return
+     */
+    @CrossOrigin
+    @PutMapping(value = "repair/update")
+    @ApiOperation(value = "更新", notes = "更新 ")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
+    })
+    public AjaxResponse update(@RequestBody DormRepair repair) {
+        if (this.repairService.update(repair) == 1) {
+            return AjaxResponse.success();
+        } else {
+            return AjaxResponse.error();
+        }
+
+    }
+
+    /**
+     * 通过id获取维修信息
+     *
+     * @param id
+     * @return
+     */
+    @CrossOrigin
+    @GetMapping(value = "repair/{id}")
+    @ApiOperation(value = "通过id查询", notes = "通过id查询 ")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "success", response = DormRepair.class)
+    })
+    public AjaxResponse get(@PathVariable("id") String id) {
+        return AjaxResponse.success(this.repairService.get(id));
+    }
+
+
     @CrossOrigin
     @PostMapping(value = "repair/page")
-    @ApiOperation(value = "分页查询宿舍维修信息", notes = "分页查询宿舍维修信息 ")
+    @ApiOperation(value = "分页", notes = "分页 ")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = DormRepairView.class)
     })
-    public AjaxResponse listDormRepairs(@RequestBody DormRepairForm dormRepairForm) {
+    public AjaxResponse findPage(@RequestBody DormRepairForm dormRepairForm) {
         log.info("开始调用分页查询宿舍维修信息接口：" + dormRepairForm.toString());
-        dormRepairForm.setTerminal(CodeEnum.WEB.getCode());
-        return AjaxResponse.success(repairService.listDormRepairs(dormRepairForm));
-    }
-
-    @Log("修改宿舍维修")
-    @CrossOrigin
-    @PutMapping(value = "repair/update")
-    @ApiOperation(value = "修改宿舍维修", notes = "修改宿舍维修 ")
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "success", response = DormRepair.class)})
-    public AjaxResponse updateDormRepair(@RequestBody UpdateRepairForm updateRepairForm) {
-        log.info("开始调用修改宿舍维修接口：" + updateRepairForm.toString());
-        DormRepair dormRepair = repairService.updateDormRepair(updateRepairForm);
-        return AjaxResponse.success(dormRepair);
+        return AjaxResponse.success(repairService.findPage(dormRepairForm));
     }
 }

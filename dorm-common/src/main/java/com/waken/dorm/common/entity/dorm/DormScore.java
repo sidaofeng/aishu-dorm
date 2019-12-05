@@ -30,8 +30,8 @@ public class DormScore extends BaseEntity {
      * 宿舍号
      */
     @ExcelField(value = "宿舍号")
-    @TableField("dorm_num")
-    private String dormNum;
+    @TableField("dorm_code")
+    private String dormCode;
 
     /**
      * 宿舍文化得分
@@ -109,6 +109,10 @@ public class DormScore extends BaseEntity {
      */
     private Integer status;
 
+    /**
+     * 是否删除（0否，1是）
+     */
+    private Boolean isDeleted;
     /**
      * 备注
      */

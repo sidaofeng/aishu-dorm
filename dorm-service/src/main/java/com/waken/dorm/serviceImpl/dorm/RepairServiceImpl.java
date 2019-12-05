@@ -1,26 +1,22 @@
 package com.waken.dorm.serviceImpl.dorm;
 
+import com.aliyun.oss.ServiceException;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.waken.dorm.common.constant.Constant;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.waken.dorm.common.entity.dorm.Dorm;
 import com.waken.dorm.common.entity.dorm.DormRepair;
-import com.waken.dorm.common.entity.student.Student;
+import com.waken.dorm.common.entity.student.StudentBasic;
 import com.waken.dorm.common.enums.CodeEnum;
 import com.waken.dorm.common.exception.ServerException;
 import com.waken.dorm.common.form.base.DeleteForm;
-import com.waken.dorm.common.form.dorm.AddDormRepairForm;
 import com.waken.dorm.common.form.dorm.DormRepairForm;
-import com.waken.dorm.common.form.dorm.UpdateRepairForm;
-import com.waken.dorm.common.manager.UserManager;
 import com.waken.dorm.common.utils.Assert;
-import com.waken.dorm.common.utils.DateUtils;
-import com.waken.dorm.common.utils.DormUtil;
 import com.waken.dorm.common.utils.StringUtils;
 import com.waken.dorm.common.view.dorm.DormRepairView;
 import com.waken.dorm.dao.dorm.DormMapper;
 import com.waken.dorm.dao.dorm.DormRepairMapper;
-import com.waken.dorm.dao.student.StudentMapper;
+import com.waken.dorm.dao.student.StudentBasicMapper;
 import com.waken.dorm.handle.DataHandle;
 import com.waken.dorm.service.dorm.RepairService;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -43,163 +39,85 @@ import java.util.List;
 @Service
 @Transactional(propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Exception.class)
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class RepairServiceImpl implements RepairService {
-    private final DormRepairMapper dormRepairMapper;
+public class RepairServiceImpl extends ServiceImpl<DormRepairMapper, DormRepair> implements RepairService {
     private final DormMapper dormMapper;
-    private final StudentMapper studentMapper;
+    private final StudentBasicMapper studentBasicMapper;
 
-    /**
-     * 新增维修记录
-     *
-     * @param addDormRepairForm
-     * @return
-     */
-    @Transactional
     @Override
-    public DormRepair addDormRepair(AddDormRepairForm addDormRepairForm) {
-        log.info("service : 开始进入新增维修记录");
-        //验证合法性
-        this.addRepairValidate(addDormRepairForm);
-        String studentId;
-        String dormId = this.validateDorm(addDormRepairForm.getDormNum());
-        //验证宿舍是否存在
-        DormRepair dormRepair = new DormRepair();
-        if (CodeEnum.WEB.getCode().equals(addDormRepairForm.getTerminal())) {
-            //web端请求
-            String userId = UserManager.getCurrentUserId();
-            //验证学生是否存在
-            studentId = this.validateStudent(addDormRepairForm.getStudentNum());
-            dormRepair.setCreateUserId(userId);
-            dormRepair.setLastModifyUserId(userId);
-        } else {//app端请求
-            studentId = addDormRepairForm.getStudentId();
-            dormRepair.setCreateUserId(studentId);
-            dormRepair.setLastModifyUserId(studentId);
-        }
-        dormRepair.setDormId(dormId);
-        dormRepair.setRepairType(addDormRepairForm.getRepairType());
-        dormRepair.setRepairDesc(addDormRepairForm.getRepairDesc());
-        dormRepair.setRepairImgUrl(addDormRepairForm.getRepairImgUrl());
-        dormRepair.setStudentId(studentId);
-        dormRepair.setStudentMobile(addDormRepairForm.getStudentMobile());
-        dormRepair.setStatus(CodeEnum.REPAIRING.getCode());
-        if (StringUtils.isEmpty(addDormRepairForm.getMemo())) {
-            dormRepair.setMemo(addDormRepairForm.getMemo());
-        }
-        int count = dormRepairMapper.insert(dormRepair);
-        Assert.isFalse(count == Constant.ZERO);
-        return dormRepair;
+    public int insert(DormRepair repair) {
+        Assert.notNull(repair.getDormCode());
+        Assert.notNull(repair.getStudentCode());
+        Assert.notNull(repair.getDescription());
+        Assert.notNull(repair.getStudentMobile());
+        this.validateDorm(repair.getDormCode());
+        this.validateStudent(repair.getStudentCode());
+        return this.baseMapper.insert(repair);
     }
 
-    /**
-     * 删除维修记录
-     *
-     * @param deleteForm
-     */
     @Override
-    public void deleteDormRepair(DeleteForm deleteForm) {
-        log.info("service: 删除维修记录开始");
-        List<String> ids = deleteForm.getDelIds();
-        Integer delStatus = deleteForm.getDelStatus();
-        if (CodeEnum.YES.getCode().equals(delStatus)) {
-            // 物理删除
-            List<DormRepair> dormRepairs = dormRepairMapper.selectBatchIds(ids);
-            StringBuffer sb = new StringBuffer();
-            for (DormRepair dormRepair : dormRepairs) {
-                if (CodeEnum.REPAIRING.getCode().equals(dormRepair.getStatus())) {
-                    sb.append(dormRepair.getId());
+    public void delete(DeleteForm deleteForm) {
+        if (deleteForm == null || deleteForm.getDelIds() == null) {
+            throw new ServiceException("入参数据为空");
+        }
+        if (!deleteForm.getDelIds().isEmpty()) {
+            //物理删除
+            if (deleteForm.getDelStatus() == CodeEnum.YES.getCode()) {
+                this.baseMapper.deleteBatchIds(deleteForm.getDelIds());
+            } else if (deleteForm.getDelStatus() == CodeEnum.NO.getCode()) {
+                List<DormRepair> repairList = new ArrayList<>();
+                for (String id : deleteForm.getDelIds()) {
+                    DormRepair repair = new DormRepair();
+                    repair.setId(id);
+                    repair.setIsDeleted(true);
+                    repairList.add(repair);
                 }
+                this.updateBatchById(repairList);
+            } else {
+                throw new ServerException("删除状态码错误");
             }
-            Assert.isNull(sb.toString(),"以下维修记录处于正在维修状态中：" + sb.toString());
-            //删除宿舍
-            int count = dormRepairMapper.deleteBatchIds(ids);
-            Assert.isFalse(count == Constant.ZERO);
 
-        } else if (CodeEnum.NO.getCode().equals(delStatus)) {
-            int count = dormRepairMapper.batchUpdateStatus(DormUtil.getToUpdateStatusMap(ids,UserManager.getCurrentUserId()));
-            Assert.isFalse(count == Constant.ZERO);
-        } else {
-            throw new ServerException("删除状态码错误！");
         }
     }
 
-    /**
-     * 分页查询宿舍维修记录
-     *
-     * @param dormRepairForm
-     * @return
-     */
     @Override
-    public IPage<DormRepairView> listDormRepairs(DormRepairForm dormRepairForm) {
-        log.info("service: 分页查询宿舍维修信息开始");
-        return dormRepairMapper.listDormRepairs(DataHandle.getWrapperPage(dormRepairForm),dormRepairForm);
+    public int update(DormRepair repair) {
+        if (repair == null) {
+            throw new ServiceException("入参数据为空");
+        }
+        return this.baseMapper.updateById(repair);
     }
 
-    /**
-     * 更新宿舍维修记录（提交维修结果）
-     *
-     * @param updateForm
-     * @return
-     */
-    @Transactional
     @Override
-    public DormRepair updateDormRepair(UpdateRepairForm updateForm) {
-        Assert.notNull(updateForm.getId());
-        Assert.notNull(updateForm.getStatus());
-        DormRepair dormRepair = dormRepairMapper.selectById(updateForm.getId());
-        dormRepair.setStatus(updateForm.getStatus());
-        if (updateForm.getRepairCost() != null) {
-            dormRepair.setRepairCost(updateForm.getRepairCost());
+    public DormRepair get(String id) {
+        if (StringUtils.isEmpty(id)) {
+            throw new ServiceException("入参数据为空");
         }
-        if (StringUtils.isNotEmpty(updateForm.getRepairBillUrl())) {
-            dormRepair.setRepairBillUrl(updateForm.getRepairBillUrl());
-        }
-        if (StringUtils.isNotEmpty(updateForm.getMemo())) {
-            dormRepair.setMemo(updateForm.getMemo());
-        }
-        String userId = UserManager.getCurrentUserId();
-        Date curDate = DateUtils.getCurrentDate();
-        dormRepair.setLastModifyTime(curDate);
-        dormRepair.setLastModifyUserId(userId);
-        int count = dormRepairMapper.updateById(dormRepair);
-        if (count == Constant.ZERO) {
-            throw new ServerException("修改维修记录为 0 条");
-        }
-        return dormRepair;
+        return this.baseMapper.selectById(id);
     }
 
-    /**
-     * 新增验证
-     *
-     * @param addForm
-     */
-    private void addRepairValidate(AddDormRepairForm addForm) {
-        Assert.notNull(addForm.getDormNum());
-        Assert.notNull(addForm.getRepairType());
-        Assert.notNull(addForm.getRepairDesc());
-        Assert.notNull(addForm.getRepairImgUrl());
-        Assert.notNull(addForm.getStudentNum());
-        Assert.notNull(addForm.getStudentMobile());
+    @Override
+    public IPage<DormRepairView> findPage(DormRepairForm dormRepairForm) {
+
+        return this.baseMapper.findPage(DataHandle.getWrapperPage(dormRepairForm), dormRepairForm);
     }
 
-    private String validateDorm(String dormNum) {
+
+    private void validateDorm(String dormCode) {
         Dorm dorm = dormMapper.selectOne(new LambdaQueryWrapper<Dorm>()
-                .eq(Dorm::getCode, dormNum)
+                .eq(Dorm::getCode, dormCode)
         );
         if (null == dorm) {
             throw new ServerException("宿舍号不存在!");
         }
-        return dorm.getId();
     }
 
-    private String validateStudent(Integer studentNum) {
-        Student student = studentMapper.selectOne(new LambdaQueryWrapper<Student>()
-                .eq(Student::getStudentNum, studentNum)
+    private void validateStudent(String studentCode) {
+        StudentBasic student = this.studentBasicMapper.selectOne(new LambdaQueryWrapper<StudentBasic>()
+                .eq(StudentBasic::getCode, studentCode)
         );
         if (null == student) {
             throw new ServerException("学号不存在!");
         }
-        return student.getPkStudentId();
     }
 
 }

@@ -3,12 +3,9 @@ package com.waken.dorm.app.controller.dorm;
 import com.waken.dorm.app.controller.base.AppBaseController;
 import com.waken.dorm.common.base.AjaxResponse;
 import com.waken.dorm.common.entity.dorm.DormRepair;
-import com.waken.dorm.common.enums.CodeEnum;
-import com.waken.dorm.common.form.dorm.AddDormRepairForm;
 import com.waken.dorm.common.form.dorm.DormRepairForm;
 import com.waken.dorm.common.manager.StudentManager;
 import com.waken.dorm.common.view.dorm.DormRepairView;
-import com.waken.dorm.service.dorm.DormService;
 import com.waken.dorm.service.dorm.RepairService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -24,31 +21,27 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * @ClassName AppDormRepairController
- * @Description TODO
+ * @Description APP端宿舍维修
  * @Author zhaoRong
  * @Date 2019/4/2 10:07
  **/
 @Slf4j
-@Api(value = "APP端宿舍维修相关接口", description = "APP端宿舍维修相关接口(AiShu)")
+@Api(value = "APP端宿舍维修", description = "APP端宿舍维修")
 @RestController
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class AppDormRepairController extends AppBaseController {
     private final RepairService repairService;
     private final StudentManager studentManager;
-    private final DormService dormService;
 
     @PostMapping(value = "repair/add")
-    @ApiOperation(value = "新增宿舍维修记录", notes = "新增宿舍维修记录")
+    @ApiOperation(value = "新增", notes = "新增")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
-    public AjaxResponse addDormRepair(@RequestParam AddDormRepairForm addDormRepairForm) {
-        addDormRepairForm.setStudentId(studentManager.getCurrentStudentId());
-        log.info("开始调用新增宿舍维修记录接口：" + addDormRepairForm.toString());
+    public AjaxResponse insert(@RequestParam DormRepair repair) {
+        repair.setStudentCode(studentManager.getCurrentStudentCode());
         try {
-            DormRepair dormRepair = repairService.addDormRepair(addDormRepairForm);
-            log.info("新增宿舍维修记录成功");
-            return AjaxResponse.success(dormRepair);
+            return AjaxResponse.success(repairService.insert(repair));
         } catch (Exception e) {
             log.info("新增宿舍维修记录失败原因：" + e.getMessage());
             return AjaxResponse.error();
@@ -56,18 +49,12 @@ public class AppDormRepairController extends AppBaseController {
     }
 
     @GetMapping(value = "repair/page")
-    @ApiOperation(value = "分页查询宿舍维修信息", notes = "分页查询宿舍维修信息 ")
+    @ApiOperation(value = "分页", notes = "分页 ")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = DormRepairView.class)
     })
-    public AjaxResponse listDormRepairs(Integer pageNum, Integer pageSize) {
-        String studentId = studentManager.getCurrentStudentId();
-        log.info("开始调用分页查询宿舍维修信息接口：" + studentId);
-        DormRepairForm dormRepairForm = new DormRepairForm();
-        dormRepairForm.setStudentId(studentId);
-        dormRepairForm.setPageNum(pageNum);
-        dormRepairForm.setPageSize(pageSize);
-        dormRepairForm.setTerminal(CodeEnum.APP.getCode());
-        return AjaxResponse.success(repairService.listDormRepairs(dormRepairForm));
+    public AjaxResponse findPage(DormRepairForm dormRepairForm) {
+        dormRepairForm.setStudentId(studentManager.getCurrentStudentId());
+        return AjaxResponse.success(repairService.findPage(dormRepairForm));
     }
 }

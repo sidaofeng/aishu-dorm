@@ -1,6 +1,5 @@
 package com.waken.dorm.common.entity.dorm;
 
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.waken.dorm.common.base.BaseEntity;
 import lombok.Getter;
@@ -24,40 +23,29 @@ public class DormViolation extends BaseEntity {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 规则id
+     * 宿舍号
      */
-    @TableField("dorm_rule_id")
-    private String dormRuleId;
+    private String dormCode;
 
     /**
-     * 宿舍id
+     * 学号
      */
-    @TableField("dorm_id")
-    private String dormId;
-
-    /**
-     * 学生id
-     */
-    @TableField("student_id")
-    private String studentId;
+    private String studentCode;
 
     /**
      * 违规图片url
      */
-    @TableField("violation_img_url")
-    private String violationImgUrl;
+    private String imgUrl;
 
     /**
      * 违规原因
      */
-    @TableField("violation_reason")
-    private String violationReason;
+    private String reason;
 
     /**
      * 解决结果
      */
-    @TableField("solve_result")
-    private String solveResult;
+    private String result;
 
     /**
      * 状态（1：已处理 0：未处理）
@@ -65,7 +53,14 @@ public class DormViolation extends BaseEntity {
     private Integer status;
 
     /**
+     * 是否删除（0否，1是）
+     */
+    private Boolean isDeleted;
+
+
+    /**
      * 备注
      */
     private String memo;
+
 }

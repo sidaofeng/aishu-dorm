@@ -3,7 +3,7 @@ package com.waken.dorm.aspect;
 import com.waken.dorm.common.entity.basic.SysLog;
 import com.waken.dorm.common.utils.HttpContextUtils;
 import com.waken.dorm.common.utils.IPUtils;
-import com.waken.dorm.service.log.LogService;
+import com.waken.dorm.service.basic.LogService;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;

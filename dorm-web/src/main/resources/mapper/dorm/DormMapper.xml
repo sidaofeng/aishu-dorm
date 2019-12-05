@@ -27,6 +27,7 @@
         LEFT JOIN rm_user u ON u.user_id = d.create_user_id
         LEFT JOIN rm_user uu ON uu.user_id = d.last_modify_user_id
         <where>
+            AND d.is_deleted = 0
             <if test="form.id != null and form.id != ''">
                 and d.id=#{form.id}
             </if>

@@ -54,15 +54,14 @@ public class CodeGeneration {
         dsc.setDriverName("com.mysql.cj.jdbc.Driver");
         dsc.setUsername("root");
         dsc.setPassword("123456");
-        dsc.setUrl("jdbc:mysql://127.0.0.1:3306/dorm?noAccessToProcedureBodies=true&useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC");
+        dsc.setUrl("jdbc:mysql://127.0.0.1:3306/dorm1201?noAccessToProcedureBodies=true&useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC");
         mpg.setDataSource(dsc);
 
         // 策略配置
         StrategyConfig strategy = new StrategyConfig();
         strategy.setTablePrefix(new String[]{"rm_"});// 此处可以修改为您的表前缀
         strategy.setNaming(NamingStrategy.underline_to_camel);// 表名生成策略
-        strategy.setInclude(new String[]{"rm_dict", "rm_dorm", "rm_building", "rm_building_floor",
-                "rm_dorm_bed", "rm_school_campus", "rm_student_basic"
+        strategy.setInclude(new String[]{"rm_dorm_repair", "rm_dorm_score", "rm_dorm_violation"
         }); // 需要生成的表
 
 //        strategy.setSuperServiceClass(null);

@@ -1,65 +1,57 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.waken.dorm.dao.dorm.DormRepairMapper">
-    <select id="listDormRepairs" parameterType="com.waken.dorm.common.form.dorm.DormRepairForm"
+    <select id="findPage" parameterType="com.waken.dorm.common.form.dorm.DormRepairForm"
             resultType="com.waken.dorm.common.view.dorm.DormRepairView">
         SELECT
         dr.id,
-        d.dorm_num AS dormNum,
-        dr.repair_type AS repairType,
-        dr.repair_desc AS repairDesc,
-        dr.repair_img_url AS repairImgUrl,
-        s.student_name AS studentName,
+        dr.dorm_code AS dormCode,
+        dr.type,
+        dr.description,
+        dr.img_url AS imgUrl,
+        sb.`name` AS studentName,
         dr.student_mobile AS studentMobile,
         dr.`status`,
-        dr.repair_cost AS repairCost,
-        dr.repair_bill_url AS repairBillUrl,
+        dr.cost,
+        dr.bill_url AS billUrl,
         dr.create_time AS createTime,
         u.user_name AS createUserName,
         dr.last_modify_time AS lastModifyTime,
         uu.user_name AS lastModifyUserName,
         dr.memo
         FROM rm_dorm_repair dr
-        LEFT JOIN rm_dorm d ON d.pk_dorm_id = dr.dorm_id
-        LEFT JOIN rm_student s ON s.pk_student_id = dr.student_id
+        LEFT JOIN rm_dorm d ON d.`code` = dr.dorm_code
+        LEFT JOIN rm_student_basic sb ON sb.`code` = dr.student_code
         LEFT JOIN rm_user u ON u.user_id = dr.create_user_id
         LEFT JOIN rm_user uu ON uu.user_id = dr.last_modify_user_id
-        LEFT JOIN rm_dorm_building db ON db.pk_dorm_building_id = d.dorm_building_id
-        WHERE 1=1
-        <if test="form.dormId != null and form.dormId != ''">
-            and dr.pk_dorm_id=#{pkDormId}
-        </if>
-        <if test="form.studentId != null and form.studentId != ''">
-            and s.pk_student_id=#{form.studentId}
-        </if>
-        <if test="form.repairType != null">
-            and dr.repair_type=#{form.repairType}
-        </if>
-        <if test="form.status != null">
-            and dr.status=#{form.status}
-        </if>
-        <if test="form.createUserName != null and form.createUserName != ''">
-            and u.user_name=#{createUserName}
-        </if>
-        <if test="form.createUserName != null and form.createUserName != ''">
-            and u.user_name like '%${form.createUserName}%'
-        </if>
-        <if test="form.lastModifyUserName != null and form.lastModifyUserName != ''">
-            and uu.user_name like '%${form.lastModifyUserName}%'
-        </if>
-        <if test="form.endTime != null">
-            AND dr.create_time &lt;= #{form.endTime,jdbcType=TIMESTAMP}
-        </if>
+        <where>
+            AND dr.is_deleted = 0
+            <if test="form.id != null and form.id != ''">
+                and dr.id=#{form.id}
+            </if>
+            <if test="form.dormId != null and form.dormId != ''">
+                and d.id=#{form.dormId}
+            </if>
+            <if test="form.studentId != null and form.studentId != ''">
+                and sb.id=#{form.studentId}
+            </if>
+            <if test="form.keywords != null and form.keywords != ''">
+                <bind name="form.keywords" value="'%' + form.keywords + '%'"/>
+                AND (dr.dorm_code LIKE #{form.keywords}
+                OR sb.`name` LIKE #{form.keywords}
+                OR dr.description LIKE #{form.keywords}
+                OR dr.memo LIKE #{form.keywords}
+                OR dr.student_code LIKE #{form.keywords}
+                )
+            </if>
+            <if test="form.startTime != null">
+                AND dr.create_time &gt;= #{form.startTime,jdbcType=TIMESTAMP}
+            </if>
+            <if test="form.endTime != null">
+                AND dr.create_time &lt;= #{form.endTime,jdbcType=TIMESTAMP}
+            </if>
+        </where>
         ORDER BY
         dr.last_modify_time DESC
     </select>
-    <update id="batchUpdateStatus" parameterType="java.util.Map">
-        <foreach collection="list" separator=";" item="ur">
-            update rm_dorm_repair set
-            status = #{ur.status},
-            last_modify_time = #{ur.lastModifyTime},
-            last_modify_user_id = #{ur.lastModifyUserId}
-            where id = #{ur.pkId}
-        </foreach>
-    </update>
 </mapper>

@@ -18,13 +18,13 @@ import java.util.Date;
 public class DormRepairView extends BaseView {
     private String id;
 
-    private String dormNum;
+    private String dormCode;
 
-    private Integer repairType;
+    private Integer type;
 
-    private String repairDesc;
+    private String description;
 
-    private String repairImgUrl;
+    private String imgUrl;
 
     private String studentName;
 
@@ -32,9 +32,9 @@ public class DormRepairView extends BaseView {
 
     private Integer status;
 
-    private BigDecimal repairCost;
+    private BigDecimal cost;
 
-    private String repairBillUrl;
+    private String billUrl;
 
     private Date createTime;
 

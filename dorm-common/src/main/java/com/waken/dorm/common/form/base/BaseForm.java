@@ -19,6 +19,15 @@ import java.util.Date;
 @ToString
 public class BaseForm implements Serializable {
     private static final long serialVersionUID = -4679926683630991034L;
+    /**
+     * 主键id
+     */
+    private String id;
+    /**
+     * 关键字
+     */
+    private String keywords;
+
     private Integer pageNum = 1;
 
     private Integer pageSize = 20;

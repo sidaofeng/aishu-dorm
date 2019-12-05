@@ -43,7 +43,17 @@ public class StudentManager {
      * @return
      */
     public String getCurrentStudentId() {
-        return this.getCurrentStudentInfo().getStudentId();
+        return this.getCurrentStudentInfo().getId();
+
+    }
+
+    /**
+     * 获取到的当前登录的学生id
+     *
+     * @return
+     */
+    public String getCurrentStudentCode() {
+        return this.getCurrentStudentInfo().getCode();
 
     }
 

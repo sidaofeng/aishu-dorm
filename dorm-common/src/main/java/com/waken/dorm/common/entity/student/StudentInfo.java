@@ -18,15 +18,15 @@ import java.util.Date;
 @ToString
 public class StudentInfo implements Serializable {
     private static final long serialVersionUID = -6872689417624493481L;
-    private String studentId;
+    private String id;
 
-    private String studentName;
+    private String name;
 
-    private Integer studentNum;
+    private String code;
 
-    private String mobile;
+    private Integer sex;
 
-    private Integer gender;
+    private String tel;
 
     private String email;
 

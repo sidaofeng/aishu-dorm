@@ -1,19 +1,17 @@
 package com.waken.dorm.serviceImpl.dorm;
 
+import com.aliyun.oss.ServiceException;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.waken.dorm.common.constant.Constant;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.waken.dorm.common.entity.dorm.Dorm;
 import com.waken.dorm.common.entity.dorm.DormScore;
 import com.waken.dorm.common.enums.CodeEnum;
 import com.waken.dorm.common.exception.ServerException;
 import com.waken.dorm.common.form.base.DeleteForm;
-import com.waken.dorm.common.form.dorm.DormScoreForm;
 import com.waken.dorm.common.form.dorm.ListDormScoreForm;
-import com.waken.dorm.common.manager.UserManager;
 import com.waken.dorm.common.utils.Assert;
-import com.waken.dorm.common.utils.BeanMapper;
-import com.waken.dorm.common.utils.DormUtil;
-import com.waken.dorm.common.view.dorm.AppDormScoreView;
+import com.waken.dorm.common.utils.StringUtils;
 import com.waken.dorm.common.view.dorm.DormScoreView;
 import com.waken.dorm.dao.dorm.DormMapper;
 import com.waken.dorm.dao.dorm.DormScoreMapper;
@@ -26,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -38,68 +37,55 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @Transactional(propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Exception.class)
-public class DormScoreServiceImpl implements DormScoreService {
-    private final DormScoreMapper dormScoreMapper;
+public class DormScoreServiceImpl extends ServiceImpl<DormScoreMapper, DormScore> implements DormScoreService {
     private final DormMapper dormMapper;
 
-    /**
-     * 批量导入宿舍评分记录（excel）
-     *
-     * @param dormScoreList
-     */
-    @Transactional
     @Override
-    public void batchAddDormScore(List<DormScore> dormScoreList) {
-        Assert.notNull(dormScoreList,dormScoreList.isEmpty(),"参数为空！");
-        for (DormScore dormScore : dormScoreList) {
-            dormScore.setStatus(CodeEnum.ENABLE.getCode());
-        }
-        int count = dormScoreMapper.batchAddDormScore(dormScoreList);
-        Assert.isFalse(count == Constant.ZERO);
+    public int insert(DormScore score) {
+        Assert.notNull(score.getDormCode());
+        this.validateDorm(score.getDormCode());
+        return this.baseMapper.insert(score);
     }
 
-    /**
-     * 删除评分记录
-     *
-     * @param deleteForm
-     */
-    @Transactional
     @Override
-    public void deleteDormScore(DeleteForm deleteForm) {
-        log.info("service: 删除积分开始");
-        List<String> ids = deleteForm.getDelIds();
-        Integer delStatus = deleteForm.getDelStatus();
-        int count;
-        if (CodeEnum.YES.getCode() == delStatus) { // 物理删除
-            List<DormScore> dormScoreList = dormScoreMapper.selectBatchIds(ids);
-            StringBuffer sb = new StringBuffer();
-            for (DormScore dormScore : dormScoreList) {
-                if (CodeEnum.ENABLE.getCode() == dormScore.getStatus()) {
-                    sb.append(dormScore.getDormNum());
+    public void delete(DeleteForm deleteForm) {
+        if (deleteForm == null || deleteForm.getDelIds() == null) {
+            throw new ServiceException("入参数据为空");
+        }
+        if (!deleteForm.getDelIds().isEmpty()) {
+            //物理删除
+            if (deleteForm.getDelStatus() == CodeEnum.YES.getCode()) {
+                this.baseMapper.deleteBatchIds(deleteForm.getDelIds());
+            } else if (deleteForm.getDelStatus() == CodeEnum.NO.getCode()) {
+                List<DormScore> scoreList = new ArrayList<>();
+                for (String id : deleteForm.getDelIds()) {
+                    DormScore score = new DormScore();
+                    score.setId(id);
+                    score.setIsDeleted(true);
+                    scoreList.add(score);
                 }
+                this.updateBatchById(scoreList);
+            } else {
+                throw new ServerException("删除状态码错误");
             }
-            Assert.isNull(sb.toString(),"以下宿舍评分处于生效中：" + sb.toString());
-            //删除宿舍积分
-            count = dormScoreMapper.deleteBatchIds(ids);
-            Assert.isFalse(count == Constant.ZERO);
-        } else if (CodeEnum.NO.getCode() == delStatus) {
-            count = dormScoreMapper.batchUpdateStatus(DormUtil.getToUpdateStatusMap(ids,UserManager.getCurrentUserId()));
-            Assert.isFalse(count == Constant.ZERO);
-        } else {
-            throw new ServerException("删除状态码错误！");
+
         }
     }
 
-    /**
-     * 通过学生id查询对应宿舍的评分记录
-     *
-     * @param listDormScoreForm
-     * @return
-     */
     @Override
-    public IPage<AppDormScoreView> appListDormScoreViews(ListDormScoreForm listDormScoreForm) {
-        Page page  = new Page(listDormScoreForm.getPageNum(),listDormScoreForm.getPageSize());
-        return dormScoreMapper.appListDormScoreView(page,listDormScoreForm);
+    public int update(DormScore score) {
+        if (score == null) {
+            throw new ServiceException("入参数据为空");
+        }
+        return this.baseMapper.updateById(score);
+    }
+
+    @Override
+    public DormScore get(String id) {
+        if (StringUtils.isEmpty(id)) {
+            throw new ServiceException("入参数据为空");
+        }
+        return this.baseMapper.selectById(id);
     }
 
     /**
@@ -109,24 +95,28 @@ public class DormScoreServiceImpl implements DormScoreService {
      * @return
      */
     @Override
-    public IPage<DormScoreView> listDormScores(ListDormScoreForm listDormScoreForm) {
-        log.info("service: 分页查询宿舍评分信息开始");
-        return dormScoreMapper.listDormScores(DataHandle.getWrapperPage(listDormScoreForm),listDormScoreForm);
+    public IPage<DormScoreView> findPage(ListDormScoreForm listDormScoreForm) {
+
+        return this.baseMapper.findPage(DataHandle.getWrapperPage(listDormScoreForm), listDormScoreForm);
     }
 
-    /**
-     * 修改评分
-     *
-     * @param form
-     * @return
-     */
-    @Transactional
     @Override
-    public DormScore updateDormScore(DormScoreForm form) {
-        Assert.notNull(form.getId());
-        DormScore dormScore = new DormScore();
-        BeanMapper.copy(form, dormScore);
-        dormScoreMapper.updateById(dormScore);
-        return dormScore;
+    public void batchInsert(List<DormScore> dormScoreList) {
+        Assert.notNull(dormScoreList, dormScoreList.isEmpty(), "参数为空！");
+        for (DormScore dormScore : dormScoreList) {
+            dormScore.setStatus(CodeEnum.ENABLE.getCode());
+        }
+        if (!this.saveBatch(dormScoreList)) {
+            throw new ServerException("批量新增失败");
+        }
+    }
+
+    private void validateDorm(String dormCode) {
+        Dorm dorm = dormMapper.selectOne(new LambdaQueryWrapper<Dorm>()
+                .eq(Dorm::getCode, dormCode)
+        );
+        if (null == dorm) {
+            throw new ServerException("宿舍号不存在!");
+        }
     }
 }

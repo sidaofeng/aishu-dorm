@@ -2,4 +2,51 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.waken.dorm.dao.dorm.BedMapper">
 
+    <select id="findPage" resultType="com.waken.dorm.common.view.dorm.DormStudentView"
+            parameterType="com.waken.dorm.common.form.dorm.DormStudentForm">
+        SELECT
+        sb.id,
+        sb.`name`,
+        sb.`code`,
+        sb.sex,
+        sb.grade_id AS gradeName,
+        sb.major_id AS majorName,
+        sb.class_id AS className,
+        d.`code` AS dormCode,
+        db.`name` AS bedName
+        FROM rm_student_basic sb
+        LEFT JOIN rm_dorm_bed db ON db.subject_id = sb.id
+        LEFT JOIN rm_dorm d ON d.id = db.dorm_id
+        <where>
+            AND sb.is_deleted = 0
+            <if test="form.id != null and form.id != ''">
+                and sb.id=#{form.id}
+            </if>
+            <if test="form.unDistribution == 0">
+                and db.`name` IS NULL
+            </if>
+            <if test="form.unDistribution == 1">
+                and db.`name` IS NOT NULL
+            </if>
+            <if test="form.keywords != null and form.keywords != ''">
+                <bind name="form.keywords" value="'%' + form.keywords + '%'"/>
+                AND (sb.`name` LIKE #{form.keywords}
+                OR sb.`code` LIKE #{form.keywords}
+                OR sb.grade_id LIKE #{form.keywords}
+                OR sb.major_id LIKE #{form.keywords}
+                OR sb.class_id LIKE #{form.keywords}
+                OR d.`code` LIKE #{form.keywords}
+                OR db.`name` LIKE #{form.keywords}
+                )
+            </if>
+            <if test="form.startTime != null">
+                AND sb.create_time &gt;= #{form.startTime,jdbcType=TIMESTAMP}
+            </if>
+            <if test="form.endTime != null">
+                AND sb.create_time &lt;= #{form.endTime,jdbcType=TIMESTAMP}
+            </if>
+        </where>
+        ORDER BY
+        sb.last_modify_time DESC
+    </select>
 </mapper>

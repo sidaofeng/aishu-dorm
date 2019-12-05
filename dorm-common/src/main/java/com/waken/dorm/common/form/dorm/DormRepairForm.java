@@ -5,9 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.math.BigDecimal;
-import java.util.Date;
-
 /**
  * @ClassName DormRepairForm
  * @Description DormRepairForm
@@ -19,33 +16,7 @@ import java.util.Date;
 @Setter
 public class DormRepairForm extends BaseForm {
     private static final long serialVersionUID = -3982339641414695388L;
-    private String id;
-
     private String dormId;
 
-    private Integer repairType;
-
-    private String repairDesc;
-
-    private String studentName;
-
     private String studentId;
-
-    private String studentMobile;
-
-    private Integer status;
-
-    private BigDecimal repairCost;
-
-    private Date createTime;
-
-    private String createUserName;
-
-    private Date lastModifyTime;
-
-    private String lastModifyUserName;
-
-    private String memo;
-
-    private Integer terminal;
 }

@@ -1,74 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.waken.dorm.dao.dorm.DormScoreMapper">
-    <insert id="batchAddDormScore" parameterType="java.util.List">
-        insert into rm_dorm_score
-        (id,
-        dorm_num,
-        culture_score,
-        discipline_score,
-        bed_score,
-        desk_score,
-        balcony_score,
-        toilet_score,
-        ground_score,
-        door_window_score,
-        metope_score,
-        total_score,
-        status,
-        create_user_id,
-        create_time,
-        last_modify_user_id,
-        last_modify_time,
-        memo)
-        values
-        <foreach collection="list" item="item" index="index" separator=",">
-            (#{item.id},
-            #{item.dormNum},
-            #{item.cultureScore},
-            #{item.disciplineScore},
-            #{item.bedScore},
-            #{item.deskScore},
-            #{item.balconyScore},
-            #{item.toiletScore},
-            #{item.groundScore},
-            #{item.doorWindowScore},
-            #{item.metopeScore},
-            #{item.totalScore},
-            #{item.status},
-            #{item.createUserId},
-            #{item.createTime},
-            #{item.lastModifyUserId},
-            #{item.lastModifyTime},
-            #{item.memo})
-        </foreach>
-    </insert>
-    <select id="appListDormScoreView" parameterType="com.waken.dorm.common.form.dorm.ListDormScoreForm"
-            resultType="com.waken.dorm.common.view.dorm.AppDormScoreView">
-        SELECT
-        ds.id,
-        ds.dorm_num AS dormNum,
-        ds.culture_score AS cultureScore,
-        ds.discipline_score AS disciplineScore,
-        ds.bed_score AS bedScore,
-        ds.desk_score AS deskScore,
-        ds.balcony_score AS balconyScore,
-        ds.toilet_score AS toiletScore,
-        ds.ground_score AS groundScore,
-        ds.door_window_score AS doorWindowScore,
-        ds.metope_score AS metopeScore,
-        ds.total_score AS totalScore,
-        ds.memo AS memo
-        FROM rm_dorm_score ds
-        LEFT JOIN rm_dorm d ON d.dorm_num = ds.dorm_num
-        WHERE
-        ds.`status` = 1
-    </select>
-    <select id="listDormScores" parameterType="com.waken.dorm.common.form.dorm.ListDormScoreForm"
+    <select id="findPage" parameterType="com.waken.dorm.common.form.dorm.ListDormScoreForm"
             resultType="com.waken.dorm.common.view.dorm.DormScoreView">
         SELECT
         ds.id,
-        ds.dorm_num AS dormNum,
+        ds.dorm_code AS dormCode,
         ds.culture_score AS cultureScore,
         ds.discipline_score AS disciplineScore,
         ds.bed_score AS bedScore,
@@ -86,42 +23,38 @@
         uu.user_name AS lastModifyUserName,
         ds.memo
         FROM rm_dorm_score ds
-        LEFT JOIN rm_dorm d ON d.dorm_num = ds.dorm_num
+        LEFT JOIN rm_dorm d ON d.`code` = ds.dorm_code
+        LEFT JOIN rm_dorm_bed db ON db.dorm_id = d.id
         LEFT JOIN rm_user u ON u.user_id = ds.create_user_id
         LEFT JOIN rm_user uu ON uu.user_id = ds.last_modify_user_id
-        LEFT JOIN rm_dorm_building db ON db.id = d.dorm_building_id
-        WHERE 1=1
-        <if test="form.id != null and form.id != ''">
-            and ds.id=#{form.id}
-        </if>
-        <if test="form.dormNum != null and form.dormNum != ''">
-            and d.dorm_num like '%${form.dormNum}%'
-        </if>
-        <if test="form.status != null">
-            and ds.status=#{form.status}
-        </if>
-        <if test="form.createUserName != null and form.createUserName != ''">
-            and u.user_name like '%${form.createUserName}%'
-        </if>
-        <if test="form.lastModifyUserName != null and form.lastModifyUserName != ''">
-            and uu.user_name like '%${form.lastModifyUserName}%'
-        </if>
-        <if test="form.startTime != null">
-            AND ds.create_time &gt;= #{form.startTime,jdbcType=TIMESTAMP}
-        </if>
-        <if test="form.endTime != null">
-            AND ds.create_time &lt;= #{form.endTime,jdbcType=TIMESTAMP}
-        </if>
+        <where>
+            AND ds.is_deleted = 0
+            <if test="form.id != null and form.id != ''">
+                and dv.id=#{form.id}
+            </if>
+            <if test="form.studentId != null and form.studentId != ''">
+                and db.subject_id=#{form.studentId}
+            </if>
+            <if test="form.dormId != null and form.dormId != ''">
+                and d.id=#{form.dormId}
+            </if>
+            <if test="form.dormCode != null and form.dormCode != ''">
+                and ds.dorm_code=#{form.dormCode}
+            </if>
+            <if test="form.keywords != null and form.keywords != ''">
+                <bind name="form.keywords" value="'%' + form.keywords + '%'"/>
+                AND (ds.dorm_code LIKE #{form.keywords}
+                OR ds.memo LIKE #{form.keywords}
+                )
+            </if>
+            <if test="form.startTime != null">
+                AND ds.create_time &gt;= #{form.startTime,jdbcType=TIMESTAMP}
+            </if>
+            <if test="form.endTime != null">
+                AND ds.create_time &lt;= #{form.endTime,jdbcType=TIMESTAMP}
+            </if>
+        </where>
         ORDER BY
         ds.last_modify_time DESC
     </select>
-    <update id="batchUpdateStatus" parameterType="java.util.Map">
-        <foreach collection="list" separator=";" item="ur">
-            update rm_dorm_score set
-            status = #{ur.status},
-            last_modify_time = #{ur.lastModifyTime},
-            last_modify_user_id = #{ur.lastModifyUserId}
-            where id = #{ur.pkId}
-        </foreach>
-    </update>
 </mapper>

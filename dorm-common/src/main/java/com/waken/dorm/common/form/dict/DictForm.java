@@ -16,11 +16,6 @@ import lombok.ToString;
 @Setter
 public class DictForm extends BaseForm {
     /**
-     * 主键id
-     */
-    private Long id;
-
-    /**
      * 父节点id
      */
     private String parentId;
@@ -31,8 +26,4 @@ public class DictForm extends BaseForm {
      */
     private Boolean isDefault;
 
-    /**
-     * 关键字
-     */
-    private String keywords;
 }

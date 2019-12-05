@@ -2,4 +2,73 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.waken.dorm.dao.student.StudentBasicMapper">
 
+    <select id="findPage" parameterType="com.waken.dorm.common.form.student.StudentBasicForm"
+            resultType="com.waken.dorm.common.view.student.StudentBasicView">
+        SELECT
+        sb.id,
+        sb.`name`,
+        sb.`code`,
+        sb.card_id AS cardId,
+        sb.sex,
+        sb.tel,
+        sb.email,
+        sb.`level`,
+        sb.grade_id AS gradeName,
+        sb.major_id AS majorName,
+        sb.class_id AS className,
+        sb.race,
+        sb.native_place AS nativePlace,
+        sb.qq,
+        sb.family_address AS familyAddress,
+        sb.family_tel AS familyTel,
+        sb.counselor,
+        sb.img_url AS imgUrl,
+        sb.create_time AS createTime,
+        u.user_name AS createUserName,
+        sb.last_modify_time AS lastModifyTime,
+        uu.user_name AS lastModifyUserName,
+        FROM rm_student_basic sb
+        <where>
+            AND sb.is_deleted = 0
+            <if test="form.id != null and form.id != ''">
+                and sb.id=#{form.id}
+            </if>
+            <if test="form.keywords != null and form.keywords != ''">
+                <bind name="form.keywords" value="'%' + form.keywords + '%'"/>
+                AND (sb.`name` LIKE #{form.keywords}
+                OR sb.`code` LIKE #{form.keywords}
+                OR sb.grade_id LIKE #{form.keywords}
+                OR sb.major_id LIKE #{form.keywords}
+                OR sb.class_id LIKE #{form.keywords}
+                )
+            </if>
+            <if test="form.startTime != null">
+                AND sb.create_time &gt;= #{form.startTime,jdbcType=TIMESTAMP}
+            </if>
+            <if test="form.endTime != null">
+                AND sb.create_time &lt;= #{form.endTime,jdbcType=TIMESTAMP}
+            </if>
+        </where>
+        ORDER BY
+        sb.last_modify_time DESC
+    </select>
+
+    <select id="studentLogin" parameterType="com.waken.dorm.common.entity.student.StudentBasic"
+            resultType="com.waken.dorm.common.entity.student.StudentInfo">
+        SELECT
+        sb.id,
+        sb.`name`,
+        sb.`code`,
+        sb.sex,
+        sb.tel,
+        sb.email,
+        sb.img_url AS imgUrl,
+        sb.create_time AS createTime
+        FROM rm_student_basic sb
+        <where>
+            AND sb.is_deleted = 0
+            AND sb.`code`=#{code}
+            AND s.password=#{password}
+        </where>
+    </select>
 </mapper>

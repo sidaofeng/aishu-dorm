@@ -1,28 +1,43 @@
 package com.waken.dorm.service.dorm;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.service.IService;
 import com.waken.dorm.common.entity.dorm.DormRepair;
 import com.waken.dorm.common.form.base.DeleteForm;
-import com.waken.dorm.common.form.dorm.AddDormRepairForm;
 import com.waken.dorm.common.form.dorm.DormRepairForm;
-import com.waken.dorm.common.form.dorm.UpdateRepairForm;
 import com.waken.dorm.common.view.dorm.DormRepairView;
 
-public interface RepairService {
+public interface RepairService extends IService<DormRepair> {
     /**
-     * 新增维修记录
+     * 新增
      *
-     * @param addDormRepairForm
+     * @param repair
      * @return
      */
-    DormRepair addDormRepair(AddDormRepairForm addDormRepairForm);
+    int insert(DormRepair repair);
 
     /**
-     * 删除维修记录
+     * 删除
      *
      * @param deleteForm
      */
-    void deleteDormRepair(DeleteForm deleteForm);
+    void delete(DeleteForm deleteForm);
+
+    /**
+     * 更新
+     *
+     * @param repair
+     * @return
+     */
+    int update(DormRepair repair);
+
+    /**
+     * 通过id获取维修信息
+     *
+     * @param id
+     * @return
+     */
+    DormRepair get(String id);
 
     /**
      * 分页查询宿舍维修记录
@@ -30,13 +45,5 @@ public interface RepairService {
      * @param dormRepairForm
      * @return
      */
-    IPage<DormRepairView> listDormRepairs(DormRepairForm dormRepairForm);
-
-    /**
-     * 更新宿舍维修记录（提交维修结果）
-     *
-     * @param updateRepairForm
-     * @return
-     */
-    DormRepair updateDormRepair(UpdateRepairForm updateRepairForm);
+    IPage<DormRepairView> findPage(DormRepairForm dormRepairForm);
 }

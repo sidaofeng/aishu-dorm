@@ -58,10 +58,10 @@ public class SwaggerConfig {
         return new ApiInfoBuilder()
                 .title("宿舍管理系统PC端接口")//设置文档的标题
                 .description("用于宿舍管理系统PC端开发接口实现的文档" +
-                        "<br/>登陆账号：xiaozhu\n登陆密码：xiaozhu" +
+                        "<br/>登陆账号：xiaozhu\n登陆密码：000000" +
                         "<br/>此账号拥有除用户、角色、资源的删除以及新增其对应的关联的权限外的所有权限功能")//设置文档的描述
                 .version(ADMIN_VERSION)//设置文档的版本信息
-                .contact(new Contact("AiShu", "http://dorm.aishu.site", "2181250231@qq.com"))
+                .contact(new Contact("jugheadzhou", "http://dorm.aishu.site", "2181250231@qq.com"))
                 .build();
     }
 
@@ -91,7 +91,7 @@ public class SwaggerConfig {
                 .description("用于宿舍管理系统APP端开发接口实现的文档" +
                         "<br/>登陆账号：20161545\n登陆密码：123456")//设置文档的描述
                 .version(APP_VERSION)//设置文档的版本信息
-                .contact(new Contact("AiShu", "http://dorm.aishu.site", "2181250231@qq.com"))
+                .contact(new Contact("jugheadzhou", "http://dorm.aishu.site", "2181250231@qq.com"))
                 .build();
     }
 }

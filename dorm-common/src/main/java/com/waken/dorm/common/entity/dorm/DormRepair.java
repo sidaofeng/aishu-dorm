@@ -1,6 +1,5 @@
 package com.waken.dorm.common.entity.dorm;
 
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.waken.dorm.common.base.BaseEntity;
 import lombok.Getter;
@@ -26,39 +25,33 @@ public class DormRepair extends BaseEntity {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 宿舍id
+     * 宿舍号
      */
-    @TableField("dorm_id")
-    private String dormId;
+    private String dormCode;
 
     /**
      * 维修类型(门窗、床、水电)
      */
-    @TableField("repair_type")
-    private Integer repairType;
+    private Integer type;
 
     /**
      * 维修描述
      */
-    @TableField("repair_desc")
-    private String repairDesc;
+    private String description;
 
     /**
      * 维修图片
      */
-    @TableField("repair_img_url")
-    private String repairImgUrl;
+    private String imgUrl;
 
     /**
-     * 报修人
+     * 学号
      */
-    @TableField("student_id")
-    private String studentId;
+    private String studentCode;
 
     /**
      * 报修人联系方式
      */
-    @TableField("student_mobile")
     private String studentMobile;
 
     /**
@@ -69,14 +62,17 @@ public class DormRepair extends BaseEntity {
     /**
      * 维修费用
      */
-    @TableField("repair_cost")
-    private BigDecimal repairCost;
+    private BigDecimal cost;
 
     /**
      * 维修费用发票
      */
-    @TableField("repair_bill_url")
-    private String repairBillUrl;
+    private String billUrl;
+
+    /**
+     * 是否删除（0否，1是）
+     */
+    private Boolean isDeleted;
 
     /**
      * 备注

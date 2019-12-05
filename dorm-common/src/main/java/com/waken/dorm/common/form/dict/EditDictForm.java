@@ -14,11 +14,7 @@ import lombok.ToString;
 @Getter
 @Setter
 public class EditDictForm {
-    /**
-     * 主键id
-     */
     private String id;
-
     /**
      * 父节点id
      */

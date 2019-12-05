@@ -19,7 +19,4 @@ public class DormWebApplicationTests {
         System.out.println(this.userMapper.selectById(1));
     }
 
-
-
-
 }

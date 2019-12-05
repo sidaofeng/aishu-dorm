@@ -5,10 +5,10 @@ import com.waken.dorm.common.annotation.Limit;
 import com.waken.dorm.common.annotation.PrivilegeResource;
 import com.waken.dorm.common.base.AjaxResponse;
 import com.waken.dorm.common.enums.AccessStrategy;
+import com.waken.dorm.common.manager.StudentManager;
 import com.waken.dorm.common.utils.StringUtils;
 import com.waken.dorm.common.view.base.ImgView;
-import com.waken.dorm.common.manager.StudentManager;
-import com.waken.dorm.service.student.StudentService;
+import com.waken.dorm.service.student.StudentBasicService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -30,11 +30,11 @@ import org.springframework.web.multipart.MultipartFile;
  **/
 @Slf4j
 @RestController
-@Api(value = "APP端登陆相关接口", description = "APP端登陆相关接口(赵荣)")
+@Api(value = "APP端登陆", description = "APP端登陆(aishu)")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class AppLoginController extends AppBaseController {
 
-    private final StudentService studentService;
+    private final StudentBasicService studentService;
     private final StudentManager studentManager;
     /**
      * 学生登录
@@ -50,12 +50,12 @@ public class AppLoginController extends AppBaseController {
             @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
     @Limit(key = "login", period = 60, count = 20, name = "学生登录接口", prefix = "limit")
-    public AjaxResponse studentLogin(@RequestParam Integer studentNum, String password) {
-        log.info("开始调用学生登陆接口：" + studentNum);
-        if (null == studentNum || StringUtils.isBlank(password)) {
+    public AjaxResponse studentLogin(@RequestParam String studentCode, String password) {
+        log.info("开始调用学生登陆接口：" + studentCode);
+        if (StringUtils.isBlank(studentCode) || StringUtils.isBlank(password)) {
             return AjaxResponse.error("学号或密码不能为空！");
         }
-        return studentService.studentLogin(studentNum, password);
+        return studentService.studentLogin(studentCode, password);
     }
 
     /**

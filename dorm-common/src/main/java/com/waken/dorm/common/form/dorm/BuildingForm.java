@@ -17,17 +17,10 @@ import lombok.ToString;
 public class BuildingForm extends BaseForm {
     private static final long serialVersionUID = -3547493633581949862L;
 
-    private String id;
-
     /**
      * 校区
      */
     private String campusId;
-
-    /**
-     * 关键字
-     */
-    private String keywords;
 
     /**
      * 使用状态(1使用，2闲置)

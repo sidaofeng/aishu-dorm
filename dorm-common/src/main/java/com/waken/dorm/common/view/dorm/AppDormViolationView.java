@@ -15,7 +15,7 @@ import java.util.Date;
 @Getter
 @Setter
 public class AppDormViolationView extends BaseView {
-    private String pkDormViolationId;
+    private String id;
 
     private String dormRuleName;
 
