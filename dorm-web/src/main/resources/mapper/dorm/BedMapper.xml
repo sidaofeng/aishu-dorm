@@ -49,4 +49,65 @@
         ORDER BY
         sb.last_modify_time DESC
     </select>
+    <select id="selectBasicTreeList" resultType="com.waken.dorm.common.view.base.Tree">
+        SELECT
+        tree.id,
+        tree.parentId,
+        tree.`key`,
+        tree.title,
+        tree.isLeaf
+        FROM (SELECT
+                sc.id,
+                'root' AS parentId,
+                sc.id AS `key`,
+                sc.`name` AS title,
+                FALSE AS isLeaf,
+                0 AS sort
+                FROM rm_school_campus sc
+                WHERE sc.is_deleted = 0
+                UNION ALL
+                SELECT
+                b.id,
+                b.campus_id AS parentId,
+                b.id AS `key`,
+                b.`name` AS title,
+                FALSE AS isLeaf,
+                0 AS sort
+                FROM rm_building b
+                WHERE b.is_deleted = 0
+                UNION ALL
+                SELECT
+                bf.id,
+                bf.building_id AS parentId,
+                bf.id AS `key`,
+                bf.`name` AS title,
+                FALSE AS isLeaf,
+                bf.`code` AS sort
+                FROM rm_building_floor bf
+                WHERE bf.is_deleted = 0
+                AND bf.`code` > 0) AS tree
+        ORDER BY tree.sort ASC
+    </select>
+    <select id="selectDormRoomTreeList" resultType="com.waken.dorm.common.view.base.Tree">
+        SELECT
+        d.id,
+        d.floor_id AS parentId,
+        d.id AS `key`,
+        d.`code` AS title,
+        TRUE AS isLeaf
+        FROM rm_dorm d
+        WHERE d.is_deleted = 0
+        ORDER BY d.`code` ASC
+    </select>
+    <select id="selectBedTreeList" resultType="com.waken.dorm.common.view.base.Tree">
+        SELECT
+        db.id,
+        db.dorm_id AS parentId,
+        db.id AS `key`,
+        db.`name` AS title,
+        TRUE AS isLeaf
+        FROM rm_dorm_bed db
+        WHERE db.subject_id IS NULL
+        ORDER BY db.`code` ASC
+    </select>
 </mapper>

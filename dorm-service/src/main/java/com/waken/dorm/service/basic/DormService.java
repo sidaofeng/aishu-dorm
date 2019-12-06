@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.waken.dorm.common.entity.dorm.Dorm;
 import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.dorm.DormForm;
+import com.waken.dorm.common.form.dorm.FloorDormForm;
 import com.waken.dorm.common.view.dorm.AppDormView;
 import com.waken.dorm.common.view.dorm.DormView;
 
@@ -57,5 +58,19 @@ public interface DormService extends IService<Dorm> {
      */
     AppDormView queryAppDormView(String studentId);
 
+    /**
+     * 通过楼层id查询宿舍房间信息
+     *
+     * @param floorId
+     * @return
+     */
     List<Dorm> listByFloor(String floorId);
+
+    /**
+     * 通过楼层id自动生成宿舍房间、床位
+     *
+     * @param form
+     * @return
+     */
+    Integer batchInsert(FloorDormForm form);
 }

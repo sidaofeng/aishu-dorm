@@ -3,18 +3,24 @@ package com.waken.dorm.serviceImpl.basic;
 import com.aliyun.oss.ServiceException;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.waken.dorm.common.constant.Constant;
 import com.waken.dorm.common.entity.dorm.Dorm;
 import com.waken.dorm.common.entity.dorm.DormBed;
 import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.utils.StringUtils;
+import com.waken.dorm.common.utils.TreeUtil;
+import com.waken.dorm.common.view.base.Tree;
 import com.waken.dorm.dao.dorm.BedMapper;
 import com.waken.dorm.dao.dorm.DormMapper;
 import com.waken.dorm.service.basic.BedService;
 import lombok.RequiredArgsConstructor;
+import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -28,6 +34,7 @@ import java.util.List;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class BedServiceImpl extends ServiceImpl<BedMapper, DormBed> implements BedService {
     private final DormMapper dormMapper;
+    private final TreeUtil treeUtil;
 
     @Override
     public int insert(DormBed bed) {
@@ -79,9 +86,37 @@ public class BedServiceImpl extends ServiceImpl<BedMapper, DormBed> implements B
     public List<DormBed> list(String dormId) {
         List<DormBed> bedList = this.baseMapper.selectList(new LambdaQueryWrapper<DormBed>()
                 .eq(DormBed::getDormId, dormId)
-                .isNull(DormBed::getSubjectId)
                 .orderByAsc(DormBed::getCode));
         return bedList;
+    }
+
+    @Override
+    public List<Tree<T>> bedTree() {
+        List<Tree<T>> basicTreeList = this.baseMapper.selectBasicTreeList();
+        List<Tree<T>> roomTreeList = this.baseMapper.selectDormRoomTreeList();
+        List<Tree<T>> bedTreeList = this.baseMapper.selectBedTreeList();
+        if (this.handlerRoomTree(roomTreeList, bedTreeList)) {
+            basicTreeList.addAll(roomTreeList);
+            basicTreeList.addAll(bedTreeList);
+        }
+        return treeUtil.toTree(basicTreeList, Constant.ROOT);
+    }
+
+    private boolean handlerRoomTree(List<Tree<T>> roomTreeList, List<Tree<T>> bedTreeList) {
+        if (roomTreeList != null && !roomTreeList.isEmpty()) {
+            Map<String, Long> parentIdAndCountMap = bedTreeList.stream()
+                    .collect(Collectors.groupingBy(Tree::getParentId, Collectors.counting()));
+            roomTreeList.stream().forEach(roomTree -> {
+                if (parentIdAndCountMap == null || parentIdAndCountMap.isEmpty()
+                        || parentIdAndCountMap.get(roomTree.getId()) == 0) {
+                    roomTree.setTitle(roomTree.getTitle() + " (床位已满)");
+                    roomTree.setLeaf(true);
+                } else {
+                    roomTree.setTitle(roomTree.getTitle() + " (床位余" + parentIdAndCountMap.get(roomTree.getId()) + ")");
+                }
+            });
+        }
+        return true;
     }
 
     private void verifyBed(DormBed dormBed) {

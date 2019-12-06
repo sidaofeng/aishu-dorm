@@ -49,6 +49,4 @@ public class DormStudentController {
     public AjaxResponse batchAdd(@RequestBody StudentBedForm form) {
         return AjaxResponse.success(this.dormStudentService.batchAdd(form));
     }
-
-
 }

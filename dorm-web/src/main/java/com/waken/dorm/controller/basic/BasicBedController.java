@@ -3,6 +3,7 @@ package com.waken.dorm.controller.basic;
 import com.waken.dorm.common.base.AjaxResponse;
 import com.waken.dorm.common.entity.dorm.DormBed;
 import com.waken.dorm.common.form.base.DeleteForm;
+import com.waken.dorm.common.view.base.Tree;
 import com.waken.dorm.controller.base.BaseController;
 import com.waken.dorm.service.basic.BedService;
 import io.swagger.annotations.Api;
@@ -112,5 +113,21 @@ public class BasicBedController extends BaseController {
     })
     public AjaxResponse list(@PathVariable("dormId") String dormId) {
         return AjaxResponse.success(this.bedService.list(dormId));
+    }
+
+    /**
+     * 查询床位树（校区->楼栋->楼层->宿舍->床位）
+     *
+     * @return
+     */
+    @CrossOrigin
+    @GetMapping(value = "bed/tree")
+    @ApiOperation(value = "查询床位树", notes = "查询床位树（校区->楼栋->楼层->宿舍->床位）")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "success", response = Tree.class)
+    })
+    public AjaxResponse bedTree() {
+
+        return AjaxResponse.success(this.bedService.bedTree());
     }
 }

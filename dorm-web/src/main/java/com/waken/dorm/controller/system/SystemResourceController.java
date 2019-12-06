@@ -8,7 +8,7 @@ import com.waken.dorm.common.form.resource.EditButtonsForm;
 import com.waken.dorm.common.form.resource.EditResourceForm;
 import com.waken.dorm.common.manager.UserManager;
 import com.waken.dorm.common.utils.StringUtils;
-import com.waken.dorm.common.view.base.TreeView;
+import com.waken.dorm.common.view.base.Tree;
 import com.waken.dorm.common.view.resource.UserMenuView;
 import com.waken.dorm.controller.base.BaseController;
 import com.waken.dorm.service.system.ResourceService;
@@ -83,7 +83,7 @@ public class SystemResourceController extends BaseController {
     @GetMapping(value = "resources/tree")
     @ApiOperation(value = "查询资源树", notes = "查询资源树")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "success", response = TreeView.class)
+            @ApiResponse(code = 200, message = "success", response = Tree.class)
     })
     @RequiresPermissions("resources::view")
     public AjaxResponse getResourcesTree() {
@@ -95,7 +95,7 @@ public class SystemResourceController extends BaseController {
     @GetMapping(value = "resources/tree/user/{id}")
     @ApiOperation(value = "根据用户id查询资源树", notes = "根据用户id查询资源树")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "success", response = TreeView.class)
+            @ApiResponse(code = 200, message = "success", response = Tree.class)
     })
     public AjaxResponse getTreeByUser(@PathVariable("id") String id) {
         log.info("开始调用通过用户id查询资源树的接口:" + id);
@@ -109,7 +109,7 @@ public class SystemResourceController extends BaseController {
     @GetMapping(value = "resources/tree/role/{id}")
     @ApiOperation(value = "根据角色id查询资源树", notes = "根据角色id查询资源树")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "success", response = TreeView.class)
+            @ApiResponse(code = 200, message = "success", response = Tree.class)
     })
     public AjaxResponse getTreeByRole(@PathVariable("id") String id) {
         log.info("开始调用通过角色id查询资源树的接口:" + id);

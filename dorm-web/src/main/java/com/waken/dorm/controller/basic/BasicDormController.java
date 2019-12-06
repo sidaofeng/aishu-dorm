@@ -5,6 +5,7 @@ import com.waken.dorm.common.entity.dorm.Building;
 import com.waken.dorm.common.entity.dorm.Dorm;
 import com.waken.dorm.common.form.base.DeleteForm;
 import com.waken.dorm.common.form.dorm.DormForm;
+import com.waken.dorm.common.form.dorm.FloorDormForm;
 import com.waken.dorm.common.view.dorm.DormView;
 import com.waken.dorm.controller.base.BaseController;
 import com.waken.dorm.service.basic.DormService;
@@ -126,5 +127,27 @@ public class BasicDormController extends BaseController {
     })
     public AjaxResponse listByFloor(@PathVariable("floorId") String floorId) {
         return AjaxResponse.success(this.dormService.listByFloor(floorId));
+    }
+
+    /**
+     * 通过楼层id自动生成宿舍房间、床位
+     * 默认生成规则：建筑号+"-"+楼层号+流水号
+     *
+     * @param form
+     * @return
+     */
+    @CrossOrigin
+    @PostMapping(value = "batch/add")
+    @ApiOperation(value = "通过楼层id自动生成宿舍房间、床位", notes = "通过楼层id自动生成宿舍房间、床位，" +
+            "默认生成规则：建筑号+\"-\"+楼层号+流水号")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
+    })
+    public AjaxResponse batchInsert(@RequestBody FloorDormForm form) {
+        if (this.dormService.batchInsert(form) == 1) {
+            return AjaxResponse.success();
+        } else {
+            return AjaxResponse.error();
+        }
     }
 }

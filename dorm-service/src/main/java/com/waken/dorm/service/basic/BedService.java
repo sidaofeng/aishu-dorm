@@ -3,6 +3,8 @@ package com.waken.dorm.service.basic;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.waken.dorm.common.entity.dorm.DormBed;
 import com.waken.dorm.common.form.base.DeleteForm;
+import com.waken.dorm.common.view.base.Tree;
+import org.apache.poi.ss.formula.functions.T;
 
 import java.util.List;
 
@@ -53,4 +55,6 @@ public interface BedService extends IService<DormBed> {
      * @return
      */
     List<DormBed> list(String dormId);
+
+    List<Tree<T>> bedTree();
 }
