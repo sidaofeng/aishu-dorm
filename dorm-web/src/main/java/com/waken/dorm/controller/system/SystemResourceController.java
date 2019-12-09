@@ -17,6 +17,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.authz.annotation.RequiresRoles;
@@ -32,11 +33,10 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 @Api(value = "资源管理", description = "系统管理-资源管理")
 @RestController
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class SystemResourceController extends BaseController {
-    @Autowired
-    ResourceService resourceService;
-    @Autowired
-    UserPrivilegeService userPrivilegeService;
+    private final ResourceService resourceService;
+    private final UserPrivilegeService userPrivilegeService;
 
     @Log("保存或修改资源")
     @CrossOrigin
@@ -47,7 +47,6 @@ public class SystemResourceController extends BaseController {
     })
     @RequiresPermissions("resources::save")
     public AjaxResponse saveResource(@RequestBody EditResourceForm editResourceForm) {
-        log.info("开始调用资源保存或修改接口：" + editResourceForm.toString());
         return AjaxResponse.success(resourceService.saveResource(editResourceForm));
     }
 
@@ -60,7 +59,6 @@ public class SystemResourceController extends BaseController {
     })
     @RequiresRoles("superAdmin")
     public AjaxResponse deleteResource(@RequestBody DeleteForm deleteFrom) {
-        log.info("开始调用资源删除接口：" + deleteFrom.toString());
         if (null == deleteFrom.getDelIds() || deleteFrom.getDelIds().isEmpty()) {
             return AjaxResponse.error("入参为空！");
         }
@@ -75,7 +73,6 @@ public class SystemResourceController extends BaseController {
             @ApiResponse(code = 200, message = "success", response = UserMenuView.class)
     })
     public AjaxResponse getMenuByUser() {
-        log.info("开始调用查询当前登陆用户所有的菜单资源的接口");
         return AjaxResponse.success(userPrivilegeService.getUserMenu(UserManager.getCurrentUserId()));
     }
 
@@ -87,7 +84,6 @@ public class SystemResourceController extends BaseController {
     })
     @RequiresPermissions("resources::view")
     public AjaxResponse getResourcesTree() {
-        log.info("开始调用查询资源树的接口");
         return AjaxResponse.success(resourceService.getResourcesTree(null, null));
     }
 
@@ -98,7 +94,6 @@ public class SystemResourceController extends BaseController {
             @ApiResponse(code = 200, message = "success", response = Tree.class)
     })
     public AjaxResponse getTreeByUser(@PathVariable("id") String id) {
-        log.info("开始调用通过用户id查询资源树的接口:" + id);
         if (StringUtils.isBlank(id)) {
             return AjaxResponse.error("入参为空！");
         }
@@ -112,7 +107,6 @@ public class SystemResourceController extends BaseController {
             @ApiResponse(code = 200, message = "success", response = Tree.class)
     })
     public AjaxResponse getTreeByRole(@PathVariable("id") String id) {
-        log.info("开始调用通过角色id查询资源树的接口:" + id);
         if (StringUtils.isBlank(id)) {
             return AjaxResponse.error("入参为空！");
         }
@@ -126,7 +120,6 @@ public class SystemResourceController extends BaseController {
             @ApiResponse(code = 200, message = "success", response = Resource.class)
     })
     public AjaxResponse selectById(@PathVariable("id") String id) {
-        log.info("开始调用通过资源id查询资源的接口:" + id);
         if (StringUtils.isBlank(id)) {
             return AjaxResponse.error("参数为空！");
         }

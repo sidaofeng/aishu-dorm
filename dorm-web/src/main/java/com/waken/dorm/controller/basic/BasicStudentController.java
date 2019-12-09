@@ -53,6 +53,7 @@ public class BasicStudentController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
+    //@RequiresPermissions("student::add")
     public AjaxResponse insert(@RequestBody StudentBasic basic) {
         if (this.studentBasicService.insert(basic) == 1) {
             return AjaxResponse.success();
@@ -72,6 +73,7 @@ public class BasicStudentController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
+    //@RequiresPermissions("student::delete")
     public AjaxResponse delete(@RequestBody DeleteForm deleteForm) {
         this.studentBasicService.delete(deleteForm);
         return AjaxResponse.success();
@@ -89,6 +91,7 @@ public class BasicStudentController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
+    //@RequiresPermissions("student::update")
     public AjaxResponse update(@RequestBody StudentBasic basic) {
         if (this.studentBasicService.update(basic) == 1) {
             return AjaxResponse.success();
@@ -121,6 +124,7 @@ public class BasicStudentController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = StudentBasicView.class)
     })
+    //@RequiresPermissions("student::page")
     public AjaxResponse page(@RequestBody StudentBasicForm basicForm) {
 
         return AjaxResponse.success(studentBasicService.findPage(basicForm));
@@ -135,6 +139,7 @@ public class BasicStudentController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
+    //@RequiresPermissions("student::import")
     public AjaxResponse batchAddStudent(@RequestParam(value = "file", required = false) MultipartFile file) {
         log.info("开始调用导入批量学生接口：" + file.getOriginalFilename());
         try {
@@ -169,7 +174,12 @@ public class BasicStudentController extends BaseController {
         }
     }
 
-    // 生成导入模板
+    /**
+     * 生成导入模板
+     *
+     * @param response
+     * @return
+     */
     @GetMapping(value = "student/export/template")
     public AjaxResponse exportTemplate(HttpServletResponse response) {
         List<StudentBasic> studentBasicList = new ArrayList<>();
@@ -178,6 +188,7 @@ public class BasicStudentController extends BaseController {
     }
 
     @GetMapping(value = "student/export")
+    //@RequiresPermissions("student::export")
     public AjaxResponse export(HttpServletResponse response) {
         long beginMillis = System.currentTimeMillis();
         List<StudentBasic> studentBasicList = this.studentBasicService.list();

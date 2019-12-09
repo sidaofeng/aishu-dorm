@@ -51,6 +51,7 @@ public class DormScoreController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
+    //@RequiresPermissions("score::add")
     public AjaxResponse insert(@RequestBody DormScore score) {
         if (this.dormScoreService.insert(score) == 1) {
             return AjaxResponse.success();
@@ -70,6 +71,7 @@ public class DormScoreController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
+    //@RequiresPermissions("score::delete")
     public AjaxResponse delete(@RequestBody DeleteForm deleteForm) {
         this.dormScoreService.delete(deleteForm);
         return AjaxResponse.success();
@@ -87,6 +89,7 @@ public class DormScoreController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
+    //@RequiresPermissions("score::update")
     public AjaxResponse update(@RequestBody DormScore score) {
         if (this.dormScoreService.update(score) == 1) {
             return AjaxResponse.success();
@@ -119,6 +122,7 @@ public class DormScoreController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = DormScoreView.class)
     })
+    //@RequiresPermissions("score::page")
     public AjaxResponse listDormScores(@RequestBody ListDormScoreForm listDormScoreForm) {
         return AjaxResponse.success(dormScoreService.findPage(listDormScoreForm));
     }
@@ -130,6 +134,7 @@ public class DormScoreController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
+    //@RequiresPermissions("score::import")
     public AjaxResponse batchImportScore(@RequestParam(value = "file", required = false) MultipartFile file) {
         try {
             FileUtils.checkFile(file);

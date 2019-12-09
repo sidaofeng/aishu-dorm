@@ -1,11 +1,18 @@
 package com.waken.dorm.common.enums;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.ToString;
+
 /**
  * @ClassName ResultEnum
  * @Description 返回结果枚举
  * @Author zhaoRong
  * @Date 2019/3/19 11:13
  **/
+@Getter
+@ToString
+@AllArgsConstructor
 public enum ResultEnum {
     SUCCESS("操作成功", "1"),
     FAIL("操作失败", "0"),
@@ -19,25 +26,4 @@ public enum ResultEnum {
     LIMIT("你手速太快了，请稍后再试！", "501");
     private String msg;
     private String code;
-
-    ResultEnum(String msg, String code) {
-        this.msg = msg;
-        this.code = code;
-    }
-
-    public String getMsg() {
-        return msg;
-    }
-
-    public void setMsg(String msg) {
-        this.msg = msg;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
 }

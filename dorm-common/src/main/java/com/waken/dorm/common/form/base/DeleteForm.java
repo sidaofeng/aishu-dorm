@@ -21,5 +21,5 @@ import java.util.List;
 public class DeleteForm {
     private List<String> delIds; //需要删除的id集合
 
-    private Integer delStatus = CodeEnum.YES.getCode(); //删除操作的状态 1物理删除 0状态删除
+    private Integer delStatus = CodeEnum.NO.getCode(); //删除操作的状态 1物理删除 0状态删除
 }

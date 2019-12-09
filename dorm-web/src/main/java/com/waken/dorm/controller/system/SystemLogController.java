@@ -38,7 +38,6 @@ public class SystemLogController extends BaseController {
             @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
     public AjaxResponse deleteLog(@RequestBody DeleteForm deleteFrom) {
-        log.info("开始调用日志删除接口：" + deleteFrom.toString());
         if (null == deleteFrom.getDelIds() || deleteFrom.getDelIds().isEmpty()) {
             return AjaxResponse.error("入参为空！");
         }

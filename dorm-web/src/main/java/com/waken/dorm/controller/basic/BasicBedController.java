@@ -39,6 +39,7 @@ public class BasicBedController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
+    //@RequiresPermissions("bed::add")
     public AjaxResponse insert(@RequestBody DormBed bed) {
         if (this.bedService.insert(bed) == 1) {
             return AjaxResponse.success();
@@ -58,6 +59,7 @@ public class BasicBedController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
+    //@RequiresPermissions("bed::delete")
     public AjaxResponse delete(@RequestBody DeleteForm deleteForm) {
         this.bedService.delete(deleteForm);
         return AjaxResponse.success();
@@ -75,6 +77,7 @@ public class BasicBedController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
+    //@RequiresPermissions("bed::update")
     public AjaxResponse update(@RequestBody DormBed bed) {
         if (this.bedService.update(bed) == 1) {
             return AjaxResponse.success();
@@ -111,6 +114,7 @@ public class BasicBedController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = DormBed.class)
     })
+    //@RequiresPermissions("bed::list")
     public AjaxResponse list(@PathVariable("dormId") String dormId) {
         return AjaxResponse.success(this.bedService.list(dormId));
     }
@@ -126,6 +130,7 @@ public class BasicBedController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = Tree.class)
     })
+    //@RequiresPermissions("bed::tree")
     public AjaxResponse bedTree() {
 
         return AjaxResponse.success(this.bedService.bedTree());

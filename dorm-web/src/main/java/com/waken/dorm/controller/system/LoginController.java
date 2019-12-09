@@ -23,6 +23,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,19 +42,14 @@ import java.util.*;
 @Api(value = "用户登录", description = "用户登录")
 @Slf4j
 @RestController
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class LoginController extends BaseController {
-    @Autowired
-    UserService userService;
-    @Autowired
-    DormProperties properties;
-    @Autowired
-    RedisService redisService;
-    @Autowired
-    ObjectMapper mapper;
-    @Autowired
-    CacheService cacheService;
-    @Autowired
-    LogService logService;
+    private final UserService userService;
+    private final DormProperties properties;
+    private final RedisService redisService;
+    private final ObjectMapper mapper;
+    private final CacheService cacheService;
+    private final LogService logService;
 
     /**
      * 用户登录
@@ -107,7 +103,6 @@ public class LoginController extends BaseController {
         return AjaxResponse.success(this.getUserMapAndCacheUser(jwtToken, user));
     }
 
-    @RequiresPermissions("user:online")
     @GetMapping("online")
     @ApiOperation(value = "online（查看在线用户接口）", notes = "查看在线用户接口")
     @ApiResponses(value = {

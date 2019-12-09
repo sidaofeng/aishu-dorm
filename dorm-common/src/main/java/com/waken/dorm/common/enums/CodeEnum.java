@@ -1,11 +1,18 @@
 package com.waken.dorm.common.enums;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.ToString;
+
 /**
  * @ClassName CodeEnum
  * @Description 返回结果枚举
  * @Author zhaoRong
  * @Date 2019/3/19 11:13
  **/
+@Getter
+@ToString
+@AllArgsConstructor
 public enum CodeEnum {
 
     MALE("男", 1), FEMALE("女", 2),
@@ -30,26 +37,5 @@ public enum CodeEnum {
 
     private String msg;
     private Integer code;
-
-    CodeEnum(String msg, Integer code) {
-        this.msg = msg;
-        this.code = code;
-    }
-
-    public String getMsg() {
-        return msg;
-    }
-
-    public void setMsg(String msg) {
-        this.msg = msg;
-    }
-
-    public Integer getCode() {
-        return code;
-    }
-
-    public void setCode(Integer code) {
-        this.code = code;
-    }
 
 }

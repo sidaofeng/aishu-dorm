@@ -68,7 +68,6 @@ public class SystemRoleController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = RoleView.class)
     })
-    @RequiresRoles("admin")
     @RequiresPermissions("roles::view")
     public AjaxResponse listRoles(@RequestBody QueryRoleForm queryRoleForm) {
         return AjaxResponse.success(this.roleService.page(queryRoleForm));
@@ -84,8 +83,11 @@ public class SystemRoleController extends BaseController {
     @RequiresRoles(value = {"superAdmin", "admin"}, logical = Logical.OR)
     @RequiresPermissions("roles::resources")
     public AjaxResponse batchAddRoleResourceRel(@RequestBody AddRoleResourceRelForm addForm) {
-        this.roleService.batchAddRoleResourceRel(addForm);
-        return AjaxResponse.success();
+        if (this.roleService.batchAddRoleResourceRel(addForm) == 0) {
+            return AjaxResponse.error();
+        } else {
+            return AjaxResponse.success();
+        }
     }
 
     @CrossOrigin
@@ -94,6 +96,7 @@ public class SystemRoleController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
+    @RequiresPermissions("roles::view")
     public AjaxResponse getRoleList() {
 
         return AjaxResponse.success(this.roleService.getRoleList());

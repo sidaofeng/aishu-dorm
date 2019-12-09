@@ -40,6 +40,7 @@ public class DormRepairController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
+    //@RequiresPermissions("repair::add")
     public AjaxResponse insert(@RequestBody DormRepair repair) {
         if (this.repairService.insert(repair) == 1) {
             return AjaxResponse.success();
@@ -59,6 +60,7 @@ public class DormRepairController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
+    //@RequiresPermissions("repair::delete")
     public AjaxResponse delete(@RequestBody DeleteForm deleteForm) {
         this.repairService.delete(deleteForm);
         return AjaxResponse.success();
@@ -76,6 +78,7 @@ public class DormRepairController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
+    //@RequiresPermissions("repair::update")
     public AjaxResponse update(@RequestBody DormRepair repair) {
         if (this.repairService.update(repair) == 1) {
             return AjaxResponse.success();
@@ -108,6 +111,7 @@ public class DormRepairController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = DormRepairView.class)
     })
+    //@RequiresPermissions("repair::page")
     public AjaxResponse findPage(@RequestBody DormRepairForm dormRepairForm) {
         log.info("开始调用分页查询宿舍维修信息接口：" + dormRepairForm.toString());
         return AjaxResponse.success(repairService.findPage(dormRepairForm));

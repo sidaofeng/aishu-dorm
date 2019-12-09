@@ -40,6 +40,7 @@ public class BasicBuildingController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
+    //@RequiresPermissions("building::add")
     public AjaxResponse insert(@RequestBody Building building) {
         if (this.buildingService.insert(building) == 1) {
             return AjaxResponse.success();
@@ -58,6 +59,7 @@ public class BasicBuildingController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
+    //@RequiresPermissions("building::delete")
     public AjaxResponse delete(@RequestBody DeleteForm deleteForm) {
         this.buildingService.delete(deleteForm);
         return AjaxResponse.success();
@@ -75,6 +77,7 @@ public class BasicBuildingController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
+    //@RequiresPermissions("building::update")
     public AjaxResponse update(@RequestBody Building building) {
         if (this.buildingService.update(building) == 1) {
             return AjaxResponse.success();
@@ -111,6 +114,7 @@ public class BasicBuildingController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = Building.class)
     })
+    //@RequiresPermissions("building::list")
     public AjaxResponse list(@PathVariable("campusId") String campusId) {
         return AjaxResponse.success(this.buildingService.list(campusId));
     }
@@ -125,6 +129,7 @@ public class BasicBuildingController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = BuildingView.class)
     })
+    //@RequiresPermissions("building::page")
     public AjaxResponse page(@RequestBody BuildingForm form) {
         return AjaxResponse.success(this.buildingService.page(form));
     }

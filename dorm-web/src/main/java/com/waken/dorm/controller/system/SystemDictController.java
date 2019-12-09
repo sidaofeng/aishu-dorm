@@ -37,9 +37,7 @@ public class SystemDictController extends BaseController {
             @ApiResponse(code = 200, message = "success", response = Dict.class)
     })
     public AjaxResponse saveDict(@RequestBody EditDictForm editDictForm) {
-        log.info("开始调用(保存/修改)字典信息接口接口：" + editDictForm.toString());
-        Dict dict = dictService.saveDict(editDictForm);
-        return AjaxResponse.success(dict);
+        return AjaxResponse.success(this.dictService.saveDict(editDictForm));
     }
 
     @Log("删除字典信息")
@@ -50,7 +48,6 @@ public class SystemDictController extends BaseController {
             @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
     public AjaxResponse deleteDict(@RequestBody DeleteForm deleteFrom) {
-        log.info("开始调用删除字典接口：" + deleteFrom.toString());
         if (null == deleteFrom.getDelIds() || deleteFrom.getDelIds().isEmpty()) {
             return AjaxResponse.error("入参为空！");
         }

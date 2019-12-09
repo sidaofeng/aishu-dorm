@@ -25,6 +25,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -47,13 +48,11 @@ import java.util.Map;
 @Slf4j
 @Api(value = "用户管理", description = "系统管理-用户管理")
 @RestController
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class SystemUserController extends BaseController {
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private RoleService roleService;
-    @Autowired
-    private UserPrivilegeService userPrivilegeService;
+    private final UserService userService;
+    private final RoleService roleService;
+    private final UserPrivilegeService userPrivilegeService;
 
     /**
      * 用户注册

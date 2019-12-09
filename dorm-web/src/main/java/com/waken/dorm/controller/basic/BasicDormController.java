@@ -42,6 +42,7 @@ public class BasicDormController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
+    //@RequiresPermissions("dorm::add")
     public AjaxResponse insert(@RequestBody Dorm dorm) {
         if (this.dormService.insert(dorm) == 1) {
             return AjaxResponse.success();
@@ -60,6 +61,7 @@ public class BasicDormController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
+    //@RequiresPermissions("dorm::delete")
     public AjaxResponse delete(@RequestBody DeleteForm deleteForm) {
         this.dormService.delete(deleteForm);
         return AjaxResponse.success();
@@ -77,6 +79,7 @@ public class BasicDormController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
+    //@RequiresPermissions("dorm::update")
     public AjaxResponse update(@RequestBody Dorm dorm) {
         if (this.dormService.update(dorm) == 1) {
             return AjaxResponse.success();
@@ -109,6 +112,7 @@ public class BasicDormController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = DormView.class)
     })
+    //@RequiresPermissions("dorm::page")
     public AjaxResponse page(@RequestBody DormForm dormForm) {
         log.info("开始调用分页查询宿舍信息接口：" + dormForm.toString());
         return AjaxResponse.success(dormService.page(dormForm));
@@ -125,6 +129,7 @@ public class BasicDormController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = Building.class)
     })
+    //@RequiresPermissions("dorm::list")
     public AjaxResponse listByFloor(@PathVariable("floorId") String floorId) {
         return AjaxResponse.success(this.dormService.listByFloor(floorId));
     }
@@ -143,6 +148,7 @@ public class BasicDormController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
+    //@RequiresPermissions("dorm::batchAdd")
     public AjaxResponse batchInsert(@RequestBody FloorDormForm form) {
         if (this.dormService.batchInsert(form) == 1) {
             return AjaxResponse.success();

@@ -36,6 +36,7 @@ public class DormStudentController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = DormStudentView.class)
     })
+    //@RequiresPermissions("studentBed::page")
     public AjaxResponse listDormScores(@RequestBody DormStudentForm form) {
         return AjaxResponse.success(this.dormStudentService.findPage(form));
     }
@@ -46,6 +47,7 @@ public class DormStudentController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = DormStudentView.class)
     })
+    //@RequiresPermissions("studentBed::batchAdd")
     public AjaxResponse batchAdd(@RequestBody StudentBedForm form) {
         return AjaxResponse.success(this.dormStudentService.batchAdd(form));
     }

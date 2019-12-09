@@ -76,7 +76,7 @@ public class RoleServiceImpl implements RoleService {
         return role;
     }
 
-    @Transactional // 事务控制
+    @Transactional(rollbackFor = Exception.class) // 事务控制
     @Override
     public void deleteRole(DeleteForm deleteForm) {
         log.info("service: 删除角色开始");
@@ -178,19 +178,15 @@ public class RoleServiceImpl implements RoleService {
         return userRoleViews;
     }
 
-    @Transactional// 事务控制
+    @Transactional(rollbackFor = Exception.class)// 事务控制
     @Override
-    public void batchAddRoleResourceRel(AddRoleResourceRelForm addForm) {
-        log.info("service: 批量新增角色资源关联开始");
+    public Integer batchAddRoleResourceRel(AddRoleResourceRelForm addForm) {
         Assert.notNull(addForm.getRoleId());
         List<RoleResourceRel> toBeAddRoleResourceRel = this.getToBeAddRoleResourceRel(addForm);
         if (toBeAddRoleResourceRel != null && !toBeAddRoleResourceRel.isEmpty()) {
-            int count = roleResourceRelMapper.batchAddRoleResourceRel(toBeAddRoleResourceRel);
-            if (count == Constant.ZERO) {
-                throw new ServerException("批量新增角色资源关联失败");
-            }
-
+            return this.roleResourceRelMapper.batchAddRoleResourceRel(toBeAddRoleResourceRel);
         }
+        return 0;
     }
 
     /**

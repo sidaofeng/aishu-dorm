@@ -87,7 +87,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
             count = resourceMapper.insert(resource);
             Assert.isFalse(Constant.ZERO == count);
             //新增的资源必须与超级管理员关联
-            this.addResourceRoleRel(pkResourceId, CodeEnum.MENU.getCode());
+            this.addResourceRoleRel(pkResourceId);
         } else {//修改
             log.info("service: 更新资源开始");
             resourceMapper.updateById(resource);
@@ -463,7 +463,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
      *
      * @param resourceId
      */
-    private void addResourceRoleRel(String resourceId, int resourceType) {
+    private void addResourceRoleRel(String resourceId) {
         Role role = roleMapper.selectOne(new LambdaQueryWrapper<Role>()
                 .eq(Role::getCode, Constant.SuperAdmin)
         );

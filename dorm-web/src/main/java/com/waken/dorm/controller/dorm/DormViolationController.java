@@ -40,6 +40,7 @@ public class DormViolationController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
+    //@RequiresPermissions("violation::add")
     public AjaxResponse insert(@RequestBody DormViolation violation) {
         if (this.violationService.insert(violation) == 1) {
             return AjaxResponse.success();
@@ -59,6 +60,7 @@ public class DormViolationController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
+    //@RequiresPermissions("violation::delete")
     public AjaxResponse delete(@RequestBody DeleteForm deleteForm) {
         this.violationService.delete(deleteForm);
         return AjaxResponse.success();
@@ -76,6 +78,7 @@ public class DormViolationController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
+    //@RequiresPermissions("violation::update")
     public AjaxResponse update(@RequestBody DormViolation violation) {
         if (this.violationService.update(violation) == 1) {
             return AjaxResponse.success();
@@ -108,6 +111,7 @@ public class DormViolationController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = DormViolationView.class)
     })
+    //@RequiresPermissions("violation::page")
     public AjaxResponse page(@RequestBody DormViolationForm dormViolationForm) {
         return AjaxResponse.success(this.violationService.page(dormViolationForm));
     }

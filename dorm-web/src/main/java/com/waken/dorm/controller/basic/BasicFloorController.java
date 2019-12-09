@@ -38,6 +38,7 @@ public class BasicFloorController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
+    //@RequiresPermissions("floor::add")
     public AjaxResponse insert(@RequestBody BuildingFloor floor) {
         if (this.floorService.insert(floor) == 1) {
             return AjaxResponse.success();
@@ -57,6 +58,7 @@ public class BasicFloorController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
+    //@RequiresPermissions("floor::delete")
     public AjaxResponse delete(@RequestBody DeleteForm deleteForm) {
         this.floorService.delete(deleteForm);
         return AjaxResponse.success();
@@ -74,6 +76,7 @@ public class BasicFloorController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
+    //@RequiresPermissions("floor::update")
     public AjaxResponse update(@RequestBody BuildingFloor floor) {
         if (this.floorService.update(floor) == 1) {
             return AjaxResponse.success();
@@ -110,6 +113,7 @@ public class BasicFloorController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = BuildingFloor.class)
     })
+    //@RequiresPermissions("floor::list")
     public AjaxResponse list(@PathVariable("buildId") String buildId) {
         return AjaxResponse.success(this.floorService.list(buildId));
     }

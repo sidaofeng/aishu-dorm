@@ -5,6 +5,7 @@
     <!-- 查询用户拥有的资源-->
     <select id="selectUserResources" resultType="com.waken.dorm.common.view.resource.UserMenuView">
         SELECT
+        DISTINCT
         r.id,
         r.parent_id AS parentId,
         r.name,
@@ -57,6 +58,7 @@
     <!-- 查询用户的权限信息 -->
     <select id="selectUserPerms" resultType="java.lang.String">
         SELECT
+        DISTINCT
         r.perms
         FROM rm_resource r
         LEFT JOIN rm_role_resource_rel rr ON rr.resource_id = r.id

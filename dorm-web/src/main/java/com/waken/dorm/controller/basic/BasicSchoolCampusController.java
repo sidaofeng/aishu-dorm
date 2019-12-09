@@ -38,6 +38,7 @@ public class BasicSchoolCampusController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
+    //@RequiresPermissions("campus::add")
     public AjaxResponse insert(@RequestBody SchoolCampus schoolCampus) {
         if (this.schoolCampusService.insert(schoolCampus) == 1) {
             return AjaxResponse.success();
@@ -57,6 +58,7 @@ public class BasicSchoolCampusController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
+    //@RequiresPermissions("campus::delete")
     public AjaxResponse delete(@RequestBody DeleteForm deleteForm) {
         this.schoolCampusService.delete(deleteForm);
         return AjaxResponse.success();
@@ -74,6 +76,7 @@ public class BasicSchoolCampusController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = AjaxResponse.class)
     })
+    //@RequiresPermissions("campus::update")
     public AjaxResponse update(@RequestBody SchoolCampus schoolCampus) {
         if (this.schoolCampusService.update(schoolCampus) == 1) {
             return AjaxResponse.success();
@@ -110,6 +113,7 @@ public class BasicSchoolCampusController extends BaseController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success", response = SchoolCampus.class)
     })
+    //@RequiresPermissions("campus::list")
     public AjaxResponse list() {
         return AjaxResponse.success(this.schoolCampusService.list());
     }

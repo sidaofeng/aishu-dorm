@@ -45,12 +45,10 @@ public class DormViolationServiceImpl extends ServiceImpl<DormViolationMapper, D
 
     @Override
     public int insert(DormViolation violation) {
-        Assert.notNull(violation.getDormCode());
-        Assert.notNull(violation.getStudentCode());
-        Assert.notNull(violation.getReason());
-        this.validateDorm(violation.getDormCode());
-        this.validateStudent(violation.getStudentCode());
-        return this.baseMapper.insert(violation);
+        if (this.validate(violation) == 0) {
+            return this.baseMapper.insert(violation);
+        }
+        return 0;
     }
 
     @Override
@@ -103,25 +101,27 @@ public class DormViolationServiceImpl extends ServiceImpl<DormViolationMapper, D
      */
     @Override
     public IPage<DormViolationView> page(DormViolationForm dormViolationForm) {
+
         return this.baseMapper.findPage(DataHandle.getWrapperPage(dormViolationForm), dormViolationForm);
     }
 
-    private void validateDorm(String dormCode) {
+    private int validate(DormViolation violation) {
+        Assert.notNull(violation.getDormCode());
+        Assert.notNull(violation.getStudentCode());
+        Assert.notNull(violation.getReason());
         Dorm dorm = dormMapper.selectOne(new LambdaQueryWrapper<Dorm>()
-                .eq(Dorm::getCode, dormCode)
+                .eq(Dorm::getCode, violation.getDormCode())
         );
         if (null == dorm) {
             throw new ServerException("宿舍号不存在!");
         }
-    }
-
-    private void validateStudent(String studentCode) {
         StudentBasic student = this.studentBasicMapper.selectOne(new LambdaQueryWrapper<StudentBasic>()
-                .eq(StudentBasic::getCode, studentCode)
+                .eq(StudentBasic::getCode, violation.getStudentCode())
         );
         if (null == student) {
             throw new ServerException("学号不存在!");
         }
+        return 0;
     }
 
 }

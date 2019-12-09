@@ -61,9 +61,7 @@ public class DormStudentServiceImpl extends ServiceImpl<BedMapper, DormBed> impl
             }
             this.updateBatchById(toUpdateList);
         }
-
-
-        return null;
+        return 1;
     }
 
     private Boolean verification(StudentBedForm form) {

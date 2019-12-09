@@ -48,7 +48,7 @@ public interface RoleService {
      * @param addRoleResourceRelForm
      * @return
      */
-    void batchAddRoleResourceRel(AddRoleResourceRelForm addRoleResourceRelForm);
+    Integer batchAddRoleResourceRel(AddRoleResourceRelForm addRoleResourceRelForm);
 
     /**
      * 获取所有的角色List
